@@ -1,0 +1,7 @@
+export enum ErrorCode {
+	UNEXPECTED = "000",
+	UNAUTHORIZED = "001",
+	BAD_REQUEST = "002",
+	INTERNAL_ERROR = "003",
+	FORBIDDEN = "004",
+}

@@ -1,0 +1,18 @@
+<div class="modal-header">
+  <h2>Report parameters</h2>
+</div>
+<div class="modal-body">
+  <form id="form" (ngSubmit)="save()" [formGroup]="form">
+    <div *ngFor="let param of report.params" class="row">
+      <div class="col-3">
+        <label [for]="param.name">{{param.name}}</label>
+      </div>
+      <div class="col">
+        <input [type]="getInputType(param.type)" class="form-control" [formControlName]="param.name">
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-dark" form="form">Next</button>
+</div>

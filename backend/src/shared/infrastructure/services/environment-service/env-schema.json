@@ -1,0 +1,76 @@
+{
+  "vars": [
+    {
+      "name": "DATABASE_URL",
+      "required": true,
+      "type": "string",
+      "default": "mysql://root:1234@localhost:3306/example"
+    },
+    {
+      "name": "PORT",
+      "required": true,
+      "type": "int",
+      "default": "3000"
+    },
+    {
+      "name": "JWT_SECRET",
+      "required": true,
+      "type": "string",
+      "default": "asdfasdfasdfasdf"
+    },
+    {
+      "name": "APPLICATION_NAME",
+      "required": true,
+      "type": "string",
+      "default": "API"
+    },
+    {
+      "name": "SMTP_USER",
+      "required": true,
+      "type": "string",
+      "default": "example_user"
+    },
+    {
+      "name": "SMTP_PASSWORD",
+      "required": true,
+      "type": "string",
+      "default": "example_password"
+    },
+    {
+      "name": "SMTP_SERVER",
+      "required": true,
+      "type": "string",
+      "default": "smtp.example_server.com"
+    },
+    {
+      "name": "SMTP_PORT",
+      "required": true,
+      "type": "int",
+      "default": "465"
+    },
+    {
+      "name": "VIEWS_FOLDER",
+      "required": true,
+      "type": "string",
+      "default": "src/shared/infrastructure/views/public"
+    },
+    {
+      "name": "FRONTEND_URL",
+      "required": true,
+      "type": "string",
+      "default": "http://localhost:4200"
+    },
+    {
+      "name": "GOOGLE_CLIENT_ID",
+      "required": true,
+      "type": "string",
+      "default": "54427535362-qtrtkchvp819ap43s8gf19aiaglhfdvd.apps.googleusercontent.com"
+    },
+    {
+      "name": "GOOGLE_CLIENT_SECRET",
+      "required": true,
+      "type": "string",
+      "default": "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"
+    }
+  ]
+}

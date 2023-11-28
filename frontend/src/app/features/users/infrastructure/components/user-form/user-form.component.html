@@ -1,0 +1,109 @@
+<div class="modal-header">
+  <h2>
+    {{editing ? 'Edit user' : 'Create user'}}
+  </h2>
+</div>
+<div class="modal-body">
+  <form [formGroup]="formGroup" class="d-flex flex-column gap-2" id="form">
+    <div class="row">
+      <div class="col-12 col-md-3">
+        <label for="username">Username
+          <app-required-field/>
+        </label>
+      </div>
+      <div class="col">
+        <input autocomplete="off" class="form-control" formControlName="username" id="username" type="text">
+        <app-invalid-feedback *ngIf="formGroup.controls.username.invalid && !firstAttempt()">Username not valid
+        </app-invalid-feedback>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 col-md-3">
+        <label for="email">Email
+          <app-required-field/>
+        </label>
+      </div>
+      <div class="col">
+        <input class="form-control" formControlName="email" id="email" type="email">
+        <app-invalid-feedback *ngIf="formGroup.controls.email.invalid && !firstAttempt()">Email not valid
+        </app-invalid-feedback>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 col-md-3">
+        <label for="firstname">Firstname
+          <app-required-field/>
+        </label>
+      </div>
+      <div class="col">
+        <input autocomplete="off" class="form-control" formControlName="firstname" id="firstname" type="text">
+        <app-invalid-feedback *ngIf="formGroup.controls.firstname.invalid && !firstAttempt()">Firstname not valid
+        </app-invalid-feedback>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 col-md-3">
+        <label for="lastname">Lastname
+          <app-required-field/>
+        </label>
+      </div>
+      <div class="col">
+        <input autocomplete="off" class="form-control" formControlName="lastname" id="lastname" type="text">
+        <app-invalid-feedback *ngIf="formGroup.controls.lastname.invalid && !firstAttempt()">Lastname not valid
+        </app-invalid-feedback>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 col-md-3">
+        <label for="wallet">Wallet</label>
+      </div>
+      <div class="col">
+        <div class="d-flex gap-2">
+          <input autocomplete="off" class="form-control" formControlName="wallet" id="wallet" type="text">
+          <button (click)="fillWallet()" *ngIf="walletInstalled()" class="btn btn-dark text-nowrap" type="button">Fill
+            wallet
+          </button>
+        </div>
+        <app-invalid-feedback *ngIf="formGroup.controls.wallet.invalid && !firstAttempt()">Wallet not valid
+        </app-invalid-feedback>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 col-md-3">
+        <label for="password">Password
+          <app-required-field *ngIf="!editing"/>
+        </label>
+      </div>
+      <div class="col">
+        <div class="d-flex gap-2">
+          <input class="form-control" formControlName="password" id="password" appInputHide/>
+        </div>
+        <app-invalid-feedback *ngIf="formGroup.controls.password.invalid && !firstAttempt()">Invalid password
+        </app-invalid-feedback>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 col-md-3">
+        <label for="role">Role
+          <app-required-field/>
+        </label>
+      </div>
+      <div class="col">
+        <ng-select [clearable]="false" [items]="availableRoles()" formControlName="role" id="role"></ng-select>
+        <app-invalid-feedback *ngIf="formGroup.controls.username.invalid && !firstAttempt()">Role not valid
+        </app-invalid-feedback>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <div class="row w-100 justify-content-end">
+    <div class="col-12 col-md-6 col-lg-3 mb-2 mb-md-0">
+      <button (click)="save()" class="w-100 btn btn-primary" form="form" type="submit">Save</button>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <button (click)="cancel()" class="w-100 btn btn-secondary" type="button">Cancel</button>
+    </div>
+  </div>
+
+</div>

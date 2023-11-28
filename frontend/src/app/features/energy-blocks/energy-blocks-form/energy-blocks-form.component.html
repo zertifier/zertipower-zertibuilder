@@ -1,0 +1,42 @@
+<div class="modal-header">
+  <h2>energy_blocks form</h2>
+</div>
+<div class="modal-body">
+  <form id="form" [formGroup]="form" (ngSubmit)="save()">
+    <div>
+      <label for="id-input">id</label>
+      <input id="id-input" type="number" formControlName="id" class="form-control">
+    </div>
+    <div>
+      <label for="reference-input">reference</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="reference"
+          id="description"></editor>
+    </div>
+    <div>
+      <label for="expiration-dt-input">expiration_dt</label>
+      <input id="expiration-dt-input" type="datetime-local" formControlName="expirationDt" class="form-control">
+    </div>
+    <div>
+      <label for="active-init-input">active_init</label>
+      <input id="active-init-input" type="datetime-local" formControlName="activeInit" class="form-control">
+    </div>
+    <div>
+      <label for="active-end-input">active_end</label>
+      <input id="active-end-input" type="datetime-local" formControlName="activeEnd" class="form-control">
+    </div>
+    <div>
+      <label for="consumption-price-input">consumption_price</label>
+      <input id="consumption-price-input" type="number" formControlName="consumptionPrice" class="form-control">
+    </div>
+    <div>
+      <label for="generation-price-input">generation_price</label>
+      <input id="generation-price-input" type="number" formControlName="generationPrice" class="form-control">
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" form="form">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

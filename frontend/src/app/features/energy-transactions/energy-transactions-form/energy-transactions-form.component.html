@@ -1,0 +1,47 @@
+<div class="modal-header">
+  <h2>energy_transactions form</h2>
+</div>
+<div class="modal-body">
+  <form id="form" [formGroup]="form" (ngSubmit)="save()">
+    <div>
+      <label for="id-input">id</label>
+      <input id="id-input" type="number" formControlName="id" class="form-control">
+    </div>
+    <div>
+      <label for="cups-id-input">cups_id</label>
+      <input id="cups-id-input" type="number" formControlName="cupsId" class="form-control">
+    </div>
+    <div>
+      <label for="info-dt-input">info_dt</label>
+      <input id="info-dt-input" type="datetime-local" formControlName="infoDt" class="form-control">
+    </div>
+    <div>
+      <label for="kwh-in-input">kwh_in</label>
+      <input id="kwh-in-input" type="number" formControlName="kwhIn" class="form-control">
+    </div>
+    <div>
+      <label for="kwh-out-input">kwh_out</label>
+      <input id="kwh-out-input" type="number" formControlName="kwhOut" class="form-control">
+    </div>
+    <div>
+      <label for="kwh-surplus-input">kwh_surplus</label>
+      <input id="kwh-surplus-input" type="number" formControlName="kwhSurplus" class="form-control">
+    </div>
+    <div>
+      <label for="block-id-input">block_id</label>
+      <input id="block-id-input" type="number" formControlName="blockId" class="form-control">
+    </div>
+    <div>
+      <label for="created-at-input">created_at</label>
+      <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
+    </div>
+    <div>
+      <label for="updated-at-input">updated_at</label>
+      <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" form="form">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

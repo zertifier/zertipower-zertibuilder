@@ -1,0 +1,21 @@
+<div class="row justify-content-center gap-2 p-2">
+  <div class="col-12">
+    <qrcode [allowEmptyString]="true" [margin]="0" [qrdata]="walletAddress()" [width]="qrSize()"
+            appElementRef class="w-100" cssClass="d-flex justify-content-center"/>
+  </div>
+  <div class="col-12 col-md-6 col-xl-4">
+    <label for="wallet-address">Wallet address</label>
+    <div class="d-flex gap-2 w-100">
+      <input [tooltip]="'Copy'" [value]="walletAddress()" appInputCopy class="form-control text-center" id="wallet-address"
+             readonly type="text">
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-xl-4">
+    <label for="private-key">Private key</label>
+    <div class="d-flex gap-2 w-100">
+      <input [tooltip]="'Copy'" [value]="privateKey()" appInputCopy appInputHide class="form-control text-center" id="private-key"
+             readonly type="text">
+    </div>
+  </div>
+</div>
+

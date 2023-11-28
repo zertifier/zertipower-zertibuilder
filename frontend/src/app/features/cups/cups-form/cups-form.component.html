@@ -1,0 +1,56 @@
+<div class="modal-header">
+  <h2>cups form</h2>
+</div>
+<div class="modal-body">
+  <form id="form" [formGroup]="form" (ngSubmit)="save()">
+    <div>
+      <label for="id-input">id</label>
+      <input id="id-input" type="number" formControlName="id" class="form-control">
+    </div>
+    <div>
+      <label for="cups-input">cups</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="cups"
+          id="description"></editor>
+    </div>
+    <div>
+      <label for="provider-id-input">provider_id</label>
+      <input id="provider-id-input" type="number" formControlName="providerId" class="form-control">
+    </div>
+    <div>
+      <label for="community-id-input">community_id</label>
+      <input id="community-id-input" type="number" formControlName="communityId" class="form-control">
+    </div>
+    <div>
+      <label for="ubication-input">ubication</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="ubication"
+          id="description"></editor>
+    </div>
+    <div>
+      <label for="geolocalization-input">geolocalization</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="geolocalization"
+          id="description"></editor>
+    </div>
+    <div>
+      <label for="customer-id-input">customer_id</label>
+      <input id="customer-id-input" type="number" formControlName="customerId" class="form-control">
+    </div>
+    <div>
+      <label for="created-at-input">created_at</label>
+      <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
+    </div>
+    <div>
+      <label for="updated-at-input">updated_at</label>
+      <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" form="form">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

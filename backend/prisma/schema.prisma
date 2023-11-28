@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    Int         @id @default(autoincrement())
+  username              String      @db.VarChar(255)
+  firstname             String      @db.VarChar(255)
+  lastname              String      @db.VarChar(255)
+  password              String      @db.VarChar(255)
+  email                 String      @unique(map: "email") @db.VarChar(255)
+  wallet_address        String?     @db.VarChar(255)
+  tokens                Token[]
+  created_at            DateTime    @default(now())
+  updated_at            DateTime    @default(now()) @updatedAt
+  recover_password_code String?
+  role                  Role        @relation(fields: [role_id], references: [id])
+  role_id               Int
+  UserOatuh             UserOatuh[]
+
+  @@map("users")
+}
+
+model UserOatuh {
+  oauth_id String
+  type     String
+  user     User   @relation(fields: [user_id], references: [id])
+  user_id  Int
+
+  @@id([oauth_id, user_id])
+  @@map("user_oauth")
+}
+
+model Permission {
+  resource       String
+  action         String
+  RolePermission RolePermission[]
+
+  @@id([resource, action])
+  @@map("permissions")
+}
+
+model RolePermission {
+  role                Role       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  role_id             Int
+  permission          Permission @relation(fields: [permission_resource, permission_action], references: [resource, action], onDelete: Cascade, onUpdate: Cascade)
+  permission_resource String
+  permission_action   String
+  allow               Boolean
+
+  @@id([role_id, permission_action, permission_resource])
+  @@map("role_permission")
+}
+
+model Token {
+  token           String   @unique @db.VarChar(300)
+  user            User     @relation(fields: [user_id], references: [id])
+  expiration_time DateTime
+  user_id         Int
+
+  @@map("user_tokens")
+}
+
+model Role {
+  id             Int              @id @default(autoincrement())
+  name           String           @unique @db.VarChar(255)
+  users          User[]
+  RolePermission RolePermission[]
+
+  @@map("roles")
+}
+
+model Report {
+  id         Int      @id @default(autoincrement())
+  name       String
+  sql        String
+  params     String
+  columns    String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("reports")
+}
+
+model Calendar {
+  id          Int       @id @default(autoincrement()) @map("id")
+  day         DateTime? @map("day")
+  weekday     String?   @map("weekday") @db.VarChar(255)
+  dayType     String?   @map("day_type") @db.VarChar(255)
+  festiveType String?   @map("festive_type") @db.VarChar(255)
+  festivity   String?   @map("festivity") @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("calendar")
+}
+
+model Communities {
+  id        Int      @id @default(autoincrement()) @map("id")
+  name      String?  @map("name") @db.VarChar(255)
+  location  String?  @map("location") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("communities")
+}
+
+model Cups {
+  id              Int      @id @default(autoincrement()) @map("id")
+  cups            String?  @map("cups") @db.VarChar(255)
+  providerId      Int?     @map("provider_id") @db.Int
+  communityId     Int?     @map("community_id") @db.Int
+  ubication       String?  @map("ubication") @db.VarChar(255)
+  geolocalization String?  @map("geolocalization") @db.VarChar(255)
+  customerId      Int?     @map("customer_id") @db.Int
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("cups")
+}
+
+model Customers {
+  id            Int      @id @default(autoincrement()) @map("id")
+  name          String?  @map("name") @db.VarChar(255)
+  walletAddress String?  @map("wallet_address") @db.VarChar(255)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("customers")
+}
+
+model EnergyBlocks {
+  id               Int       @id @default(autoincrement()) @map("id")
+  reference        String?   @map("reference") @db.VarChar(255)
+  expirationDt     DateTime? @map("expiration_dt")
+  activeInit       DateTime? @map("active_init")
+  activeEnd        DateTime? @map("active_end")
+  consumptionPrice Float?    @map("consumption_price") @db.Double
+  generationPrice  Float?    @map("generation_price") @db.Double
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@map("energy_blocks")
+}
+
+model EnergyTransactions {
+  id         Int       @id @default(autoincrement()) @map("id")
+  cupsId     Int?      @map("cups_id") @db.Int
+  infoDt     DateTime? @map("info_dt")
+  kwhIn      Decimal?  @map("kwh_in") @db.Decimal(6, 3)
+  kwhOut     Decimal?  @map("kwh_out") @db.Decimal(6, 3)
+  kwhSurplus Decimal?  @map("kwh_surplus") @db.Decimal(6, 3)
+  blockId    Int?      @map("block_id") @db.Int
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@map("energy_transactions")
+}
+
+model EnergyRegisters {
+  id          Int       @id @default(autoincrement()) @map("id")
+  infoDt      DateTime? @map("info_dt")
+  cupsId      Int?      @map("cups_id") @db.Int
+  import      Decimal?  @map("import") @db.Decimal(6, 3)
+  consumption Decimal?  @map("consumption") @db.Decimal(6, 3)
+  export      Decimal?  @map("export") @db.Decimal(6, 3)
+  generation  Decimal?  @map("generation") @db.Decimal(6, 3)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("energy_registers")
+}
+
+model Providers {
+  id        Int      @id @default(autoincrement()) @map("id")
+  provider  String?  @map("provider") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("providers")
+}
+
+model SmartContracts {
+  id              Int      @id @default(autoincrement()) @map("id")
+  contractAddress String?  @map("contract_address") @db.VarChar(255)
+  blockchainId    Int?     @map("blockchain_id") @db.Int
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("smart_contracts")
+}

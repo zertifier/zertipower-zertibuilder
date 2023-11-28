@@ -1,0 +1,26 @@
+<div class="modal-header">
+  <h2>smart_contracts form</h2>
+</div>
+<div class="modal-body">
+  <form id="form" [formGroup]="form" (ngSubmit)="save()">
+    <div>
+      <label for="id-input">id</label>
+      <input id="id-input" type="number" formControlName="id" class="form-control">
+    </div>
+    <div>
+      <label for="contract-address-input">contract_address</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="contractAddress"
+          id="description"></editor>
+    </div>
+    <div>
+      <label for="blockchain-id-input">blockchain_id</label>
+      <input id="blockchain-id-input" type="number" formControlName="blockchainId" class="form-control">
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" form="form">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

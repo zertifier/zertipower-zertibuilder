@@ -1,0 +1,24 @@
+<div>
+  <div *ngIf="walletInstalled(); else walletNotInstalled">
+    <h3 class="text-center">Connect using browser wallet</h3>
+    <button (click)="loginWithMetamask()" class="btn btn-primary" type="button">Connect</button>
+  </div>
+  <div *ngIf="webWalletSaved(); else webWalletLogin">
+    <h3>Login wit your web wallet</h3>
+    <div class="d-flex gap-2 justify-content-center">
+      <button (click)="loginWithWebWallet()" class="btn btn-primary" type="button">Login</button>
+      <button (click)="changeWebWallet()" class="btn btn-secondary">Use another account</button>
+    </div>
+  </div>
+</div>
+
+
+<ng-template #walletNotInstalled>
+  <h3>Wallet not installed</h3>
+  <p>To login using web 3 you need to have a wallet in your browser. <a href="https://metamask.io" target="_blank">Check
+    metamask</a></p>
+</ng-template>
+
+<ng-template #webWalletLogin>
+  <button (click)="goToWebWallet()" class="btn btn-link" type="button">Use web wallet</button>
+</ng-template>

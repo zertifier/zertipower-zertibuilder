@@ -1,0 +1,127 @@
+<div class="modal-header">
+  <h2>{{editing() ? 'Edit' : 'Create'}} report</h2>
+</div>
+<div class="modal-body">
+  <form id="form" (ngSubmit)="save()" class="d-flex flex-column gap-2" [formGroup]="form">
+    <div>
+      <label for="name">Name</label>
+      <input type="text" id="name" class="form-control" formControlName="name">
+    </div>
+    <div>
+      <label for="sql">SQL</label>
+      <textarea class="font-monospace form-control" id="sql" formControlName="sql"></textarea>
+    </div>
+    <div ngbAccordion>
+      <div ngbAccordionItem>
+        <h2 ngbAccordionHeader>
+          <button ngbAccordionButton>Params</button>
+        </h2>
+        <div ngbAccordionCollapse>
+          <div ngbAccordionBody>
+            <ng-template>
+              <div class="d-flex gap-2 justify-content-between">
+                <input type="text" class="form-control" formControlName="paramName">
+                <select class="form-select" formControlName="paramType">
+                  <option [value]="null">Select a type</option>
+                  <option *ngFor="let paramType of paramTypes" [value]="paramType">{{paramType}}</option>
+                </select>
+                <button type="button" class="btn btn-dark" (click)="addParam()"><i class="fa-solid fa-plus"></i></button>
+              </div>
+              <ul class="list-group list-group-flush" *ngIf="params.length; else noParams">
+                <li *ngFor="let param of params; let i = index" class="list-group-item">
+                  <div class="d-flex gap-2 w-100 justify-content-between">
+                    <div class="row w-100" *ngIf="editingParamIndex !== i; else editParamTemplate">
+                      <div class="col">
+                        <span>{{param.name}}</span>
+                      </div>
+                      <div class="col">
+                        <span>{{param.type}}</span>
+                      </div>
+                    </div>
+                    <ng-template #editParamTemplate>
+                      <div class="row w-100">
+                        <div class="col">
+                          <input type="text" class="form-control" formControlName="paramNameFormControl">
+                        </div>
+                        <div class="col">
+                          <select class="form-select" formControlName="paramTypeFormControl">
+                            <option [value]="null">Select a type</option>
+                            <option *ngFor="let paramType of paramTypes" [value]="paramType">{{paramType}}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </ng-template>
+                    <button type="button" class="btn btn-danger" (click)="removeParam(i)"><i
+                      class="fa-solid fa-xmark"></i></button>
+                    <button *ngIf="editingParamIndex !== i" type="button" class="btn btn-primary" (click)="editParam(i)"><i
+                      class="fa-solid fa-pen-to-square"></i></button>
+                    <button *ngIf="editingParamIndex === i" type="button" class="btn btn-primary" (click)="saveParam(i)"><i
+                      class="fa-solid fa-check"></i></button>
+                  </div>
+                </li>
+              </ul>
+              <ng-template #noParams>
+                <h4>There are no params</h4>
+              </ng-template>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ngbAccordion>
+      <div ngbAccordionItem>
+        <h2 ngbAccordionHeader>
+          <button ngbAccordionButton>Columns</button>
+        </h2>
+        <div ngbAccordionCollapse>
+          <div ngbAccordionBody>
+            <ng-template>
+              <div class="d-flex gap-2 justify-content-between">
+                <input type="text" class="form-control" formControlName="columnName">
+                <input type="number" class="form-control" formControlName="columnSize">
+                <button type="button" class="btn btn-dark" (click)="addColumn()"><i class="fa-solid fa-plus"></i></button>
+              </div>
+              <ul class="list-group list-group-flush" *ngIf="columns.length; else noParams">
+                <li *ngFor="let column of columns; let i = index" class="list-group-item">
+                  <div class="d-flex gap-2 w-100 justify-content-between">
+                    <div class="row w-100" *ngIf="editingColumnIndex !== i; else editColumnTemplate">
+                      <div class="col">
+                        <span>{{column.name}}</span>
+                      </div>
+                      <div class="col">
+                        <span>{{column.size}}</span>
+                      </div>
+                    </div>
+                    <ng-template #editColumnTemplate>
+                      <div class="row w-100">
+                        <div class="col">
+                          <input type="text" class="form-control" formControlName="columnNameFormControl">
+                        </div>
+                        <div class="col">
+                          <input type="number" class="form-control" formControlName="columnSizeFormControl">
+                        </div>
+                      </div>
+                    </ng-template>
+                    <button type="button" class="btn btn-danger" (click)="removeColumn(i)"><i
+                      class="fa-solid fa-xmark"></i></button>
+                    <button *ngIf="editingColumnIndex !== i" type="button" class="btn btn-primary" (click)="editColumn(i)"><i
+                      class="fa-solid fa-pen-to-square"></i></button>
+                    <button *ngIf="editingColumnIndex === i" type="button" class="btn btn-primary" (click)="saveColumn(i)"><i
+                      class="fa-solid fa-check"></i></button>
+                  </div>
+                </li>
+              </ul>
+              <ng-template #noParams>
+                <h4>There are no columns</h4>
+              </ng-template>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" form="form">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

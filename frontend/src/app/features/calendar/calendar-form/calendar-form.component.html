@@ -1,0 +1,43 @@
+<div class="modal-header">
+  <h2>calendar form</h2>
+</div>
+<div class="modal-body">
+  <form id="form" [formGroup]="form" (ngSubmit)="save()">
+    <div>
+      <label for="day-input">day</label>
+      <input id="day-input" type="datetime-local" formControlName="day" class="form-control">
+    </div>
+    <div>
+      <label for="weekday-input">weekday</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="weekday"
+          id="description"></editor>
+    </div>
+    <div>
+      <label for="day-type-input">day_type</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="dayType"
+          id="description"></editor>
+    </div>
+    <div>
+      <label for="festive-type-input">festive_type</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="festiveType"
+          id="description"></editor>
+    </div>
+    <div>
+      <label for="festivity-input">festivity</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="festivity"
+          id="description"></editor>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" form="form">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

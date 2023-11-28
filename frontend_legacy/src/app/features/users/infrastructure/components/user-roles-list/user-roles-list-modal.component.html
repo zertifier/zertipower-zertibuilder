@@ -1,0 +1,52 @@
+<div class="modal-header">
+  <h2>Roles list</h2>
+  <button type="button" class="btn btn-light" (click)="goToSettings()"><i class="fa-solid fa-gear"></i></button>
+</div>
+<div class="modal-body">
+  <div class="d-flex gap-2">
+    <input type="text" placeholder="Role name" class="form-control" [(ngModel)]="newRoleName"> <button type="button" class="btn btn-primary text-nowrap" (click)="saveRole(newRoleName)">New role</button>
+  </div>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th scope="col" style="width: 100px">#</th>
+      <th scope="col">Role</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let role of roles()">
+      <td>
+        <div class="d-flex align-items-center gap-1" *ngIf="editingRoleId === role.id; else editButtons">
+          <button type="button" class="btn btn-primary" [disabled]="role.name === 'ADMIN'" (click)="updateRole(role)"><i
+            class="fa-solid fa-check"></i></button>
+          <button type="button" class="btn btn-danger" [disabled]="role.name === 'ADMIN'" (click)="cancelEdition()"><i
+            class="fa-solid fa-xmark"></i></button>
+        </div>
+        <ng-template #editButtons>
+          <div class="d-flex align-items-center gap-1">
+
+            <button type="button" class="btn btn-primary" [disabled]="role.name === 'ADMIN'" (click)="editRole(role)"><i
+              class="fa-solid fa-pen-to-square"></i></button>
+            <button type="button" class="btn btn-danger" [disabled]="role.name === 'ADMIN'" (click)="removeRole(role)"><i
+              class="fa-solid fa-trash"></i></button>
+          </div>
+        </ng-template>
+
+      </td>
+      <td>
+        <ng-template #label>
+        <span>
+          {{ role.name }}
+        </span>
+        </ng-template>
+        <div *ngIf="editingRoleId === role.id; else label">
+          <input type="text" class="form-control-sm" [(ngModel)]="editingRoleName">
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-dark" (click)="closeModal()">Close</button>
+</div>

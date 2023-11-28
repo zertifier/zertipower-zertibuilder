@@ -1,0 +1,39 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Importing Bootstrap SCSS file. */
+@import 'bootstrap/scss/bootstrap';
+@import "@ng-select/ng-select/themes/default.theme.css";
+
+/*Datatable settings*/
+$table-border-width: 0;
+
+.dataTables_filter label, .dataTables_filter .form-control {
+  width: 100% !important;
+}
+
+.dataTables_filter .form-control {
+  padding-left: 30px;
+  margin-left: 0px !important;
+}
+
+.filter-input{
+  max-width: 90px;
+  min-width: 90px;
+  margin-bottom: 10px;
+}
+
+.dataTables_filter .fa-search {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  width: 30px;
+  height: 30px;
+  line-height: 31px;
+  text-align: center;
+  pointer-events: none;
+  color: #aaa;
+}
+
+/* Importing Bootstrap SCSS file. */
+@import 'bootstrap/scss/bootstrap';
+@import "bootstrap-icons/font/bootstrap-icons";

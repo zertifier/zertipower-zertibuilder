@@ -1,0 +1,21 @@
+<div class="modal-header">
+  <h3>Login web wallet</h3>
+</div>
+
+<div class="modal-body">
+  <form (ngSubmit)="save()" [formGroup]="form" id="form">
+    <div class="row">
+      <div class="col">
+        <label for="password">Password</label>
+        <div class="d-flex gap-2">
+          <input appInputHide class="form-control" formControlName="password" id="password"/>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" form="form" type="submit">Save</button>
+  <button (click)="cancel()" class="btn btn-secondary" type="button">Cancel</button>
+</div>

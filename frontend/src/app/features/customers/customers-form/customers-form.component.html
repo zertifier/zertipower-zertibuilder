@@ -1,0 +1,37 @@
+<div class="modal-header">
+  <h2>customers form</h2>
+</div>
+<div class="modal-body">
+  <form id="form" [formGroup]="form" (ngSubmit)="save()">
+    <div>
+      <label for="id-input">id</label>
+      <input id="id-input" type="number" formControlName="id" class="form-control">
+    </div>
+    <div>
+      <label for="name-input">name</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="name"
+          id="description"></editor>
+    </div>
+    <div>
+      <label for="wallet-address-input">wallet_address</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="walletAddress"
+          id="description"></editor>
+    </div>
+    <div>
+      <label for="created-at-input">created_at</label>
+      <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
+    </div>
+    <div>
+      <label for="updated-at-input">updated_at</label>
+      <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" form="form">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

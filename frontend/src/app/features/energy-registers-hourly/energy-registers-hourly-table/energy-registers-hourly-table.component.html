@@ -1,0 +1,18 @@
+<app-navbar/>
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-body">
+      <app-datatable
+        [title]="'Energy registers hourly'"
+        [columns]="columns"
+        [columnDefs]="columnDefs"
+        [url]="url"
+        [addRows]="addRows"
+        [editRows]="editRows"
+        [filterParams]="filterParams"
+        [filterColumns]="filterColumns"
+        [refreshRows]="refreshRows"
+      />
+    </div>
+  </div>
+</div>

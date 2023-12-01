@@ -1,0 +1,40 @@
+<div class="modal-header">
+  <h2>energy_registers form</h2>
+</div>
+<div class="modal-body">
+  <form id="form" [formGroup]="form" (ngSubmit)="save()">
+    <div>
+      <label for="id-input">id</label>
+      <input id="id-input" type="number" formControlName="id" class="form-control">
+    </div>
+    <div>
+      <label for="info-dt-input">info_dt</label>
+      <input id="info-dt-input" type="datetime-local" formControlName="infoDt" class="form-control">
+    </div>
+    <div>
+      <label for="cups-id-input">cups_id</label>
+      <input id="cups-id-input" type="number" formControlName="cupsId" class="form-control">
+    </div>
+    <div>
+      <label for="import-input">import</label>
+      <input id="import-input" type="number" formControlName="import" class="form-control">
+    </div>
+    <div>
+      <label for="consumption-input">consumption</label>
+      <input id="consumption-input" type="number" formControlName="consumption" class="form-control">
+    </div>
+    <div>
+      <label for="export-input">export</label>
+      <input id="export-input" type="number" formControlName="export" class="form-control">
+    </div>
+    <div>
+      <label for="generation-input">generation</label>
+      <input id="generation-input" type="number" formControlName="generation" class="form-control">
+    </div>
+
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" form="form">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

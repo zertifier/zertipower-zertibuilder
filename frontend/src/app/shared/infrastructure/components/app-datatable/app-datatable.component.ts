@@ -68,6 +68,7 @@ export class AppDatatableComponent implements OnInit {
 				this.http
 					.post<dataTablesResponse>(this.url, dataTablesParameters, {})
 					.subscribe((resp: any) => {
+						console.log("resp: ",resp)
 						this.dataResponse = resp.data.data;
 						DatatablesFeatures.modifyDefaultValues(this.filterParams, this.dataResponse);
 						callback({

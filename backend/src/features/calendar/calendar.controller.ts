@@ -26,12 +26,12 @@ export class CalendarController {
     return HttpResponse.success('calendar fetched successfully').withData(data);
   }
 
-  @Get(':id')
+  @Get(':day')
   @Auth(RESOURCE_NAME)
-  async getById(@Param('id') id: string) {
+  async getById(@Param('day') day: string) {
     const data = await this.prisma.calendar.findUnique({
       where: {
-        id: parseInt(id)
+        day: day
       }
     });
     return HttpResponse.success('calendar fetched successfully').withData(this.mapData(data));
@@ -44,24 +44,24 @@ export class CalendarController {
     return HttpResponse.success('calendar saved successfully').withData(data);
   }
 
-  @Put(':id')
+  @Put(':day')
   @Auth(RESOURCE_NAME)
-  async update(@Param('id') id: string, @Body() body: SaveCalendarDTO) {
+  async update(@Param('day') day: string, @Body() body: SaveCalendarDTO) {
     const data = await this.prisma.calendar.updateMany({
       where: {
-        id: parseInt(id),
+        day: day
       },
       data: body
     });
     return HttpResponse.success('calendar updated successfully').withData(data);
   }
 
-  @Delete(':id')
+  @Delete(':day')
   @Auth(RESOURCE_NAME)
-  async remove(@Param('id') id: string) {
+  async remove(@Param('day') day : string) {
     const data = await this.prisma.calendar.delete({
       where: {
-        id: parseInt(id)
+        day: day
       }
     });
     return HttpResponse.success('calendar removed successfully').withData(data);
@@ -70,7 +70,7 @@ export class CalendarController {
   @Post('datatable')
   @Auth(RESOURCE_NAME)
   async datatables(@Body() body: any) {
-    const data = await this.datatable.getData(body, `SELECT id, day,weekday,day_type,festive_type,festivity
+    const data = await this.datatable.getData(body, `SELECT day,weekday,day_type,festive_type,festivity
                   FROM calendar`);
     return HttpResponse.success('Datatables fetched successfully').withData(data);
   }

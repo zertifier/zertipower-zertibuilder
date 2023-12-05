@@ -64,6 +64,7 @@ export class AppDatatableComponent implements OnInit {
 			serverSide: true,
 			destroy: true,
 			ajax: (dataTablesParameters: any, callback: any) => {
+        console.log(dataTablesParameters)
 				//        dataTablesParameters.length = this.rowLength;
 				this.http
 					.post<dataTablesResponse>(this.url, dataTablesParameters, {})

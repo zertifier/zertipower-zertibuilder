@@ -16,6 +16,7 @@ import { QRCodeModule } from "angularx-qrcode";
 import { ErrorDisplayService } from "./core/core-services/error-displayer/error-display.service";
 import { PermissionsServicesModule } from "./features/permissions/infrastructure/services/permissions-services.module";
 import { ReportsServicesModule } from "./features/reports/infrastructure/services/reports-services.module";
+import {DashboardModule} from "./features/dashboard/dashboard.module";
 
 @NgModule({
 	declarations: [AppComponent],
@@ -32,7 +33,7 @@ import { ReportsServicesModule } from "./features/reports/infrastructure/service
 		CoreServicesModule,
 		QRCodeModule,
 		PermissionsServicesModule,
-		ReportsServicesModule,
+		ReportsServicesModule
 	],
 	providers: [
 		{ provide: HTTP_INTERCEPTORS, useClass: AccessTokenInterceptor, multi: true },

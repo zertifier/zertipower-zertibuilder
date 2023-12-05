@@ -1,0 +1,18 @@
+body {
+  min-height: 100vh
+}
+
+.config-bar {
+  height: 100vh;
+}
+
+/* Estilos para pantallas de al menos 768 píxeles de ancho (md y superior) */
+@media (max-width: 768px) {
+  .config-bar {
+    height: fit-content;
+  }
+
+  body {
+    min-height: fit-content;
+  }
+}

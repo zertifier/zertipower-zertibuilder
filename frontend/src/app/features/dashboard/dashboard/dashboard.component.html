@@ -1,0 +1,48 @@
+<app-navbar/>
+
+<div class="row m-0">
+  <div class="col-md-3 bg-secondary text-light p-4 config-bar col-12">
+    <div class="row">
+      <div class="mb-2 col-12" id="customers">
+        <label for="customerSelector">Select a prosumer:</label>
+        <select id="customerSelector" class="form-select">
+          <!-- Las opciones se llenarán dinámicamente con JavaScript -->
+        </select>
+      </div>
+
+      <div class="mb-2 col-12" id="date">
+        <label for="daySelector">Select a date:</label>
+        <input id="daySelector" class="form-control" type="date">
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-9 p-0">
+    <div class="row m-0">
+      <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 "><b
+        class="text-center" id="yearTitle">Year</b></div>
+      <div class="col-12 col-md-6 m-auto d-flex align-items-center justify-content-center m-auto"
+           style="height: 300px">
+        <canvas class="" id="yearly-chart"></canvas>
+      </div>
+      <div class="col-6 d-flex align-items-center justify-content-center m-auto">
+        <div class="col-md-6 col-12">
+          <canvas class="m-2" id="doughnut-yearly-chart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="row m-0">
+      <div class="col-12 col-md-6 m-0 p-0">
+        <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
+          <b>Week &nbsp;</b><b id="weekTitle"></b>
+        </div>
+        <canvas class="m-2" id="weekly-chart"></canvas>
+      </div>
+      <div class="col-12 col-md-6 m-0 p-0">
+        <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
+          <b>Day &nbsp;</b><b id="dayTitle"></b>
+        </div>
+        <canvas class="m-2" id="daily-chart"></canvas>
+      </div>
+    </div>
+  </div>

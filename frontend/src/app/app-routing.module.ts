@@ -73,6 +73,10 @@ const routes: Routes = [
     loadChildren: () => import('./features/smart-contracts/smart-contracts.module').then(m => m.SmartContractsModule)
   },
   {
+    path: 'dashboard',
+    loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
+  },
+  {
     path: "**",
     pathMatch: "full",
     redirectTo: "users",

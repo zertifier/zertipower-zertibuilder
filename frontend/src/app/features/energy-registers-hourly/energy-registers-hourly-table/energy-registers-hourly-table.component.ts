@@ -37,12 +37,12 @@ export class EnergyRegistersHourlyTableComponent implements OnDestroy {
   columns: dtColumns[] = [
     {
       title: 'Info Dt',
-      data: 'infoDatetime',
-      width: '100px',
+      data: 'info_datetime',
+      width: '200px',
     },
     {
       title: 'Cups Id',
-      data: 'cupsId',
+      data: 'cups_id',
       width: '100px',
     },
     {
@@ -120,40 +120,12 @@ export class EnergyRegistersHourlyTableComponent implements OnDestroy {
 
   columnDefs: any[] = [
     {
-      orderable: false, targets: [this.filterParams.length],
-    },
-    {
-      targets: 1,
+      targets: 0,
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     }
   ];
-
-/*  editRequest(id: any) {
-    const modalRef = this.ngbModal.open(EnergyRegistersHourlyFormComponent);
-    modalRef.componentInstance.setEditingId(parseInt(id));
-
-    this.subscriptions.push(
-      modalRef.closed.subscribe(() => this.datatable.updateTable()),
-    )
-  }*/
-
-  async deleteRequest(id: any) {
-    const response = await Swal.fire({
-      icon: 'question',
-      title: 'Are you sure?',
-      showCancelButton: true,
-    });
-
-    if (!response.isConfirmed) {
-      return;
-    }
-
-    this.subscriptions.push(
-      this.apiService.remove(parseInt(id)).subscribe(() => this.datatable.updateTable())
-    )
-  }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());

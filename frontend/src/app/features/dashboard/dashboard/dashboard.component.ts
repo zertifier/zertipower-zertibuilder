@@ -1,24 +1,32 @@
 import {Component, ViewChild, AfterViewInit} from "@angular/core";
-import {Chart} from 'chart.js';
+import Chart from 'chart.js/auto';
+import {CustomersApiService} from "../../customers/customers.service";
+import {EnergyService} from "../../../core/core-services/energy/energy.service";
+import {CustomersService} from "../../../core/core-services/customers/customers.service";
 
 @Component({
   selector: 'dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements AfterViewInit{
+export class DashboardComponent implements AfterViewInit {
 
-  canvas:any;
-  ctx:any;
   @ViewChild('yearChart') yearChart:any;
-
-  this.canvas=this.yearChart.nativeElement;
-  this.ctx=this.canvas.getContext('2d');
-
-  constructor() {
-    console.log("hola")
+  canvas:any;
+  ctx:any
+  constructor(private energyService: EnergyService, private customersService:CustomersService) {
+    customersService.getCustomers().subscribe((res)=>{
+      console.log("ep ",res)
+    })
   }
   ngAfterViewInit(): void {
+    console.log("dd")
+    this.canvas=document.getElementById('yearly-chart')
+    this.ctx=this.canvas.getContext('2d');
+    this.createChart()
+  }
+
+  createChart(){
     new Chart(this.ctx, {
       type: 'pie',
       data: {
@@ -34,5 +42,5 @@ export class DashboardComponent implements AfterViewInit{
     })
   }
 
-
 }
+

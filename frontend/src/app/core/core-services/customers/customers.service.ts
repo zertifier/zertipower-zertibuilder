@@ -10,11 +10,16 @@ import {environment} from "../../../../environments/environment";
 })
 export class CustomersService {
 
-  baseUrl = `${environment.api_url}/cups/customers`;
+  baseUrl = `${environment.api_url}/customers`;
   constructor(private http:HttpClient) {}
 
   getCustomers(){
     let url = `${this.baseUrl}`;
+    return this.http.get(url);
+  }
+
+  getCustomersCups(){
+    let url = `${this.baseUrl}/cups`;
     return this.http.get(url);
   }
 

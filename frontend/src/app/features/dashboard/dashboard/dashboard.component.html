@@ -6,8 +6,13 @@
       <div class="mb-2 col-12" id="customers">
         <label for="customerSelector">Select a prosumer:</label>
         <select id="customerSelector" class="form-select">
-          <!-- Las opciones se llenarán dinámicamente con JavaScript -->
+          @for (customer of customers;track customer) {
+          <option>
+          {{customer.name}} {{customer.ubication}}
+          </option>
+          }
         </select>
+
       </div>
 
       <div class="mb-2 col-12" id="date">

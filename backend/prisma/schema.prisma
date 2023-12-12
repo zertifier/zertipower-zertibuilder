@@ -125,11 +125,11 @@ model Cups {
 }
 
 model Customers {
-  id            Int      @id @default(autoincrement()) @map("id")
-  name          String?  @map("name") @db.VarChar(255)
-  walletAddress String?  @map("wallet_address") @db.VarChar(255)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id            Int       @id @default(autoincrement()) @map("id")
+  name          String?   @map("name") @db.VarChar(255)
+  walletAddress String?   @map("wallet_address") @db.VarChar(255)
+  createdAt     DateTime? @default(now()) @map("created_at")
+  updatedAt     DateTime? @updatedAt @map("updated_at")
 
   @@map("customers")
 }
@@ -198,13 +198,13 @@ model SmartContracts {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view energyRegistersHourly {
-  id           Int       @unique
-  cupsId       Int?      @map("cups_id")
-  infoDatetime DateTime? @map("info_datetime")
-  Import       Float?    @map("import")
-  Consumption  Float?    @map("consumption")
-  Export       Float?    @map("export")
-  Generation   Float?    @map("generation")
+  cupsId       Int      @map("cups_id")
+  infoDatetime DateTime @map("info_datetime")
+  Import       Float?   @map("import")
+  Consumption  Float?   @map("consumption")
+  Export       Float?   @map("export")
+  Generation   Float?   @map("generation")
 
+  @@id([cupsId, infoDatetime])
   @@map("energy_registers_hourly")
 }

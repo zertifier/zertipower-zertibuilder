@@ -6,65 +6,88 @@ import { SaveEnergyRegistersHourlyDto } from "./save-energy-registers-hourly-dto
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import { ErrorCode } from "../../shared/domain/error";
+import mysql from "mysql2/promise";
+import { MysqlService } from "../../shared/infrastructure/services";
 
 export const RESOURCE_NAME = "energyRegistersHourly";
 
 @ApiTags(RESOURCE_NAME)
 @Controller("energy-registers-hourly")
 export class EnergyRegistersHourlyController {
+  private conn: mysql.Pool;
   constructor(
     private prisma: PrismaService,
-    private datatable: Datatable
+    private datatable: Datatable,
+    private mysql: MysqlService
   ) {
+    this.conn = this.mysql.pool;
   }
 
-  @Get()
+  @Get('/monthly/:year')
   @Auth(RESOURCE_NAME)
-  async get() {
-    const data = await this.prisma.energyRegistersHourly.findMany();
-    const mappedData = data.map(this.mapData);
-    return HttpResponse.success("energy_registers_hourly fetched successfully").withData(data);
-  }
+  async getCups(@Param('year') year: string) {
+    try {
+      const { year } = req.params;
+      const { cups, wallet, community } = req.query;
+      let query:any;
+      let registers:any
+      let monthsName:string[] = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+      ]
+      let yearlyRegisters = []
+      let defaultMonth = {month:'',import:0,generation:0}
 
-  @Get(":id")
-  @Auth(RESOURCE_NAME)
-  async getById(@Param("id") id: string) {
-    const data = await this.prisma.energyRegistersHourly.findUnique({
-      where: {
-        id: parseInt(id)
+      if (cups) {
+        query = `SELECT month, import, generation
+                               FROM energy_registers_original_monthly
+                               WHERE cups_id = ?
+                                 AND year = ?
+                                 order by month`
+      }else if(community){
+        query = `SELECT month, import, generation
+                            FROM energy_registers_original_monthly
+                            LEFT JOIN cups c ON cups_id = c.id
+                            WHERE c.community_id = ?
+                            AND year = ?
+                            ORDER BY month`
+      }else if(wallet){
+        //todo
       }
-    });
-    return HttpResponse.success("energy_registers fetched successfully").withData(this.mapData(data));
-  }
 
-  @Post()
-  @Auth(RESOURCE_NAME)
-  async create(@Body() body: SaveEnergyRegistersHourlyDto) {
-    const data = await this.prisma.energyRegistersHourly.create({ data: body });
-    return HttpResponse.success("energy_registers_hourly saved successfully").withData(data);
-  }
+      const [ROWS] = await dbConnection.query(
+        query,
+        [community || cups || wallet , year])
+      registers = ROWS;
 
-  @Put(":id")
-  @Auth(RESOURCE_NAME)
-  async update(@Param("id") id: string, @Body() body: SaveEnergyRegistersHourlyDto) {
-    const data = await this.prisma.energyRegistersHourly.updateMany({
-      where: {
-        id: parseInt(id)
-      },
-      data: body
-    });
-    return HttpResponse.success("energy_registers_hourly updated successfully").withData(data);
-  }
+      for(let i= 0;i<monthsName.length;i++) {
 
-  @Delete(":id")
-  @Auth(RESOURCE_NAME)
-  async remove(@Param("id") id: string) {
-    const data = await this.prisma.energyRegistersHourly.delete({
-      where: {
-        id: parseInt(id)
+        let monthData = registers.find(register =>
+          monthsName.indexOf(monthsName[i]) +1 === register.month
+        )
+        if (monthData) {
+          monthData.month = monthsName[i]
+          yearlyRegisters.push(monthData)
+        } else {
+          defaultMonth.month = monthsName[i]
+          yearlyRegisters.push({...defaultMonth})
+        }
       }
-    });
-    return HttpResponse.success("energy_registers_hourly removed successfully").withData(data);
+
+      return HttpResponse.success('customers fetched successfully').withData(yearlyRegisters);
+    } catch(e){
+      console.log("error getting energy");
+    }
   }
 
   @Post("datatable")
@@ -81,7 +104,7 @@ export class EnergyRegistersHourlyController {
                                                      FROM energy_registers_hourly`);
       return HttpResponse.success("Datatables fetched successfully").withData(data);
     }catch(e){
-      console.log(e);
+      console.log("Error datatables: ",e);
       return HttpResponse.failure(
         'error getting datatables data',
         ErrorCode.UNEXPECTED

@@ -70,7 +70,7 @@ export class ProvidersController {
   @Post('datatable')
   @Auth(RESOURCE_NAME)
   async datatables(@Body() body: any) {
-    const data = await this.datatable.getData(body, `SELECT id, id,provider
+    const data = await this.datatable.getData(body, `SELECT id,provider
                   FROM providers`);
     return HttpResponse.success('Datatables fetched successfully').withData(data);
   }

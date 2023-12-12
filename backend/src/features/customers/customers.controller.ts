@@ -7,16 +7,20 @@ import { SaveCustomersDTO } from './save-customers-dto';
 import * as moment from 'moment';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/features/auth/infrastructure/decorators';
-
+import mysql from "mysql2/promise";
 export const RESOURCE_NAME = 'customers';
 
 @ApiTags(RESOURCE_NAME)
 @Controller('customers')
 export class CustomersController {
+  private conn: mysql.Pool;
   constructor(
     private prisma: PrismaService,
-    private datatable: Datatable
-  ) {}
+    private datatable: Datatable,
+    private mysql: MysqlService
+  ) {
+    this.conn = this.mysql.pool;
+  }
 
   @Get()
   @Auth(RESOURCE_NAME)
@@ -24,6 +28,18 @@ export class CustomersController {
     const data = await this.prisma.customers.findMany();
     const mappedData = data.map(this.mapData)
     return HttpResponse.success('customers fetched successfully').withData(data);
+  }
+
+  @Get('/cups')
+  @Auth(RESOURCE_NAME)
+  async getCups(@Param('cups') cups: string) {
+    try {
+      let url = `SELECT * FROM cups LEFT JOIN customers on cups.customer_id = customers.id`;
+      const data = await this.conn.query(url);
+      return HttpResponse.success('customers fetched successfully').withData(data);
+    } catch(e){
+      console.log("error getting customers-cups");
+    }
   }
 
   @Get(':id')

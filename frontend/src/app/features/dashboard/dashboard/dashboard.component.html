@@ -7,28 +7,31 @@
         <label for="customerSelector">Select a prosumer:</label>
         <select id="customerSelector" class="form-select">
           @for (customer of customers;track customer) {
-          <option>
+          <option value={{customer.id}}>
           {{customer.name}} {{customer.ubication}}
           </option>
           }
         </select>
-
       </div>
 
       <div class="mb-2 col-12" id="date">
         <label for="daySelector">Select a date:</label>
         <input id="daySelector" class="form-control" type="date">
       </div>
+
+      <div class="mb-2 col-12 d-flex justify-content-center" id="community">
+        <button class="btn btn-dark m-2">Add cups to community</button>
+      </div>
     </div>
   </div>
 
   <div class="col-12 col-md-9 p-0">
     <div class="row m-0">
-      <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 "><b
-        class="text-center" id="yearTitle">Year</b></div>
+      <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2"><b
+        class="text-center" id="yearTitle">Year {{year}}</b></div>
       <div class="col-12 col-md-6 m-auto d-flex align-items-center justify-content-center m-auto"
            style="height: 300px">
-        <canvas class="" id="yearly-chart"></canvas>
+        <canvas class="m-2" id="yearly-chart"></canvas>
       </div>
       <div class="col-6 d-flex align-items-center justify-content-center m-auto">
         <div class="col-md-6 col-12">
@@ -39,13 +42,13 @@
     <div class="row m-0">
       <div class="col-12 col-md-6 m-0 p-0">
         <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
-          <b>Week &nbsp;</b><b id="weekTitle"></b>
+          <b>Week {{week}} : from {{simpleWeekDateInit}} to {{simpleWeekDateEnd}}</b><b id="weekTitle"></b>
         </div>
         <canvas class="m-2" id="weekly-chart"></canvas>
       </div>
       <div class="col-12 col-md-6 m-0 p-0">
         <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
-          <b>Day &nbsp;</b><b id="dayTitle"></b>
+          <b>Day &nbsp;{{date}}</b><b id="dayTitle"></b>
         </div>
         <canvas class="m-2" id="daily-chart"></canvas>
       </div>

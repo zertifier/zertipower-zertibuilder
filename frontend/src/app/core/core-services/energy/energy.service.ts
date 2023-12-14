@@ -13,7 +13,12 @@ export class EnergyService {
   constructor(private http:HttpClient) {}
 
   getYearByCups(year:number,cups:number){
-    let url = `${this.baseUrl}/${year}?cups=${cups}`;
+    let url = `${environment.api_url}/energy-registers-hourly/monthly/${year}?cups=${cups}`;
+    return this.http.get(url);
+  }
+
+  getWeekByCups(year:number,cups:number,week:number){
+    let url = `${environment.api_url}/energy-registers-hourly/weekly/${week}?year=${year}&cups=${cups}`;
     return this.http.get(url);
   }
 

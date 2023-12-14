@@ -4,6 +4,7 @@ import {CustomersApiService} from "../../customers/customers.service";
 import {EnergyService} from "../../../core/core-services/energy/energy.service";
 import {CustomersService} from "../../../core/core-services/customers/customers.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
+import moment from "moment";
 
 @Component({
   selector: 'dashboard',
@@ -12,50 +13,239 @@ import {FormBuilder, FormGroup} from "@angular/forms";
 })
 export class DashboardComponent implements AfterViewInit {
 
-  @ViewChild('yearChart') yearChart:any;
-  canvas:any;
-  ctx:any
-  customers:any;
-  customersListener:any;
+  @ViewChild('yearChart') yearChart: any;
 
-  constructor(private energyService: EnergyService, private customersService:CustomersService,private fb:FormBuilder) {
-    customersService.getCustomersCups().subscribe((res:any)=>{
-      this.customers=res.data[0];
-      console.log("ep ",this.customers)
+  yearlyChartCanvas: any;
+  monthlyChartCanvas: any;
+  weeklyChartCanvas:any;
+  hourlyChartCanvas:any;
+
+  yearlyChartCanvasContent: any;
+  monthlyChartCanvasContent: any;
+  weeklyChartCanvasContent:any;
+  hourlyChartCanvasContent:any;
+
+  yearlyChart: any;
+  monthlyChart: any;
+  weeklyChart:any;
+  hourlyChart:any;
+
+  customers: any;
+  customersSelectorListener: any;
+  dateSelectorListener: any;
+  year!: number;
+  date!: string;
+  week!:number;
+  cupsId!: number;
+  weekLimits!: string;
+
+  simpleWeekDateInit:string='';
+  simpleWeekDateEnd:string='';
+
+  constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder) {
+    customersService.getCustomersCups().subscribe((res: any) => {
+      this.customers = res.data[0];
     })
   }
 
   ngOnInit() {
-
   }
+
   ngAfterViewInit(): void {
-    this.canvas=document.getElementById('yearly-chart')
-    this.ctx=this.canvas.getContext('2d');
-    this.createChart()
-    this.customersListener=document.getElementById('customerSelector')!.addEventListener('change',()=>{
-      this.updateCharts()
+
+    this.yearlyChartCanvas = document.getElementById('doughnut-yearly-chart');
+    this.monthlyChartCanvas = document.getElementById('yearly-chart');
+    this.weeklyChartCanvas = document.getElementById('weekly-chart');
+
+    this.yearlyChartCanvasContent = this.yearlyChartCanvas.getContext('2d');
+    this.monthlyChartCanvasContent = this.monthlyChartCanvas.getContext('2d');
+    this.weeklyChartCanvasContent = this.weeklyChartCanvas.getContext('2d');
+
+    //customer selector listener
+    this.customersSelectorListener = document.getElementById('customerSelector')!.addEventListener('change', (event: any) => {
+      this.cupsId = event.target.value;
+      if(!this.date){
+        let newDate = new Date();
+        this.date = this.date || `${newDate.getDate()}/${newDate.getMonth()+1}/${newDate.getFullYear()}`;
+      }
+      this.week = this.getWeekNumber(new Date(this.date))
+      console.log("WEEk:",this.week)
+      this.year = this.year || new Date().getFullYear();
+      this.updateCharts(this.cupsId, this.year, this.week,this.date)
     })
-  }
 
-  updateCharts(){
-    console.log("update charts")
-  };
-
-  createChart(){
-    new Chart(this.ctx, {
-      type: 'pie',
-      data: {
-        labels: ['yearly Consumption (Kwh)', 'yearly Generation (Kwh)'],
-        datasets: [{
-          data: [0, 1],
-          backgroundColor: [
-            'rgb(255, 99, 132)',
-            'rgb(54, 162, 235)'
-          ]
-        }]
+    //date selector listener
+    this.dateSelectorListener = document.getElementById('daySelector')!.addEventListener('change', (event: any) => {
+      if (!this.cupsId) {
+        //todo: show message 'please select a prosumer'
+        console.log('show message: please select a prosumer')
+      } else {
+        let dateValue = new Date(event.target.value);
+        this.date = `${dateValue.getDate()}/${dateValue.getMonth()+1}/${dateValue.getFullYear()}`;
+        console.log("DATE",this.date)
+        this.year = new Date(dateValue).getFullYear()
+        this.week = this.getWeekNumber(new Date(dateValue))
+        console.log("WEEk:",this.week)
+        this.updateCharts(this.cupsId, this.year, this.week,this.date)
       }
     })
+
+  }
+
+  getWeekNumber(date:Date){
+    // Clona el objeto de fecha para evitar modificaciones no deseadas
+    let clonedDate:any = new Date(date);
+
+    // Ajusta el día al jueves de la semana actual
+    clonedDate.setDate(clonedDate.getDate() + 4 - (clonedDate.getDay() || 7));
+
+    // Obtiene la fecha del primer día del año
+    let yearStart:any = new Date(clonedDate.getFullYear(), 0, 1);
+
+    // Calcula el número de días transcurridos desde el primer día del año
+    let days = Math.floor((clonedDate - yearStart) / 86400000);
+
+    // Calcula el número de la semana (semanas completas más una semana adicional si el resto de días es mayor a 3)
+    let weekNumber = Math.ceil((days + 1) / 7);
+
+    return weekNumber;
+  }
+
+  async updateCharts(cupsId: number, year: number, week:number, date:string) {
+    console.log("update charts")
+    let {months, kwhImport, kwhGeneration} = await this.getYearEnergy(year, cupsId)
+    let {weekDays, weekImport,weekGeneration,weekDateLimits} = await this.getEnergyByWeek(week,year,cupsId)
+    this.updateWeekDateLimits(week,weekDateLimits) //todo error
+    this.weekLimits = weekDateLimits;
+    this.updateYearChart(kwhImport, kwhGeneration)
+    this.updateMonthlyChart(months, kwhImport, kwhGeneration)
+    this.updateWeekChart(weekDays,weekImport,weekGeneration)
+  };
+
+  getYearEnergy(year: number, cups?: number, community?: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      //if(cups){
+      this.energyService.getYearByCups(year, cups!).subscribe((res: any) => {
+        console.log(res.data)
+        let monthlyCupsData = res.data;
+        let months: string[] = monthlyCupsData.map((entry: any) => entry.month);
+        let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
+        let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
+        resolve({months, kwhImport, kwhGeneration})
+      })
+      //}else if (community){
+      //todo
+      //}
+
+    })
+  }
+
+  getEnergyByWeek(week:number,year:number,cups?:number,community?:number):Promise<any>{
+    return new Promise((resolve, reject) => {
+      //if(cups){
+      this.energyService.getWeekByCups(year, cups!, week).subscribe((res: any) => {
+        let weekDateLimits:any;
+        let weekCupsData = res.data;
+        let weekDays = weekCupsData.map((entry:any) => entry.week_day);
+        let weekImport = weekCupsData.map((entry:any) => entry.import);
+        let weekGeneration = weekCupsData.map((entry:any) => entry.generation);
+        if (weekCupsData[0] && weekCupsData[1]) {
+          weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
+        }
+        resolve({weekDays, weekImport, weekGeneration, weekDateLimits})
+      })
+      //}else if(community){{
+      //todo
+    //}
+    })
+  }
+
+  updateYearChart(kwhImport: number[], kwhGeneration: number[]) {
+    const sumImport = kwhImport.reduce((partialSum: number, a: number) => partialSum + a, 0);
+    const sumGeneration = kwhGeneration.reduce((partialSum: number, a: number) => partialSum + a, 0);
+
+    if (!this.yearlyChart) {
+      this.yearlyChart = new Chart(this.yearlyChartCanvasContent, {type: 'pie', data: {labels: [], datasets: []}})
+    }
+
+    this.yearlyChart.data = {
+      labels: [`yearly Consumption: ${sumImport} Kwh`, `yearly Generation: ${sumGeneration} Kwh`],
+      datasets: [{
+        data: [sumImport, sumGeneration],
+        backgroundColor: [
+          'rgb(255, 99, 132)',
+          'rgb(54, 162, 235)'
+        ]
+      }]
+    }
+
+    this.yearlyChart.update();
+
+  }
+
+  updateMonthlyChart(months: string[], kwhImport: number[], kwhGeneration: number[]) {
+
+    if (!this.monthlyChart) {
+      this.monthlyChart = new Chart(this.monthlyChartCanvasContent, {type: 'bar', data: {labels: [], datasets: []}})
+    }
+
+    this.monthlyChart.data = {
+      labels: months,
+      datasets: [{
+        label: 'Total Import (Kwh)',
+        data: kwhImport,
+        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
+        borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
+        borderWidth: 1
+      }, {
+        label: 'Total Generation (Kwh)',
+        data: kwhGeneration,
+        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
+        borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
+        borderWidth: 1
+      }]
+    }
+    this.monthlyChart.update();
+  }
+
+  updateWeekChart(weekDays:string[], totalImport:[], totalGeneration:[]) {
+
+    console.log(weekDays,totalImport,totalGeneration)
+
+    if (!this.weeklyChart) {
+      this.weeklyChart = new Chart(this.weeklyChartCanvasContent, {type: 'bar', data: {labels: [], datasets: []}})
+    }
+
+    this.weeklyChart.data = {
+        labels: weekDays,
+        datasets: [{
+          label: 'Total Import (Kwh)',
+          data: totalImport,
+          backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
+          borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
+          borderWidth: 1
+        }, {
+          label: 'Total Generation (Kwh)',
+          data: totalGeneration,
+          backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
+          borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
+          borderWidth: 1
+        }]
+    }
+
+    this.weeklyChart.update();
+
+  }
+
+  updateWeekDateLimits(week:number, weekDateLimits:any) {
+    let weekDateInit = new Date(weekDateLimits[0]);
+    let weekDateEnd = new Date(weekDateLimits[1]);
+    this.simpleWeekDateInit = `${weekDateInit.getFullYear()}-${weekDateInit.getMonth() + 1}-${weekDateInit.getDate()}`
+    this.simpleWeekDateInit = moment(this.simpleWeekDateInit).format('DD/MM/YYYY')
+    this.simpleWeekDateEnd = `${weekDateEnd.getFullYear()}-${weekDateEnd.getMonth() + 1}-${weekDateEnd.getDate()}`
+    this.simpleWeekDateEnd = moment(this.simpleWeekDateEnd).format('DD/MM/YYYY')
+    console.log(this.simpleWeekDateInit,this.simpleWeekDateEnd)
+
   }
 
 }
-

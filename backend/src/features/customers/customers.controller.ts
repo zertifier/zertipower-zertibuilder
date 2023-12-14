@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Put, Body, Param } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Put, Body, Param,Query } from '@nestjs/common';
 import { HttpResponse } from 'src/shared/infrastructure/http/HttpResponse';
 import { PrismaService } from 'src/shared/infrastructure/services/prisma-service/prisma-service';
 import { MysqlService } from 'src/shared/infrastructure/services/mysql-service/mysql.service';
@@ -30,9 +30,9 @@ export class CustomersController {
     return HttpResponse.success('customers fetched successfully').withData(data);
   }
 
-  @Get('/cups')
+  @Get('/by-cups')
   @Auth(RESOURCE_NAME)
-  async getCups(@Param('cups') cups: string) {
+  async getByCups(@Param('cups') cups: string) {
     try {
       let url = `SELECT * FROM cups LEFT JOIN customers on cups.customer_id = customers.id`;
       const data = await this.conn.query(url);

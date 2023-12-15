@@ -101,7 +101,9 @@ export class EnergyRegistersHourlyController {
           SELECT DAYNAME(eh.info_datetime) AS week_day,
                  eh.info_datetime          as date,
                  SUM(eh.import)            AS import,
-                 SUM(eh.generation)        AS generation
+                 SUM(eh.generation)        AS generation,
+                 SUM(eh.export)            AS export,
+                 SUM(eh.consumption)        AS consumption
           FROM energy_registers_original_hourly eh
                  LEFT JOIN cups c ON eh.cups_id = c.id
           WHERE c.community_id = ?
@@ -115,7 +117,9 @@ export class EnergyRegistersHourlyController {
           SELECT DAYNAME(eh.info_datetime) AS week_day,
                  eh.info_datetime          as date,
                  SUM(eh.import)            AS import,
-                 SUM(eh.generation)        AS generation
+                 SUM(eh.generation)        AS generation,
+            SUM(eh.export)            AS export,
+            SUM(eh.consumption)        AS consumption
           FROM energy_registers_original_hourly eh
           WHERE eh.cups_id = ?
             AND WEEK(eh.info_datetime) = ?
@@ -128,7 +132,9 @@ export class EnergyRegistersHourlyController {
           SELECT DAYNAME(eh.info_datetime) AS week_day,
                  eh.info_datetime          as date,
                  SUM(eh.import)            AS import,
-                 SUM(eh.generation)        AS generation
+                 SUM(eh.generation)        AS generation,
+                 SUM(eh.consumption)        AS consumption,
+                 SUM(eh.export)        AS export,
           FROM energy_registers_original_hourly eh
                  LEFT JOIN cups c ON eh.cups_id = c.id
                  LEFT JOIN customers cu ON c.customer_id = cu.id
@@ -177,7 +183,7 @@ export class EnergyRegistersHourlyController {
       const defaultMonth = { month: "", import: 0, generation: 0 };
 
       if (cups) {
-        query = `SELECT month, import, generation
+        query = `SELECT month, import, export, consumption, generation
                  FROM energy_registers_original_monthly
                  WHERE cups_id = ?
                    AND year = ?

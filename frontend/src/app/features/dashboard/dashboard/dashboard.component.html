@@ -16,7 +16,7 @@
 
       <div class="mb-2 col-12" id="date">
         <label for="daySelector">Select a date:</label>
-        <input id="daySelector" class="form-control" type="date">
+        <input id="daySelector" class="form-control" type="date" [ngModel] ="unformattedDate | date:'yyyy-MM-dd'">
       </div>
 
       <div class="mb-2 col-12 d-flex justify-content-center" id="community">
@@ -42,7 +42,16 @@
     <div class="row m-0">
       <div class="col-12 col-md-6 m-0 p-0">
         <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
-          <b>Week {{week}} : from {{simpleWeekDateInit}} to {{simpleWeekDateEnd}}</b><b id="weekTitle"></b>
+
+          <b> Week </b>
+          &nbsp;
+          @if (week) {
+          <b> {{week}}</b>
+          }
+          @if (simpleWeekDateInit && simpleWeekDateEnd) {
+          <b>: from {{simpleWeekDateInit}} to {{simpleWeekDateEnd}}</b>
+          }
+
         </div>
         <canvas class="m-2" id="weekly-chart"></canvas>
       </div>
@@ -50,7 +59,7 @@
         <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
           <b>Day &nbsp;{{date}}</b><b id="dayTitle"></b>
         </div>
-        <canvas class="m-2" id="daily-chart"></canvas>
+        <canvas class="m-2" id="hourly-chart"></canvas>
       </div>
     </div>
   </div>

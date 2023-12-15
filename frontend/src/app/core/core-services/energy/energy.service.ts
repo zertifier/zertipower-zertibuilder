@@ -22,6 +22,11 @@ export class EnergyService {
     return this.http.get(url);
   }
 
+  getHoursByCups(cups:number,date:string){
+    let url = `${environment.api_url}/energy-registers-hourly/hourly/${date}?cups=${cups}`;
+    return this.http.get(url);
+  }
+
   getYearByCommunity(year:number,communityId:number){
 
   }

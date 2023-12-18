@@ -72,25 +72,29 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
 
-    this.customersService.getCustomersCups().subscribe((res: any) => {
+    this.customersService.getCustomersCups().subscribe(async (res: any) => {
       this.customers = res.data[0];
-      //set default value to selected cups
+      //set default value to selected cups:
       this.cupsId = this.customers[0].id
-      //update charts
-      this.updateCharts(this.cupsId, this.year, this.week, this.date)
+      //get chart info:
+      let {months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
+      //update charts:
+      this.updateCharts(months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport)
 
     })
 
     //customer selector listener
-    this.customersSelectorListener = document.getElementById('customerSelector')!.addEventListener('change', (event: any) => {
+    this.customersSelectorListener = document.getElementById('customerSelector')!.addEventListener('change', async (event: any) => {
       this.cupsId = event.target.value;
 
-      //update charts
-      this.updateCharts(this.cupsId, this.year, this.week, this.date)
+      //get chart info:
+      let {months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
+      //update charts:
+      this.updateCharts(months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport)
     })
 
     //date selector listener
-    this.dateSelectorListener = document.getElementById('daySelector')!.addEventListener('change', (event: any) => {
+    this.dateSelectorListener = document.getElementById('daySelector')!.addEventListener('change', async (event: any) => {
       if (!this.cupsId) {
         //todo: show message 'please select a prosumer'
         console.log('show message: please select a prosumer')
@@ -100,7 +104,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.date = `${this.unformattedDate.getDate()}/${this.unformattedDate.getMonth() + 1}/${this.unformattedDate.getFullYear()}`;
         this.year = new Date(this.unformattedDate).getFullYear()
         this.week = this.getWeekNumber(new Date(this.unformattedDate))
-        this.updateCharts(this.cupsId, this.year, this.week, this.date)
+
+        //get chart info:
+        let {months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
+        //update charts:
+        this.updateCharts(months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport)
       }
     })
 
@@ -125,13 +133,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     return weekNumber;
   }
 
-  async updateCharts(cupsId: number, year: number, week: number, date: string) {
-    console.log("update charts")
+  async getChartInfo(cupsId: number, year: number, week: number, date: string){
     let {months, kwhImport, kwhGeneration} = await this.getYearEnergy(year, cupsId)
     let {weekDays, weekImport, weekGeneration, weekDateLimits} = await this.getEnergyByWeek(week, year, cupsId)
     let {hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getEnergyByDay(cupsId, date)
+    return {months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport}
+  }
+
+  async updateCharts(months:[], kwhImport:[], kwhGeneration:[],weekDays:[], weekImport:[], weekGeneration:[], weekDateLimits:[],hours:[], dayImport:[], dayGeneration:[], dayConsumption:[], dayExport:[]) {
+
     if (weekDateLimits) {
-      this.updateWeekDateLimits(week, weekDateLimits) //todo error
+      this.updateWeekDateLimits(this.week, weekDateLimits) //todo error
     }
     this.updateYearChart(kwhImport, kwhGeneration)
     this.updateMonthlyChart(months, kwhImport, kwhGeneration)
@@ -309,7 +321,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   }
 
-  updateHourlyChart(hours:string, dayImport:number, dayGeneration:number, dayConsumption:number, dayExport:number){
+  updateHourlyChart(hours:string[], dayImport:number[], dayGeneration:number[], dayConsumption:number[], dayExport:number[]){
     if (!this.hourlyChart) {
       this.hourlyChart = new Chart(this.hourlyChartCanvasContent, {type: 'bar', data: {labels: [], datasets: []}})
     }

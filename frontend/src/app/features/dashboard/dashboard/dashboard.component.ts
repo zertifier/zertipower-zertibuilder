@@ -1,4 +1,4 @@
-import {Component, ViewChild, AfterViewInit, ElementRef} from "@angular/core";
+import {Component, ViewChild, AfterViewInit, ElementRef, OnInit} from "@angular/core";
 import Chart from 'chart.js/auto';
 import {CustomersApiService} from "../../customers/customers.service";
 import {EnergyService} from "../../../core/core-services/energy/energy.service";
@@ -11,7 +11,7 @@ import moment from "moment";
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements AfterViewInit {
+export class DashboardComponent implements OnInit, AfterViewInit {
 
   @ViewChild('yearChart') yearChart: any;
 
@@ -43,12 +43,20 @@ export class DashboardComponent implements AfterViewInit {
   simpleWeekDateEnd: string = '';
 
   constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder) {
-    customersService.getCustomersCups().subscribe((res: any) => {
-      this.customers = res.data[0];
-    })
+
   }
 
   ngOnInit() {
+    this.yearlyChartCanvas = document.getElementById('doughnut-yearly-chart');
+    this.monthlyChartCanvas = document.getElementById('yearly-chart');
+    this.weeklyChartCanvas = document.getElementById('weekly-chart');
+    this.hourlyChartCanvas = document.getElementById('hourly-chart');
+
+    this.yearlyChartCanvasContent = this.yearlyChartCanvas.getContext('2d');
+    this.monthlyChartCanvasContent = this.monthlyChartCanvas.getContext('2d');
+    this.weeklyChartCanvasContent = this.weeklyChartCanvas.getContext('2d');
+    this.hourlyChartCanvasContent = this.hourlyChartCanvas.getContext('2d');
+
     //get date, week and year:
     let newDate = new Date();
     if (!this.date) {
@@ -59,19 +67,19 @@ export class DashboardComponent implements AfterViewInit {
       this.week = this.getWeekNumber(new Date(this.unformattedDate))
     }
     this.year = this.year || new Date().getFullYear();
+
   }
 
   ngAfterViewInit(): void {
 
-    this.yearlyChartCanvas = document.getElementById('doughnut-yearly-chart');
-    this.monthlyChartCanvas = document.getElementById('yearly-chart');
-    this.weeklyChartCanvas = document.getElementById('weekly-chart');
-    this.hourlyChartCanvas = document.getElementById('hourly-chart');
+    this.customersService.getCustomersCups().subscribe((res: any) => {
+      this.customers = res.data[0];
+      //set default value to selected cups
+      this.cupsId = this.customers[0].id
+      //update charts
+      this.updateCharts(this.cupsId, this.year, this.week, this.date)
 
-    this.yearlyChartCanvasContent = this.yearlyChartCanvas.getContext('2d');
-    this.monthlyChartCanvasContent = this.monthlyChartCanvas.getContext('2d');
-    this.weeklyChartCanvasContent = this.weeklyChartCanvas.getContext('2d');
-    this.hourlyChartCanvasContent = this.hourlyChartCanvas.getContext('2d');
+    })
 
     //customer selector listener
     this.customersSelectorListener = document.getElementById('customerSelector')!.addEventListener('change', (event: any) => {
@@ -203,7 +211,7 @@ export class DashboardComponent implements AfterViewInit {
           let dayConsumption = hourlyData.map((entry: any) => entry.consumption);
           let dayExport = hourlyData.map((entry: any) => entry.export);
 
-          console.log(hours,dayImport,dayGeneration,dayConsumption,dayExport)
+          //console.log( "day result : ",hours,dayImport,dayGeneration,dayConsumption,dayExport)
           resolve({hours, dayImport, dayGeneration, dayConsumption, dayExport})
         })
       }
@@ -274,7 +282,7 @@ export class DashboardComponent implements AfterViewInit {
                     []
   ) {
 
-    console.log(weekDays, totalImport, totalGeneration)
+    //console.log("week result: , weekDays, totalImport, totalGeneration)
 
     if (!this.weeklyChart) {
       this.weeklyChart = new Chart(this.weeklyChartCanvasContent, {type: 'bar', data: {labels: [], datasets: []}})

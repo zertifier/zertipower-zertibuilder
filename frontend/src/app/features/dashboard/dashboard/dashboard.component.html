@@ -19,8 +19,14 @@
         <input id="daySelector" class="form-control" type="date" [ngModel] ="unformattedDate | date:'yyyy-MM-dd'">
       </div>
 
-      <div class="mb-2 col-12 d-flex justify-content-center" id="community">
-        <button class="btn btn-dark m-2">Add cups to community</button>
+      <div class="mb-2 col-12 d-flex align-items-center" id="community">
+        Community test: &nbsp; <ng-toggle
+          [value]="addCups"
+          [color]="{
+    unchecked: '#939da2',
+    checked: '#36a2eb'
+  }"
+        ></ng-toggle>
       </div>
     </div>
   </div>

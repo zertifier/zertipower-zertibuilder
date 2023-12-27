@@ -42,6 +42,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   simpleWeekDateInit: string = '';
   simpleWeekDateEnd: string = '';
 
+  addCups:boolean=false;
+
   constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder) {
 
   }
@@ -114,6 +116,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   }
 
+  async updateCharts(months:[], kwhImport:[], kwhGeneration:[],weekDays:[], weekImport:[], weekGeneration:[], weekDateLimits:[],hours:[], dayImport:[], dayGeneration:[], dayConsumption:[], dayExport:[]) {
+
+    if (weekDateLimits) {
+      this.updateWeekDateLimits(this.week, weekDateLimits) //todo error
+    }
+    this.updateYearChart(kwhImport, kwhGeneration)
+    this.updateMonthlyChart(months, kwhImport, kwhGeneration)
+    this.updateWeekChart(weekDays, weekImport, weekGeneration)
+    this.updateHourlyChart(hours, dayImport, dayGeneration, dayConsumption, dayExport)
+  };
+
   getWeekNumber(date: Date) {
     // Clona el objeto de fecha para evitar modificaciones no deseadas
     let clonedDate: any = new Date(date);
@@ -139,17 +152,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     let {hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getEnergyByDay(cupsId, date)
     return {months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport}
   }
-
-  async updateCharts(months:[], kwhImport:[], kwhGeneration:[],weekDays:[], weekImport:[], weekGeneration:[], weekDateLimits:[],hours:[], dayImport:[], dayGeneration:[], dayConsumption:[], dayExport:[]) {
-
-    if (weekDateLimits) {
-      this.updateWeekDateLimits(this.week, weekDateLimits) //todo error
-    }
-    this.updateYearChart(kwhImport, kwhGeneration)
-    this.updateMonthlyChart(months, kwhImport, kwhGeneration)
-    this.updateWeekChart(weekDays, weekImport, weekGeneration)
-    this.updateHourlyChart(hours, dayImport, dayGeneration, dayConsumption, dayExport)
-  };
 
   getYearEnergy(year: number, cups?: number, community?: number): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -322,6 +324,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   updateHourlyChart(hours:string[], dayImport:number[], dayGeneration:number[], dayConsumption:number[], dayExport:number[]){
+    console.log("hours: ",hours, dayExport)
     if (!this.hourlyChart) {
       this.hourlyChart = new Chart(this.hourlyChartCanvasContent, {type: 'bar', data: {labels: [], datasets: []}})
     }
@@ -329,18 +332,26 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.hourlyChart.data = {
       labels: hours,
       datasets: [{
-        label: 'Total Import (Kwh)',
+        label: 'Import (Kwh)',
         data: dayImport,
         backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
         borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
         borderWidth: 1
       }, {
-        label: 'Total Generation (Kwh)',
+        label: 'Generation (Kwh)',
         data: dayGeneration,
         backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
         borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
         borderWidth: 1
-      }]
+      },
+       {
+        label: 'Surplus (Kwh)',
+        data: dayExport,
+        backgroundColor: 'rgba(0,79, 190, 0.2)', // Color para importación
+        borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
+        borderWidth: 1
+       }
+    ]
     }
 
     this.hourlyChart.update();

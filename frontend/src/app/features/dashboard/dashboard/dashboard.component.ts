@@ -5,6 +5,7 @@ import {EnergyService} from "../../../core/core-services/energy/energy.service";
 import {CustomersService} from "../../../core/core-services/customers/customers.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import moment from "moment";
+import { log } from "console";
 
 @Component({
   selector: 'dashboard',
@@ -79,9 +80,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       //set default value to selected cups:
       this.cupsId = this.customers[0].id
       //get chart info:
-      let {months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
+      let {months, kwhImport, kwhGeneration,kwhConsumption, kwhExport,weekDays, weekImport, weekGeneration, weekConsumption,weekExport, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
       //update charts:
-      this.updateCharts(months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport)
+      this.updateCharts(months, kwhImport, kwhGeneration,kwhConsumption, kwhExport,weekDays, weekImport, weekGeneration, weekConsumption,weekExport, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport)
 
     })
 
@@ -90,9 +91,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.cupsId = event.target.value;
 
       //get chart info:
-      let {months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
+      let {months, kwhImport, kwhGeneration,kwhConsumption, kwhExport,weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
       //update charts:
-      this.updateCharts(months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport)
+      this.updateCharts(months, kwhImport, kwhGeneration,kwhConsumption, kwhExport,weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport)
     })
 
     //date selector listener
@@ -108,22 +109,22 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.week = this.getWeekNumber(new Date(this.unformattedDate))
 
         //get chart info:
-        let {months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
+        let {months, kwhImport, kwhGeneration,kwhConsumption,kwhExport, weekDays, weekImport, weekGeneration, weekConsumption, weekExport, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
         //update charts:
-        this.updateCharts(months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport)
+        this.updateCharts(months, kwhImport, kwhGeneration, kwhConsumption, kwhExport, weekDays, weekImport, weekGeneration, weekConsumption, weekExport, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport)
       }
     })
 
   }
 
-  async updateCharts(months:[], kwhImport:[], kwhGeneration:[],weekDays:[], weekImport:[], weekGeneration:[], weekDateLimits:[],hours:[], dayImport:[], dayGeneration:[], dayConsumption:[], dayExport:[]) {
+  async updateCharts(months:[], kwhImport:[], kwhGeneration:[],kwhConsumption:[],kwhExport:[],weekDays:[], weekImport:[], weekGeneration:[], weekConsumption:[], weekExport:[], weekDateLimits:[],hours:[], dayImport:[], dayGeneration:[], dayConsumption:[], dayExport:[]) {
 
     if (weekDateLimits) {
       this.updateWeekDateLimits(this.week, weekDateLimits) //todo error
     }
-    this.updateYearChart(kwhImport, kwhGeneration)
-    this.updateMonthlyChart(months, kwhImport, kwhGeneration)
-    this.updateWeekChart(weekDays, weekImport, weekGeneration)
+    this.updateYearChart(kwhImport, kwhGeneration,kwhConsumption,kwhExport)
+    this.updateMonthlyChart(months, kwhImport, kwhGeneration,kwhConsumption,kwhExport)
+    this.updateWeekChart(weekDays, weekImport, weekGeneration,weekConsumption,weekExport)
     this.updateHourlyChart(hours, dayImport, dayGeneration, dayConsumption, dayExport)
   };
 
@@ -147,10 +148,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   async getChartInfo(cupsId: number, year: number, week: number, date: string){
-    let {months, kwhImport, kwhGeneration} = await this.getYearEnergy(year, cupsId)
-    let {weekDays, weekImport, weekGeneration, weekDateLimits} = await this.getEnergyByWeek(week, year, cupsId)
+    let {months, kwhImport, kwhGeneration, kwhExport, kwhConsumption} = await this.getYearEnergy(year, cupsId)
+    let {weekDays, weekImport, weekGeneration, weekConsumption, weekExport, weekDateLimits} = await this.getEnergyByWeek(week, year, cupsId)
     let {hours, dayImport, dayGeneration, dayConsumption, dayExport} = await this.getEnergyByDay(cupsId, date)
-    return {months, kwhImport, kwhGeneration,weekDays, weekImport, weekGeneration, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport}
+    return {months, kwhImport, kwhGeneration,kwhExport, kwhConsumption,weekDays, weekImport, weekGeneration, weekConsumption, weekExport, weekDateLimits,hours, dayImport, dayGeneration, dayConsumption, dayExport}
   }
 
   getYearEnergy(year: number, cups?: number, community?: number): Promise<any> {
@@ -162,7 +163,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         let months: string[] = monthlyCupsData.map((entry: any) => entry.month);
         let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
         let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
-        resolve({months, kwhImport, kwhGeneration})
+        let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
+        let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.consumption);
+        resolve({months, kwhImport, kwhGeneration,kwhConsumption,kwhExport})
       })
       //}else if (community){
       //todo
@@ -180,13 +183,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         let weekDays = weekCupsData.map((entry: any) => entry.week_day);
         let weekImport = weekCupsData.map((entry: any) => entry.import);
         let weekGeneration = weekCupsData.map((entry: any) => entry.generation);
+        let weekConsumption = weekCupsData.map((entry: any) => entry.consumption);
+        let weekExport = weekCupsData.map((entry: any) => entry.export);
         console.log("week cups data", weekCupsData)
 
         if (weekCupsData[0] && weekCupsData[1]) {
           weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
         }
         console.log("week date limits", weekDateLimits)
-        resolve({weekDays, weekImport, weekGeneration, weekDateLimits})
+        resolve({weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits})
       })
       //}else if(community){{
       //todo
@@ -232,21 +237,26 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     )
   }
 
-  updateYearChart(kwhImport: number[], kwhGeneration: number[]) {
-    const sumImport = kwhImport.reduce((partialSum: number, a: number) => partialSum + a, 0);
-    const sumGeneration = kwhGeneration.reduce((partialSum: number, a: number) => partialSum + a, 0);
+  updateYearChart(kwhImport: number[], kwhGeneration: number[], kwhConsumption:number[],kwhExport:number[]) {
+    console.log(kwhConsumption,kwhExport)
+    const sumImport = kwhImport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+    const sumGeneration = kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+    const sumConsumption = kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+    const sumExport = kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
 
     if (!this.yearlyChart) {
       this.yearlyChart = new Chart(this.yearlyChartCanvasContent, {type: 'pie', data: {labels: [], datasets: []}})
     }
 
     this.yearlyChart.data = {
-      labels: [`yearly Consumption: ${sumImport} Kwh`, `yearly Generation: ${sumGeneration} Kwh`],
+      labels: [`Import: ${sumImport} Kwh`, `Generation: ${sumGeneration} Kwh`,`Consumption: ${sumConsumption} Kwh`,`Surplus: ${sumExport} Kwh`],
       datasets: [{
-        data: [sumImport, sumGeneration],
+        data: [sumImport, sumGeneration,sumConsumption,sumExport],
         backgroundColor: [
           'rgb(255, 99, 132)',
-          'rgb(54, 162, 235)'
+          'rgb(54, 162, 235)',
+          'rgba(240, 190, 48, 1)',
+          'rgba(33, 217, 92, 0.71)'
         ]
       }]
     }
@@ -261,7 +271,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                        :
                        number[], kwhGeneration
                        :
-                       number[]
+                       number[],
+                       kwhConsumption:number[],
+                       kwhExport:number[]
   ) {
 
     if (!this.monthlyChart) {
@@ -271,30 +283,35 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.monthlyChart.data = {
       labels: months,
       datasets: [{
-        label: 'Total Import (Kwh)',
+        label: 'Import (Kwh)',
         data: kwhImport,
         backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
         borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
         borderWidth: 1
       }, {
-        label: 'Total Generation (Kwh)',
+        label: 'Generation (Kwh)',
         data: kwhGeneration,
         backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
         borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
+        borderWidth: 1
+      }, {
+        label: 'Consumption (Kwh)',
+        data: kwhConsumption,
+        backgroundColor: 'rgba(240, 190, 48, 1)', // Color para importación
+        borderColor: 'rgba(240, 190, 48, 1)', // Borde del color de importación
+        borderWidth: 1
+      }, {
+        label: 'Surplus (Kwh)',
+        data: kwhExport,
+        backgroundColor: 'rgba(33, 217, 92, 0.71)', // Color para importación
+        borderColor: 'rgba(33, 217, 92, 0.71)', // Borde del color de importación
         borderWidth: 1
       }]
     }
     this.monthlyChart.update();
   }
 
-  updateWeekChart(weekDays
-                    :
-                    string[], totalImport
-                    :
-                    [], totalGeneration
-                    :
-                    []
-  ) {
+  updateWeekChart(weekDays:string[], kwhImport:[], kwhGeneration:[], kwhConsumption:[],kwhExport:[]) {
 
     //console.log("week result: , weekDays, totalImport, totalGeneration)
 
@@ -305,16 +322,28 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.weeklyChart.data = {
       labels: weekDays,
       datasets: [{
-        label: 'Total Import (Kwh)',
-        data: totalImport,
+        label: 'Import (Kwh)',
+        data: kwhImport,
         backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
         borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
         borderWidth: 1
       }, {
-        label: 'Total Generation (Kwh)',
-        data: totalGeneration,
+        label: 'Generation (Kwh)',
+        data: kwhGeneration,
         backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
         borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
+        borderWidth: 1
+      }, {
+        label: 'Consumption (Kwh)',
+        data: kwhConsumption,
+        backgroundColor: 'rgba(240, 190, 48, 1)', // Color para importación
+        borderColor: 'rgba(240, 190, 48, 1)', // Borde del color de importación
+        borderWidth: 1
+      }, {
+        label: 'Surplus (Kwh)',
+        data: kwhExport,
+        backgroundColor: 'rgba(33, 217, 92, 0.71)', // Color para importación
+        borderColor: 'rgba(33, 217, 92, 0.71)', // Borde del color de importación
         borderWidth: 1
       }]
     }
@@ -347,8 +376,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
        {
         label: 'Surplus (Kwh)',
         data: dayExport,
-        backgroundColor: 'rgba(0,79, 190, 0.2)', // Color para importación
-        borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
+        backgroundColor: 'rgba(33, 217, 92, 0.71)', // Color para importación
+        borderColor: 'rgba(33, 217, 92, 0.71)', // Borde del color de importación
         borderWidth: 1
        }
     ]

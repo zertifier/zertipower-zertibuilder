@@ -43,6 +43,11 @@ export class CommunitiesFormComponent {
     private activeModal: NgbActiveModal,
   ) {}
 
+
+  changeTest(event:any){
+    console.log(event)
+  }
+
   setEditingId(id: number) {
     this.id = id;
     if (!this.id) {

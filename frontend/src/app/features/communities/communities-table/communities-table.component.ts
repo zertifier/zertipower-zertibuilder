@@ -44,8 +44,8 @@ export class CommunitiesTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'Location',
-      data: 'location',
+      title: 'Test',
+      data: 'test',
       width: '100px',
     },
     {
@@ -83,7 +83,7 @@ export class CommunitiesTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'location',
+        title: 'test',
         description: '',
         value: '',
         type: 0,
@@ -141,7 +141,7 @@ export class CommunitiesTableComponent implements OnDestroy {
   ];
 
   editRequest(id:any) {
-    const modalRef = this.ngbModal.open(CommunitiesFormComponent);
+    const modalRef = this.ngbModal.open(CommunitiesFormComponent, {size: 'xl'});
     modalRef.componentInstance.setEditingId(parseInt(id));
 
     this.subscriptions.push(

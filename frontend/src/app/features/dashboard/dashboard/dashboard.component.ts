@@ -43,11 +43,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   simpleWeekDateInit: string = '';
   simpleWeekDateEnd: string = '';
 
-  addCups:boolean=false;
 
-  constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder) {
-
-  }
+  constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder) {}
 
   ngOnInit() {
     this.yearlyChartCanvas = document.getElementById('doughnut-yearly-chart');
@@ -381,20 +378,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.hourlyChart.update();
   }
 
-  updateWeekDateLimits(week
-                         :
-                         number, weekDateLimits
-                         :
-                         any
-  ) {
+  updateWeekDateLimits(week:number, weekDateLimits:any) {
     let weekDateInit = new Date(weekDateLimits[0]);
     let weekDateEnd = new Date(weekDateLimits[1]);
     this.simpleWeekDateInit = `${weekDateInit.getFullYear()}/${weekDateInit.getMonth() + 1}/${weekDateInit.getDate()}`
     this.simpleWeekDateInit = moment(this.simpleWeekDateInit).format('DD/MM/YYYY')
     this.simpleWeekDateEnd = `${weekDateEnd.getFullYear()}/${weekDateEnd.getMonth() + 1}/${weekDateEnd.getDate()}`
     this.simpleWeekDateEnd = moment(this.simpleWeekDateEnd).format('DD/MM/YYYY')
-    console.log(this.simpleWeekDateInit, this.simpleWeekDateEnd)
-
   }
 
 }

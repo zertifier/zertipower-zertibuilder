@@ -18,7 +18,7 @@ import { EditorComponent } from '@tinymce/tinymce-angular';
     SharedComponentsModule,
     CoreComponentsModule,
     ReactiveFormsModule,
-    EditorComponent
+    EditorComponent, 
   ]
 })
 export class CommunitiesModule { }

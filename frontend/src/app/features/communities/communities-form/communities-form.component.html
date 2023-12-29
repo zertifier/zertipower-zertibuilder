@@ -1,34 +1,42 @@
 <div class="modal-header">
-  <h2>communities form</h2>
+  <h2>communities editor</h2>
 </div>
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
-    <div>
-      <label for="id-input">id</label>
-      <input id="id-input" type="number" formControlName="id" class="form-control">
-    </div>
-    <div>
-      <label for="name-input">name</label>
-      <editor
-          [init]="tinymceConfig"
-          formControlName="name"
-          id="description"></editor>
-    </div>
-    <div>
-      <label for="location-input">location</label>
-      <editor
-          [init]="tinymceConfig"
-          formControlName="location"
-          id="description"></editor>
-    </div>
-    <div>
-      <label for="created-at-input">created_at</label>
-      <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
-    </div>
-    <div>
-      <label for="updated-at-input">updated_at</label>
-      <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
-    </div>
+    
+    <div class="row">
+      <div class="col-6">
+        <div>
+          <label for="id-input">id</label>
+          <input id="id-input" type="number" formControlName="id" class="form-control">
+        </div>
+        <div>
+          <label for="name-input">name</label>
+          <editor
+              [init]="tinymceConfig"
+              formControlName="name"
+              id="description"></editor>
+        </div>
+        <div>
+          <div class="mb-2 col-12 d-flex align-items-center" id="test">
+             test: &nbsp; <ng-toggle (valueChange)="changeTest($event)" [color]="{unchecked: '#939da2',checked: '#36a2eb'}"></ng-toggle>
+          </div> 
+        </div>
+        <div>
+          <label for="created-at-input">created_at</label>
+          <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
+        </div>
+        <div>
+          <label for="updated-at-input">updated_at</label>
+          <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
+        </div>
+      </div>
+      <div class="col-6">
+        <canvas class="m-2" id="yearly-chart"></canvas>
+      </div>
+    </div>      
+    
+    
   </form>
 </div>
 <div class="modal-footer">

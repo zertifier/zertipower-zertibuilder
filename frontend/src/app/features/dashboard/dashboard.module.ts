@@ -4,7 +4,6 @@ import {DashboardComponent} from "./dashboard/dashboard.component";
 import {CoreComponentsModule} from "../../core/core-components/core-components.module";
 import {DashboardRoutingModule} from "./dashboard.routing.module";
 import {FormsModule} from "@angular/forms";
-import {NgToggleModule} from 'ng-toggle-button';
 
 @NgModule({
   declarations: [DashboardComponent],
@@ -12,8 +11,7 @@ import {NgToggleModule} from 'ng-toggle-button';
     CommonModule,
     CoreComponentsModule,
     DashboardRoutingModule,
-    FormsModule,
-    NgToggleModule.forRoot()
+    FormsModule
   ]
 })
 export class DashboardModule {

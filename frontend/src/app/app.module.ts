@@ -17,6 +17,7 @@ import { ErrorDisplayService } from "./core/core-services/error-displayer/error-
 import { PermissionsServicesModule } from "./features/permissions/infrastructure/services/permissions-services.module";
 import { ReportsServicesModule } from "./features/reports/infrastructure/services/reports-services.module";
 import {DashboardModule} from "./features/dashboard/dashboard.module";
+import { NgToggleModule } from "ng-toggle-button";
 
 @NgModule({
 	declarations: [AppComponent],
@@ -33,7 +34,8 @@ import {DashboardModule} from "./features/dashboard/dashboard.module";
 		CoreServicesModule,
 		QRCodeModule,
 		PermissionsServicesModule,
-		ReportsServicesModule
+		ReportsServicesModule,
+		NgToggleModule
 	],
 	providers: [
 		{ provide: HTTP_INTERCEPTORS, useClass: AccessTokenInterceptor, multi: true },

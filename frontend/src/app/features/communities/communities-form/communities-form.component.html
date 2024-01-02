@@ -2,42 +2,66 @@
   <h2>communities editor</h2>
 </div>
 <div class="modal-body">
-  <form id="form" [formGroup]="form" (ngSubmit)="save()">
-    
-    <div class="row">
-      <div class="col-6">
+
+
+  <div class="row">
+    <div class="col-6">
+      <form id="form" [formGroup]="form" (ngSubmit)="save()">
         <div>
           <label for="id-input">id</label>
-          <input id="id-input" type="number" formControlName="id" class="form-control">
+          <input id="id-input" type="number" formControlName="id" class="form-control" [readonly]="true">
         </div>
         <div>
           <label for="name-input">name</label>
-          <editor
-              [init]="tinymceConfig"
-              formControlName="name"
-              id="description"></editor>
+          <input id="name-input" type="string" formControlName="name" class="form-control">
         </div>
         <div>
-          <div class="mb-2 col-12 d-flex align-items-center" id="test">
-             test: &nbsp; <ng-toggle (valueChange)="changeTest($event)" [color]="{unchecked: '#939da2',checked: '#36a2eb'}"></ng-toggle>
-          </div> 
+          <label for="test-select">test</label>
+          <select name="test" id="test-select" class="form-select">
+            <option>yes</option>
+            <option>no</option>
+          </select>
         </div>
+
         <div>
           <label for="created-at-input">created_at</label>
-          <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
+          <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control disabled"
+                 [readonly]="true">
         </div>
         <div>
           <label for="updated-at-input">updated_at</label>
-          <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
+          <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control disabled"
+                 [readonly]="true">
         </div>
+      </form>
+
+      <div>
+        <label for="cups-select">community cups</label>
+        <ng-select id="cups-select" placeholder="Select cups" [items]="customers" [multiple]="true"
+                   [(ngModel)]="communityCups" bindLabel="name">
+          <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+            <input id="item-{{index}}" type="checkbox" [ngModel]="item$.selected"/> {{item.name}} {{item.ubication}}
+          </ng-template>
+        </ng-select>
       </div>
-      <div class="col-6">
-        <canvas class="m-2" id="yearly-chart"></canvas>
+      <div>
+        <label for="cups-select">Simulate generation</label>
+        <select class=" px-2 form-select" placeholder="Select cups">
+          <option></option>
+          <option *ngFor="let cups of communityCups" [ngValue]="id">{{cups.name}} {{cups.ubication}}</option>
+        </select>
+        <!-- year generation x input number : no basar la multiplicacion en datos reales, sino en el porcentaje esperable de creación de energía en base a placas con x potencia
+        por tanto poner formula: n placas con x eficencia y poder cambiar n, resultando más kwh -->
+        year generation
       </div>
-    </div>      
-    
-    
-  </form>
+    </div>
+    <div class="col-6">
+      <canvas class="m-2" id="yearly-chart"></canvas>
+    </div>
+  </div>
+
+
+
 </div>
 <div class="modal-footer">
   <button type="submit" class="btn btn-primary" form="form">Save</button>

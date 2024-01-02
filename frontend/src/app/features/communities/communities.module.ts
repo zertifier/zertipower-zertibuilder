@@ -6,8 +6,10 @@ import { CommunitiesTableComponent } from "./communities-table/communities-table
 import { CommunitiesFormComponent } from "./communities-form/communities-form.component";
 import {SharedComponentsModule} from "../../shared/infrastructure/components/shared-components.module";
 import {CoreComponentsModule} from "../../core/core-components/core-components.module";
-import { ReactiveFormsModule } from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { EditorComponent } from '@tinymce/tinymce-angular';
+import {UiSwitchModule} from "ngx-toggle-switch";
+import {NgSelectModule} from "@ng-select/ng-select";
 
 
 @NgModule({
@@ -18,7 +20,9 @@ import { EditorComponent } from '@tinymce/tinymce-angular';
     SharedComponentsModule,
     CoreComponentsModule,
     ReactiveFormsModule,
-    EditorComponent, 
+    EditorComponent,
+    FormsModule,
+    NgSelectModule
   ]
 })
 export class CommunitiesModule { }

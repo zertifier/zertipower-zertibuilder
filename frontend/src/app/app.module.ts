@@ -34,8 +34,7 @@ import { NgToggleModule } from "ng-toggle-button";
 		CoreServicesModule,
 		QRCodeModule,
 		PermissionsServicesModule,
-		ReportsServicesModule,
-		NgToggleModule
+		ReportsServicesModule
 	],
 	providers: [
 		{ provide: HTTP_INTERCEPTORS, useClass: AccessTokenInterceptor, multi: true },

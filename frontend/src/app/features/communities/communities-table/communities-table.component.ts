@@ -86,9 +86,25 @@ export class CommunitiesTableComponent implements OnDestroy {
         title: 'test',
         description: '',
         value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
+        type: 2,
+        defaultData: 1,
+        "binarySelector":true,
+        "defaultTranslation":["yes","no"],
+        "options":
+          [
+            {
+              "name": "",
+              "value": ""
+            },
+            {
+              "name": "yes",
+              "value": "1"
+            },
+            {
+              "name": "no",
+              "value": "0"
+            }
+          ]
       },
       {
         title: 'created_at',

@@ -4,7 +4,7 @@
 <div class="modal-body">
 
 
-  <div class="row">
+  <div class="row p-2">
     <div class="col-6">
       <form id="form" [formGroup]="form" (ngSubmit)="save()">
         <div>
@@ -38,21 +38,38 @@
       <div>
         <label for="cups-select">community cups</label>
         <ng-select id="cups-select" placeholder="Select cups" [items]="customers" [multiple]="true"
-                   [(ngModel)]="communityCups" bindLabel="name">
+                   [(ngModel)]="communityCups" (change)="changeCommunityCups(communityCups)" bindLabel="id">
           <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
-            <input id="item-{{index}}" type="checkbox" [ngModel]="item$.selected"/> {{item.name}} {{item.ubication}}
+            <input id="item-{{index}}" type="checkbox" [ngModel]="item$.selected"/> {{item.name}} {{item.ubication}} {{item.cups}}
           </ng-template>
         </ng-select>
       </div>
       <div>
         <label for="cups-select">Simulate generation</label>
-        <select class=" px-2 form-select" placeholder="Select cups">
+        <select class=" px-2 form-select" placeholder="Select cups"  (change)="changeSelectedCups(selectedCups)" [(ngModel)]="selectedCups"> <!---->
           <option></option>
-          <option *ngFor="let cups of communityCups" [ngValue]="id">{{cups.name}} {{cups.ubication}}</option>
+          <option *ngFor="let cups of communityCups" [ngValue]=cups>{{cups.name}} {{cups.ubication}}</option>
         </select>
         <!-- year generation x input number : no basar la multiplicacion en datos reales, sino en el porcentaje esperable de creación de energía en base a placas con x potencia
         por tanto poner formula: n placas con x eficencia y poder cambiar n, resultando más kwh -->
-        year generation
+
+      </div>
+      <div *ngIf="selectedCups" class="row text-center mt-2">
+        <div class="col-4 d-flex align-items-center">
+          <input disabled placeholder="generation" value="{{selectedCups.yearEnergy.sumGeneration}}" class="form-control" type="number">
+        </div>
+
+
+        <div class="col-4 d-flex align-items-center justify-content-center">
+          x
+        <input (input)="multiplyGeneration($event)"  class="form-control mx-2" type="number">
+          =
+        </div>
+
+        <div class="col-4">
+          <input disabled placeholder="generation" value="{{multiplyGenerationResult}}" class="form-control" type="number">
+        </div>
+
       </div>
     </div>
     <div class="col-6">

@@ -16,10 +16,11 @@ import Chart from "chart.js/auto";
 })
 export class CommunitiesFormComponent implements OnInit {
 
-  //todo: si seleccionamos un cups para simular generacion y luego borramos community cups no se actualiza el chart
+  //todo: si seleccionamos un cups para simular generacion y luego borramos
+  // community cups no se actualiza el chart
   //todo: no se tiene en cuenta en la actualizacion la simulación.
-  //todo: si se ha seleccionado para la simulacion un cups y luego se quita de la comunidad, qué pasa?
-  //todo: a veces no cargan los cups de la comunidad aunque si cargan los cups.
+  //todo: si se ha seleccionado para la simulacion un cups y luego se quita de la comunidad, qué pasa? (FIXED)
+  //todo: a veces no cargan los cups de la comunidad aunque si cargan los cups. (FIXED)
 
   @ViewChild('yearChart') yearChart: any;
 
@@ -102,13 +103,14 @@ export class CommunitiesFormComponent implements OnInit {
 
   getInfo() {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
-      let communityId = this.form.controls.id.getRawValue()
+     // let communityId = this.form.controls.id.getRawValue()
       this.customers = res.data[0];
-      console.log("cups: ", this.customers)
+      //console.log("community id ",this.id)
+      //console.log("cups: ", this.customers)
       this.communityCups = this.customers.filter((cups: any) =>
-        cups.community_id == communityId
+        cups.community_id == this.id
       )
-      console.log("communityCups", this.communityCups)
+      //console.log("communityCups", this.communityCups)
       this.getCommunityEnergy()
       // Notificar a ng-select que ha habido cambios
       this.cdr.detectChanges();
@@ -147,6 +149,12 @@ export class CommunitiesFormComponent implements OnInit {
 
   changeCommunityCups(communityCups: any) {
     console.log("change community cups : ", communityCups, this.communityCups)
+    console.log("selected cups",this.selectedCups)
+    let cupsFound = this.communityCups.find((cups)=>cups.id==this.selectedCups.id)
+    console.log("cups found:",cupsFound)
+    if(!cupsFound){
+      this.selectedCups=undefined;
+    }
     this.getCommunityEnergy();
   }
 

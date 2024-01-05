@@ -4,10 +4,11 @@ import { RequiredFieldComponent } from "./required-field/required-field.componen
 import { InvalidFeedbackComponent } from "./invalid-feedback/invalid-feedback.component";
 import { AppDatatableComponent } from "./app-datatable/app-datatable.component";
 import { DataTablesModule } from "angular-datatables";
+import {AppChartComponent} from "./chart/chart.component";
 
 @NgModule({
-	declarations: [RequiredFieldComponent, InvalidFeedbackComponent, AppDatatableComponent],
-	exports: [RequiredFieldComponent, InvalidFeedbackComponent, AppDatatableComponent],
+	declarations: [RequiredFieldComponent, InvalidFeedbackComponent, AppDatatableComponent,AppChartComponent],
+	exports: [RequiredFieldComponent, InvalidFeedbackComponent, AppDatatableComponent, AppChartComponent],
 	imports: [CommonModule, DataTablesModule],
 })
 export class SharedComponentsModule {}

@@ -16,8 +16,6 @@ import { QRCodeModule } from "angularx-qrcode";
 import { ErrorDisplayService } from "./core/core-services/error-displayer/error-display.service";
 import { PermissionsServicesModule } from "./features/permissions/infrastructure/services/permissions-services.module";
 import { ReportsServicesModule } from "./features/reports/infrastructure/services/reports-services.module";
-import {DashboardModule} from "./features/dashboard/dashboard.module";
-import { NgToggleModule } from "ng-toggle-button";
 
 @NgModule({
 	declarations: [AppComponent],
@@ -34,11 +32,12 @@ import { NgToggleModule } from "ng-toggle-button";
 		CoreServicesModule,
 		QRCodeModule,
 		PermissionsServicesModule,
-		ReportsServicesModule
+		ReportsServicesModule,
+
 	],
 	providers: [
-		{ provide: HTTP_INTERCEPTORS, useClass: AccessTokenInterceptor, multi: true },
-		{ provide: TINYMCE_SCRIPT_SRC, useValue: "tinymce/tinymce.min.js" },
+		{provide: HTTP_INTERCEPTORS, useClass: AccessTokenInterceptor, multi: true},
+		{provide: TINYMCE_SCRIPT_SRC, useValue: "tinymce/tinymce.min.js"},
 		{
 			provide: ErrorHandler,
 			useClass: ErrorDisplayService,

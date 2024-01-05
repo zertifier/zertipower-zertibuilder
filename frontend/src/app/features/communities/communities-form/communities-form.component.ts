@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {FormBuilder, FormControl, Validators} from "@angular/forms";
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2';
@@ -13,6 +13,7 @@ import Chart from "chart.js/auto";
   selector: 'communities-form',
   templateUrl: './communities-form.component.html',
   styleUrls: ['./communities-form.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class CommunitiesFormComponent implements OnInit {
 
@@ -21,6 +22,7 @@ export class CommunitiesFormComponent implements OnInit {
   //todo: no se tiene en cuenta en la actualizacion la simulación.
   //todo: si se ha seleccionado para la simulacion un cups y luego se quita de la comunidad, qué pasa? (FIXED)
   //todo: a veces no cargan los cups de la comunidad aunque si cargan los cups. (FIXED)
+  //todo: simular diversas generaciones a la vez: un valor input diferente por community cups
 
   @ViewChild('yearChart') yearChart: any;
 
@@ -46,19 +48,21 @@ export class CommunitiesFormComponent implements OnInit {
   test: number = 1;
   id: number = 0;
   communityCups: any[] = [];
+  selectedTab:string = 'yearly';
+  selectedYear=new Date().getFullYear()
 
   selectedCups: any;
   sumImport: number = 0;
   sumGeneration: number = 0;
   sumConsumption: number = 0;
   sumExport: number = 0;
-  multiplyGenerationResult:number=0;
+  multiplyGenerationResult: number = 0;
 
   yearlyChartCanvas: any;
   yearlyChartCanvasContent: any;
   yearlyChart: any;
 
-  communityId:number|any;
+  communityId: number | any;
 
   form = this.formBuilder.group({
     id: new FormControl<number | null>(null),
@@ -76,6 +80,7 @@ export class CommunitiesFormComponent implements OnInit {
     private energyService: EnergyService,
     private cdr: ChangeDetectorRef
   ) {
+
   }
 
   ngOnInit() {
@@ -103,7 +108,8 @@ export class CommunitiesFormComponent implements OnInit {
 
   getInfo() {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
-     // let communityId = this.form.controls.id.getRawValue()
+      // let communityId = this.form.controls.id.getRawValue()
+
       this.customers = res.data[0];
       //console.log("community id ",this.id)
       //console.log("cups: ", this.customers)
@@ -117,9 +123,11 @@ export class CommunitiesFormComponent implements OnInit {
     })
   }
 
-  async multiplyGeneration(event:any){
+  async multiplyGeneration(event: any) {
 
-    this.multiplyGenerationResult = this.selectedCups.yearEnergy.sumGeneration*event.target.value;
+    let factor = event.target.value;
+    this.selectedCups.yearEnergy.factor = factor;
+    this.multiplyGenerationResult = this.selectedCups.yearEnergy.sumGeneration * factor;
 
     this.sumImport = 0;
     this.sumConsumption = 0;
@@ -128,9 +136,10 @@ export class CommunitiesFormComponent implements OnInit {
 
     const getAllEnergy = this.communityCups.map(async (cups: any) => {
       this.sumImport += cups.yearEnergy.sumImport | 0;
-      if(cups.id == this.selectedCups.id){
+      if (cups.id == this.selectedCups.id) {
+        cups.yearEnergy.factor=factor;
         this.sumGeneration += this.multiplyGenerationResult;
-      }else{
+      } else {
         this.sumGeneration += cups.yearEnergy.sumGeneration | 0;
       }
 
@@ -149,11 +158,11 @@ export class CommunitiesFormComponent implements OnInit {
 
   changeCommunityCups(communityCups: any) {
     console.log("change community cups : ", communityCups, this.communityCups)
-    console.log("selected cups",this.selectedCups)
-    let cupsFound = this.communityCups.find((cups)=>cups.id==this.selectedCups.id)
-    console.log("cups found:",cupsFound)
-    if(!cupsFound){
-      this.selectedCups=undefined;
+    console.log("selected cups", this.selectedCups)
+    let cupsFound = this.communityCups.find((cups) => cups.id == this.selectedCups.id)
+    console.log("cups found:", cupsFound)
+    if (!cupsFound) {
+      this.selectedCups = undefined;
     }
     this.getCommunityEnergy();
   }
@@ -167,13 +176,18 @@ export class CommunitiesFormComponent implements OnInit {
       //todo harcoded year
       let yearEnergy: any = await this.getYearEnergyByCups(cups.id, 2023);
       cups.yearEnergy = yearEnergy;
+      cups.yearEnergy.factor=0;
       //console.log("year energy",yearEnergy)
       this.sumImport += yearEnergy.sumImport | 0;
       this.sumGeneration += yearEnergy.sumGeneration | 0;
       this.sumConsumption += yearEnergy.sumConsumption | 0;
       this.sumExport += yearEnergy.sumExport | 0;
     })
+
     await Promise.all(getAllEnergy)
+
+    //this.sumExport = this.sumConsumption - this.sumGeneration
+
     console.log(this.sumImport, this.sumConsumption, this.sumGeneration, this.sumExport)
     this.updateYearChart()
     console.log("community cups: ", this.communityCups)
@@ -226,10 +240,16 @@ export class CommunitiesFormComponent implements OnInit {
         let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
         let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
         let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.consumption);
-        const sumImport = kwhImport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+        let sumImport = kwhImport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
         const sumGeneration = kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
-        const sumConsumption = kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+        let sumConsumption = kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
         const sumExport = kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+        //TODO: revisar
+        if(sumConsumption<sumImport){
+          sumConsumption=sumImport
+        }
+        //const sumExport = sumGeneration-sumConsumption
+
         console.log("cups: ", cups, "year energy ", sumImport, sumExport, sumConsumption, sumGeneration)
         let yearEnergy = {
           months,

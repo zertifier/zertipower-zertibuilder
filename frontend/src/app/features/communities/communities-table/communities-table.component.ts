@@ -1,5 +1,5 @@
 import { Component, OnDestroy, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalConfig  } from '@ng-bootstrap/ng-bootstrap';
 import { dtColumns } from "src/app/shared/infrastructure/components/app-datatable/interfaces/dtColumns.interface";
 import { filterParams } from "src/app/shared/infrastructure/components/app-datatable/interfaces/filterParams.interface";
 import { environment } from 'src/environments/environment';
@@ -21,7 +21,9 @@ export class CommunitiesTableComponent implements OnDestroy {
   constructor(
     private ngbModal: NgbModal,
     private apiService: CommunitiesApiService,
+    private config: NgbModalConfig
   ) {
+    this.config.size = 'lg';
   }
 
   readonly subscriptions: Array<Subscription> = []
@@ -157,7 +159,7 @@ export class CommunitiesTableComponent implements OnDestroy {
   ];
 
   editRequest(id:any) {
-    const modalRef = this.ngbModal.open(CommunitiesFormComponent, {size: 'xl'});
+    const modalRef = this.ngbModal.open(CommunitiesFormComponent,{size:'xl'});
     modalRef.componentInstance.setEditingId(parseInt(id));
 
     this.subscriptions.push(

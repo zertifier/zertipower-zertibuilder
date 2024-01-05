@@ -9,25 +9,10 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
+
         <li class="nav-item">
           <a [routerLinkActive]="'active'" [routerLink]="['/dashboard']" class="nav-link">Dashboard</a>
         </li>
-
-        <!--<li class="nav-item">
-          <a [routerLinkActive]="'active'" [routerLink]="['/reports']" class="nav-link">Reports</a>
-        </li>-->
-
-        <div class="w-50" ngbDropdown>
-          <button class="btn btn-light w-100" ngbDropdownToggle> Other </button>
-          <div class="dropdown-menu-end" ngbDropdownMenu>
-            <button ngbDropdownItem>
-              <a [routerLinkActive]="'active'" [routerLink]="['/smart-contracts']" class="nav-link">Smart contracts</a>
-            </button>
-            <button ngbDropdownItem>
-              <a [routerLinkActive]="'active'" [routerLink]="['/smart-contracts']" class="nav-link">Smart contracts</a>
-            </button>
-          </div>
-        </div>
 
         <div class="w-50" ngbDropdown>
           <button class="btn btn-light w-100" ngbDropdownToggle> Energy</button>
@@ -50,7 +35,6 @@
           </div>
         </div>
 
-
         <div class="w-50" ngbDropdown>
           <button class="btn btn-light w-100" ngbDropdownToggle> Participants </button>
           <div class="dropdown-menu-end" ngbDropdownMenu>
@@ -68,6 +52,18 @@
             </button>
             <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/users']" class="nav-link">Users</a>
+            </button>
+          </div>
+        </div>
+
+        <div class="w-50" ngbDropdown>
+          <button class="btn btn-light w-100" ngbDropdownToggle> Other </button>
+          <div class="dropdown-menu-end" ngbDropdownMenu>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/smart-contracts']" class="nav-link">Smart contracts</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/reports']" class="nav-link">Reports</a>
             </button>
           </div>
         </div>

@@ -8,8 +8,8 @@ import {SharedComponentsModule} from "../../shared/infrastructure/components/sha
 import {CoreComponentsModule} from "../../core/core-components/core-components.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { EditorComponent } from '@tinymce/tinymce-angular';
-import {UiSwitchModule} from "ngx-toggle-switch";
 import {NgSelectModule} from "@ng-select/ng-select";
+import {AppModule} from "../../app.module";
 
 
 @NgModule({
@@ -22,7 +22,8 @@ import {NgSelectModule} from "@ng-select/ng-select";
     ReactiveFormsModule,
     EditorComponent,
     FormsModule,
-    NgSelectModule
+    NgSelectModule,
+    AppModule
   ]
 })
 export class CommunitiesModule { }

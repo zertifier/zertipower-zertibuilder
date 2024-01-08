@@ -59,7 +59,7 @@
           por tanto poner formula: n placas con x eficencia y poder cambiar n, resultando más kwh -->
         </div>
       </div>
-      <div *ngIf="selectedCups" class="row text-center mt-2">
+      <div *ngIf="selectedCups" class="row text-center mt-4">
         <div class="col-4 d-flex align-items-center">
           <input disabled placeholder="generation" value="{{selectedCups.yearEnergy.sumGeneration}}"
                  class="form-control" type="number">
@@ -73,7 +73,7 @@
           =
         </div>
 
-        <div class="col-4 mt-3">
+        <div class="col-4">
           <input disabled placeholder="generation" value="{{multiplyGenerationResult}}" class="form-control"
                  type="number">
         </div>

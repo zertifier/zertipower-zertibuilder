@@ -119,11 +119,21 @@ export class CommunitiesFormComponent implements OnInit {
       // let communityId = this.form.controls.id.getRawValue()
 
       this.customers = res.data[0];
+
+      this.customers.map((cus:any)=>{
+        console.log(cus.community_id)
+      })
+
       //console.log("community id ",this.id)
       //console.log("cups: ", this.customers)
       this.communityCups = this.customers.filter((cups: any) =>
         cups.community_id == this.id
       )
+
+      this.customers = this.customers.filter((cups: any) =>
+        cups.community_id == this.id || cups.community_id == null || cups.community_id == 0
+      )
+
       //console.log("communityCups", this.communityCups)
       this.getCommunityEnergy()
       // Notificar a ng-select que ha habido cambios

@@ -96,7 +96,8 @@
           <input type="number" placeholder="year" class="form-control" style="max-width: 150px"
                  [(ngModel)]="selectedYear">
         </div>
-        <canvas class="m-2" id="yearly-chart"></canvas>
+        <!--<canvas class="m-2" id="yearly-chart"></canvas>-->
+        <app-chart [chartType]="yearChartType" [labels]="yearChartLabels" [data]="yearChartData" [backgroundColor]="yearChartBackgroundColor" [update]="updateYearChart"></app-chart>
       </div>
       <div *ngIf="selectedTab=='monthly'">
         <div class="d-flex justify-content-center my-2">

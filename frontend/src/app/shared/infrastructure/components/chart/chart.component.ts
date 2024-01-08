@@ -18,6 +18,8 @@ export class AppChartComponent implements OnInit, OnChanges {
     @Input() data: number[] = [];
     @Input() backgroundColor: string[] = [];
 
+    @Input() update: boolean = false;
+
     constructor() {
 
     }
@@ -25,18 +27,6 @@ export class AppChartComponent implements OnInit, OnChanges {
     ngOnInit() {
         this.chartCanvas = document.getElementById('chart');
         this.chartCanvasContent = this.chartCanvas.getContext('2d');
-
-        if (!this.chart) {
-            this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []}})
-        }
-        this.chart.data = {
-            labels: this.labels,
-            datasets: [{
-                data: this.data,
-                backgroundColor: this.backgroundColor
-            }]
-        }
-        this.chart.update();
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -44,10 +34,11 @@ export class AppChartComponent implements OnInit, OnChanges {
             if (changes.hasOwnProperty(propName)) {
                 switch (propName) {
                     case 'data':
-                        if (changes['data'].currentValue) {
-
+                        if (changes['update'].currentValue) {
+                          console.log(changes['update'].currentValue)
+                          this.updateChart();
                         } else {
-
+                          console.log(changes['update'].currentValue)
                         }
                         break;
                     default:
@@ -55,6 +46,20 @@ export class AppChartComponent implements OnInit, OnChanges {
                 }
             }
         }
+    }
+
+    updateChart(){
+      if (!this.chart) {
+        this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []}})
+      }
+      this.chart.data = {
+        labels: this.labels,
+        datasets: [{
+          data: this.data,
+          backgroundColor: this.backgroundColor
+        }]
+      }
+      this.chart.update();
     }
 
 }

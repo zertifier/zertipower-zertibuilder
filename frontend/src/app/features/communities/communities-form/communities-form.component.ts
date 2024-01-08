@@ -72,6 +72,13 @@ export class CommunitiesFormComponent implements OnInit {
     updatedAt: new FormControl<string | null>(null),
   });
 
+  yearChartType : string = 'pie';
+  yearChartLabels : string[] = [];
+  yearChartDatasets: any[]= [];
+  yearChartData : number[]=[];
+  yearChartBackgroundColor : string [] = [];
+  updateYearChart: boolean = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private apiService: CommunitiesApiService,
@@ -84,8 +91,8 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.yearlyChartCanvas = document.getElementById('yearly-chart');
-    this.yearlyChartCanvasContent = this.yearlyChartCanvas.getContext('2d');
+    //this.yearlyChartCanvas = document.getElementById('yearly-chart');
+    //this.yearlyChartCanvasContent = this.yearlyChartCanvas.getContext('2d');
     this.getInfo()
   }
 
@@ -148,7 +155,7 @@ export class CommunitiesFormComponent implements OnInit {
     })
     await Promise.all(getAllEnergy)
     console.log(this.sumImport, this.sumConsumption, this.sumGeneration, this.sumExport)
-    this.updateYearChart()
+    this.updateYearChartValues()
   }
 
   changeSelectedCups(selectedCups: any) {
@@ -189,7 +196,7 @@ export class CommunitiesFormComponent implements OnInit {
     //this.sumExport = this.sumConsumption - this.sumGeneration
 
     console.log(this.sumImport, this.sumConsumption, this.sumGeneration, this.sumExport)
-    this.updateYearChart()
+    this.updateYearChartValues()
     console.log("community cups: ", this.communityCups)
   }
 
@@ -267,7 +274,19 @@ export class CommunitiesFormComponent implements OnInit {
     })
   }
 
-  updateYearChart() {
+  updateYearChartValues() {
+
+    this.yearChartLabels = [`Import: ${this.sumImport} Kwh`, `Generation: ${this.sumGeneration} Kwh`, `Consumption: ${this.sumConsumption} Kwh`, `Surplus: ${this.sumExport} Kwh`]
+    this.yearChartData = [this.sumImport, this.sumGeneration, this.sumConsumption, this.sumExport]
+    this.yearChartBackgroundColor = [
+      'rgb(255, 99, 132)',
+      'rgb(54, 162, 235)',
+      'rgba(240, 190, 48, 1)',
+      'rgba(33, 217, 92, 0.71)'
+    ]
+    this.updateYearChart=true;
+
+
     if (!this.yearlyChart) {
       this.yearlyChart = new Chart(this.yearlyChartCanvasContent, {type: 'pie', data: {labels: [], datasets: []}})
     }

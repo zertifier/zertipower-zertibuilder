@@ -101,15 +101,18 @@
       </div>
       <div *ngIf="selectedTab=='monthly'">
         <div class="d-flex justify-content-center my-2">
-          <input type="number" placeholder="week" class="form-control" style="max-width: 150px">
+          <input type="month" placeholder="month" class="form-control" style="max-width: 150px">
         </div>
-        <canvas class="m-2" id="weekly-chart"></canvas>
+        <!--<canvas class="m-2" id="weekly-chart"></canvas>-->
+        <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets" [update]="updateMonthChart" [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
       </div>
       <div *ngIf="selectedTab=='daily'">
         <div class="d-flex justify-content-center my-2">
-          <input type="date" placeholder="day" class="form-control" style="max-width: 150px">
+          <!--<input type="date" placeholder="day" class="form-control" style="max-width: 150px">-->
+          <input id="textinput" [(ngModel)]="date" name="textinput" type="date" placeholder="Start Date" class="form-control input-md" style="max-width: 150px">
         </div>
-        <canvas class="m-2" id="hourly-chart"></canvas>
+        <!--<canvas class="m-2" id="hourly-chart"></canvas>-->
+        <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [data]="dayChartData" [backgroundColor]="dayChartBackgroundColor" [update]="updateDayChart" [updateSubject]="updateDayChartSubject.asObservable()"></app-chart>
       </div>
 
     </div>

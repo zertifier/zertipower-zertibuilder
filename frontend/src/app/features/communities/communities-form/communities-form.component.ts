@@ -2,7 +2,7 @@ import {ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation} from
 import {FormBuilder, FormControl, Validators} from "@angular/forms";
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {BehaviorSubject, Observable, repeat, Subject} from 'rxjs';
 import {CommunitiesApiService} from '../communities.service';
 import moment from 'moment';
 import {CustomersService} from "../../../core/core-services/customers/customers.service";
@@ -48,19 +48,27 @@ export class CommunitiesFormComponent implements OnInit {
   test: number = 1;
   id: number = 0;
   communityCups: any[] = [];
-  selectedTab:string = 'yearly';
-  selectedYear=new Date().getFullYear()
+  selectedTab: string = 'monthly';
+  selectedYear = new Date().getFullYear()
 
   selectedCups: any;
-  sumImport: number = 0;
-  sumGeneration: number = 0;
-  sumConsumption: number = 0;
-  sumExport: number = 0;
-  multiplyGenerationResult: number = 0;
 
-  yearlyChartCanvas: any;
-  yearlyChartCanvasContent: any;
-  yearlyChart: any;
+  sumYearImport: number = 0;
+  sumYearGeneration: number = 0;
+  sumYearConsumption: number = 0;
+  sumYearExport: number = 0;
+
+  sumMonthImport: number[] = [];
+  sumMonthGeneration: number[] = [];
+  sumMonthConsumption: number[] = [];
+  sumMonthExport: number[] = [];
+
+  sumDayImport: number[] = [];
+  sumDayGeneration: number[] = [];
+  sumDayConsumption: number[] = [];
+  sumDayExport: number[] = [];
+
+  multiplyGenerationResult: number = 0;
 
   communityId: number | any;
 
@@ -72,13 +80,32 @@ export class CommunitiesFormComponent implements OnInit {
     updatedAt: new FormControl<string | null>(null),
   });
 
-  yearChartType : string = 'pie';
-  yearChartLabels : string[] = [];
-  yearChartDatasets: any[]= [];
-  yearChartData : number[]=[];
-  yearChartBackgroundColor : string [] = [];
+  yearChartType: string = 'pie';
+  yearChartLabels: string[] = [];
+  yearChartDatasets: any[]  | undefined = [];
+  yearChartData: number[] = [];
+  yearChartBackgroundColor: string [] = [];
   updateYearChart: boolean = false;
   updateYearChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  monthChartType: string = 'bar';
+  monthChartLabels: string[] = [];
+  monthChartDatasets: any[] | undefined = undefined;
+  monthChartData: any[] = [];
+  monthChartBackgroundColor: string [] = [];
+  updateMonthChart: boolean = false;
+  updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  dayChartType: string = 'bar';
+  dayChartLabels: string[] = [];
+  dayChartDatasets: any[] = [];
+  dayChartData: number[] = [];
+  dayChartBackgroundColor: string [] = [];
+  updateDayChart: boolean = false;
+  updateDayChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  unformattedDate = new Date;
+  date: any;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -88,12 +115,9 @@ export class CommunitiesFormComponent implements OnInit {
     private energyService: EnergyService,
     private cdr: ChangeDetectorRef
   ) {
-
   }
 
   ngOnInit() {
-    //this.yearlyChartCanvas = document.getElementById('yearly-chart');
-    //this.yearlyChartCanvasContent = this.yearlyChartCanvas.getContext('2d');
     this.getInfo()
   }
 
@@ -116,27 +140,22 @@ export class CommunitiesFormComponent implements OnInit {
 
   getInfo() {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
-      // let communityId = this.form.controls.id.getRawValue()
 
       this.customers = res.data[0];
 
-      this.customers.map((cus:any)=>{
-        console.log(cus.community_id)
-      })
-
-      //console.log("community id ",this.id)
-      //console.log("cups: ", this.customers)
+      //get the cups that own to the selected community
       this.communityCups = this.customers.filter((cups: any) =>
         cups.community_id == this.id
       )
 
+      //get the cups that doesnt own to other communities
       this.customers = this.customers.filter((cups: any) =>
         cups.community_id == this.id || cups.community_id == null || cups.community_id == 0
       )
 
-      //console.log("communityCups", this.communityCups)
       this.getCommunityEnergy()
-      // Notificar a ng-select que ha habido cambios
+
+      // notify changes to ng-select
       this.cdr.detectChanges();
     })
   }
@@ -147,25 +166,25 @@ export class CommunitiesFormComponent implements OnInit {
     this.selectedCups.yearEnergy.factor = factor;
     this.multiplyGenerationResult = this.selectedCups.yearEnergy.sumGeneration * factor;
 
-    this.sumImport = 0;
-    this.sumConsumption = 0;
-    this.sumGeneration = 0;
-    this.sumExport = 0;
+    this.sumYearImport = 0;
+    this.sumYearConsumption = 0;
+    this.sumYearGeneration = 0;
+    this.sumYearExport = 0;
 
     const getAllEnergy = this.communityCups.map(async (cups: any) => {
-      this.sumImport += cups.yearEnergy.sumImport | 0;
+      //todo: update export;
+      this.sumYearImport += cups.yearEnergy.sumImport | 0;
       if (cups.id == this.selectedCups.id) {
-        cups.yearEnergy.factor=factor;
-        this.sumGeneration += this.multiplyGenerationResult;
+        cups.yearEnergy.factor = factor;
+        this.sumYearGeneration += this.multiplyGenerationResult;
       } else {
-        this.sumGeneration += cups.yearEnergy.sumGeneration | 0;
+        this.sumYearGeneration += cups.yearEnergy.sumGeneration | 0;
       }
-
-      this.sumConsumption += cups.yearEnergy.sumConsumption | 0;
-      this.sumExport += cups.yearEnergy.sumExport | 0;
+      this.sumYearConsumption += cups.yearEnergy.sumConsumption | 0;
+      this.sumYearExport += cups.yearEnergy.sumExport | 0;
     })
     await Promise.all(getAllEnergy)
-    console.log(this.sumImport, this.sumConsumption, this.sumGeneration, this.sumExport)
+    console.log(this.sumYearImport, this.sumYearConsumption, this.sumYearGeneration, this.sumYearExport)
     this.updateYearChartValues()
   }
 
@@ -186,28 +205,65 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   async getCommunityEnergy() {
-    this.sumImport = 0;
-    this.sumConsumption = 0;
-    this.sumGeneration = 0;
-    this.sumExport = 0;
+
+    this.sumYearImport = 0;
+    this.sumYearConsumption = 0;
+    this.sumYearGeneration = 0;
+    this.sumYearExport = 0;
+
+    this.sumMonthImport = Array.apply(null, Array(12)).map(function () {return 0}) ;
+    this.sumMonthGeneration = Array.apply(null, Array(12)).map(function () {return 0}) ;
+    this.sumMonthConsumption = Array.apply(null, Array(12)).map(function () {return 0;}) ;
+    this.sumMonthExport = Array.apply(null, Array(12)).map(function () {return 0;}) ;
+
+    this.sumDayImport = Array.apply(null, Array(7)).map(function () {return 0}) ;
+    this.sumDayGeneration = Array.apply(null, Array(7)).map(function () {return 0}) ;
+    this.sumDayConsumption = Array.apply(null, Array(7)).map(function () {return 0;}) ;
+    this.sumDayExport = Array.apply(null, Array(7)).map(function () {return 0;}) ;
+
     const getAllEnergy = this.communityCups.map(async (cups: any) => {
       //todo harcoded year
       let yearEnergy: any = await this.getYearEnergyByCups(cups.id, 2023);
       cups.yearEnergy = yearEnergy;
-      cups.yearEnergy.factor=0;
+      cups.yearEnergy.factor = 0;
       //console.log("year energy",yearEnergy)
-      this.sumImport += yearEnergy.sumImport | 0;
-      this.sumGeneration += yearEnergy.sumGeneration | 0;
-      this.sumConsumption += yearEnergy.sumConsumption | 0;
-      this.sumExport += yearEnergy.sumExport | 0;
+      this.sumYearImport += yearEnergy.sumImport | 0;
+      this.sumYearGeneration += yearEnergy.sumGeneration | 0;
+      this.sumYearConsumption += yearEnergy.sumConsumption | 0;
+      this.sumYearExport += yearEnergy.sumExport | 0;
+
+      this.sumMonthImport = this.sumMonthImport.map((monthImport, index) => {
+        monthImport += yearEnergy.kwhImport[index];
+        return monthImport;
+      })
+
+      this.sumMonthExport = this.sumMonthExport.map((monthExport, index) => {
+        monthExport += yearEnergy.kwhExport[index];
+        return monthExport;
+      })
+      this.sumMonthGeneration = this.sumMonthGeneration.map((monthGeneration, index) => {
+        monthGeneration += yearEnergy.kwhGeneration[index];
+        return monthGeneration;
+      })
+      this.sumMonthConsumption = this.sumMonthConsumption.map((monthConsumption, index) => {
+        monthConsumption += yearEnergy.kwhConsumption[index];
+        return monthConsumption;
+      })
+
+      this.date = `${this.unformattedDate.getDate()}/${this.unformattedDate.getMonth() + 1}/${this.unformattedDate.getFullYear()}`;
+      await this.getDayEnergyByCups(cups.id, this.date);
+
     })
 
     await Promise.all(getAllEnergy)
 
     //this.sumExport = this.sumConsumption - this.sumGeneration
 
-    console.log(this.sumImport, this.sumConsumption, this.sumGeneration, this.sumExport)
-    this.updateYearChartValues()
+    console.log(this.sumYearImport, this.sumYearConsumption, this.sumYearGeneration, this.sumYearExport)
+
+    this.updateYearChartValues();
+    this.updateMonthChartValues();
+
     console.log("community cups: ", this.communityCups)
   }
 
@@ -253,18 +309,20 @@ export class CommunitiesFormComponent implements OnInit {
     return new Promise((resolve, reject) => {
       this.energyService.getYearByCups(year, cups!).subscribe((res: any) => {
         let monthlyCupsData = res.data;
+
         let months: string[] = monthlyCupsData.map((entry: any) => entry.month);
         let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
         let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
         let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
         let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.consumption);
+
         let sumImport = kwhImport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
         const sumGeneration = kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
         let sumConsumption = kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
         const sumExport = kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
         //TODO: revisar
-        if(sumConsumption<sumImport){
-          sumConsumption=sumImport
+        if (sumConsumption < sumImport) {
+          sumConsumption = sumImport
         }
         //const sumExport = sumGeneration-sumConsumption
 
@@ -285,11 +343,46 @@ export class CommunitiesFormComponent implements OnInit {
     })
   }
 
-  updateYearChartValues() {
+  updateMonthChartValues() {
+    this.monthChartLabels = ['January','February','March','April','May','June','July','August','September','October','November','December']// [`Import (Kwh)`, `Generation (Kwh)`, `Consumption (Kwh)`, `Surplus (Kwh)`]
+    this.monthChartData = [this.sumMonthImport, this.sumMonthGeneration, this.sumMonthConsumption, this.sumMonthExport]
+    this.monthChartBackgroundColor = [
+      'rgb(255, 99, 132)',
+      'rgb(54, 162, 235)',
+      'rgba(240, 190, 48, 1)',
+      'rgba(33, 217, 92, 0.71)'
+    ]
+    this.monthChartDatasets = [
+      {
+        label: 'Import (Kwh)',
+        data: this.monthChartData[0],
+        backgroundColor: this.monthChartBackgroundColor[0]
+      },
+      {
+        label: 'Generation (Kwh)',
+        data: this.monthChartData[1],
+        backgroundColor: this.monthChartBackgroundColor[1]
+      },
+      {
+        label: 'Consumption (Kwh)',
+        data: this.monthChartData[2],
+        backgroundColor: this.monthChartBackgroundColor[2]
+      },
+      {
+        label: 'Export (Kwh)',
+        data: this.monthChartData[3],
+        backgroundColor: this.monthChartBackgroundColor[3]
+      }
+    ]
 
+    this.updateMonthChartSubject.next(true);
+  }
+
+  updateYearChartValues() {
+    this.yearChartDatasets = undefined;
     console.log("updateYearChartValues")
-    this.yearChartLabels = [`Import: ${this.sumImport} Kwh`, `Generation: ${this.sumGeneration} Kwh`, `Consumption: ${this.sumConsumption} Kwh`, `Surplus: ${this.sumExport} Kwh`]
-    this.yearChartData = [this.sumImport, this.sumGeneration, this.sumConsumption, this.sumExport]
+    this.yearChartLabels = [`Import: ${this.sumYearImport} Kwh`, `Generation: ${this.sumYearGeneration} Kwh`, `Consumption: ${this.sumYearConsumption} Kwh`, `Surplus: ${this.sumYearExport} Kwh`]
+    this.yearChartData = [this.sumYearImport, this.sumYearGeneration, this.sumYearConsumption, this.sumYearExport]
     this.yearChartBackgroundColor = [
       'rgb(255, 99, 132)',
       'rgb(54, 162, 235)',
@@ -298,23 +391,32 @@ export class CommunitiesFormComponent implements OnInit {
     ]
     //this.updateYearChart=true;
     this.updateYearChartSubject.next(true)
-    //this.cdr.detectChanges();
-    /*if (!this.yearlyChart) {
-      this.yearlyChart = new Chart(this.yearlyChartCanvasContent, {type: 'pie', data: {labels: [], datasets: []}})
-    }
-    this.yearlyChart.data = {
-      labels: [`Import: ${this.sumImport} Kwh`, `Generation: ${this.sumGeneration} Kwh`, `Consumption: ${this.sumConsumption} Kwh`, `Surplus: ${this.sumExport} Kwh`],
-      datasets: [{
-        data: [this.sumImport, this.sumGeneration, this.sumConsumption, this.sumExport],
-        backgroundColor: [
-          'rgb(255, 99, 132)',
-          'rgb(54, 162, 235)',
-          'rgba(240, 190, 48, 1)',
-          'rgba(33, 217, 92, 0.71)'
-        ]
-      }]
-    }
-    this.yearlyChart.update();*/
+  }
+
+  getDayEnergyByCups(cups: number, date: string): Promise<any> {
+    date = moment(date, 'DD/MM/yyyy').format('YYYY-MM-DD')
+    return new Promise((resolve, reject) => {
+        this.energyService.getHoursByCups(cups, date).subscribe((res: any) => {
+
+          let hourlyData = res.data
+          const getHour = (datetimeString: any) => {
+            return parseInt(datetimeString.slice(11, 13));
+          };
+
+          // Ordenar hourlyData por la hora
+          hourlyData = hourlyData.sort((a: any, b: any) => getHour(a.info_datetime) - getHour(b.info_datetime));
+
+          let hours = hourlyData.map((entry: any) => moment.utc(entry.info_datetime).format('HH'));
+          let dayImport = hourlyData.map((entry: any) => entry.import);
+          let dayGeneration = hourlyData.map((entry: any) => entry.generation);
+          let dayConsumption = hourlyData.map((entry: any) => entry.consumption);
+          let dayExport = hourlyData.map((entry: any) => entry.export);
+
+          let dayEnergy = {hours, dayImport, dayGeneration, dayConsumption, dayExport}
+          resolve(dayEnergy)
+        })
+      }
+    )
   }
 
 }

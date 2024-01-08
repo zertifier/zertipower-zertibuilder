@@ -148,7 +148,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     let yearEnergy = await this.getYearEnergy(year, cupsId)
     let weekEnergy = await this.getEnergyByWeek(week, year, cupsId)
     let dayEnergy = await this.getEnergyByDay(cupsId, date)
-    
+
     return {yearEnergy,weekEnergy,dayEnergy}
   }
 
@@ -189,7 +189,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         if (weekCupsData[0] && weekCupsData[1]) {
           weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
         }
-        
+
         let weekEnergy = {weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits}
         resolve(weekEnergy)
       })
@@ -240,6 +240,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   updateYearChart(yearEnergy:any) {
+
     const sumImport = yearEnergy.kwhImport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
     const sumGeneration = yearEnergy.kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
     const sumConsumption = yearEnergy.kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);

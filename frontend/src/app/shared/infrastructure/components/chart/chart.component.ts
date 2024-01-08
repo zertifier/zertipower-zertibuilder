@@ -26,8 +26,8 @@ export class AppChartComponent implements OnInit, OnChanges {
 
   @Input() chartType: any = 'pie';
   @Input() labels: string[] = [];
-  @Input() datasets: any[] = [];
-  @Input() data: number[] = [];
+  @Input() datasets: any[] | undefined = undefined;
+  @Input() data: any[] = [];
   @Input() backgroundColor: string[] = [];
 
   @Input() update: boolean = false;
@@ -45,6 +45,7 @@ export class AppChartComponent implements OnInit, OnChanges {
     this.updateSubject?.subscribe(async (update) => {
       await this.delay(500);
       if (update) {
+        console.log("update")
         this.updateChart();
       }
     })
@@ -77,15 +78,17 @@ export class AppChartComponent implements OnInit, OnChanges {
     if (!this.chart) {
       this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []}})
     }
+
+    console.log("this datasets", this.datasets)
     this.chart.data = {
       labels: this.labels,
-      datasets: [{
+      datasets: this.datasets || [{
         data: this.data,
         backgroundColor: this.backgroundColor
       }]
     }
     this.chart.update();
-    //this.cdr.detectChanges();
+    this.cdr.detectChanges();
   }
 
   delay(ms: number) {

@@ -9,7 +9,6 @@ import {CoreComponentsModule} from "../../core/core-components/core-components.m
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { EditorComponent } from '@tinymce/tinymce-angular';
 import {NgSelectModule} from "@ng-select/ng-select";
-import {AppModule} from "../../app.module";
 
 
 @NgModule({
@@ -22,8 +21,7 @@ import {AppModule} from "../../app.module";
     ReactiveFormsModule,
     EditorComponent,
     FormsModule,
-    NgSelectModule,
-    AppModule
+    NgSelectModule
   ]
 })
 export class CommunitiesModule { }

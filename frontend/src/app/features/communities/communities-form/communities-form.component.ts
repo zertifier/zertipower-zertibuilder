@@ -2,7 +2,7 @@ import {ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation} from
 import {FormBuilder, FormControl, Validators} from "@angular/forms";
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {CommunitiesApiService} from '../communities.service';
 import moment from 'moment';
 import {CustomersService} from "../../../core/core-services/customers/customers.service";
@@ -78,6 +78,7 @@ export class CommunitiesFormComponent implements OnInit {
   yearChartData : number[]=[];
   yearChartBackgroundColor : string [] = [];
   updateYearChart: boolean = false;
+  updateYearChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -276,6 +277,7 @@ export class CommunitiesFormComponent implements OnInit {
 
   updateYearChartValues() {
 
+    console.log("updateYearChartValues")
     this.yearChartLabels = [`Import: ${this.sumImport} Kwh`, `Generation: ${this.sumGeneration} Kwh`, `Consumption: ${this.sumConsumption} Kwh`, `Surplus: ${this.sumExport} Kwh`]
     this.yearChartData = [this.sumImport, this.sumGeneration, this.sumConsumption, this.sumExport]
     this.yearChartBackgroundColor = [
@@ -284,9 +286,9 @@ export class CommunitiesFormComponent implements OnInit {
       'rgba(240, 190, 48, 1)',
       'rgba(33, 217, 92, 0.71)'
     ]
-    this.updateYearChart=true;
-
-
+    //this.updateYearChart=true;
+    this.updateYearChartSubject.next(true)
+    //this.cdr.detectChanges();
     /*if (!this.yearlyChart) {
       this.yearlyChart = new Chart(this.yearlyChartCanvasContent, {type: 'pie', data: {labels: [], datasets: []}})
     }

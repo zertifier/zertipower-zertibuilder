@@ -97,7 +97,7 @@
                  [(ngModel)]="selectedYear">
         </div>
         <!--<canvas class="m-2" id="yearly-chart"></canvas>-->
-        <app-chart [chartType]="yearChartType" [labels]="yearChartLabels" [data]="yearChartData" [backgroundColor]="yearChartBackgroundColor" [update]="updateYearChart"></app-chart>
+        <app-chart [chartType]="yearChartType" [labels]="yearChartLabels" [data]="yearChartData" [backgroundColor]="yearChartBackgroundColor" [update]="updateYearChart" [updateSubject]="updateYearChartSubject.asObservable()"></app-chart>
       </div>
       <div *ngIf="selectedTab=='monthly'">
         <div class="d-flex justify-content-center my-2">

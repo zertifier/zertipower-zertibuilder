@@ -287,7 +287,7 @@ export class CommunitiesFormComponent implements OnInit {
     this.updateYearChart=true;
 
 
-    if (!this.yearlyChart) {
+    /*if (!this.yearlyChart) {
       this.yearlyChart = new Chart(this.yearlyChartCanvasContent, {type: 'pie', data: {labels: [], datasets: []}})
     }
     this.yearlyChart.data = {
@@ -302,7 +302,7 @@ export class CommunitiesFormComponent implements OnInit {
         ]
       }]
     }
-    this.yearlyChart.update();
+    this.yearlyChart.update();*/
   }
 
 }

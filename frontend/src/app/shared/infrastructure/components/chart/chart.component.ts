@@ -25,15 +25,14 @@ export class AppChartComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {
-        this.chartCanvas = document.getElementById('chart');
-        this.chartCanvasContent = this.chartCanvas.getContext('2d');
+
     }
 
     ngOnChanges(changes: SimpleChanges) {
         for (const propName in changes) {
             if (changes.hasOwnProperty(propName)) {
                 switch (propName) {
-                    case 'data':
+                    case 'update':
                         if (changes['update'].currentValue) {
                           console.log(changes['update'].currentValue)
                           this.updateChart();
@@ -49,6 +48,10 @@ export class AppChartComponent implements OnInit, OnChanges {
     }
 
     updateChart(){
+      this.chartCanvas = document.getElementById('custom-chart');
+      console.log(this.chartCanvas)
+      this.chartCanvasContent = this.chartCanvas.getContext('2d');
+      console.log(this.chartCanvasContent)
       if (!this.chart) {
         this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []}})
       }

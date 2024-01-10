@@ -74,12 +74,11 @@ export class AppChartComponent implements OnInit, OnChanges {
   }
 
   updateChart() {
-    console.log(this.chart, this.labels, this.data, this.backgroundColor)
+    //console.log(this.chart, this.labels, this.data, this.backgroundColor)
     if (!this.chart) {
       this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []}})
     }
 
-    console.log("this datasets", this.datasets)
     this.chart.data = {
       labels: this.labels,
       datasets: this.datasets || [{

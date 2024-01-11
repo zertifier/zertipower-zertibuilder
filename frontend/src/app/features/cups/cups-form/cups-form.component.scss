@@ -1,0 +1,9 @@
+.modal-xl{
+  --bs-modal-width: 95% !important;
+}
+
+@media (min-width: 576px){
+  .modal-xl{
+    --bs-modal-width: 95% !important;
+  }
+}

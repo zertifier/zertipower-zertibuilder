@@ -97,7 +97,7 @@ export class CommunitiesFormComponent implements OnInit {
 
     dayChartType: string = 'bar';
     dayChartLabels: string[] = [];
-    dayChartDatasets: any[] = [];
+    dayChartDatasets: any[] | undefined = undefined;
     dayChartData: any[] = [];
     dayChartBackgroundColor: string [] = [];
     updateDayChart: boolean = false;
@@ -248,13 +248,14 @@ export class CommunitiesFormComponent implements OnInit {
             //create sum of year energy cups:
             this.sumYearImport += yearEnergy.sumImport | 0;
             this.sumYearGeneration += yearEnergy.sumGeneration | 0;
-            this.sumYearConsumption += yearEnergy.sumConsumption | 0;
+            this.sumYearConsumption += yearEnergy.sumConsumption | yearEnergy.sumImport;
             this.sumYearExport += yearEnergy.sumExport | 0;
         })
 
         await Promise.all(getAllEnergy)
 
         this.updateYearChartValues();
+        this.updateMonthChartValues();
     }
 
     async getMonthEnergy() {
@@ -282,19 +283,19 @@ export class CommunitiesFormComponent implements OnInit {
 
             //create sum of month energy cups:
             this.sumMonthImport = this.sumMonthImport.map((monthImport, index) => {
-                monthImport += yearEnergy.kwhImport[index];
+                monthImport += yearEnergy.kwhImport[index] | 0;
                 return monthImport;
             })
             this.sumMonthExport = this.sumMonthExport.map((monthExport, index) => {
-                monthExport += yearEnergy.kwhExport[index];
+                monthExport += yearEnergy.kwhExport[index] | 0;
                 return monthExport;
             })
             this.sumMonthGeneration = this.sumMonthGeneration.map((monthGeneration, index) => {
-                monthGeneration += yearEnergy.kwhGeneration[index];
+                monthGeneration += yearEnergy.kwhGeneration[index] | 0;
                 return monthGeneration;
             })
             this.sumMonthConsumption = this.sumMonthConsumption.map((monthConsumption, index) => {
-                monthConsumption += yearEnergy.kwhConsumption[index];
+                monthConsumption += yearEnergy.kwhConsumption[index] | yearEnergy.kwhImport[index] | 0;
                 return monthConsumption;
             })
         })
@@ -332,12 +333,12 @@ export class CommunitiesFormComponent implements OnInit {
                 dayExport += dayEnergy.kwhExport[index] | 0;
                 return dayExport;
             })
-            this.sumDayConsumption = this.sumDayGeneration.map((dayGeneration, index) => {
+            this.sumDayGeneration = this.sumDayGeneration.map((dayGeneration, index) => {
                 dayGeneration += dayEnergy.kwhGeneration[index] | 0;
                 return dayGeneration;
             })
-            this.sumDayGeneration = this.sumDayConsumption.map((dayConsumption, index) => {
-                dayConsumption += dayEnergy.kwhConsumption[index] | 0;
+            this.sumDayConsumption = this.sumDayConsumption.map((dayConsumption, index) => {
+                dayConsumption += dayEnergy.kwhConsumption[index] | dayEnergy.kwhImport[index] | 0;
                 return dayConsumption;
             })
         })
@@ -435,7 +436,7 @@ export class CommunitiesFormComponent implements OnInit {
         ]
         this.monthChartDatasets = [
             {
-                label: 'Import (Kwh)',
+                label: `Import (Kwh)`,
                 data: this.monthChartData[0],
                 backgroundColor: this.monthChartBackgroundColor[0]
             },
@@ -473,6 +474,12 @@ export class CommunitiesFormComponent implements OnInit {
     }
 
     updateDayChartValues() {
+
+      let totalImport = this.sumDayImport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+      let totalExport = this.sumDayExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+      let totalConsumption = this.sumDayConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+      let totalGeneration = this.sumDayGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+
         this.dayChartLabels = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24']; // [`Import (Kwh)`, `Generation (Kwh)`, `Consumption (Kwh)`, `Surplus (Kwh)`]
         this.dayChartData = [this.sumDayImport, this.sumDayGeneration, this.sumDayConsumption, this.sumDayExport]
         console.log("day chart data: ",this.dayChartData)
@@ -482,24 +489,24 @@ export class CommunitiesFormComponent implements OnInit {
             'rgba(240, 190, 48, 1)',
             'rgba(33, 217, 92, 0.71)'
         ]
-        this.monthChartDatasets = [
+        this.dayChartDatasets = [
             {
-                label: 'Import (Kwh)',
+                label: `Import: ${totalImport} Kwh`,
                 data: this.dayChartData[0],
                 backgroundColor: this.dayChartBackgroundColor[0]
             },
             {
-                label: 'Generation (Kwh)',
+                label: `Generation: ${totalGeneration} Kwh`,
                 data: this.dayChartData[1],
                 backgroundColor: this.dayChartBackgroundColor[1]
             },
             {
-                label: 'Consumption (Kwh)',
+                label: `Consumption: ${totalConsumption} Kwh`,
                 data: this.dayChartData[2],
                 backgroundColor: this.dayChartBackgroundColor[2]
             },
             {
-                label: 'Export (Kwh)',
+                label: `Export ${totalExport} Kwh`,
                 data: this.dayChartData[3],
                 backgroundColor: this.dayChartBackgroundColor[3]
             }

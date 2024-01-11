@@ -102,7 +102,7 @@
       <div *ngIf="selectedTab=='monthly'">
         <div class="d-flex justify-content-center my-2">
           <input type="number" placeholder="year" class="form-control" style="max-width: 150px"
-                 [(ngModel)]="selectedYear" (change)="changeYear()">
+                 [(ngModel)]="selectedYear" (change)="changeMonth()">
           <!--<input [(ngModel)]="selectedMonth" type="month" placeholder="month" class="form-control" style="max-width: 150px" (change)="changeMonth()">-->
         </div>
         <!--<canvas class="m-2" id="weekly-chart"></canvas>-->
@@ -114,7 +114,7 @@
           <input id="textinput" [(ngModel)]="selectedDate" (change)="changeDay()" name="textinput" type="date" placeholder="Start Date" class="form-control input-md" style="max-width: 150px">
         </div>
         <!-- <canvas class="m-2" id="hourly-chart"></canvas> -->
-        <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [data]="dayChartData" [backgroundColor]="dayChartBackgroundColor" [update]="updateDayChart" [updateSubject]="updateDayChartSubject.asObservable()"></app-chart>
+        <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets" [backgroundColor]="dayChartBackgroundColor" [update]="updateDayChart" [updateSubject]="updateDayChartSubject.asObservable()"></app-chart>
       </div>
 
     </div>

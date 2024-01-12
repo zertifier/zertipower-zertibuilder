@@ -36,7 +36,8 @@ export class CustomersController {
     try {
       let url = `SELECT * FROM cups LEFT JOIN customers on cups.customer_id = customers.id`;
       const data = await this.conn.query(url);
-      return HttpResponse.success('customers fetched successfully').withData(data);
+      const mappedData = data.map(this.mapCustomerCupsData)
+      return HttpResponse.success('customers fetched successfully').withData(mappedData);
     } catch(e){
       console.log("error getting customers-cups");
     }
@@ -98,6 +99,27 @@ export class CustomersController {
       mappedData.walletAddress = data.walletAddress
       mappedData.createdAt = data.createdAt
       mappedData.updatedAt = data.updatedAt
+    return mappedData;
+  }
+
+  mapCustomerCupsData(unformattedData:any[]){
+    let mappedData:any[] = []
+    unformattedData.map((data:any)=>{
+      let mappedObject: any = {};
+      mappedObject.id = data.id
+      mappedObject.name = data.name
+      mappedObject.walletAddress = data.wallet_address
+      mappedObject.createdAt = data.created_at
+      mappedObject.updatedAt = data.updated_at
+      mappedObject.communityId = data.community_id
+      mappedObject.cups = data.cups
+      mappedObject.geolocalization = data.geolocalization
+      mappedObject.customerId = data.customer_id;
+      mappedObject.ubication = data.ubication;
+      mappedObject.providerId = data.provider_id;
+      mappedObject.communityId = data.community_id;
+      mappedData.push(mappedObject)
+    })
     return mappedData;
   }
 }

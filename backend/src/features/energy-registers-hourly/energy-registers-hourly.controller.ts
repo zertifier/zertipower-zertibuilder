@@ -43,7 +43,7 @@ export class EnergyRegistersHourlyController {
       if (community) {
         // Si se pasa la comunidad, obtenemos todos los cups asociados a esa comunidad.
         query = `
-          SELECT eh.info_datetime, SUM(eh.import) AS import, SUM(eh.generation) AS generation
+          SELECT eh.info_datetime, SUM(eh.import) AS import, SUM(eh.generation) AS generation, SUM(eh.consumption) AS consumption, SUM(eh.export) AS export
           FROM energy_registers_original_hourly eh
                  LEFT JOIN cups c ON eh.cups_id = c.id
           WHERE c.community_id = ?
@@ -65,7 +65,7 @@ export class EnergyRegistersHourlyController {
       } else if (wallet) {
         // Si se pasa una wallet, obtenemos todos los cups asociados a ese customer y sumamos sus gastos y generaciones.
         query = `
-          SELECT eh.info_datetime, SUM(eh.import) AS import, SUM(eh.generation) AS generation
+          SELECT eh.info_datetime, SUM(eh.import) AS import, SUM(eh.generation) AS generation, SUM(eh.consumption) AS consumption, SUM(eh.export) AS export
           FROM energy_registers_original_hourly eh
                  LEFT JOIN cups c ON eh.cups_id = c.id
                  LEFT JOIN customers cu ON c.customer_id = cu.id

@@ -103,7 +103,7 @@ model Calendar {
 model Communities {
   id        Int      @id @default(autoincrement()) @map("id")
   name      String?  @map("name") @db.VarChar(255)
-  location  String?  @map("location") @db.VarChar(255)
+  test  Int?  @map("test") 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 

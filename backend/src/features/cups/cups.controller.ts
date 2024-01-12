@@ -47,6 +47,7 @@ export class CupsController {
   @Put(':id')
   @Auth(RESOURCE_NAME)
   async update(@Param('id') id: string, @Body() body: SaveCupsDTO) {
+    console.log("bodycups : ", body);
     const data = await this.prisma.cups.updateMany({
       where: {
         id: parseInt(id),

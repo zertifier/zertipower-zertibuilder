@@ -17,14 +17,4 @@ export class SaveCupsDTO {
   geolocalization: string;
   @IsOptional()
   customerId: number;
-  @Transform((value) =>
-    moment.utc((value as any).value, 'YYYY-MM-DD HH:mm:ss').toDate(),
-  )
-  @IsOptional()
-  createdAt: Date;
-  @Transform((value) =>
-    moment.utc((value as any).value, 'YYYY-MM-DD HH:mm:ss').toDate(),
-  )
-  @IsOptional()
-  updatedAt: Date;
 }

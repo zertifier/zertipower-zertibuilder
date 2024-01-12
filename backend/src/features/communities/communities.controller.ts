@@ -40,6 +40,7 @@ export class CommunitiesController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCommunitiesDTO) {
+    console.log("post community", body);
     const data = await this.prisma.communities.create({ data: body });
     return HttpResponse.success('communities saved successfully').withData(data);
   }
@@ -70,7 +71,7 @@ export class CommunitiesController {
   @Post('datatable')
   @Auth(RESOURCE_NAME)
   async datatables(@Body() body: any) {
-    const data = await this.datatable.getData(body, `SELECT id,name,location,created_at,updated_at
+    const data = await this.datatable.getData(body, `SELECT id,name,test,created_at,updated_at
                   FROM communities`);
     return HttpResponse.success('Datatables fetched successfully').withData(data);
   }
@@ -79,7 +80,7 @@ export class CommunitiesController {
     const mappedData: any = {};
       mappedData.id = data.id
       mappedData.name = data.name
-      mappedData.location = data.location
+      mappedData.test = data.test
       mappedData.createdAt = data.createdAt
       mappedData.updatedAt = data.updatedAt
     return mappedData;

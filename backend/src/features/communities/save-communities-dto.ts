@@ -4,11 +4,11 @@ import * as moment from 'moment';
 
 export class SaveCommunitiesDTO {
   @IsOptional()
-  id: number;
+  id?: number;
   @IsOptional()
   name: string;
   @IsOptional()
-  location: string;
+  test: number;
   @Transform((value) =>
     moment.utc((value as any).value, 'YYYY-MM-DD HH:mm:ss').toDate(),
   )
@@ -20,3 +20,5 @@ export class SaveCommunitiesDTO {
   @IsOptional()
   updatedAt: Date;
 }
+
+

@@ -130,7 +130,6 @@ export class CommunitiesFormComponent implements OnInit {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
-      console.log(data)
       this.form.controls.id.setValue(data.id);
       this.communityId = data.id;
       this.form.controls.name.setValue(data.name);
@@ -146,14 +145,14 @@ export class CommunitiesFormComponent implements OnInit {
 
       this.customers = res.data[0];
 
-      //get the cups that own to the selected community
-      this.communityCups = this.customers.filter((cups: any) =>
-        cups.community_id == this.id
-      )
-
       //get the cups that doesnt own to other communities
       this.customers = this.customers.filter((cups: any) =>
-        cups.community_id == this.id || cups.community_id == null || cups.community_id == 0
+        cups.communityId == this.id || cups.communityId == null || cups.communityId == 0
+      )
+
+      //get the cups that own to the selected community
+      this.communityCups = this.customers.filter((cups: any) =>
+        cups.communityId == this.id
       )
 
       this.updateData();
@@ -413,10 +412,25 @@ export class CommunitiesFormComponent implements OnInit {
 
       //res id is community id
       this.communityCups.map((cups:CupsApiInterface)=>{
-        console.log(cups)
-       // cups.community_id = res.id;
-        //cups.id
-       // this.cupsApiService.update(cups.id,{cups})
+
+        cups.communityId = res.id | this.communityId;
+
+        let cupsToPost:CupsApiInterface = {
+          id: cups.id,
+          cups: cups.cups,
+          providerId: cups.providerId,
+          communityId: cups.communityId,
+          ubication: cups.ubication,
+          geolocalization: cups.geolocalization,
+          customerId: cups.customerId,
+          //createdAt:cups.createdAt,
+          //updatedAt: cups.updatedAt
+        }
+
+        console.log("cups to post",cupsToPost)
+        this.cupsApiService.update(cups.id,cupsToPost).subscribe((res)=>{
+          console.log(res)
+        })
       })
 
       Swal.fire({

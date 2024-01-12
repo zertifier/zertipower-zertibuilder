@@ -13,8 +13,8 @@ export interface CupsApiInterface {
   ubication: string;
   geolocalization: string;
   customerId: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CupsApiDTO {
@@ -25,8 +25,8 @@ export interface CupsApiDTO {
   ubication: string;
   geolocalization: string;
   customerId: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 @Injectable({
@@ -51,6 +51,7 @@ export class CupsApiService {
   }
 
   update(id: number, data: CupsApiInterface): Observable<CupsApiInterface> {
+    console.log("body data", data)
     return this.httpClient.put<HttpResponse<CupsApiDTO>>(`${environment.api_url}/cups/${id}`, mapToDTO(data))
       .pipe(map(response => mapToApiInterface(response.data)));
   }
@@ -84,7 +85,7 @@ function mapToDTO(dto: CupsApiInterface): CupsApiDTO {
     ubication: dto.ubication,
     geolocalization: dto.geolocalization,
     customerId: dto.customerId,
-    createdAt: moment.utc(dto.createdAt).format("YYYY-MM-DD HH:mm"),
-    updatedAt: moment.utc(dto.updatedAt).format("YYYY-MM-DD HH:mm"),
+    //createdAt: moment.utc(dto.createdAt).format("YYYY-MM-DD HH:mm"),
+    //updatedAt: moment.utc(dto.updatedAt).format("YYYY-MM-DD HH:mm"),
   }
 }

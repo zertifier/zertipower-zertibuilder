@@ -159,7 +159,7 @@ export class CommunitiesTableComponent implements OnDestroy {
   ];
 
   editRequest(id:any) {
-    const modalRef = this.ngbModal.open(CommunitiesFormComponent,{size:'xl'});
+    const modalRef = this.ngbModal.open(CommunitiesFormComponent,{fullscreen: true});
     modalRef.componentInstance.setEditingId(parseInt(id));
 
     this.subscriptions.push(

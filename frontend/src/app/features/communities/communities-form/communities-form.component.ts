@@ -46,6 +46,7 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   customers: any;
+  allCups:any;
   test: number = 1;
   id: number = 0;
   communityCups: any[] = [];
@@ -143,10 +144,10 @@ export class CommunitiesFormComponent implements OnInit {
   getInfo() {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
 
-      this.customers = res.data[0];
+      this.allCups = res.data[0];
 
       //get the cups that doesnt own to other communities
-      this.customers = this.customers.filter((cups: any) =>
+      this.customers = this.allCups.filter((cups: any) =>
         cups.communityId == this.id || cups.communityId == null || cups.communityId == 0
       )
 
@@ -415,22 +416,47 @@ export class CommunitiesFormComponent implements OnInit {
 
         cups.communityId = res.id | this.communityId;
 
-        let cupsToPost:CupsApiInterface = {
+        let cupsToUpdate:CupsApiInterface = {
           id: cups.id,
           cups: cups.cups,
           providerId: cups.providerId,
           communityId: cups.communityId,
           ubication: cups.ubication,
           geolocalization: cups.geolocalization,
-          customerId: cups.customerId,
-          //createdAt:cups.createdAt,
-          //updatedAt: cups.updatedAt
+          customerId: cups.customerId
         }
 
-        console.log("cups to post",cupsToPost)
-        this.cupsApiService.update(cups.id,cupsToPost).subscribe((res)=>{
-          console.log(res)
+        this.cupsApiService.update(cups.id,cupsToUpdate).subscribe((res)=>{
+          console.log("change community id from cups: ", res)
         })
+      })
+
+      //delete community id from cups that dont pertain to community anymore:
+      this.allCups.map((cups:any)=>{
+
+        if(cups.communityId==this.communityId){
+          let found = this.communityCups.find(cc=>{
+            cc.id == cups.id
+          })
+          if(!found){
+
+            let cupsToUpdate:CupsApiInterface = {
+              id: cups.id,
+              cups: cups.cups,
+              providerId: cups.providerId,
+              communityId: 0,
+              ubication: cups.ubication,
+              geolocalization: cups.geolocalization,
+              customerId: cups.customerId
+            }
+
+            this.cupsApiService.update(cups.id,cupsToUpdate).subscribe((res)=>{
+              console.log("change community id from cups: ", res)
+            })
+          }
+
+        }
+
       })
 
       Swal.fire({

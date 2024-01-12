@@ -82,7 +82,11 @@ export class AppChartComponent implements OnInit, OnChanges {
       datasets: this.datasets || [{
         data: this.data,
         backgroundColor: this.backgroundColor
-      }]
+      }],
+      options:{
+        responsive:true,
+        mantainAspectRatio:true
+      }
     }
     this.chart.update();
     this.cdr.detectChanges();

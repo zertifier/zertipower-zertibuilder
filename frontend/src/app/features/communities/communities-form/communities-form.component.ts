@@ -45,6 +45,7 @@ export class CommunitiesFormComponent implements OnInit {
     promotion: false,
   }
 
+  community:any={};
   customers: any;
   allCups: any;
   test: number = 1;
@@ -124,15 +125,23 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    if(!this.id){
+      console.log("this community id: ",this.communityId)
+      this.isEdit=true;
+    }
+
     this.getInfo();
   }
 
   setEditingId(id: number) {
+    console.log("setEditingId:",id)
     this.id = id;
     if (!this.id) {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
+      this.community = data;
       this.form.controls.id.setValue(data.id);
       this.communityId = data.id;
       this.form.controls.name.setValue(data.name);
@@ -152,6 +161,10 @@ export class CommunitiesFormComponent implements OnInit {
       this.customers = this.allCups.filter((cups: any) =>
         cups.communityId == this.id || cups.communityId == null || cups.communityId == 0
       )
+
+      if(!this.communityId){
+        return;
+      }
 
       //get the cups that own to the selected community
       this.communityCups = this.customers.filter((cups: any) =>
@@ -264,7 +277,9 @@ export class CommunitiesFormComponent implements OnInit {
 
     await Promise.all(getAllEnergy)
 
-    if (this.sumYearImport == 0 && this.sumYearGeneration == 0 && this.sumYearConsumption == 0 && this.sumYearExport == 0) {
+    console.log("community id: ",this.communityId)
+
+    if (this.sumYearImport == 0 && this.sumYearGeneration == 0 && this.sumYearConsumption == 0 && this.sumYearExport == 0 && this.communityId) {
       Swal.fire({
         icon: 'warning',
         title: 'no year data'
@@ -322,7 +337,7 @@ export class CommunitiesFormComponent implements OnInit {
       this.sumMonthGeneration, this.sumMonthGeneration.every(e => e == 0),
       this.sumMonthConsumption, this.sumMonthConsumption.every(e => e == 0))
 
-    if (this.sumMonthImport.every(e => e == 0) && this.sumMonthExport.every(e => e == 0) && this.sumMonthGeneration.every(e => e == 0) && this.sumMonthConsumption.every(e => e == 0)) {
+    if (this.sumMonthImport.every(e => e == 0) && this.sumMonthExport.every(e => e == 0) && this.sumMonthGeneration.every(e => e == 0) && this.sumMonthConsumption.every(e => e == 0) && this.communityId) {
       Swal.fire({
         icon: 'warning',
         title: 'no months data'
@@ -372,7 +387,7 @@ export class CommunitiesFormComponent implements OnInit {
 
     await Promise.all(getAllEnergy)
 
-    if (this.sumDayImport.every(e => e == 0) && this.sumDayExport.every(e => e == 0) && this.sumDayGeneration.every(e => e == 0) && this.sumDayConsumption.every(e => e == 0)) {
+    if (this.sumDayImport.every(e => e == 0) && this.sumDayExport.every(e => e == 0) && this.sumDayGeneration.every(e => e == 0) && this.sumDayConsumption.every(e => e == 0) && this.communityId) {
       Swal.fire({
         icon: 'warning',
         title: 'no day data'

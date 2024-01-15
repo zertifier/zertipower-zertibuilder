@@ -1,6 +1,10 @@
+
 <div class="modal-header">
-  <h2>community</h2> <button *ngIf="!isEdit" class="btn btn-primary" (click)="isEdit=true; isEditChange()">Edit</button> <button *ngIf="isEdit" (click)="isEdit=false; isEditChange()" class="btn btn-primary">View</button>
+  <h2>community {{community.name}}</h2>
+  <button *ngIf="!isEdit" class="btn btn-primary" (click)="isEdit=true; isEditChange()">Edit</button>
+  <button *ngIf="isEdit && communityId" (click)="isEdit=false; isEditChange()" class="btn btn-primary">View</button>
 </div>
+
 <div *ngIf="isEdit" class="modal-body">
   <div class="row p-2">
     <div class="col-12 col-md-6">
@@ -133,44 +137,45 @@
 <div *ngIf="!isEdit" class="modal-body">
 
   <div class="row row-cols-1 row-cols-md-2 g-2">
-  <div class="col">
-    <div class="d-flex justify-content-center my-2">
-      <input type="number" placeholder="year" class="form-control" style="max-width: 150px"
-             [(ngModel)]="selectedYear" (change)="changeYear(); changeMonth()">
-    </div>
-    <div class="d-flex justify-content-center">
-      <div class="custom-chart">
-        <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
-                   [update]="updateMonthChart" [updateSubject]="updateMonthChartSubject.asObservable()" chartId="month-chart"></app-chart>
+    <div class="col">
+      <div class="d-flex justify-content-center my-2">
+        <input type="number" placeholder="year" class="form-control" style="max-width: 150px"
+               [(ngModel)]="selectedYear" (change)="changeYear(); changeMonth()">
       </div>
+      <div class="d-flex justify-content-center">
+        <div class="custom-chart">
+          <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
+                     [update]="updateMonthChart" [updateSubject]="updateMonthChartSubject.asObservable()"
+                     chartId="month-chart"></app-chart>
+        </div>
 
-    </div>
-  </div>
-
-  <div class="col">
-    <div class="d-flex justify-content-center">
-      <div class="custom-chart">
-        <app-chart [chartType]="yearChartType" [labels]="yearChartLabels" [data]="yearChartData"
-                   [backgroundColor]="yearChartBackgroundColor" [update]="updateYearChart"
-                   [updateSubject]="updateYearChartSubject.asObservable()" chartId="year-chart"></app-chart>
       </div>
     </div>
-  </div>
 
-  <div class="col">
-  <div class="d-flex justify-content-center my-2">
-    <input [(ngModel)]="selectedDate" (change)="changeDay()" name="textinput" type="date"
-           placeholder="Start Date" class="form-control input-md" style="max-width: 150px">
-  </div>
-  <div class="d-flex justify-content-center">
-    <div class="custom-chart">
-      <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
-                 [backgroundColor]="dayChartBackgroundColor" [update]="updateDayChart"
-                 [updateSubject]="updateDayChartSubject.asObservable()" chartId="day-chart"></app-chart>
+    <div class="col">
+      <div class="d-flex justify-content-center">
+        <div class="custom-chart">
+          <app-chart [chartType]="yearChartType" [labels]="yearChartLabels" [data]="yearChartData"
+                     [backgroundColor]="yearChartBackgroundColor" [update]="updateYearChart"
+                     [updateSubject]="updateYearChartSubject.asObservable()" chartId="year-chart"></app-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="d-flex justify-content-center my-2">
+        <input [(ngModel)]="selectedDate" (change)="changeDay()" name="textinput" type="date"
+               placeholder="Start Date" class="form-control input-md" style="max-width: 150px">
+      </div>
+      <div class="d-flex justify-content-center">
+        <div class="custom-chart">
+          <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
+                     [backgroundColor]="dayChartBackgroundColor" [update]="updateDayChart"
+                     [updateSubject]="updateDayChartSubject.asObservable()" chartId="day-chart"></app-chart>
+        </div>
+      </div>
     </div>
   </div>
-  </div>
-
 </div>
 
 <div class="modal-footer">

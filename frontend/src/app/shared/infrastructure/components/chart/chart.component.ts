@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   Input,
@@ -12,13 +13,14 @@ import {
 import Chart from "chart.js/auto";
 import {Observable, Subject} from "rxjs";
 import {waitForAsync} from "@angular/core/testing";
+import {getLocaleFirstDayOfWeek} from "@angular/common";
 
 @Component({
   selector: 'app-chart',
   templateUrl: './chart.component.html'
 })
 
-export class AppChartComponent implements OnInit, OnChanges {
+export class AppChartComponent implements OnInit, OnChanges, AfterViewInit {
 
   @ViewChild('chart') chart: any;
   chartCanvas: any;
@@ -50,6 +52,18 @@ export class AppChartComponent implements OnInit, OnChanges {
     })
   }
 
+  ngAfterViewInit() {
+   /* this.chartCanvas = document.getElementById('custom-chart');
+    this.chartCanvasContent = this.chartCanvas.getContext('2d');
+
+    this.updateSubject?.subscribe(async (update) => {
+      await this.delay(500);
+      if (update) {
+        this.updateChart();
+      }
+    })*/
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     for (const propName in changes) {
       if (changes.hasOwnProperty(propName)) {
@@ -73,6 +87,9 @@ export class AppChartComponent implements OnInit, OnChanges {
   }
 
   updateChart() {
+
+    console.log("update chart", this.labels)
+
     if (!this.chart) {
       this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []}})
     }

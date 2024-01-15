@@ -26,6 +26,7 @@ export class AppChartComponent implements OnInit, OnChanges, AfterViewInit {
   chartCanvas: any;
   chartCanvasContent: any;
 
+  @Input() chartId:string = 'custom-chart';
   @Input() chartType: any = 'pie';
   @Input() labels: string[] = [];
   @Input() datasets: any[] | undefined = undefined;
@@ -40,8 +41,22 @@ export class AppChartComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnInit() {
+/*
+    this.chartCanvas = document.getElementById(this.chartId);
+    this.chartCanvasContent = this.chartCanvas.getContext('2d');
+    console.log("chart canvas content", this.chartCanvasContent)
 
-    this.chartCanvas = document.getElementById('custom-chart');
+    this.updateSubject?.subscribe(async (update) => {
+      await this.delay(500);
+      if (update) {
+        this.updateChart();
+      }
+    }) */
+  }
+
+  ngAfterViewInit() {
+    console.log(this.chartId)
+    this.chartCanvas = document.getElementById(this.chartId);
     this.chartCanvasContent = this.chartCanvas.getContext('2d');
 
     this.updateSubject?.subscribe(async (update) => {
@@ -50,18 +65,6 @@ export class AppChartComponent implements OnInit, OnChanges, AfterViewInit {
         this.updateChart();
       }
     })
-  }
-
-  ngAfterViewInit() {
-   /* this.chartCanvas = document.getElementById('custom-chart');
-    this.chartCanvasContent = this.chartCanvas.getContext('2d');
-
-    this.updateSubject?.subscribe(async (update) => {
-      await this.delay(500);
-      if (update) {
-        this.updateChart();
-      }
-    })*/
   }
 
   ngOnChanges(changes: SimpleChanges) {

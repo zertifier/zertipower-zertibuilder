@@ -124,7 +124,7 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getInfo()
+    this.getInfo();
   }
 
   setEditingId(id: number) {
@@ -194,8 +194,8 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   changeSelectedCups(selectedCups: any) {
-    console.log("ep: ", selectedCups)
-    console.log("change cups to: ", this.selectedCups)
+    //console.log("ep: ", selectedCups)
+    //console.log("change cups to: ", this.selectedCups)
   }
 
   changeDay() {
@@ -211,8 +211,8 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   changeCommunityCups(communityCups: any) {
-    console.log("change community cups : ", communityCups, this.communityCups)
-    console.log("selected cups", this.selectedCups)
+    //console.log("change community cups : ", communityCups, this.communityCups)
+    //console.log("selected cups", this.selectedCups)
     if (this.selectedCups) {
       let cupsFound = this.communityCups.find((cups) => cups.id == this.selectedCups.id)
       if (!cupsFound) {
@@ -223,19 +223,24 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   updateData() {
-    switch (this.selectedTab) {
-      case 'yearly':
-        this.getYearEnergy();
-        break;
-      case 'monthly':
-        this.getMonthEnergy();
-        break;
-      case 'daily':
-        this.getDayEnergy();
-        break;
-      default:
-        console.log("Update data case default selected tab: ", this.selectedTab)
+    if(!this.isEdit){
+      this.isEditChange();
+    }else{
+      switch (this.selectedTab) {
+        case 'yearly':
+          this.getYearEnergy();
+          break;
+        case 'monthly':
+          this.getMonthEnergy();
+          break;
+        case 'daily':
+          this.getDayEnergy();
+          break;
+        default:
+          console.log("Update data case default selected tab: ", this.selectedTab)
+      }
     }
+
   }
 
   async getYearEnergy() {
@@ -318,7 +323,6 @@ export class CommunitiesFormComponent implements OnInit {
       this.sumMonthConsumption, this.sumMonthConsumption.every(e => e == 0))
 
     if (this.sumMonthImport.every(e => e == 0) && this.sumMonthExport.every(e => e == 0) && this.sumMonthGeneration.every(e => e == 0) && this.sumMonthConsumption.every(e => e == 0)) {
-      console.log("ENTRA!")
       Swal.fire({
         icon: 'warning',
         title: 'no months data'
@@ -649,4 +653,6 @@ export class CommunitiesFormComponent implements OnInit {
       }
     )
   }
+
+  protected readonly undefined = undefined;
 }

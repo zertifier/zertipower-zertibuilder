@@ -1,34 +1,34 @@
 <div class="modal-header">
-  <h2>energy_blocks form</h2>
+  <h2>Editor de trams energètics</h2>
 </div>
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
     <div>
-      <label for="id-input">id</label>
+      <label for="id-input">Id</label>
       <input id="id-input" type="number" formControlName="id" class="form-control">
     </div>
     <div>
-      <label for="ref-input">reference</label>
+      <label for="ref-input">Referència</label>
       <input formControlName="reference" id="ref-input" class="form-control">
     </div>
     <div>
-      <label for="expiration-dt-input">expiration_dt</label>
+      <label for="expiration-dt-input">Data d'expiració</label>
       <input id="expiration-dt-input" type="datetime-local" formControlName="expirationDt" class="form-control">
     </div>
     <div>
-      <label for="active-init-input">active_init</label>
+      <label for="active-init-input">Inici d'activitat</label>
       <input id="active-init-input" type="datetime-local" formControlName="activeInit" class="form-control">
     </div>
     <div>
-      <label for="active-end-input">active_end</label>
+      <label for="active-end-input">Fi d'activitat</label>
       <input id="active-end-input" type="datetime-local" formControlName="activeEnd" class="form-control">
     </div>
     <div>
-      <label for="consumption-price-input">consumption_price</label>
+      <label for="consumption-price-input">Preu de consum</label>
       <input id="consumption-price-input" type="number" formControlName="consumptionPrice" class="form-control">
     </div>
     <div>
-      <label for="generation-price-input">generation_price</label>
+      <label for="generation-price-input">Preu de generació</label>
       <input id="generation-price-input" type="number" formControlName="generationPrice" class="form-control">
     </div>
   </form>

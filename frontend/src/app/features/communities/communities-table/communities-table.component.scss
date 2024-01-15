@@ -1,0 +1,6 @@
+.modal {
+  --bs-modal-width: 95% !important;
+}
+@media (min-width: 576px){
+  .modal {  --bs-modal-width: 95% !important;}
+}

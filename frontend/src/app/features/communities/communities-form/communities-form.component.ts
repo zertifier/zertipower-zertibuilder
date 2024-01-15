@@ -46,6 +46,7 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   customers: any;
+  allCups: any;
   test: number = 1;
   id: number = 0;
   communityCups: any[] = [];
@@ -71,6 +72,8 @@ export class CommunitiesFormComponent implements OnInit {
   multiplyGenerationResult: number = 0;
 
   communityId: number | any;
+
+  isEdit: boolean = false;
 
   form = this.formBuilder.group({
     id: new FormControl<number | null>(null),
@@ -143,10 +146,10 @@ export class CommunitiesFormComponent implements OnInit {
   getInfo() {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
 
-      this.customers = res.data[0];
+      this.allCups = res.data[0];
 
       //get the cups that doesnt own to other communities
-      this.customers = this.customers.filter((cups: any) =>
+      this.customers = this.allCups.filter((cups: any) =>
         cups.communityId == this.id || cups.communityId == null || cups.communityId == 0
       )
 
@@ -256,7 +259,7 @@ export class CommunitiesFormComponent implements OnInit {
 
     await Promise.all(getAllEnergy)
 
-    if(this.sumYearImport == 0 && this.sumYearGeneration == 0 && this.sumYearConsumption == 0 && this.sumYearExport == 0){
+    if (this.sumYearImport == 0 && this.sumYearGeneration == 0 && this.sumYearConsumption == 0 && this.sumYearExport == 0) {
       Swal.fire({
         icon: 'warning',
         title: 'no year data'
@@ -309,12 +312,13 @@ export class CommunitiesFormComponent implements OnInit {
 
     await Promise.all(getAllEnergy)
 
-    console.log(this.sumMonthImport,this.sumMonthImport.every(e=>e==0),
-    this.sumMonthExport,this.sumMonthExport.every(e=>e==0),
-    this.sumMonthGeneration,this.sumMonthGeneration.every(e=>e==0),
-    this.sumMonthConsumption,this.sumMonthConsumption.every(e=>e==0))
+    console.log(this.sumMonthImport, this.sumMonthImport.every(e => e == 0),
+      this.sumMonthExport, this.sumMonthExport.every(e => e == 0),
+      this.sumMonthGeneration, this.sumMonthGeneration.every(e => e == 0),
+      this.sumMonthConsumption, this.sumMonthConsumption.every(e => e == 0))
 
-    if(this.sumMonthImport.every(e=>e==0) && this.sumMonthExport.every(e=>e==0) && this.sumMonthGeneration.every(e=>e==0) && this.sumMonthConsumption.every(e=>e==0)){
+    if (this.sumMonthImport.every(e => e == 0) && this.sumMonthExport.every(e => e == 0) && this.sumMonthGeneration.every(e => e == 0) && this.sumMonthConsumption.every(e => e == 0)) {
+      console.log("ENTRA!")
       Swal.fire({
         icon: 'warning',
         title: 'no months data'
@@ -364,7 +368,7 @@ export class CommunitiesFormComponent implements OnInit {
 
     await Promise.all(getAllEnergy)
 
-    if(this.sumDayImport.every(e=>e==0) && this.sumDayExport.every(e=>e==0) && this.sumDayGeneration.every(e=>e==0) && this.sumDayConsumption.every(e=>e==0)){
+    if (this.sumDayImport.every(e => e == 0) && this.sumDayExport.every(e => e == 0) && this.sumDayGeneration.every(e => e == 0) && this.sumDayConsumption.every(e => e == 0)) {
       Swal.fire({
         icon: 'warning',
         title: 'no day data'
@@ -376,17 +380,17 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   async save() {
-/*
-    console.log("save")
+    /*
+        console.log("save")
 
-    //map community cups and update the community_id
-    this.communityCups.map((cups)=>{
-      console.log("cups", cups)
-      cups.community_id=this.id;
-    })
+        //map community cups and update the community_id
+        this.communityCups.map((cups)=>{
+          console.log("cups", cups)
+          cups.community_id=this.id;
+        })
 
-    console.log("communityCups ",this.communityCups)
-  */
+        console.log("communityCups ",this.communityCups)
+      */
     if (this.form.invalid) {
       Swal.fire({
         icon: 'error',
@@ -410,26 +414,51 @@ export class CommunitiesFormComponent implements OnInit {
     request.subscribe((res) => {
 
       //res id is community id
-      this.communityCups.map((cups:CupsApiInterface)=>{
+      this.communityCups.map((cups: CupsApiInterface) => {
 
         cups.communityId = res.id | this.communityId;
 
-        let cupsToPost:CupsApiInterface = {
+        let cupsToUpdate: CupsApiInterface = {
           id: cups.id,
           cups: cups.cups,
           providerId: cups.providerId,
           communityId: cups.communityId,
           ubication: cups.ubication,
           geolocalization: cups.geolocalization,
-          customerId: cups.customerId,
-          //createdAt:cups.createdAt,
-          //updatedAt: cups.updatedAt
+          customerId: cups.customerId
         }
 
-        console.log("cups to post",cupsToPost)
-        this.cupsApiService.update(cups.id,cupsToPost).subscribe((res)=>{
-          console.log(res)
+        this.cupsApiService.update(cups.id, cupsToUpdate).subscribe((res) => {
+          console.log("change community id from cups: ", res)
         })
+      })
+
+      //delete community id from cups that dont pertain to community anymore:
+      this.allCups.map((cups: any) => {
+
+        if (cups.communityId == this.communityId) {
+          let found = this.communityCups.find(cc => {
+            cc.id == cups.id
+          })
+          if (!found) {
+
+            let cupsToUpdate: CupsApiInterface = {
+              id: cups.id,
+              cups: cups.cups,
+              providerId: cups.providerId,
+              communityId: 0,
+              ubication: cups.ubication,
+              geolocalization: cups.geolocalization,
+              customerId: cups.customerId
+            }
+
+            this.cupsApiService.update(cups.id, cupsToUpdate).subscribe((res) => {
+              console.log("change community id from cups: ", res)
+            })
+          }
+
+        }
+
       })
 
       Swal.fire({
@@ -550,7 +579,7 @@ export class CommunitiesFormComponent implements OnInit {
 
     this.dayChartLabels = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24']; // [`Import (Kwh)`, `Generation (Kwh)`, `Consumption (Kwh)`, `Surplus (Kwh)`]
     this.dayChartData = [this.sumDayImport, this.sumDayGeneration, this.sumDayConsumption, this.sumDayExport]
-    console.log("day chart data: ", this.dayChartData)
+
     this.dayChartBackgroundColor = [
       'rgb(255, 99, 132)',
       'rgb(54, 162, 235)',
@@ -583,6 +612,17 @@ export class CommunitiesFormComponent implements OnInit {
     this.updateDayChartSubject.next(true);
   }
 
+  isEditChange() {
+    if (this.isEdit) {
+
+    } else { //TODO: solve this: los charts no funcionan, pensaba que era por que la dat no estaba inicializada por eso
+      //he puesto estas peticiones
+      this.getMonthEnergy();
+      this.getDayEnergy();
+      this.getYearEnergy();
+    }
+  }
+
   getDayEnergyByCups(cups: number, date: string): Promise<any> {
     console.log('selected date', this.selectedDate)
     return new Promise((resolve, reject) => {
@@ -609,5 +649,4 @@ export class CommunitiesFormComponent implements OnInit {
       }
     )
   }
-
 }

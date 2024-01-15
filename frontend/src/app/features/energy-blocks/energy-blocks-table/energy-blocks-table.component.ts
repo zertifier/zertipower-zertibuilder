@@ -26,7 +26,7 @@ export class EnergyBlocksTableComponent implements OnDestroy {
 
   readonly subscriptions: Array<Subscription> = []
 
-  title: string = 'energy_blocks';
+  title: string = 'Trams energètics';
   addRows: boolean = true;
   editRows: boolean = true;
   refreshRows: boolean = true;
@@ -39,32 +39,32 @@ export class EnergyBlocksTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'Reference',
+      title: 'Referència',
       data: 'reference',
       width: '100px',
     },
     {
-      title: 'ExpirationDt',
+      title: `Data d'expiració`,
       data: 'expiration_dt',
       width: '100px',
     },
     {
-      title: 'ActiveInit',
+      title: `Inici d'activitat`,
       data: 'active_init',
       width: '100px',
     },
     {
-      title: 'ActiveEnd',
+      title: `Fi d'activitat`,
       data: 'active_end',
       width: '100px',
     },
     {
-      title: 'ConsumptionPrice',
+      title: 'Preu de consum',
       data: 'consumption_price',
       width: '100px',
     },
     {
-      title: 'GenerationPrice',
+      title: `Preu d'exportació`,
       data: 'generation_price',
       width: '100px',
     },
@@ -141,19 +141,19 @@ export class EnergyBlocksTableComponent implements OnDestroy {
     {
       targets: 2,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-clock"></i> ${data}`
       }
     },
     {
       targets: 3,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-clock"></i> ${data}`
       }
     },
     {
       targets: 4,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-clock"></i> ${data}`
       }
     },
     {

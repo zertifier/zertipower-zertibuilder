@@ -315,7 +315,6 @@ export class CommunitiesFormComponent implements OnInit {
     this.sumMonthConsumption,this.sumMonthConsumption.every(e=>e==0))
 
     if(this.sumMonthImport.every(e=>e==0) && this.sumMonthExport.every(e=>e==0) && this.sumMonthGeneration.every(e=>e==0) && this.sumMonthConsumption.every(e=>e==0)){
-      console.log("ENTRA!")
       Swal.fire({
         icon: 'warning',
         title: 'no months data'

@@ -77,6 +77,10 @@ const routes: Routes = [
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
   },
   {
+    path: 'search',
+    loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule)
+  },
+  {
     path: "**",
     pathMatch: "full",
     redirectTo: "users",
@@ -87,5 +91,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-export class AppRoutingModule {
-}
+export class AppRoutingModule {  }

@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { EnergyRegistersRoutingModule } from './energy-registers-routing.module';
 import { EnergyRegistersTableComponent } from "./energy-registers-table/energy-registers-table.component";
 import { EnergyRegistersFormComponent } from "./energy-registers-form/energy-registers-form.component";

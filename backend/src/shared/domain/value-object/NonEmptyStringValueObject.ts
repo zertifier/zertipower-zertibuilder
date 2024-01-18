@@ -1,5 +1,5 @@
-import { ValueObject } from './ValueObject';
-import { InvalidArgumentError } from '../error/common';
+import { ValueObject } from "./ValueObject";
+import { InvalidArgumentError } from "../error/common";
 
 export class NonEmptyStringValueObject extends ValueObject<string> {
   constructor(value: string) {
@@ -8,8 +8,8 @@ export class NonEmptyStringValueObject extends ValueObject<string> {
   }
 
   private ensureIsNotEmpty(value: string) {
-    if (value === '') {
-      throw new InvalidArgumentError('Value must be a non empty string');
+    if (value === "") {
+      throw new InvalidArgumentError("Value must be a non empty string");
     }
   }
 }

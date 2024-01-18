@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { GenerateUserTokensAction } from './generate-user-tokens-action';
+import { Test, TestingModule } from "@nestjs/testing";
+import { GenerateUserTokensAction } from "./generate-user-tokens-action";
 
-describe('GenerateUserTokensAction', () => {
+describe("GenerateUserTokensAction", () => {
   let provider: GenerateUserTokensAction;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('GenerateUserTokensAction', () => {
     provider = module.get<GenerateUserTokensAction>(GenerateUserTokensAction);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

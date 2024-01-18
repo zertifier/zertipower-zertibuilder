@@ -1,5 +1,5 @@
-import * as bcrypt from 'bcrypt';
-import { RandUtils } from '../../../../shared/domain/utils';
+import * as bcrypt from "bcrypt";
+import { RandUtils } from "../../../../shared/domain/utils";
 
 export class PasswordUtils {
   /**
@@ -21,13 +21,13 @@ export class PasswordUtils {
 
   public static randomPassword(): string {
     const dictionary =
-      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*(),.?';
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*(),.?";
     const PASSWORD_LENGTH = 12;
     const passwordCharacters: Array<string> = [];
     for (let i = 0; i < PASSWORD_LENGTH; i++) {
       const index = RandUtils.randomNumber(0, dictionary.length);
       passwordCharacters.push(dictionary[index]);
     }
-    return passwordCharacters.join('');
+    return passwordCharacters.join("");
   }
 }

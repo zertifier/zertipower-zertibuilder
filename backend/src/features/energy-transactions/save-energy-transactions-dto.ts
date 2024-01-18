@@ -1,6 +1,6 @@
-import { Transform } from 'class-transformer';
-import { IsOptional, IsDefined } from 'class-validator';
-import * as moment from 'moment';
+import { Transform } from "class-transformer";
+import { IsOptional, IsDefined } from "class-validator";
+import * as moment from "moment";
 
 export class SaveEnergyTransactionsDTO {
   @IsOptional()
@@ -8,7 +8,7 @@ export class SaveEnergyTransactionsDTO {
   @IsOptional()
   cupsId: number;
   @Transform((value) =>
-    moment.utc((value as any).value, 'YYYY-MM-DD HH:mm:ss').toDate(),
+    moment.utc((value as any).value, "YYYY-MM-DD HH:mm:ss").toDate()
   )
   @IsOptional()
   infoDt: Date;
@@ -21,12 +21,12 @@ export class SaveEnergyTransactionsDTO {
   @IsOptional()
   blockId: number;
   @Transform((value) =>
-    moment.utc((value as any).value, 'YYYY-MM-DD HH:mm:ss').toDate(),
+    moment.utc((value as any).value, "YYYY-MM-DD HH:mm:ss").toDate()
   )
   @IsOptional()
   createdAt: Date;
   @Transform((value) =>
-    moment.utc((value as any).value, 'YYYY-MM-DD HH:mm:ss').toDate(),
+    moment.utc((value as any).value, "YYYY-MM-DD HH:mm:ss").toDate()
   )
   @IsOptional()
   updatedAt: Date;

@@ -1,8 +1,8 @@
-import { EnumValueObject } from '../../../../shared/domain/value-object';
-import { InvalidArgumentError } from '../../../../shared/domain/error/common';
+import { EnumValueObject } from "../../../../shared/domain/value-object";
+import { InvalidArgumentError } from "../../../../shared/domain/error/common";
 
 export enum OAuthServices {
-  GOOGLE = 'GOOGLE',
+  GOOGLE = "GOOGLE",
 }
 
 export class OAuthService extends EnumValueObject<OAuthServices> {

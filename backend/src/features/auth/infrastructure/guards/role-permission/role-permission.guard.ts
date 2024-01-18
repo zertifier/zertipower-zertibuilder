@@ -1,12 +1,12 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { UserAccessToken } from '../../../domain/tokens/UserAccessToken';
-import { PrismaPermissionsRepository } from '../../repositories/prisma-permissions-repository/prisma-permissions-repository';
-import { Criteria } from '../../../../../shared/domain/criteria/Criteria';
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { UserAccessToken } from "../../../domain/tokens/UserAccessToken";
+import { PrismaPermissionsRepository } from "../../repositories/prisma-permissions-repository/prisma-permissions-repository";
+import { Criteria } from "../../../../../shared/domain/criteria/Criteria";
 import {
   DontHavePermissionsError,
   PermissionDoesNotExistError,
-} from '../../../domain/permissions/errors';
+} from "../../../domain/permissions/errors";
 
 /**
  * This guard verifies that the user has permissions
@@ -15,12 +15,12 @@ import {
 export class RolePermissionGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private permissionsRepository: PrismaPermissionsRepository,
+    private permissionsRepository: PrismaPermissionsRepository
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const resource = this.reflector.get<string>(
-      'resource',
-      context.getHandler(),
+      "resource",
+      context.getHandler()
     );
     const actionName = context.getHandler().name;
 

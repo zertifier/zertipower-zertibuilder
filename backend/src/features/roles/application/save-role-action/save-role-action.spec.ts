@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { SaveUserRoleAction } from './save-user-role-action.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { SaveUserRoleAction } from "./save-user-role-action.service";
 
-describe('SaveRoleAction', () => {
+describe("SaveRoleAction", () => {
   let provider: SaveUserRoleAction;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('SaveRoleAction', () => {
     provider = module.get<SaveUserRoleAction>(SaveUserRoleAction);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

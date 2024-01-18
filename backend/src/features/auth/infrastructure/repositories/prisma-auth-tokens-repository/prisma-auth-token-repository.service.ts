@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { AuthTokenRepository } from '../../../domain/tokens/repositories/AuthTokenRepository';
-import { Criteria } from '../../../../../shared/domain/criteria/Criteria';
-import { User } from '../../../../users/domain/User';
-import { PrismaService } from '../../../../../shared/infrastructure/services';
-import { InfrastructureError } from '../../../../../shared/domain/error/common';
-import { toPrismaFilters } from '../../../../../shared/infrastructure/prisma/criteria';
-import { UserIdNotDefinedError } from '../../../../users/domain/UserId/UserIdNotDefinedError';
+import { Injectable } from "@nestjs/common";
+import { AuthTokenRepository } from "../../../domain/tokens/repositories/AuthTokenRepository";
+import { Criteria } from "../../../../../shared/domain/criteria/Criteria";
+import { User } from "../../../../users/domain/User";
+import { PrismaService } from "../../../../../shared/infrastructure/services";
+import { InfrastructureError } from "../../../../../shared/domain/error/common";
+import { toPrismaFilters } from "../../../../../shared/infrastructure/prisma/criteria";
+import { UserIdNotDefinedError } from "../../../../users/domain/UserId/UserIdNotDefinedError";
 
 @Injectable()
 export class PrismaAuthTokenRepository implements AuthTokenRepository {
@@ -17,7 +17,7 @@ export class PrismaAuthTokenRepository implements AuthTokenRepository {
         where: toPrismaFilters(criteria),
       });
     } catch (err) {
-      throw new InfrastructureError('Error removing errors').withMetadata(err);
+      throw new InfrastructureError("Error removing errors").withMetadata(err);
     }
   }
 
@@ -30,7 +30,7 @@ export class PrismaAuthTokenRepository implements AuthTokenRepository {
       });
       return tokens.map((token) => token.token);
     } catch (err) {
-      throw new InfrastructureError('Error finding errors').withMetadata(err);
+      throw new InfrastructureError("Error finding errors").withMetadata(err);
     }
   }
 
@@ -48,7 +48,7 @@ export class PrismaAuthTokenRepository implements AuthTokenRepository {
         },
       });
     } catch (err) {
-      throw new InfrastructureError('Error saving token').withMetadata(err);
+      throw new InfrastructureError("Error saving token").withMetadata(err);
     }
   }
 }

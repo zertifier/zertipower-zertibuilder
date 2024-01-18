@@ -1,5 +1,5 @@
-import { Criteria } from '../../../../../shared/domain/criteria/Criteria';
-import { User } from '../../../../users/domain/User';
+import { Criteria } from "../../../../../shared/domain/criteria/Criteria";
+import { User } from "../../../../users/domain/User";
 
 /**
  * This repository is responsible to manage refresh tokens

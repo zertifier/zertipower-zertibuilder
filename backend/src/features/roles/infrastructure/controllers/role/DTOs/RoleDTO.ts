@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from '../../../../domain/UserRole';
+import { ApiProperty } from "@nestjs/swagger";
+import { UserRole } from "../../../../domain/UserRole";
 
 export class RoleDTO {
   @ApiProperty()

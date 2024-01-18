@@ -8,9 +8,9 @@ import {
   IsPositive,
   IsString,
   ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { ReportParamTypes } from '../../../../domain/report-param';
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ReportParamTypes } from "../../../../domain/report-param";
 
 export class CreateReportDTO {
   @IsString()

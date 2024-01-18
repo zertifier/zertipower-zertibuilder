@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { EventEmitter } from './event-emitter';
+import { Test, TestingModule } from "@nestjs/testing";
+import { EventEmitter } from "./event-emitter";
 
-describe('EventEmitter', () => {
+describe("EventEmitter", () => {
   let provider: EventEmitter;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('EventEmitter', () => {
     provider = module.get<EventEmitter>(EventEmitter);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

@@ -1,4 +1,4 @@
-import { ErrorCode } from './ErrorCode';
+import { ErrorCode } from "./ErrorCode";
 
 /**
  * The base class for errors. Every error that throws the application itself should

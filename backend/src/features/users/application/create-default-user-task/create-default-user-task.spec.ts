@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { CreateDefaultUserTask } from './create-default-user-task.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { CreateDefaultUserTask } from "./create-default-user-task.service";
 
-describe('CreateDefaultUserAction', () => {
+describe("CreateDefaultUserAction", () => {
   let provider: CreateDefaultUserTask;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('CreateDefaultUserAction', () => {
     provider = module.get<CreateDefaultUserTask>(CreateDefaultUserTask);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

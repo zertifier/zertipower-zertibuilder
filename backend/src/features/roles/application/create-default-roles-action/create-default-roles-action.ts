@@ -1,18 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { UserRoleRepository } from '../../domain/UserRoleRepository';
-import { UserRole } from '../../domain/UserRole';
-import { WinstonLogger } from '../../../../shared/infrastructure/services';
-import { ApplicationError } from '../../../../shared/domain/error';
+import { Injectable } from "@nestjs/common";
+import { UserRoleRepository } from "../../domain/UserRoleRepository";
+import { UserRole } from "../../domain/UserRole";
+import { WinstonLogger } from "../../../../shared/infrastructure/services";
+import { ApplicationError } from "../../../../shared/domain/error";
 
 @Injectable()
 export class CreateDefaultRolesAction {
   constructor(
     private roleRepository: UserRoleRepository,
-    private logger: WinstonLogger,
+    private logger: WinstonLogger
   ) {}
 
   async run() {
-    this.logger.info('Creating default roles');
+    this.logger.info("Creating default roles");
     try {
       await this.roleRepository.save(UserRole.admin(), UserRole.user());
     } catch (err) {

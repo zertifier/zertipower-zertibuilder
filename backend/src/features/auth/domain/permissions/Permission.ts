@@ -1,5 +1,5 @@
-import { UserRole } from '../../../roles/domain/UserRole';
-import { JsonSerializer } from '../../../../shared/domain/JsonSerializer';
+import { UserRole } from "../../../roles/domain/UserRole";
+import { JsonSerializer } from "../../../../shared/domain/JsonSerializer";
 
 /**
  * A permission is a registry that specifies which actions can do each role over a resource route.

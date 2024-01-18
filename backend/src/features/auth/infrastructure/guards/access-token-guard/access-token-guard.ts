@@ -3,18 +3,18 @@ import {
   createParamDecorator,
   ExecutionContext,
   Injectable,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
   TokenExpiredError,
   TokenNotGivenError,
   TokenNotValidError,
-} from '../../../domain/tokens/errors';
-import { JwtService } from '../../../domain/tokens/services/JwtService';
-import { UserAccessToken } from '../../../domain/tokens/UserAccessToken';
-import { BadRequestError } from '../../../../../shared/domain/error/common';
-import { TokenTypes } from '../../../domain/tokens/TokenType';
-import { ByUserIdCriteria } from '../../../../users/domain/UserId/ByUserIdCriteria';
-import { UserRepository } from '../../../../users/domain/UserRepository';
+} from "../../../domain/tokens/errors";
+import { JwtService } from "../../../domain/tokens/services/JwtService";
+import { UserAccessToken } from "../../../domain/tokens/UserAccessToken";
+import { BadRequestError } from "../../../../../shared/domain/error/common";
+import { TokenTypes } from "../../../domain/tokens/TokenType";
+import { ByUserIdCriteria } from "../../../../users/domain/UserId/ByUserIdCriteria";
+import { UserRepository } from "../../../../users/domain/UserRepository";
 
 /**
  * This decorator is useful only when you previously applied AuthGuard
@@ -23,7 +23,7 @@ export const DecodedToken = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     return request.decodedToken;
-  },
+  }
 );
 
 /**
@@ -33,7 +33,7 @@ export const DecodedToken = createParamDecorator(
 export class AccessTokenGuard implements CanActivate {
   constructor(
     private jwt: JwtService,
-    private userRepository: UserRepository,
+    private userRepository: UserRepository
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -41,11 +41,11 @@ export class AccessTokenGuard implements CanActivate {
 
     const bearerToken = request.headers.authorization;
     if (!bearerToken) {
-      throw new TokenNotGivenError('Token not provided');
+      throw new TokenNotGivenError("Token not provided");
     }
 
-    const [bearer, token] = bearerToken.split(' ');
-    if (bearer !== 'Bearer') {
+    const [bearer, token] = bearerToken.split(" ");
+    if (bearer !== "Bearer") {
       throw new BadRequestError("Token must be passed as 'Bearer <token>'");
     }
 
@@ -75,7 +75,7 @@ export class AccessTokenGuard implements CanActivate {
     // Checking user existence
     const fetchedUsers = await this.userRepository.find(
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      new ByUserIdCriteria(payload.user.id!),
+      new ByUserIdCriteria(payload.user.id!)
     );
     const user = fetchedUsers[0];
     if (!user) {
@@ -85,7 +85,7 @@ export class AccessTokenGuard implements CanActivate {
     // Checking user role
     if (payload.user.userRole.name !== user.userRole.name) {
       throw new BadRequestError(
-        'User role does not match with current user role',
+        "User role does not match with current user role"
       );
     }
 

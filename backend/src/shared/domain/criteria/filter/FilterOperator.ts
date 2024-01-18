@@ -1,16 +1,16 @@
-import { EnumValueObject } from '../../value-object';
-import { InvalidArgumentError } from '../../error/common';
+import { EnumValueObject } from "../../value-object";
+import { InvalidArgumentError } from "../../error/common";
 
 export enum FilterOperators {
-  EQUAL = '=',
-  NOT_EQUAL = '!=',
-  EQUAL_GREATER = '>=',
-  EQUAL_MINOR = '<=',
-  GREATER = '>',
-  MINOR = '<',
-  IN = 'in',
-  IS_NULL = 'is_null',
-  LIKE = 'like',
+  EQUAL = "=",
+  NOT_EQUAL = "!=",
+  EQUAL_GREATER = ">=",
+  EQUAL_MINOR = "<=",
+  GREATER = ">",
+  MINOR = "<",
+  IN = "in",
+  IS_NULL = "is_null",
+  LIKE = "like",
 }
 
 export class FilterOperator extends EnumValueObject<FilterOperators> {

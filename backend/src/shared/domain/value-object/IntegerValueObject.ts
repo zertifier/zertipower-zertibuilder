@@ -1,5 +1,5 @@
-import { ValueObject } from './ValueObject';
-import { InvalidArgumentError } from '../error/common';
+import { ValueObject } from "./ValueObject";
+import { InvalidArgumentError } from "../error/common";
 
 export class IntegerValueObject extends ValueObject<number> {
   constructor(value: number) {
@@ -27,7 +27,7 @@ export class IntegerValueObject extends ValueObject<number> {
     // This is how we ensure that is an integer and not a double
     if (value !== parseInt(value.toString())) {
       throw new InvalidArgumentError(
-        `Value must be an integer, ${value} provided`,
+        `Value must be an integer, ${value} provided`
       );
     }
   }

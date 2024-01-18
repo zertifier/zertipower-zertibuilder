@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { Criteria } from '../../../../shared/domain/criteria/Criteria';
-import { UserRepository } from '../../domain/UserRepository';
+import { Injectable } from "@nestjs/common";
+import { Criteria } from "../../../../shared/domain/criteria/Criteria";
+import { UserRepository } from "../../domain/UserRepository";
 
 /**
  * Return users

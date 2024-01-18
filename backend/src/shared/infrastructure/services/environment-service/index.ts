@@ -1,2 +1,2 @@
-export * from './environment-service';
-export * from './environment-variables-definition';
+export * from "./environment-service";
+export * from "./environment-variables-definition";

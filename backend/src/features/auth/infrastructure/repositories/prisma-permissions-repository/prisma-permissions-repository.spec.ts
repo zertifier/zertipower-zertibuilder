@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaPermissionsRepository } from './prisma-permissions-repository';
+import { Test, TestingModule } from "@nestjs/testing";
+import { PrismaPermissionsRepository } from "./prisma-permissions-repository";
 
-describe('PrismaPermissionsRepository', () => {
+describe("PrismaPermissionsRepository", () => {
   let provider: PrismaPermissionsRepository;
 
   beforeEach(async () => {
@@ -10,11 +10,11 @@ describe('PrismaPermissionsRepository', () => {
     }).compile();
 
     provider = module.get<PrismaPermissionsRepository>(
-      PrismaPermissionsRepository,
+      PrismaPermissionsRepository
     );
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

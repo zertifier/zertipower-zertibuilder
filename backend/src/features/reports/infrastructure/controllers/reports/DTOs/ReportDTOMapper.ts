@@ -1,7 +1,7 @@
-import { Report } from '../../../../domain/report';
-import { CreateReportDTO } from './CreateReportDTO';
-import { ReportResponseDTO } from './ReportResponseDTO';
-import { InvalidArgumentError } from '../../../../../../shared/domain/error/common';
+import { Report } from "../../../../domain/report";
+import { CreateReportDTO } from "./CreateReportDTO";
+import { ReportResponseDTO } from "./ReportResponseDTO";
+import { InvalidArgumentError } from "../../../../../../shared/domain/error/common";
 
 export class ReportDTOMapper {
   public static dtoToReport(dto: CreateReportDTO): Report {
@@ -15,12 +15,12 @@ export class ReportDTOMapper {
 
   public static reportToDto(report: Report): ReportResponseDTO {
     if (!report.id) {
-      throw new InvalidArgumentError('Report must have id');
+      throw new InvalidArgumentError("Report must have id");
     }
 
     if (!report.createdAt || !report.updatedAt) {
       throw new InvalidArgumentError(
-        'Report must have creation and modification dates',
+        "Report must have creation and modification dates"
       );
     }
 

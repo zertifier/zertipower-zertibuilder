@@ -1,5 +1,5 @@
-import { IntegerValueObject } from '../value-object';
-import { InvalidArgumentError } from '../error/common';
+import { IntegerValueObject } from "../value-object";
+import { InvalidArgumentError } from "../error/common";
 
 export class Offset extends IntegerValueObject {
   constructor(value: number) {
@@ -17,7 +17,7 @@ export class Offset extends IntegerValueObject {
 
   private ensureIsNotNegative(value: number) {
     if (value < 0) {
-      throw new InvalidArgumentError('Offset value cannot be negative');
+      throw new InvalidArgumentError("Offset value cannot be negative");
     }
   }
 }

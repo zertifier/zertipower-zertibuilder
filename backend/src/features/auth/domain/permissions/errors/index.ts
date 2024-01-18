@@ -1,2 +1,2 @@
-export * from './DontHavePermissionsError';
-export * from './PermissionDoesNotExistError';
+export * from "./DontHavePermissionsError";
+export * from "./PermissionDoesNotExistError";

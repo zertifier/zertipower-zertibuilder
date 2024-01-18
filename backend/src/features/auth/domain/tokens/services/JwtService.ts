@@ -1,4 +1,4 @@
-import { Token } from '../Token';
+import { Token } from "../Token";
 
 /**
  * Defines the methods that an implementation of a JWT service should have to sign,

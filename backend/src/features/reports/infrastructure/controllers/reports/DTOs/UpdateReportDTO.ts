@@ -7,9 +7,9 @@ import {
   IsPositive,
   IsString,
   ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { CreateReportColumnDTO, CreateReportParamDTO } from './CreateReportDTO';
+} from "class-validator";
+import { Type } from "class-transformer";
+import { CreateReportColumnDTO, CreateReportParamDTO } from "./CreateReportDTO";
 
 export class UpdateReportDTO {
   @IsNumber()

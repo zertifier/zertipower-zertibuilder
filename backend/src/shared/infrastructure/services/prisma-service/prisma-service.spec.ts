@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from './prisma-service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { PrismaService } from "./prisma-service";
 
-describe('PrismaService', () => {
+describe("PrismaService", () => {
   let provider: PrismaService;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('PrismaService', () => {
     provider = module.get<PrismaService>(PrismaService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

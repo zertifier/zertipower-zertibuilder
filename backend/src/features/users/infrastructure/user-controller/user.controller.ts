@@ -7,41 +7,41 @@ import {
   Post,
   Put,
   Query,
-} from '@nestjs/common';
-import { HttpResponse } from '../../../../shared/infrastructure/http/HttpResponse';
-import { PrismaService } from '../../../../shared/infrastructure/services';
-import { DecodedToken } from '../../../auth/infrastructure/guards/access-token-guard/access-token-guard';
-import { Token } from '../../../auth/domain/tokens/Token';
-import { HttpUtils } from '../../../../shared/infrastructure/http/HttpUtils';
-import { FindUsersAction } from '../../application/find-users-action/find-users-action';
-import { getUsersFilterSchema } from './filter-schemas/get-user.filter-schema';
-import { SaveUserDTO } from './DTOs/SaveUserDTO';
-import { User } from '../../domain/User';
-import { SaveUserAction } from '../../application/save-user-action/save-user-action';
-import { UserIdNotDefinedError } from '../../domain/UserId/UserIdNotDefinedError';
-import { ByUserIdCriteria } from '../../domain/UserId/ByUserIdCriteria';
+} from "@nestjs/common";
+import { HttpResponse } from "../../../../shared/infrastructure/http/HttpResponse";
+import { PrismaService } from "../../../../shared/infrastructure/services";
+import { DecodedToken } from "../../../auth/infrastructure/guards/access-token-guard/access-token-guard";
+import { Token } from "../../../auth/domain/tokens/Token";
+import { HttpUtils } from "../../../../shared/infrastructure/http/HttpUtils";
+import { FindUsersAction } from "../../application/find-users-action/find-users-action";
+import { getUsersFilterSchema } from "./filter-schemas/get-user.filter-schema";
+import { SaveUserDTO } from "./DTOs/SaveUserDTO";
+import { User } from "../../domain/User";
+import { SaveUserAction } from "../../application/save-user-action/save-user-action";
+import { UserIdNotDefinedError } from "../../domain/UserId/UserIdNotDefinedError";
+import { ByUserIdCriteria } from "../../domain/UserId/ByUserIdCriteria";
 import {
   PasswordNotEncryptedError,
   UserAlreadyExistsError,
   UserNotFoundError,
-} from '../../domain/errors';
-import { FilterField } from '../../../../shared/domain/criteria/filter/FilterField';
+} from "../../domain/errors";
+import { FilterField } from "../../../../shared/domain/criteria/filter/FilterField";
 import {
   FilterOperator,
   FilterOperators,
-} from '../../../../shared/domain/criteria/filter/FilterOperator';
-import { FilterValue } from '../../../../shared/domain/criteria/filter/FilterValue';
-import { Filter } from '../../../../shared/domain/criteria/filter/Filter';
-import { ByUsernameCriteria } from '../../domain/Username/ByUsernameCriteria';
-import { Criteria } from '../../../../shared/domain/criteria/Criteria';
-import { ByEmailCriteria } from '../../domain/Email/ByEmailCriteria';
-import { PasswordUtils } from '../../domain/Password/PasswordUtils';
-import { UserRepository } from '../../domain/UserRepository';
-import { UpdateUserDTO } from './DTOs/UpdateUserDTO';
-import { BadRequestError } from '../../../../shared/domain/error/common';
-import { AuthTokenRepository } from '../../../auth/domain/tokens/repositories/AuthTokenRepository';
-import { UserDTO } from './DTOs/UserDTO';
-import { UserDTOMapper } from './DTOs/UserDTOMapper';
+} from "../../../../shared/domain/criteria/filter/FilterOperator";
+import { FilterValue } from "../../../../shared/domain/criteria/filter/FilterValue";
+import { Filter } from "../../../../shared/domain/criteria/filter/Filter";
+import { ByUsernameCriteria } from "../../domain/Username/ByUsernameCriteria";
+import { Criteria } from "../../../../shared/domain/criteria/Criteria";
+import { ByEmailCriteria } from "../../domain/Email/ByEmailCriteria";
+import { PasswordUtils } from "../../domain/Password/PasswordUtils";
+import { UserRepository } from "../../domain/UserRepository";
+import { UpdateUserDTO } from "./DTOs/UpdateUserDTO";
+import { BadRequestError } from "../../../../shared/domain/error/common";
+import { AuthTokenRepository } from "../../../auth/domain/tokens/repositories/AuthTokenRepository";
+import { UserDTO } from "./DTOs/UserDTO";
+import { UserDTOMapper } from "./DTOs/UserDTOMapper";
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -49,15 +49,15 @@ import {
   ApiOkResponse,
   ApiTags,
   getSchemaPath,
-} from '@nestjs/swagger';
-import { QueryFilterDto } from '../../../../shared/infrastructure/http/QueryFiltersDto';
-import { OnEvent } from '@nestjs/event-emitter';
-import { CredentialsChangedEvent } from '../../domain/CredentialsChangedEvent';
-import { Auth } from '../../../auth/infrastructure/decorators';
-import { UserRole } from '../../../roles/domain/UserRole';
-import { Datatable } from '../../../../shared/infrastructure/services/datatable/Datatable';
+} from "@nestjs/swagger";
+import { QueryFilterDto } from "../../../../shared/infrastructure/http/QueryFiltersDto";
+import { OnEvent } from "@nestjs/event-emitter";
+import { CredentialsChangedEvent } from "../../domain/CredentialsChangedEvent";
+import { Auth } from "../../../auth/infrastructure/decorators";
+import { UserRole } from "../../../roles/domain/UserRole";
+import { Datatable } from "../../../../shared/infrastructure/services/datatable/Datatable";
 
-export const RESOURCE_NAME = 'users';
+export const RESOURCE_NAME = "users";
 
 @Controller(RESOURCE_NAME)
 @ApiTags(RESOURCE_NAME)
@@ -68,19 +68,19 @@ export class UserController {
     private saveUserAction: SaveUserAction,
     private userRepository: UserRepository,
     private authRepository: AuthTokenRepository,
-    private datatable: Datatable,
+    private datatable: Datatable
   ) {}
 
-  @Get('/')
+  @Get("/")
   @ApiOkResponse({
-    description: 'Users fetched successfully',
+    description: "Users fetched successfully",
     schema: {
       allOf: [
         { $ref: getSchemaPath(HttpResponse) },
         {
           properties: {
             data: {
-              type: 'array',
+              type: "array",
               items: {
                 $ref: getSchemaPath(UserDTO),
               },
@@ -93,15 +93,15 @@ export class UserController {
   async getUsers(@Query() query: QueryFilterDto) {
     const criteria = HttpUtils.parseFiltersFromQueryFilters(
       query,
-      getUsersFilterSchema,
+      getUsersFilterSchema
     );
     const users = await this.findUsersAction.run(criteria);
-    return HttpResponse.success('Users fetched successfully').withData(
-      users.map((user) => UserDTOMapper.toDto(user)),
+    return HttpResponse.success("Users fetched successfully").withData(
+      users.map((user) => UserDTOMapper.toDto(user))
     );
   }
 
-  @Post('/')
+  @Post("/")
   @Auth(RESOURCE_NAME)
   @ApiBearerAuth()
   @ApiExtraModels(HttpResponse, UserDTO)
@@ -121,7 +121,7 @@ export class UserController {
   })
   async saveUser(
     @DecodedToken() token: Token,
-    @Body() body: SaveUserDTO,
+    @Body() body: SaveUserDTO
   ): Promise<HttpResponse> {
     const {
       username,
@@ -143,16 +143,16 @@ export class UserController {
     });
 
     const savedUser = await this.saveUserAction.run(user);
-    return HttpResponse.success('User saved').withData(
-      UserDTOMapper.toDto(savedUser),
+    return HttpResponse.success("User saved").withData(
+      UserDTOMapper.toDto(savedUser)
     );
   }
 
-  @Put('/:id')
+  @Put("/:id")
   @Auth(RESOURCE_NAME)
   @ApiBearerAuth()
   @ApiOkResponse({
-    description: 'User updated successfully',
+    description: "User updated successfully",
     schema: {
       allOf: [
         { $ref: getSchemaPath(HttpResponse) },
@@ -166,7 +166,7 @@ export class UserController {
       ],
     },
   })
-  async updateUser(@Body() body: UpdateUserDTO, @Param('id') id: string) {
+  async updateUser(@Body() body: UpdateUserDTO, @Param("id") id: string) {
     const {
       username,
       firstname,
@@ -198,9 +198,9 @@ export class UserController {
     const currentUser = users[0];
 
     const notSameId = new Filter(
-      new FilterField('id'),
+      new FilterField("id"),
       new FilterOperator(FilterOperators.NOT_EQUAL),
-      new FilterValue(user.id),
+      new FilterValue(user.id)
     );
 
     // Creating criteria that search user by username that are not removed
@@ -211,7 +211,7 @@ export class UserController {
     let fetchedUsers = await this.findUsersAction.run(byUsernameCriteria);
     if (fetchedUsers.length > 0) {
       throw new UserAlreadyExistsError(
-        `User with username '${user.username}' already exists`,
+        `User with username '${user.username}' already exists`
       );
     }
 
@@ -223,7 +223,7 @@ export class UserController {
     fetchedUsers = await this.findUsersAction.run(byEmailCriteria);
     if (fetchedUsers.length > 0) {
       throw new UserAlreadyExistsError(
-        `User with email '${user.email}' already exists`,
+        `User with email '${user.email}' already exists`
       );
     }
 
@@ -237,27 +237,27 @@ export class UserController {
     }
 
     const updatedUser = await this.userRepository.update(user);
-    return HttpResponse.success('User updated successfully').withData(
-      updatedUser.serialize(),
+    return HttpResponse.success("User updated successfully").withData(
+      updatedUser.serialize()
     );
   }
 
   @ApiOkResponse({
-    description: 'User removed successfully',
+    description: "User removed successfully",
     schema: {
       $ref: getSchemaPath(HttpResponse),
     },
   })
   @ApiBearerAuth()
-  @Delete('/')
+  @Delete("/")
   @Auth(RESOURCE_NAME)
   async deleteUser(@Query() query: QueryFilterDto) {
     const criteria = HttpUtils.parseFiltersFromQueryFilters(
       query,
-      getUsersFilterSchema,
+      getUsersFilterSchema
     );
     if (!criteria.hasFilters()) {
-      throw new BadRequestError('Filters are required to remove a user');
+      throw new BadRequestError("Filters are required to remove a user");
     }
 
     // Removing errors associated to these users
@@ -270,7 +270,7 @@ export class UserController {
     const userIds = usersToRemove.map((user) => {
       if (!user.id) {
         throw new UserIdNotDefinedError(
-          "Cannot remove user because it don't have an id",
+          "Cannot remove user because it don't have an id"
         );
       }
 
@@ -280,23 +280,23 @@ export class UserController {
     // Creating criteria to remove errors
     const userIdsCriteria = new Criteria([
       new Filter(
-        new FilterField('user_id'),
+        new FilterField("user_id"),
         new FilterOperator(FilterOperators.IN),
-        new FilterValue(userIds),
+        new FilterValue(userIds)
       ),
     ]);
     await this.authRepository.delete(userIdsCriteria);
 
     // Removing users
     await this.userRepository.remove(criteria);
-    return HttpResponse.success('Successful operation');
+    return HttpResponse.success("Successful operation");
   }
 
   @ApiCreatedResponse({
-    description: 'This endpoint is for jquery datatables',
+    description: "This endpoint is for jquery datatables",
   })
   @ApiBearerAuth()
-  @Post('/datatables')
+  @Post("/datatables")
   @Auth(RESOURCE_NAME)
   async usersDatatable(@Body() body: any) {
     const data = await this.datatable.getData(
@@ -307,10 +307,10 @@ export class UserController {
               users.wallet_address as wallet_address,
               roles.name           as role
        FROM users
-                LEFT JOIN roles ON roles.id = users.role_id`,
+                LEFT JOIN roles ON roles.id = users.role_id`
     );
-    return HttpResponse.success('Datatables fetched successfully').withData(
-      data,
+    return HttpResponse.success("Datatables fetched successfully").withData(
+      data
     );
   }
 
@@ -318,9 +318,9 @@ export class UserController {
   async removeSessions(event: CredentialsChangedEvent) {
     const criteria = new Criteria([
       new Filter(
-        new FilterField('user_id'),
+        new FilterField("user_id"),
         new FilterOperator(FilterOperators.EQUAL),
-        new FilterValue(event.payload.userID),
+        new FilterValue(event.payload.userID)
       ),
     ]);
 

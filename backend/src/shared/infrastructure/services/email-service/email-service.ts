@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
-import { SendEmailError } from '../../../domain/error/common';
-import { EnvironmentService } from '../environment-service';
+import { Injectable } from "@nestjs/common";
+import * as nodemailer from "nodemailer";
+import { SendEmailError } from "../../../domain/error/common";
+import { EnvironmentService } from "../environment-service";
 
 /**
  * Service to send emails
@@ -37,7 +37,7 @@ export class EmailService {
   async sendEmail(
     destination: string,
     subject: string,
-    content: string,
+    content: string
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       this.transporter.sendMail(
@@ -58,7 +58,7 @@ export class EmailService {
             return;
           }
           resolve();
-        },
+        }
       );
     });
   }

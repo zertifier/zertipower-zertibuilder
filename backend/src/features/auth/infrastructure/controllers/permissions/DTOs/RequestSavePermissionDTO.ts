@@ -1,7 +1,7 @@
-import { PermissionDTO } from './PermissionsDTO';
-import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
-import { ArrayNotEmpty, ValidateNested } from 'class-validator';
+import { PermissionDTO } from "./PermissionsDTO";
+import { Type } from "class-transformer";
+import { ApiProperty } from "@nestjs/swagger";
+import { ArrayNotEmpty, ValidateNested } from "class-validator";
 
 export class RequestSavePermissionDTO {
   @ApiProperty({ type: () => [PermissionDTO] })

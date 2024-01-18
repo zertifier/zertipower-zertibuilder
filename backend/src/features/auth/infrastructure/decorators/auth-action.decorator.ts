@@ -1,6 +1,6 @@
-import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
-import { AccessTokenGuard } from '../guards/access-token-guard/access-token-guard';
-import { RolePermissionGuard } from '../guards/role-permission/role-permission.guard';
+import { applyDecorators, SetMetadata, UseGuards } from "@nestjs/common";
+import { AccessTokenGuard } from "../guards/access-token-guard/access-token-guard";
+import { RolePermissionGuard } from "../guards/role-permission/role-permission.guard";
 
 export const EnabledActions: Array<{ action: string; resource: string }> = [];
 /**
@@ -18,7 +18,7 @@ export const EnablePermissions = function (resource: string) {
 export function Auth(resource: string) {
   return applyDecorators(
     EnablePermissions(resource),
-    SetMetadata('resource', resource),
-    UseGuards(AccessTokenGuard, RolePermissionGuard),
+    SetMetadata("resource", resource),
+    UseGuards(AccessTokenGuard, RolePermissionGuard)
   );
 }

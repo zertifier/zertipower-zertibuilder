@@ -1,10 +1,10 @@
-import { Token } from './Token';
-import { User } from '../../../users/domain/User';
-import * as moment from 'moment';
-import { TokenTypes } from './TokenType';
-import * as Joi from 'joi';
-import { InvalidArgumentError } from '../../../../shared/domain/error/common';
-import { RegexUtils } from '../../../../shared/domain/utils';
+import { Token } from "./Token";
+import { User } from "../../../users/domain/User";
+import * as moment from "moment";
+import { TokenTypes } from "./TokenType";
+import * as Joi from "joi";
+import { InvalidArgumentError } from "../../../../shared/domain/error/common";
+import { RegexUtils } from "../../../../shared/domain/utils";
 
 const jwtSchema = Joi.object({
   exp: Joi.date().required(),
@@ -28,10 +28,10 @@ export class UserRefreshToken extends Token {
   constructor(public readonly user: User) {
     super();
     if (!user.id) {
-      throw new InvalidArgumentError('User id must be defined');
+      throw new InvalidArgumentError("User id must be defined");
     }
     this.type = TokenTypes.REFRESH;
-    this.expirationTime = moment().add(6, 'hours').toDate();
+    this.expirationTime = moment().add(6, "hours").toDate();
   }
 
   public static fromValues(payload: any): UserRefreshToken {
@@ -44,7 +44,7 @@ export class UserRefreshToken extends Token {
       email: payload.email,
       username: payload.username,
       firstname: payload.firstname,
-      password: '',
+      password: "",
       lastname: payload.lastname,
       role: payload.role,
       walletAddress: payload.wallet_address,

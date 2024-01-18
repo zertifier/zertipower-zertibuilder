@@ -1,5 +1,5 @@
-import { JsonSerializer } from '../../../shared/domain/JsonSerializer';
-import { UserRoleIdNotDefinedError } from './errors';
+import { JsonSerializer } from "../../../shared/domain/JsonSerializer";
+import { UserRoleIdNotDefinedError } from "./errors";
 
 export class UserRole implements JsonSerializer {
   constructor(params: { name: string }) {
@@ -29,15 +29,15 @@ export class UserRole implements JsonSerializer {
   }
 
   isAdmin(): boolean {
-    return this.name === 'ADMIN';
+    return this.name === "ADMIN";
   }
 
   public static admin() {
-    return new UserRole({ name: 'ADMIN' });
+    return new UserRole({ name: "ADMIN" });
   }
 
   public static user() {
-    return new UserRole({ name: 'USER' });
+    return new UserRole({ name: "USER" });
   }
 
   serialize() {

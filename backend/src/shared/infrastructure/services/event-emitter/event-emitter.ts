@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ApplicationEvent } from '../../../domain/events/ApplicationEvent';
+import { Injectable } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { ApplicationEvent } from "../../../domain/events/ApplicationEvent";
 
 /**
  * Class abstraction to emit events. It is the preferred.

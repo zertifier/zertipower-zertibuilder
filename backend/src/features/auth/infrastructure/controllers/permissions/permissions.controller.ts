@@ -1,29 +1,29 @@
-import { Body, Controller, Get, Put, Query } from '@nestjs/common';
-import { PrismaPermissionsRepository } from '../../repositories/prisma-permissions-repository/prisma-permissions-repository';
-import { HttpUtils } from '../../../../../shared/infrastructure/http/HttpUtils';
-import { QueryFilterDto } from '../../../../../shared/infrastructure/http/QueryFiltersDto';
-import { getPermissionsFilterSchema } from './filter-schemas/get-permissions-filter.schema';
-import { HttpResponse } from '../../../../../shared/infrastructure/http/HttpResponse';
-import { PermissionsDTOMapper } from './DTOs/PermissionsDTO';
-import { RequestSavePermissionDTO } from './DTOs/RequestSavePermissionDTO';
-import { UserRoleRepository } from '../../../../roles/domain/UserRoleRepository';
-import { Filter } from '../../../../../shared/domain/criteria/filter/Filter';
-import { FilterField } from '../../../../../shared/domain/criteria/filter/FilterField';
-import { Criteria } from '../../../../../shared/domain/criteria/Criteria';
+import { Body, Controller, Get, Put, Query } from "@nestjs/common";
+import { PrismaPermissionsRepository } from "../../repositories/prisma-permissions-repository/prisma-permissions-repository";
+import { HttpUtils } from "../../../../../shared/infrastructure/http/HttpUtils";
+import { QueryFilterDto } from "../../../../../shared/infrastructure/http/QueryFiltersDto";
+import { getPermissionsFilterSchema } from "./filter-schemas/get-permissions-filter.schema";
+import { HttpResponse } from "../../../../../shared/infrastructure/http/HttpResponse";
+import { PermissionsDTOMapper } from "./DTOs/PermissionsDTO";
+import { RequestSavePermissionDTO } from "./DTOs/RequestSavePermissionDTO";
+import { UserRoleRepository } from "../../../../roles/domain/UserRoleRepository";
+import { Filter } from "../../../../../shared/domain/criteria/filter/Filter";
+import { FilterField } from "../../../../../shared/domain/criteria/filter/FilterField";
+import { Criteria } from "../../../../../shared/domain/criteria/Criteria";
 import {
   FilterOperator,
   FilterOperators,
-} from '../../../../../shared/domain/criteria/filter/FilterOperator';
-import { FilterValue } from '../../../../../shared/domain/criteria/filter/FilterValue';
-import { UserRoleDoesNotExistError } from '../../../../roles/domain/errors';
-import { ErrorCode } from '../../../../../shared/domain/error';
-import { Permission } from '../../../domain/permissions/Permission';
+} from "../../../../../shared/domain/criteria/filter/FilterOperator";
+import { FilterValue } from "../../../../../shared/domain/criteria/filter/FilterValue";
+import { UserRoleDoesNotExistError } from "../../../../roles/domain/errors";
+import { ErrorCode } from "../../../../../shared/domain/error";
+import { Permission } from "../../../domain/permissions/Permission";
 
-@Controller('permissions')
+@Controller("permissions")
 export class PermissionsController {
   constructor(
     private permissionsRepository: PrismaPermissionsRepository,
-    private userRolesRepository: UserRoleRepository,
+    private userRolesRepository: UserRoleRepository
   ) {}
 
   /**
@@ -34,11 +34,11 @@ export class PermissionsController {
   async getPermissions(@Query() query: QueryFilterDto) {
     const criteria = HttpUtils.parseFiltersFromQueryFilters(
       query,
-      getPermissionsFilterSchema,
+      getPermissionsFilterSchema
     );
     const permissions = await this.permissionsRepository.find(criteria);
-    return HttpResponse.success('Permissions fetched successfully').withData(
-      permissions.map(PermissionsDTOMapper.toDTO),
+    return HttpResponse.success("Permissions fetched successfully").withData(
+      permissions.map(PermissionsDTOMapper.toDTO)
     );
   }
 
@@ -56,11 +56,11 @@ export class PermissionsController {
     const fetchedRoles = await this.userRolesRepository.find(
       new Criteria([
         new Filter(
-          new FilterField('name'),
+          new FilterField("name"),
           new FilterOperator(FilterOperators.IN),
-          new FilterValue(roles),
+          new FilterValue(roles)
         ),
-      ]),
+      ])
     );
     if (fetchedRoles.length !== roles.length) {
       const nonExistingRoles = roles.filter((role) => {
@@ -69,7 +69,7 @@ export class PermissionsController {
           .includes(role);
       });
       throw new UserRoleDoesNotExistError(
-        `Roles [${nonExistingRoles.join(', ')}] doesn't exist`,
+        `Roles [${nonExistingRoles.join(", ")}] doesn't exist`
       );
     }
 
@@ -85,7 +85,7 @@ export class PermissionsController {
       permissionsCounter[key] = counter + 1;
     });
     const duplicated = !!Object.values(permissionsCounter).find(
-      (counter) => counter > 1,
+      (counter) => counter > 1
     );
     if (duplicated) {
       // Collecting duplicated permissions
@@ -93,7 +93,7 @@ export class PermissionsController {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .filter(([_, value]) => value > 1)
         .map(([key, count]) => {
-          const [resource, action, role] = key.split('.');
+          const [resource, action, role] = key.split(".");
           return {
             resource,
             action,
@@ -102,29 +102,29 @@ export class PermissionsController {
           };
         });
       return HttpResponse.failure(
-        'Duplicated permissions',
-        ErrorCode.BAD_REQUEST,
+        "Duplicated permissions",
+        ErrorCode.BAD_REQUEST
       ).withData(duplicatedPermissions);
     }
 
     // Check invalid permissions
     const validPermissionKeys = permissions.map(
       (permission) =>
-        `${permission.resource}.${permission.action}.${permission.role.name}`,
+        `${permission.resource}.${permission.action}.${permission.role.name}`
     );
     const receivedPermissionKeys = body.permissions.map(
       (permission) =>
-        `${permission.resource}.${permission.action}.${permission.role}`,
+        `${permission.resource}.${permission.action}.${permission.role}`
     );
     const invalidPermissionKeys = receivedPermissionKeys.filter(
       (receivedPermissionKey) => {
         return !validPermissionKeys.includes(receivedPermissionKey);
-      },
+      }
     );
     if (invalidPermissionKeys.length) {
       return HttpResponse.failure(
         "Permissions doesn't exist",
-        ErrorCode.BAD_REQUEST,
+        ErrorCode.BAD_REQUEST
       ).withData(invalidPermissionKeys);
     }
 
@@ -133,12 +133,12 @@ export class PermissionsController {
       .map((permissionDTO) => {
         const { resource, action, role, allow } = permissionDTO;
         const userRole = fetchedRoles.find(
-          (fetchedRole) => fetchedRole.name === role,
+          (fetchedRole) => fetchedRole.name === role
         );
 
         if (!userRole) {
           throw new UserRoleDoesNotExistError(
-            `User role '${role}' does not exist`,
+            `User role '${role}' does not exist`
           );
         }
 
@@ -155,6 +155,6 @@ export class PermissionsController {
       await this.permissionsRepository.updatePermission(permission);
     }
 
-    return HttpResponse.success('Permissions saved successfully');
+    return HttpResponse.success("Permissions saved successfully");
   }
 }

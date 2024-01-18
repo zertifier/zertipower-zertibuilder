@@ -1,5 +1,5 @@
-import { User } from '../../../domain/User';
-import { UserDTO } from './UserDTO';
+import { User } from "../../../domain/User";
+import { UserDTO } from "./UserDTO";
 
 export class UserDTOMapper {
   public static toDto(user: User): UserDTO {

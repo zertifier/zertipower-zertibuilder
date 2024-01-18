@@ -1,19 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import * as winston from 'winston';
-import { EnvironmentService } from '../environment-service';
+import { Injectable } from "@nestjs/common";
+import * as winston from "winston";
+import { EnvironmentService } from "../environment-service";
 
 export enum LogLevel {
-  LOG = 'log',
-  INFO = 'info',
-  DEBUG = 'debug',
-  WARN = 'warn',
-  ERROR = 'error',
+  LOG = "log",
+  INFO = "info",
+  DEBUG = "debug",
+  WARN = "warn",
+  ERROR = "error",
 }
 
 const customFormat = winston.format.printf(
   ({ level, message, label, timestamp }) => {
     return `${timestamp} [${label}] ${level}: ${message}`;
-  },
+  }
 );
 /**
  * A winston-logger service implemented with winston
@@ -21,7 +21,7 @@ const customFormat = winston.format.printf(
 @Injectable()
 export class WinstonLogger {
   private readonly logger = winston.createLogger({
-    level: 'info',
+    level: "info",
     levels: {
       log: 0,
       info: 1,
@@ -30,13 +30,13 @@ export class WinstonLogger {
       error: 4,
     },
     format: winston.format.combine(
-      winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+      winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
       winston.format.label({
         label: this.environment.getEnv().APPLICATION_NAME,
       }),
-      customFormat,
+      customFormat
     ),
-    defaultMeta: { service: 'API' },
+    defaultMeta: { service: "API" },
     transports: [new winston.transports.Console()],
   });
 

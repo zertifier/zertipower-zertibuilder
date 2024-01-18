@@ -1,11 +1,11 @@
-import { Token } from './Token';
-import { User } from '../../../users/domain/User';
-import * as moment from 'moment';
-import { TokenTypes } from './TokenType';
-import * as Joi from 'joi';
-import { InvalidArgumentError } from '../../../../shared/domain/error/common';
-import { RegexUtils } from '../../../../shared/domain/utils';
-import { UserRole } from '../../../roles/domain/UserRole';
+import { Token } from "./Token";
+import { User } from "../../../users/domain/User";
+import * as moment from "moment";
+import { TokenTypes } from "./TokenType";
+import * as Joi from "joi";
+import { InvalidArgumentError } from "../../../../shared/domain/error/common";
+import { RegexUtils } from "../../../../shared/domain/utils";
+import { UserRole } from "../../../roles/domain/UserRole";
 
 const jwtSchema = Joi.object({
   exp: Joi.date().required(),
@@ -32,9 +32,9 @@ export class UserAccessToken extends Token {
     this.type = TokenTypes.ACCESS;
 
     if (!this.user.id) {
-      throw new InvalidArgumentError('User id must be defined');
+      throw new InvalidArgumentError("User id must be defined");
     }
-    this.expirationTime = moment().add(15, 'minutes').toDate();
+    this.expirationTime = moment().add(15, "minutes").toDate();
   }
 
   public static fromValues(payload: any): UserAccessToken {
@@ -47,7 +47,7 @@ export class UserAccessToken extends Token {
       email: payload.email,
       username: payload.username,
       firstname: payload.firstname,
-      password: '',
+      password: "",
       lastname: payload.lastname,
       walletAddress: payload.wallet_address,
       role: new UserRole({ name: payload.role }),

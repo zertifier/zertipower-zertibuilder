@@ -1,24 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { UserRoleRepository } from '../../../domain/UserRoleRepository';
-import { Criteria } from '../../../../../shared/domain/criteria/Criteria';
-import { UserRole } from '../../../domain/UserRole';
-import { PrismaService } from '../../../../../shared/infrastructure/services';
+import { Injectable } from "@nestjs/common";
+import { UserRoleRepository } from "../../../domain/UserRoleRepository";
+import { Criteria } from "../../../../../shared/domain/criteria/Criteria";
+import { UserRole } from "../../../domain/UserRole";
+import { PrismaService } from "../../../../../shared/infrastructure/services";
 import {
   toPrismaFilters,
   toPrismaSorting,
-} from '../../../../../shared/infrastructure/prisma/criteria';
-import { InfrastructureError } from '../../../../../shared/domain/error/common';
+} from "../../../../../shared/infrastructure/prisma/criteria";
+import { InfrastructureError } from "../../../../../shared/domain/error/common";
 import {
   RoleAlreadyExistError,
   UserRoleDoesNotExistError,
-} from '../../../domain/errors';
-import { Filter } from '../../../../../shared/domain/criteria/filter/Filter';
-import { FilterField } from '../../../../../shared/domain/criteria/filter/FilterField';
+} from "../../../domain/errors";
+import { Filter } from "../../../../../shared/domain/criteria/filter/Filter";
+import { FilterField } from "../../../../../shared/domain/criteria/filter/FilterField";
 import {
   FilterOperator,
   FilterOperators,
-} from '../../../../../shared/domain/criteria/filter/FilterOperator';
-import { FilterValue } from '../../../../../shared/domain/criteria/filter/FilterValue';
+} from "../../../../../shared/domain/criteria/filter/FilterOperator";
+import { FilterValue } from "../../../../../shared/domain/criteria/filter/FilterValue";
 
 /**
  * Implementation of role repository using prisma
@@ -33,7 +33,7 @@ export class PrismaRoleRepository implements UserRoleRepository {
         where: toPrismaFilters(criteria),
       });
     } catch (err) {
-      throw new InfrastructureError('Error removing roles').withMetadata(err);
+      throw new InfrastructureError("Error removing roles").withMetadata(err);
     }
   }
 
@@ -50,7 +50,7 @@ export class PrismaRoleRepository implements UserRoleRepository {
       });
     } catch (err) {
       throw new InfrastructureError(
-        'Error getting roles from database',
+        "Error getting roles from database"
       ).withMetadata(err);
     }
 
@@ -58,7 +58,7 @@ export class PrismaRoleRepository implements UserRoleRepository {
       roles.push(
         new UserRole({
           name: fetchedRole.name,
-        }).withId(fetchedRole.id),
+        }).withId(fetchedRole.id)
       );
     }
 
@@ -88,7 +88,7 @@ export class PrismaRoleRepository implements UserRoleRepository {
   }
 
   private async saveRolesWithId(
-    roles: Array<UserRole>,
+    roles: Array<UserRole>
   ): Promise<Array<UserRole>> {
     const result = await this.prisma.role.findMany({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -102,7 +102,7 @@ export class PrismaRoleRepository implements UserRoleRepository {
         .filter((role) => !existingRoleIds.includes(role.id!))
         .map((role) => role.name);
       throw new UserRoleDoesNotExistError(
-        `These roles doesn't exist [${nonExistingRoles.join(', ')}]`,
+        `These roles doesn't exist [${nonExistingRoles.join(", ")}]`
       );
     }
 
@@ -119,13 +119,13 @@ export class PrismaRoleRepository implements UserRoleRepository {
         });
       }
     } catch (err) {
-      throw new InfrastructureError('Error updating roles').withMetadata(err);
+      throw new InfrastructureError("Error updating roles").withMetadata(err);
     }
     return roles;
   }
 
   private async saveRolesWithoutId(
-    roles: Array<UserRole>,
+    roles: Array<UserRole>
   ): Promise<Array<UserRole>> {
     const savedRoles = new Array<UserRole>();
     const result = await this.prisma.role.findMany({
@@ -135,7 +135,7 @@ export class PrismaRoleRepository implements UserRoleRepository {
 
     if (result.length !== 0) {
       throw new RoleAlreadyExistError(
-        `Roles [${result.map((role) => role.name)}] already exist`,
+        `Roles [${result.map((role) => role.name)}] already exist`
       );
     }
 
@@ -148,14 +148,14 @@ export class PrismaRoleRepository implements UserRoleRepository {
         }),
       });
     } catch (err) {
-      throw new InfrastructureError('Error saving roles').withMetadata(err);
+      throw new InfrastructureError("Error saving roles").withMetadata(err);
     }
 
     const criteria = new Criteria([
       new Filter(
-        new FilterField('name'),
+        new FilterField("name"),
         new FilterOperator(FilterOperators.IN),
-        new FilterValue(roles.map((role) => role.name)),
+        new FilterValue(roles.map((role) => role.name))
       ),
     ]);
     let savedData;
@@ -164,8 +164,8 @@ export class PrismaRoleRepository implements UserRoleRepository {
         where: toPrismaFilters(criteria),
       });
     } catch (err) {
-      throw new InfrastructureError('Error getting saved roles').withMetadata(
-        err,
+      throw new InfrastructureError("Error getting saved roles").withMetadata(
+        err
       );
     }
 

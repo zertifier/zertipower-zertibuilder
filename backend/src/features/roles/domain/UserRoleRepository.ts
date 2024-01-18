@@ -1,5 +1,5 @@
-import { UserRole } from './UserRole';
-import { Criteria } from '../../../shared/domain/criteria/Criteria';
+import { UserRole } from "./UserRole";
+import { Criteria } from "../../../shared/domain/criteria/Criteria";
 
 export abstract class UserRoleRepository {
   /**

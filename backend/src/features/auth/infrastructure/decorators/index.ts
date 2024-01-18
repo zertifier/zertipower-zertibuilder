@@ -1,1 +1,1 @@
-export * from './auth-action.decorator';
+export * from "./auth-action.decorator";

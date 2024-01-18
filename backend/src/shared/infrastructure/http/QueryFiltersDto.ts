@@ -1,12 +1,12 @@
-import { IsOptional, IsString, Validate } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString, Validate } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 function IsStringOrArrayOfStrings() {
   return Validate((value: any) => {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       return true;
     } else if (Array.isArray(value)) {
-      return value.every((item) => typeof item === 'string');
+      return value.every((item) => typeof item === "string");
     }
     return false;
   });

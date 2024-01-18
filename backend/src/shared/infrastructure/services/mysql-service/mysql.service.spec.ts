@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MysqlService } from './mysql.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { MysqlService } from "./mysql.service";
 
-describe('MysqlServiceService', () => {
+describe("MysqlServiceService", () => {
   let service: MysqlService;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('MysqlServiceService', () => {
     service = module.get<MysqlService>(MysqlService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 });

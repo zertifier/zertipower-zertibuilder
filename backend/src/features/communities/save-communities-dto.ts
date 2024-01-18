@@ -1,6 +1,6 @@
-import { Transform } from 'class-transformer';
-import { IsOptional, IsDefined } from 'class-validator';
-import * as moment from 'moment';
+import { Transform } from "class-transformer";
+import { IsOptional, IsDefined } from "class-validator";
+import * as moment from "moment";
 
 export class SaveCommunitiesDTO {
   @IsOptional()
@@ -10,15 +10,13 @@ export class SaveCommunitiesDTO {
   @IsOptional()
   test: number;
   @Transform((value) =>
-    moment.utc((value as any).value, 'YYYY-MM-DD HH:mm:ss').toDate(),
+    moment.utc((value as any).value, "YYYY-MM-DD HH:mm:ss").toDate()
   )
   @IsOptional()
   createdAt: Date;
   @Transform((value) =>
-    moment.utc((value as any).value, 'YYYY-MM-DD HH:mm:ss').toDate(),
+    moment.utc((value as any).value, "YYYY-MM-DD HH:mm:ss").toDate()
   )
   @IsOptional()
   updatedAt: Date;
 }
-
-

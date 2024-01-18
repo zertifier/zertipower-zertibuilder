@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AccessTokenGuard } from './access-token-guard';
+import { Test, TestingModule } from "@nestjs/testing";
+import { AccessTokenGuard } from "./access-token-guard";
 
-describe('AccessTokenGuard', () => {
+describe("AccessTokenGuard", () => {
   let provider: AccessTokenGuard;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('AccessTokenGuard', () => {
     provider = module.get<AccessTokenGuard>(AccessTokenGuard);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

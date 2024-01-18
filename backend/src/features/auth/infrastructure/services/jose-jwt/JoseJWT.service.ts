@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { Token } from '../../../domain/tokens/Token';
-import * as jose from 'jose';
-import { JWTPayload } from 'jose';
-import { EnvironmentService } from '../../../../../shared/infrastructure/services';
-import { JwtService } from '../../../domain/tokens/services/JwtService';
+import { Injectable } from "@nestjs/common";
+import { Token } from "../../../domain/tokens/Token";
+import * as jose from "jose";
+import { JWTPayload } from "jose";
+import { EnvironmentService } from "../../../../../shared/infrastructure/services";
+import { JwtService } from "../../../domain/tokens/services/JwtService";
 
 @Injectable()
 export class JoseJWTService implements JwtService {
@@ -11,13 +11,13 @@ export class JoseJWTService implements JwtService {
 
   constructor(private environment: EnvironmentService) {
     this.secret = new TextEncoder().encode(
-      this.environment.getEnv().JWT_SECRET,
+      this.environment.getEnv().JWT_SECRET
     );
   }
 
   async sign(payload: Token) {
     const jwt = new jose.SignJWT(payload.serialize() as JWTPayload)
-      .setProtectedHeader({ alg: 'HS256' })
+      .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt();
 
     if (payload.expirationTime) {

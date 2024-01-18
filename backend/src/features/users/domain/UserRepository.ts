@@ -1,5 +1,5 @@
-import { Criteria } from '../../../shared/domain/criteria/Criteria';
-import { User } from './User';
+import { Criteria } from "../../../shared/domain/criteria/Criteria";
+import { User } from "./User";
 
 export abstract class UserRepository {
   /**

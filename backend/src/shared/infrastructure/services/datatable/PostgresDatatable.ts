@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import * as format from 'pg-format';
-import { PostgresService } from '../postgres/postgres.service';
-import { Datatable, DatatableParams } from './Datatable';
+import { Injectable } from "@nestjs/common";
+import * as format from "pg-format";
+import { PostgresService } from "../postgres/postgres.service";
+import { Datatable, DatatableParams } from "./Datatable";
 
 @Injectable({})
 export class PostgresDatatable implements Datatable {
@@ -10,7 +10,7 @@ export class PostgresDatatable implements Datatable {
 
   async getData(
     params: DatatableParams,
-    query: string,
+    query: string
   ): Promise<{
     draw: number;
     data: unknown;
@@ -26,11 +26,11 @@ export class PostgresDatatable implements Datatable {
     // Adding to limit params
     limitParams.push(params.length);
     limitParams.push(params.start);
-    const limit = ' LIMIT %L OFFSET %L ';
+    const limit = " LIMIT %L OFFSET %L ";
 
     // Getting searchable columns
     const searchableColumns = params.columns.filter(
-      (column) => column.searchable,
+      (column) => column.searchable
     );
 
     const searchArr: string[] = [];
@@ -51,18 +51,18 @@ export class PostgresDatatable implements Datatable {
         // If a regex is provided then create an operator for regex search
         if (params.search.regex) {
           filterParams.push(params.search.value);
-          operator = ' REGEXP %s ';
+          operator = " REGEXP %s ";
         } else {
           // If not create an operator for like.
           // Surrounding this with %% allows as to implement a functionality
           // like 'contains'
           filterParams.push(`'%${params.search.value}%'`);
-          operator = ' LIKE %s ';
+          operator = " LIKE %s ";
         }
         globalSearchArr.push(` %I ${operator}`);
       }
     if (globalSearchArr.length)
-      searchArr.push(`(${globalSearchArr.join(' OR ')})`);
+      searchArr.push(`(${globalSearchArr.join(" OR ")})`);
 
     // Creating statements for individual search
     const individualSearchArr: string[] = [];
@@ -73,10 +73,10 @@ export class PostgresDatatable implements Datatable {
         let operator;
         if (column.search.regex) {
           filterParams.push(column.search.value);
-          operator = ' REGEXP %s ';
+          operator = " REGEXP %s ";
         } else {
           filterParams.push(`'%${column.search.value}%'`);
-          operator = ' LIKE %s ';
+          operator = " LIKE %s ";
         }
 
         // ?? is used to escape multiple values ej.
@@ -86,10 +86,10 @@ export class PostgresDatatable implements Datatable {
       }
     }
     if (individualSearchArr.length)
-      searchArr.push(`(${individualSearchArr.join(' AND ')})`);
+      searchArr.push(`(${individualSearchArr.join(" AND ")})`);
 
     // Filter is the main string that contains all the filters applied to data
-    const filter = searchArr.length ? ` WHERE ${searchArr.join(' AND ')} ` : '';
+    const filter = searchArr.length ? ` WHERE ${searchArr.join(" AND ")} ` : "";
 
     // Creating order statements
     const orderArr: string[] = [];
@@ -98,19 +98,19 @@ export class PostgresDatatable implements Datatable {
       orderParams.push(columnName);
       orderArr.push(`
             %I
-             ${orderInfo.dir.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'}
+             ${orderInfo.dir.toUpperCase() === "ASC" ? "ASC" : "DESC"}
              `);
     }
 
-    const order = orderArr.length ? ` ORDER BY ${orderArr.join(', ')} ` : '';
+    const order = orderArr.length ? ` ORDER BY ${orderArr.join(", ")} ` : "";
 
     // Getting how many records are fetched with this query without pagination
     const recordsTotal = (
       await this.pool.query(
         format(
           `SELECT COUNT(*) count
-         FROM (${query}) a `,
-        ),
+         FROM (${query}) a `
+        )
       )
     ).rows[0].count;
 
@@ -121,8 +121,8 @@ export class PostgresDatatable implements Datatable {
           `SELECT COUNT(*) count
          FROM (${query}) a ${filter}`,
           ...filterParams,
-          ...orderParams,
-        ),
+          ...orderParams
+        )
       )
     ).rows[0].count;
 
@@ -134,8 +134,8 @@ export class PostgresDatatable implements Datatable {
          FROM (${query}) as results${filter}${order}${limit}`,
           ...filterParams,
           ...orderParams,
-          ...limitParams,
-        ),
+          ...limitParams
+        )
       )
     ).rows;
 

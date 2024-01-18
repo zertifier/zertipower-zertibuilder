@@ -1,25 +1,25 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import {
   PrismaService,
   WinstonLogger,
-} from '../../../../../shared/infrastructure/services';
-import { Criteria } from '../../../../../shared/domain/criteria/Criteria';
-import { toPrismaFilters } from '../../../../../shared/infrastructure/prisma/criteria';
-import { InfrastructureError } from '../../../../../shared/domain/error/common';
-import { Permission } from '../../../domain/permissions/Permission';
-import { EnabledActions } from '../../decorators';
-import { UserRole } from '../../../../roles/domain/UserRole';
-import { UserRoleIdNotDefinedError } from '../../../../roles/domain/errors';
-import { UserRoleRepository } from '../../../../roles/domain/UserRoleRepository';
-import { OnEvent } from '@nestjs/event-emitter';
-import { RolesChangedEvent } from '../../../../roles/domain/events/RolesChangedEvent';
+} from "../../../../../shared/infrastructure/services";
+import { Criteria } from "../../../../../shared/domain/criteria/Criteria";
+import { toPrismaFilters } from "../../../../../shared/infrastructure/prisma/criteria";
+import { InfrastructureError } from "../../../../../shared/domain/error/common";
+import { Permission } from "../../../domain/permissions/Permission";
+import { EnabledActions } from "../../decorators";
+import { UserRole } from "../../../../roles/domain/UserRole";
+import { UserRoleIdNotDefinedError } from "../../../../roles/domain/errors";
+import { UserRoleRepository } from "../../../../roles/domain/UserRoleRepository";
+import { OnEvent } from "@nestjs/event-emitter";
+import { RolesChangedEvent } from "../../../../roles/domain/events/RolesChangedEvent";
 
 @Injectable()
 export class PrismaPermissionsRepository implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private logger: WinstonLogger,
-    private userRoleRepository: UserRoleRepository,
+    private userRoleRepository: UserRoleRepository
   ) {}
 
   async onModuleInit(): Promise<any> {
@@ -46,8 +46,8 @@ export class PrismaPermissionsRepository implements OnModuleInit {
         },
       });
     } catch (err) {
-      throw new InfrastructureError('Error getting permissions').withMetadata(
-        err,
+      throw new InfrastructureError("Error getting permissions").withMetadata(
+        err
       );
     }
 
@@ -56,12 +56,12 @@ export class PrismaPermissionsRepository implements OnModuleInit {
         permissions.push(
           new Permission({
             role: new UserRole({ name: rolePermission.role.name }).withId(
-              rolePermission.role.id,
+              rolePermission.role.id
             ),
             resource: fetchedPermission.resource,
             action: fetchedPermission.action,
             allow: rolePermission.allow,
-          }),
+          })
         );
       });
     }
@@ -84,8 +84,8 @@ export class PrismaPermissionsRepository implements OnModuleInit {
         data: mappedData,
       });
     } catch (err) {
-      throw new InfrastructureError('Error saving permissions').withMetadata(
-        err,
+      throw new InfrastructureError("Error saving permissions").withMetadata(
+        err
       );
     }
   }
@@ -96,8 +96,8 @@ export class PrismaPermissionsRepository implements OnModuleInit {
         where: toPrismaFilters(criteria),
       });
     } catch (err) {
-      throw new InfrastructureError('Error removing permissions').withMetadata(
-        err,
+      throw new InfrastructureError("Error removing permissions").withMetadata(
+        err
       );
     }
   }
@@ -133,14 +133,14 @@ export class PrismaPermissionsRepository implements OnModuleInit {
       });
     } catch (err) {
       throw new InfrastructureError(
-        `Error updating permission ${JSON.stringify(permission.serialize())}`,
+        `Error updating permission ${JSON.stringify(permission.serialize())}`
       ).withMetadata(err);
     }
   }
 
   @OnEvent(RolesChangedEvent.NAME)
   private async syncPermissions() {
-    this.logger.info('Sync permissions');
+    this.logger.info("Sync permissions");
     await this.prisma.permission.deleteMany({
       where: {
         resource: {
@@ -153,14 +153,14 @@ export class PrismaPermissionsRepository implements OnModuleInit {
     });
 
     const resources = new Set(
-      EnabledActions.map((enabledAction) => enabledAction.resource),
+      EnabledActions.map((enabledAction) => enabledAction.resource)
     );
 
     await this.prisma.permission.createMany({
       data: Array.from(resources).map((resource) => {
         return {
           resource,
-          action: 'pageAccess',
+          action: "pageAccess",
         };
       }),
       skipDuplicates: true,
@@ -196,7 +196,7 @@ export class PrismaPermissionsRepository implements OnModuleInit {
       for (const resource of resources) {
         data.push({
           allow: false,
-          permission_action: 'pageAccess',
+          permission_action: "pageAccess",
           permission_resource: resource,
           role_id: role.id,
         });

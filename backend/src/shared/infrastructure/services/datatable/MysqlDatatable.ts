@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { MysqlService } from '../mysql-service';
-import { Datatable, DatatableParams } from './Datatable';
-import mysql from 'mysql2/promise';
+import { Injectable } from "@nestjs/common";
+import { MysqlService } from "../mysql-service";
+import { Datatable, DatatableParams } from "./Datatable";
+import mysql from "mysql2/promise";
 
 @Injectable({})
 export class MysqlDatatable implements Datatable {
@@ -11,7 +11,7 @@ export class MysqlDatatable implements Datatable {
   }
   async getData(
     params: DatatableParams,
-    query: string,
+    query: string
   ): Promise<{
     draw: number;
     data: unknown[];
@@ -28,11 +28,11 @@ export class MysqlDatatable implements Datatable {
     // Adding to limit params
     limitParams.push(params.start);
     limitParams.push(params.length);
-    const limit = ' LIMIT ? , ? ';
+    const limit = " LIMIT ? , ? ";
 
     // Getting searchable columns
     const searchableColumns = params.columns.filter(
-      (column) => column.searchable,
+      (column) => column.searchable
     );
 
     const searchArr: string[] = [];
@@ -53,18 +53,18 @@ export class MysqlDatatable implements Datatable {
         // If a regex is provided then create an operator for regex search
         if (params.search.regex) {
           filterParams.push(params.search.value);
-          operator = ' REGEXP ? ';
+          operator = " REGEXP ? ";
         } else {
           // If not create an operator for like.
           // Surrounding this with %% allows as to implement a functionality
           // like 'contains'
           filterParams.push(`%${params.search.value}%`);
-          operator = ' LIKE ? ';
+          operator = " LIKE ? ";
         }
         globalSearchArr.push(` ?? ${operator}`);
       }
     if (globalSearchArr.length)
-      searchArr.push(`(${globalSearchArr.join(' OR ')})`);
+      searchArr.push(`(${globalSearchArr.join(" OR ")})`);
 
     // Creating statements for individual search
     const individualSearchArr: string[] = [];
@@ -75,10 +75,10 @@ export class MysqlDatatable implements Datatable {
         let operator;
         if (column.search.regex) {
           filterParams.push(column.search.value);
-          operator = ' REGEXP ? ';
+          operator = " REGEXP ? ";
         } else {
           filterParams.push(`%${column.search.value}%`);
-          operator = ' LIKE ? ';
+          operator = " LIKE ? ";
         }
 
         // ?? is used to escape multiple values ej.
@@ -88,12 +88,12 @@ export class MysqlDatatable implements Datatable {
       }
     }
     if (individualSearchArr.length)
-      searchArr.push(`(${individualSearchArr.join(' AND ')})`);
+      searchArr.push(`(${individualSearchArr.join(" AND ")})`);
 
     // Filter is the main string that contains all the filters applied to data
     const filter = searchArr.length
-      ? ` HAVING ${searchArr.join(' AND ')} `
-      : '';
+      ? ` HAVING ${searchArr.join(" AND ")} `
+      : "";
 
     // Creating order statements
     const orderArr: string[] = [];
@@ -102,18 +102,18 @@ export class MysqlDatatable implements Datatable {
       orderParams.push(columnName);
       orderArr.push(`
             ??
-             ${orderInfo.dir.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'}
+             ${orderInfo.dir.toUpperCase() === "ASC" ? "ASC" : "DESC"}
              `);
     }
 
-    const order = orderArr.length ? ` ORDER BY ${orderArr.join(', ')} ` : '';
+    const order = orderArr.length ? ` ORDER BY ${orderArr.join(", ")} ` : "";
 
     // Getting how many records are fetched with this query without pagination
     const recordsTotal = (
       await this.con.query<mysql.RowDataPacket[]>(
         `SELECT COUNT(*) count
          FROM (${query}) a `,
-        sqlParams,
+        sqlParams
       )
     )[0][0].count as number;
 
@@ -122,7 +122,7 @@ export class MysqlDatatable implements Datatable {
       await this.con.query<mysql.RowDataPacket[]>(
         `SELECT COUNT(*) count
          FROM (${query} ${filter}) a `,
-        sqlParams.concat(filterParams, orderParams),
+        sqlParams.concat(filterParams, orderParams)
       )
     )[0][0].count as number;
 
@@ -130,7 +130,7 @@ export class MysqlDatatable implements Datatable {
       await this.con.query<mysql.RowDataPacket[]>(
         `SELECT *
          FROM (${query}) as results${filter}${order}${limit}`,
-        sqlParams.concat(filterParams, orderParams, limitParams),
+        sqlParams.concat(filterParams, orderParams, limitParams)
       )
     )[0];
 

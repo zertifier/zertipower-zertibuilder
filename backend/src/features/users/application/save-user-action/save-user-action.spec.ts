@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { SaveUserAction } from './save-user-action';
+import { Test, TestingModule } from "@nestjs/testing";
+import { SaveUserAction } from "./save-user-action";
 
-describe('SaveUserAction', () => {
+describe("SaveUserAction", () => {
   let provider: SaveUserAction;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('SaveUserAction', () => {
     provider = module.get<SaveUserAction>(SaveUserAction);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

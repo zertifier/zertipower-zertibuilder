@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { Body, Controller, Delete, Post } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
 import {
   TokenNotValidError,
   TokenRejectedEvent,
   TokenRevokedError,
-} from '../../../domain/tokens/errors';
+} from "../../../domain/tokens/errors";
 import {
   EmailService,
   EnvironmentService,
@@ -12,59 +12,59 @@ import {
   MustacheViewsService,
   PrismaService,
   WinstonLogger,
-} from '../../../../../shared/infrastructure/services';
-import { HttpResponse } from '../../../../../shared/infrastructure/http/HttpResponse';
-import { TokenDTO } from './DTOs/request/TokenDTO';
-import { LoginDTO } from './DTOs/request/LoginDTO';
-import { User } from '../../../../users/domain/User';
-import { UserRepository } from '../../../../users/domain/UserRepository';
-import { ByUsernameCriteria } from '../../../../users/domain/Username/ByUsernameCriteria';
-import { ByEmailCriteria } from '../../../../users/domain/Email/ByEmailCriteria';
+} from "../../../../../shared/infrastructure/services";
+import { HttpResponse } from "../../../../../shared/infrastructure/http/HttpResponse";
+import { TokenDTO } from "./DTOs/request/TokenDTO";
+import { LoginDTO } from "./DTOs/request/LoginDTO";
+import { User } from "../../../../users/domain/User";
+import { UserRepository } from "../../../../users/domain/UserRepository";
+import { ByUsernameCriteria } from "../../../../users/domain/Username/ByUsernameCriteria";
+import { ByEmailCriteria } from "../../../../users/domain/Email/ByEmailCriteria";
 import {
   PasswordNotEncryptedError,
   PasswordNotMatchError,
   ResetPasswordCodeNotValidError,
   UserNotFoundError,
-} from '../../../../users/domain/errors';
-import { UserIdNotDefinedError } from '../../../../users/domain/UserId/UserIdNotDefinedError';
-import { PasswordUtils } from '../../../../users/domain/Password/PasswordUtils';
-import { UserAccessToken } from '../../../domain/tokens/UserAccessToken';
-import { UserRefreshToken } from '../../../domain/tokens/UserRefreshToken';
-import { JwtService } from '../../../domain/tokens/services/JwtService';
-import { AuthTokenRepository } from '../../../domain/tokens/repositories/AuthTokenRepository';
-import { ByEncodedTokenCriteria } from '../../../domain/tokens/repositories/ByEncodedTokenCriteria';
-import { RequestCodeDTO } from './DTOs/request/RequestCodeDTO';
-import { ByWalletAddress } from '../../../../users/domain/ByWalletAddress';
-import { FindUsersAction } from '../../../../users/application/find-users-action/find-users-action';
-import { SignCodeUtils } from '../../../domain/web3/utils/SignCodeUtils';
+} from "../../../../users/domain/errors";
+import { UserIdNotDefinedError } from "../../../../users/domain/UserId/UserIdNotDefinedError";
+import { PasswordUtils } from "../../../../users/domain/Password/PasswordUtils";
+import { UserAccessToken } from "../../../domain/tokens/UserAccessToken";
+import { UserRefreshToken } from "../../../domain/tokens/UserRefreshToken";
+import { JwtService } from "../../../domain/tokens/services/JwtService";
+import { AuthTokenRepository } from "../../../domain/tokens/repositories/AuthTokenRepository";
+import { ByEncodedTokenCriteria } from "../../../domain/tokens/repositories/ByEncodedTokenCriteria";
+import { RequestCodeDTO } from "./DTOs/request/RequestCodeDTO";
+import { ByWalletAddress } from "../../../../users/domain/ByWalletAddress";
+import { FindUsersAction } from "../../../../users/application/find-users-action/find-users-action";
+import { SignCodeUtils } from "../../../domain/web3/utils/SignCodeUtils";
 import {
   SignatureDontMatchError,
   SignCodeNotAssignedError,
-} from '../../../domain/web3/errors';
-import { LoginWeb3DTO } from './DTOs/request/LoginWeb3DTO';
-import { ethers } from 'ethers';
-import { ByUserIdCriteria } from '../../../../users/domain/UserId/ByUserIdCriteria';
+} from "../../../domain/web3/errors";
+import { LoginWeb3DTO } from "./DTOs/request/LoginWeb3DTO";
+import { ethers } from "ethers";
+import { ByUserIdCriteria } from "../../../../users/domain/UserId/ByUserIdCriteria";
 import {
   ApiCreatedResponse,
   ApiExtraModels,
   ApiOkResponse,
   ApiTags,
   getSchemaPath,
-} from '@nestjs/swagger';
-import { LoggedInDTO } from './DTOs/response/LoggedInDTO';
-import { RequestedCodeDTO } from './DTOs/response/RequestedCodeDTO';
-import { TokenRefreshedDTO } from './DTOs/response/TokenRefreshedDTO';
-import { RequestResetPasswordDTO } from './DTOs/request/RequestResetPasswordDTO';
-import { ResetPasswordRequestedEvent } from '../../../domain/events/ResetPasswordRequestedEvent';
-import { ResetPasswordDTO } from './DTOs/request/ResetPasswordDTO';
-import { ByResetPasswordCode } from '../../../../users/domain/Password/ByResetPasswordCode';
-import { CredentialsChangedEvent } from '../../../../users/domain/CredentialsChangedEvent';
-import { TimeUtils } from '../../../../../shared/domain/utils';
-import { Cron } from '@nestjs/schedule';
-import { GenerateUserTokensAction } from '../../../application/generate-user-tokens-action/generate-user-tokens-action';
+} from "@nestjs/swagger";
+import { LoggedInDTO } from "./DTOs/response/LoggedInDTO";
+import { RequestedCodeDTO } from "./DTOs/response/RequestedCodeDTO";
+import { TokenRefreshedDTO } from "./DTOs/response/TokenRefreshedDTO";
+import { RequestResetPasswordDTO } from "./DTOs/request/RequestResetPasswordDTO";
+import { ResetPasswordRequestedEvent } from "../../../domain/events/ResetPasswordRequestedEvent";
+import { ResetPasswordDTO } from "./DTOs/request/ResetPasswordDTO";
+import { ByResetPasswordCode } from "../../../../users/domain/Password/ByResetPasswordCode";
+import { CredentialsChangedEvent } from "../../../../users/domain/CredentialsChangedEvent";
+import { TimeUtils } from "../../../../../shared/domain/utils";
+import { Cron } from "@nestjs/schedule";
+import { GenerateUserTokensAction } from "../../../application/generate-user-tokens-action/generate-user-tokens-action";
 
 const signCodesRepository: { [walletAddress: string]: string } = {};
-const RESOURCE_NAME = 'auth';
+const RESOURCE_NAME = "auth";
 
 @Controller(RESOURCE_NAME)
 @ApiExtraModels(HttpResponse)
@@ -81,14 +81,14 @@ export class AuthController {
     private eventEmitter: EventEmitter,
     private logger: WinstonLogger,
     private environment: EnvironmentService,
-    private generateUserTokensAction: GenerateUserTokensAction,
+    private generateUserTokensAction: GenerateUserTokensAction
   ) {}
 
   /**
    * A traditional login with user and password
    * @param body
    */
-  @Post('login')
+  @Post("login")
   @ApiExtraModels(LoggedInDTO)
   @ApiCreatedResponse({
     schema: {
@@ -111,13 +111,13 @@ export class AuthController {
     let fetchedUsers: User[];
     // Getting user by username
     fetchedUsers = await this.userRepository.find(
-      new ByUsernameCriteria(usernameOrEmail),
+      new ByUsernameCriteria(usernameOrEmail)
     );
     user = fetchedUsers[0];
     if (!user) {
       // Getting user by email
       fetchedUsers = await this.userRepository.find(
-        new ByEmailCriteria(usernameOrEmail),
+        new ByEmailCriteria(usernameOrEmail)
       );
       user = fetchedUsers[0];
       if (!user) {
@@ -134,7 +134,7 @@ export class AuthController {
 
     const passwordMatch = await PasswordUtils.match(
       user.encryptedPassword,
-      password,
+      password
     );
     if (!passwordMatch) {
       throw new PasswordNotMatchError();
@@ -146,10 +146,10 @@ export class AuthController {
 
     const responseData: LoggedInDTO = new LoggedInDTO(
       signedAccessToken,
-      signedRefreshToken,
+      signedRefreshToken
     );
-    return HttpResponse.success('Logged in successfully').withData(
-      responseData,
+    return HttpResponse.success("Logged in successfully").withData(
+      responseData
     );
   }
 
@@ -157,9 +157,9 @@ export class AuthController {
    * Revokes refresh token
    * @param body
    */
-  @Delete('logout')
+  @Delete("logout")
   @ApiOkResponse({
-    description: 'Logged out successfully',
+    description: "Logged out successfully",
     schema: { $ref: getSchemaPath(HttpResponse) },
   })
   async logout(@Body() body: TokenDTO): Promise<HttpResponse> {
@@ -173,17 +173,17 @@ export class AuthController {
     }
 
     await this.authRepository.delete(new ByEncodedTokenCriteria(token));
-    return HttpResponse.success('Logged out successfully');
+    return HttpResponse.success("Logged out successfully");
   }
 
   /**
    * Request code to sign and associates this code to user that requested it
    * @param body
    */
-  @Post('request-code')
+  @Post("request-code")
   @ApiExtraModels(RequestedCodeDTO)
   @ApiCreatedResponse({
-    description: 'Logged out successfully',
+    description: "Logged out successfully",
     schema: {
       allOf: [
         { $ref: getSchemaPath(HttpResponse) },
@@ -204,15 +204,15 @@ export class AuthController {
     const user = users[0];
     if (!user) {
       throw new UserNotFoundError(
-        `User with wallet ${wallet_address} not found`,
+        `User with wallet ${wallet_address} not found`
       );
     }
 
     const code = SignCodeUtils.getRandomCode();
     signCodesRepository[wallet_address] = code;
 
-    return HttpResponse.success('Code generated successfully').withData(
-      new RequestedCodeDTO(code),
+    return HttpResponse.success("Code generated successfully").withData(
+      new RequestedCodeDTO(code)
     );
   }
 
@@ -221,7 +221,7 @@ export class AuthController {
    * with expected message and wallet.
    * @param body
    */
-  @Post('login-w3')
+  @Post("login-w3")
   @ApiCreatedResponse({
     schema: {
       allOf: [
@@ -244,7 +244,7 @@ export class AuthController {
     const user = users[0];
     if (!user) {
       throw new UserNotFoundError(
-        `User with wallet ${wallet_address} not found`,
+        `User with wallet ${wallet_address} not found`
       );
     }
 
@@ -263,8 +263,8 @@ export class AuthController {
     const { signedRefreshToken, signedAccessToken } =
       await this.generateUserTokensAction.run(user);
 
-    return HttpResponse.success('Logged in successfully').withData(
-      new LoggedInDTO(signedAccessToken, signedRefreshToken),
+    return HttpResponse.success("Logged in successfully").withData(
+      new LoggedInDTO(signedAccessToken, signedRefreshToken)
     );
   }
 
@@ -272,7 +272,7 @@ export class AuthController {
    * Returns a new access token based on refresh token
    * @param jwt
    */
-  @Post('refresh')
+  @Post("refresh")
   @ApiExtraModels(TokenRefreshedDTO)
   @ApiCreatedResponse({
     schema: {
@@ -292,7 +292,7 @@ export class AuthController {
     const payload = await this.jwtService.decode(jwt);
     const token = UserRefreshToken.fromValues(payload);
     const fetchedTokens = await this.authRepository.find(
-      new ByEncodedTokenCriteria(jwt),
+      new ByEncodedTokenCriteria(jwt)
     );
     if (!(fetchedTokens.length > 0)) {
       throw new TokenRevokedError();
@@ -309,8 +309,8 @@ export class AuthController {
 
     const accessToken = new UserAccessToken(user);
     const signedAccessToken = await this.jwtService.sign(accessToken);
-    return HttpResponse.success('Token refreshed').withData(
-      new TokenRefreshedDTO(signedAccessToken),
+    return HttpResponse.success("Token refreshed").withData(
+      new TokenRefreshedDTO(signedAccessToken)
     );
   }
 
@@ -318,7 +318,7 @@ export class AuthController {
    * Sets a reset password token for user and emits corresponding event
    * @param email
    */
-  @Post('request-reset-password')
+  @Post("request-reset-password")
   async requestResetPassword(@Body() { email }: RequestResetPasswordDTO) {
     const users = await this.findUsersAction.run(new ByEmailCriteria(email));
     const user = users[0];
@@ -338,12 +338,12 @@ export class AuthController {
           id: user.id,
         },
         data: {
-          recover_password_code: '',
+          recover_password_code: "",
         },
       });
     }, TimeUtils.MINUTE * 15);
 
-    return HttpResponse.success('Operation successfully done');
+    return HttpResponse.success("Operation successfully done");
   }
 
   /**
@@ -351,7 +351,7 @@ export class AuthController {
    * @param code
    * @param password
    */
-  @Post('reset-password')
+  @Post("reset-password")
   async resetPassword(@Body() { code, password }: ResetPasswordDTO) {
     const users = await this.findUsersAction.run(new ByResetPasswordCode(code));
     const user = users[0];
@@ -361,11 +361,11 @@ export class AuthController {
 
     user.withPassword(password);
     user.withEncryptedPassword(await PasswordUtils.encrypt(user.password));
-    user.withResetPasswordCode('');
+    user.withResetPasswordCode("");
     await this.userRepository.update(user);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.eventEmitter.emit(new CredentialsChangedEvent({ userID: user.id! }));
-    return HttpResponse.success('Password updated successfully');
+    return HttpResponse.success("Password updated successfully");
   }
 
   /**
@@ -397,26 +397,26 @@ export class AuthController {
   @OnEvent(ResetPasswordRequestedEvent.NAME)
   async resetPasswordRequested(event: ResetPasswordRequestedEvent) {
     const content = await this.viewsService.renderView(
-      'auth/reset-password-email.mustache',
+      "auth/reset-password-email.mustache",
       {
         username: event.payload.user.username,
         frontend_url: this.environment.getEnv().FRONTEND_URL,
         code: event.payload.user.resetPasswordCode,
-      },
+      }
     );
     await this.emailService.sendEmail(
       event.payload.user.email,
-      'Reset password',
-      content,
+      "Reset password",
+      content
     );
   }
 
   /**
    * Remove expired tokens
    */
-  @Cron('0 0 * * *') // Executes task every day at 12:00 AM
+  @Cron("0 0 * * *") // Executes task every day at 12:00 AM
   async removeExpiredTokens() {
-    this.logger.warn('Removing expired errors');
+    this.logger.warn("Removing expired errors");
     await this.prisma.token.deleteMany({
       where: {
         expiration_time: {

@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { TextTemplateService } from './text-template.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { TextTemplateService } from "./text-template.service";
 
-describe('TextTemplateService', () => {
+describe("TextTemplateService", () => {
   let service: TextTemplateService;
 
   beforeEach(async () => {
@@ -12,13 +12,13 @@ describe('TextTemplateService', () => {
     service = module.get<TextTemplateService>(TextTemplateService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  it('should parse templates', () => {
-    const variables = { destination: 'world' };
-    const template = 'hello {{ destination }}';
-    expect(service.parse(template, variables)).toEqual('hello world');
+  it("should parse templates", () => {
+    const variables = { destination: "world" };
+    const template = "hello {{ destination }}";
+    expect(service.parse(template, variables)).toEqual("hello world");
   });
 });

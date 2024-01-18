@@ -1,14 +1,14 @@
-import { Filter } from './filter/Filter';
-import { Limit } from './Limit';
-import { Offset } from './Offset';
-import { Order } from './order/Order';
+import { Filter } from "./filter/Filter";
+import { Limit } from "./Limit";
+import { Offset } from "./Offset";
+import { Order } from "./order/Order";
 
 export class Criteria {
   constructor(
     public readonly filters: Array<Filter>,
     public readonly order: Order = Order.none(),
     public readonly limit: Limit = Limit.none(),
-    public readonly offset: Offset = Offset.none(),
+    public readonly offset: Offset = Offset.none()
   ) {}
 
   /**

@@ -1,11 +1,11 @@
-import { Criteria } from '../../domain/criteria/Criteria';
-import { FilterOperators } from '../../domain/criteria/filter/FilterOperator';
-import { FilterValue } from '../../domain/criteria/filter/FilterValue';
-import { OrderType } from '../../domain/criteria/order/OrderType';
+import { Criteria } from "../../domain/criteria/Criteria";
+import { FilterOperators } from "../../domain/criteria/filter/FilterOperator";
+import { FilterValue } from "../../domain/criteria/filter/FilterValue";
+import { OrderType } from "../../domain/criteria/order/OrderType";
 
 function convertFilterOperator(
   filterOperator: FilterOperators,
-  filterValue: FilterValue,
+  filterValue: FilterValue
 ) {
   switch (filterOperator) {
     case FilterOperators.EQUAL:

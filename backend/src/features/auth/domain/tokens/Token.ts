@@ -1,4 +1,4 @@
-import { JsonSerializer } from '../../../../shared/domain/JsonSerializer';
+import { JsonSerializer } from "../../../../shared/domain/JsonSerializer";
 
 /**
  * A token is an abstract class which the variants of a JWT extends.

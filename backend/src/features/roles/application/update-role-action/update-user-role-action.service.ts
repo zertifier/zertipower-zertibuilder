@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { UserRole } from '../../domain/UserRole';
+import { Injectable } from "@nestjs/common";
+import { UserRole } from "../../domain/UserRole";
 import {
   AdminUserRoleCannotBeModifiedError,
   UserRoleDoesNotExistError,
   UserRoleIdNotDefinedError,
-} from '../../domain/errors';
-import { UserRoleRepository } from '../../domain/UserRoleRepository';
-import { ByUserRoleId } from '../../domain/ByUserRoleId';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { RolesChangedEvent } from '../../domain/events/RolesChangedEvent';
+} from "../../domain/errors";
+import { UserRoleRepository } from "../../domain/UserRoleRepository";
+import { ByUserRoleId } from "../../domain/ByUserRoleId";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { RolesChangedEvent } from "../../domain/events/RolesChangedEvent";
 
 /**
  * Modify user role information
@@ -17,7 +17,7 @@ import { RolesChangedEvent } from '../../domain/events/RolesChangedEvent';
 export class UpdateUserRoleAction {
   constructor(
     private userRoleRepository: UserRoleRepository,
-    private eventEmitter: EventEmitter2,
+    private eventEmitter: EventEmitter2
   ) {}
   async run(role: UserRole) {
     // Role id must be defined to get role information

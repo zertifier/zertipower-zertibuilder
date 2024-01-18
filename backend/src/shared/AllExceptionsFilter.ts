@@ -1,13 +1,13 @@
-import { HttpAdapterHost } from '@nestjs/core';
+import { HttpAdapterHost } from "@nestjs/core";
 import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
   HttpException,
   HttpStatus,
-} from '@nestjs/common';
-import { ApplicationError, ErrorCode } from './domain/error';
-import { HttpResponse } from './infrastructure/http/HttpResponse';
+} from "@nestjs/common";
+import { ApplicationError, ErrorCode } from "./domain/error";
+import { HttpResponse } from "./infrastructure/http/HttpResponse";
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -47,13 +47,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
         console.warn(metadata);
       }
     } else {
-      message = 'Internal server errors';
+      message = "Internal server errors";
     }
 
     console.error(exception);
 
     const responseBody = HttpResponse.failure(message, errorCode).withData(
-      data,
+      data
     );
 
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);

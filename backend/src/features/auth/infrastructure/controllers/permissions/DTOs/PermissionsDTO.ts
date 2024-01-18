@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Permission } from '../../../../domain/permissions/Permission';
-import { IsNotEmpty } from 'class-validator';
+import { ApiProperty } from "@nestjs/swagger";
+import { Permission } from "../../../../domain/permissions/Permission";
+import { IsNotEmpty } from "class-validator";
 
 export class PermissionDTO {
   @ApiProperty()

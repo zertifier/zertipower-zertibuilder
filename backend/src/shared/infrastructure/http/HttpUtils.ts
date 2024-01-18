@@ -1,24 +1,24 @@
-import { Criteria } from '../../domain/criteria/Criteria';
-import { FilterOperator } from '../../domain/criteria/filter/FilterOperator';
-import { Filter } from '../../domain/criteria/filter/Filter';
-import { FilterField } from '../../domain/criteria/filter/FilterField';
-import { FilterValue } from '../../domain/criteria/filter/FilterValue';
-import { Order } from '../../domain/criteria/order/Order';
-import { OrderType } from '../../domain/criteria/order/OrderType';
-import { OrderBy } from '../../domain/criteria/order/OrderBy';
-import { Limit } from '../../domain/criteria/Limit';
-import { Offset } from '../../domain/criteria/Offset';
+import { Criteria } from "../../domain/criteria/Criteria";
+import { FilterOperator } from "../../domain/criteria/filter/FilterOperator";
+import { Filter } from "../../domain/criteria/filter/Filter";
+import { FilterField } from "../../domain/criteria/filter/FilterField";
+import { FilterValue } from "../../domain/criteria/filter/FilterValue";
+import { Order } from "../../domain/criteria/order/Order";
+import { OrderType } from "../../domain/criteria/order/OrderType";
+import { OrderBy } from "../../domain/criteria/order/OrderBy";
+import { Limit } from "../../domain/criteria/Limit";
+import { Offset } from "../../domain/criteria/Offset";
 import {
   BadRequestError,
   InfrastructureError,
   InvalidArgumentError,
-} from '../../domain/error/common';
-import { TypeUtils } from '../../domain/utils';
-import { QueryFilterDto } from './QueryFiltersDto';
+} from "../../domain/error/common";
+import { TypeUtils } from "../../domain/utils";
+import { QueryFilterDto } from "./QueryFiltersDto";
 
 export interface FilterSchema {
   field: string;
-  value: 'string' | 'float' | 'integer' | 'boolean' | 'date';
+  value: "string" | "float" | "integer" | "boolean" | "date";
 }
 
 type FilterType = {
@@ -30,7 +30,7 @@ type FilterType = {
 export class HttpUtils {
   public static parseFiltersFromQueryFilters(
     queryFilters: QueryFilterDto,
-    schema: Array<FilterSchema>,
+    schema: Array<FilterSchema>
   ): Criteria {
     const {
       filters,
@@ -56,13 +56,13 @@ export class HttpUtils {
         if (order_type) {
           order = new Order(
             new OrderBy(order_by as string),
-            OrderType.fromValue(order_type as string),
+            OrderType.fromValue(order_type as string)
           );
         } else {
           order = new Order(new OrderBy(order_by as string), OrderType.none());
         }
       } else {
-        throw new BadRequestError('Order by not valid');
+        throw new BadRequestError("Order by not valid");
       }
     }
 
@@ -85,16 +85,16 @@ export class HttpUtils {
 
   public static mapFilterValue(
     value: string,
-    schema: FilterSchema,
+    schema: FilterSchema
   ): number | string | Date | boolean {
     switch (schema.value) {
-      case 'float':
+      case "float":
         return TypeUtils.toFloat(value);
-      case 'integer':
+      case "integer":
         return TypeUtils.toInteger(value);
-      case 'boolean':
+      case "boolean":
         return TypeUtils.toBool(value);
-      case 'date':
+      case "date":
         return TypeUtils.toDate(value);
       default:
         return value;
@@ -103,7 +103,7 @@ export class HttpUtils {
 
   public static parseFilters(
     params: Array<FilterType>,
-    schema: Array<FilterSchema>,
+    schema: Array<FilterSchema>
   ): Array<Filter> {
     return params.map((filterMap) => {
       let filterValue: FilterValue;
@@ -111,39 +111,39 @@ export class HttpUtils {
       // Getting field name
       const fieldName = filterMap.field;
       if (!fieldName) {
-        throw new InfrastructureError('Error parsing filters');
+        throw new InfrastructureError("Error parsing filters");
       }
       const filterField = new FilterField(fieldName);
 
       // Getting schema
       const filterSchema = schema.find(
-        (filterSchema) => filterSchema.field === fieldName,
+        (filterSchema) => filterSchema.field === fieldName
       );
       if (!filterSchema) {
         throw new InvalidArgumentError(
-          `Filter field ${fieldName} is not valid`,
+          `Filter field ${fieldName} is not valid`
         );
       }
 
       // Parsing filter value
       const value = filterMap.value;
       if (!value) {
-        throw new InvalidArgumentError('Filter value not provided');
+        throw new InvalidArgumentError("Filter value not provided");
       }
       if (value.constructor === Array) {
         filterValue = new FilterValue(
-          value.map((rawValue) => this.mapFilterValue(rawValue, filterSchema)),
+          value.map((rawValue) => this.mapFilterValue(rawValue, filterSchema))
         );
       } else {
         filterValue = new FilterValue(
-          this.mapFilterValue(value as string, filterSchema),
+          this.mapFilterValue(value as string, filterSchema)
         );
       }
 
       // Parsing operator
       const operator = filterMap.operator;
       if (!operator) {
-        throw new InvalidArgumentError('Filter operator not provided');
+        throw new InvalidArgumentError("Filter operator not provided");
       }
       const filterOperator = FilterOperator.fromValue(operator);
 

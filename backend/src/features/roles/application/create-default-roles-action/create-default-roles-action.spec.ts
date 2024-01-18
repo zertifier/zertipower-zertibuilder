@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { CreateDefaultRolesAction } from './create-default-roles-action';
+import { Test, TestingModule } from "@nestjs/testing";
+import { CreateDefaultRolesAction } from "./create-default-roles-action";
 
-describe('CreateDefaultRolesAction', () => {
+describe("CreateDefaultRolesAction", () => {
   let provider: CreateDefaultRolesAction;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('CreateDefaultRolesAction', () => {
     provider = module.get<CreateDefaultRolesAction>(CreateDefaultRolesAction);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { Pool } from 'pg';
-import { EnvironmentService } from '../environment-service';
+import { Injectable } from "@nestjs/common";
+import { Pool } from "pg";
+import { EnvironmentService } from "../environment-service";
 
 @Injectable()
 export class PostgresService {

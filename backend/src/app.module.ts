@@ -36,22 +36,22 @@ import { EnergyRegistersHourlyController } from "./features/energy-registers-hou
     UserRepositoriesModule,
     ReportsModule,
     AuthServicesModule,
-    AuthRepositoriesModule
+    AuthRepositoriesModule,
   ],
   // Do not remove controllers section cuz zertibuilder
   // can create it if it doesn't exist
   controllers: [
-    CalendarController
-    , CommunitiesController
-    , CupsController
-    , CustomersController
-    , EnergyBlocksController
-    , EnergyTransactionsController
-    , EnergyRegistersController
-    , EnergyRegistersHourlyController
-    , ProvidersController
-    , SmartContractsController
-  ]
+    CalendarController,
+    CommunitiesController,
+    CupsController,
+    CustomersController,
+    EnergyBlocksController,
+    EnergyTransactionsController,
+    EnergyRegistersController,
+    EnergyRegistersHourlyController,
+    ProvidersController,
+    SmartContractsController,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

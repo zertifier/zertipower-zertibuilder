@@ -1,7 +1,7 @@
 import {
   ApplicationError,
   ErrorCode,
-} from '../../../../../shared/domain/error';
+} from "../../../../../shared/domain/error";
 
 export class DontHavePermissionsError extends ApplicationError {
   readonly errorCode: ErrorCode = ErrorCode.BAD_REQUEST;

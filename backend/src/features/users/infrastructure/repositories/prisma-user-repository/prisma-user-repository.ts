@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { UserRepository } from '../../../domain/UserRepository';
-import { Criteria } from '../../../../../shared/domain/criteria/Criteria';
-import { User } from '../../../domain/User';
-import { PrismaService } from '../../../../../shared/infrastructure/services';
+import { Injectable } from "@nestjs/common";
+import { UserRepository } from "../../../domain/UserRepository";
+import { Criteria } from "../../../../../shared/domain/criteria/Criteria";
+import { User } from "../../../domain/User";
+import { PrismaService } from "../../../../../shared/infrastructure/services";
 import {
   toPrismaFilters,
   toPrismaSorting,
-} from '../../../../../shared/infrastructure/prisma/criteria';
-import { InfrastructureError } from '../../../../../shared/domain/error/common';
-import { PasswordNotEncryptedError } from '../../../domain/errors';
-import { UserIdNotDefinedError } from '../../../domain/UserId/UserIdNotDefinedError';
-import { UserRole } from '../../../../roles/domain/UserRole';
-import { UserRoleDoesNotExistError } from '../../../../roles/domain/errors';
+} from "../../../../../shared/infrastructure/prisma/criteria";
+import { InfrastructureError } from "../../../../../shared/domain/error/common";
+import { PasswordNotEncryptedError } from "../../../domain/errors";
+import { UserIdNotDefinedError } from "../../../domain/UserId/UserIdNotDefinedError";
+import { UserRole } from "../../../../roles/domain/UserRole";
+import { UserRoleDoesNotExistError } from "../../../../roles/domain/errors";
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -41,7 +41,7 @@ export class PrismaUserRepository implements UserRepository {
         },
       });
     } catch (err) {
-      throw new InfrastructureError('Error getting users').withMetadata(err);
+      throw new InfrastructureError("Error getting users").withMetadata(err);
     }
     for (const resultSetElement of resultSet) {
       users.push(
@@ -50,9 +50,9 @@ export class PrismaUserRepository implements UserRepository {
           firstname: resultSetElement.firstname,
           lastname: resultSetElement.lastname,
           email: resultSetElement.email,
-          password: '',
+          password: "",
           role: new UserRole({ name: resultSetElement.role.name }).withId(
-            resultSetElement.role.id,
+            resultSetElement.role.id
           ),
           walletAddress: resultSetElement.wallet_address || undefined,
           resetPasswordCode:
@@ -61,7 +61,7 @@ export class PrismaUserRepository implements UserRepository {
           .withEncryptedPassword(resultSetElement.password)
           .withId(resultSetElement.id)
           .withCreationDate(resultSetElement.created_at)
-          .withUpdateDate(resultSetElement.updated_at),
+          .withUpdateDate(resultSetElement.updated_at)
       );
     }
 
@@ -74,7 +74,7 @@ export class PrismaUserRepository implements UserRepository {
         where: toPrismaFilters(criteria),
       });
     } catch (err) {
-      throw new InfrastructureError('Error removing users').withMetadata(err);
+      throw new InfrastructureError("Error removing users").withMetadata(err);
     }
   }
 
@@ -90,7 +90,7 @@ export class PrismaUserRepository implements UserRepository {
       });
       if (!role) {
         throw new UserRoleDoesNotExistError(
-          `Role ${user.userRole.name} not found`,
+          `Role ${user.userRole.name} not found`
         );
       }
       user.withUserRole(new UserRole({ name: role.name }).withId(role.id));
@@ -124,7 +124,7 @@ export class PrismaUserRepository implements UserRepository {
         },
       });
     } catch (err) {
-      throw new InfrastructureError('Error saving user').withMetadata(err);
+      throw new InfrastructureError("Error saving user").withMetadata(err);
     }
 
     return new User({
@@ -132,9 +132,9 @@ export class PrismaUserRepository implements UserRepository {
       firstname: createdUser.firstname,
       lastname: createdUser.lastname,
       email: createdUser.email,
-      password: '',
+      password: "",
       role: new UserRole({ name: createdUser.role.name }).withId(
-        createdUser.role.id,
+        createdUser.role.id
       ),
       walletAddress: createdUser.wallet_address || undefined,
       resetPasswordCode: createdUser.recover_password_code || undefined,
@@ -160,7 +160,7 @@ export class PrismaUserRepository implements UserRepository {
     });
     if (!role) {
       throw new UserRoleDoesNotExistError(
-        `User role '${user.userRole.name}' does not exist`,
+        `User role '${user.userRole.name}' does not exist`
       );
     }
 
@@ -197,7 +197,7 @@ export class PrismaUserRepository implements UserRepository {
         },
       });
     } catch (err) {
-      throw new InfrastructureError('Error updating user').withMetadata(err);
+      throw new InfrastructureError("Error updating user").withMetadata(err);
     }
 
     return new User({
@@ -205,9 +205,9 @@ export class PrismaUserRepository implements UserRepository {
       firstname: updatedUser.firstname,
       lastname: updatedUser.lastname,
       email: updatedUser.email,
-      password: '',
+      password: "",
       role: new UserRole({ name: updatedUser.role.name }).withId(
-        updatedUser.role.id,
+        updatedUser.role.id
       ),
       walletAddress: updatedUser.wallet_address || undefined,
       resetPasswordCode: updatedUser.recover_password_code || undefined,

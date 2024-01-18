@@ -1,6 +1,6 @@
-import { JsonSerializer } from '../../../shared/domain/JsonSerializer';
-import { UserIdNotDefinedError } from './UserId/UserIdNotDefinedError';
-import { UserRole } from '../../roles/domain/UserRole';
+import { JsonSerializer } from "../../../shared/domain/JsonSerializer";
+import { UserIdNotDefinedError } from "./UserId/UserIdNotDefinedError";
+import { UserRole } from "../../roles/domain/UserRole";
 
 export class User implements JsonSerializer {
   constructor(params: {

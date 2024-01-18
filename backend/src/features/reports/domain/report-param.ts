@@ -1,9 +1,9 @@
 export enum ReportParamTypes {
-  STRING = 'STRING',
-  INTEGER = 'INTEGER',
-  DECIMAL = 'DECIMAL',
-  BOOLEAN = 'BOOLEAN',
-  DATE = 'DATE',
+  STRING = "STRING",
+  INTEGER = "INTEGER",
+  DECIMAL = "DECIMAL",
+  BOOLEAN = "BOOLEAN",
+  DATE = "DATE",
 }
 
 export interface ReportParam {

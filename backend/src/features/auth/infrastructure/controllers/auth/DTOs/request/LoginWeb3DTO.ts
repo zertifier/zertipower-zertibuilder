@@ -1,5 +1,5 @@
-import { IsEthereumAddress, IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsEthereumAddress, IsNotEmpty } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class LoginWeb3DTO {
   @ApiProperty()

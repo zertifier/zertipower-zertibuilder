@@ -1,4 +1,4 @@
-import { ApplicationError, ErrorCode } from '../../../../shared/domain/error';
+import { ApplicationError, ErrorCode } from "../../../../shared/domain/error";
 
 export class PasswordNotEncryptedError extends ApplicationError {
   readonly errorCode: ErrorCode = ErrorCode.INTERNAL_ERROR;

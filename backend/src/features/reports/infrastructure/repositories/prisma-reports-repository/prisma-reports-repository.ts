@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../../shared/infrastructure/services';
-import { Report } from '../../../domain/report';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../../../shared/infrastructure/services";
+import { Report } from "../../../domain/report";
 import {
   InfrastructureError,
   InvalidArgumentError,
-} from '../../../../../shared/domain/error/common';
-import { Criteria } from '../../../../../shared/domain/criteria/Criteria';
+} from "../../../../../shared/domain/error/common";
+import { Criteria } from "../../../../../shared/domain/criteria/Criteria";
 import {
   toPrismaFilters,
   toPrismaSorting,
-} from '../../../../../shared/infrastructure/prisma/criteria';
-import { DateValueObject } from '../../../../../shared/domain/value-object';
+} from "../../../../../shared/infrastructure/prisma/criteria";
+import { DateValueObject } from "../../../../../shared/domain/value-object";
 
 @Injectable()
 export class PrismaReportsRepository {
@@ -27,7 +27,7 @@ export class PrismaReportsRepository {
         skip: criteria.offset.value || undefined,
       });
     } catch (err) {
-      throw new InfrastructureError('Error getting reports').withMetadata(err);
+      throw new InfrastructureError("Error getting reports").withMetadata(err);
     }
 
     for (const resultElement of result) {
@@ -66,7 +66,7 @@ export class PrismaReportsRepository {
         },
       });
     } catch (err) {
-      throw new InfrastructureError('Error creating report').withMetadata(err);
+      throw new InfrastructureError("Error creating report").withMetadata(err);
     }
 
     return {
@@ -82,7 +82,7 @@ export class PrismaReportsRepository {
 
   async updateReport(report: Report): Promise<Report> {
     if (!report.id) {
-      throw new InvalidArgumentError('Report id not defined');
+      throw new InvalidArgumentError("Report id not defined");
     }
 
     let result;
@@ -99,7 +99,7 @@ export class PrismaReportsRepository {
         },
       });
     } catch (err) {
-      throw new InfrastructureError('Error updating report').withMetadata(err);
+      throw new InfrastructureError("Error updating report").withMetadata(err);
     }
 
     return {
@@ -119,7 +119,7 @@ export class PrismaReportsRepository {
         where: toPrismaFilters(criteria),
       });
     } catch (err) {
-      throw new InfrastructureError('Error removing report').withMetadata(err);
+      throw new InfrastructureError("Error removing report").withMetadata(err);
     }
   }
 }

@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaAuthTokenRepository } from './prisma-auth-token-repository.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { PrismaAuthTokenRepository } from "./prisma-auth-token-repository.service";
 
-describe('AuthRepository', () => {
+describe("AuthRepository", () => {
   let provider: PrismaAuthTokenRepository;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('AuthRepository', () => {
     provider = module.get<PrismaAuthTokenRepository>(PrismaAuthTokenRepository);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

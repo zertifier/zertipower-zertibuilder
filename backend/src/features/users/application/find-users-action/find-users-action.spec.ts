@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { FindUsersAction } from './find-users-action';
+import { Test, TestingModule } from "@nestjs/testing";
+import { FindUsersAction } from "./find-users-action";
 
-describe('FindUsersAction', () => {
+describe("FindUsersAction", () => {
   let provider: FindUsersAction;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('FindUsersAction', () => {
     provider = module.get<FindUsersAction>(FindUsersAction);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

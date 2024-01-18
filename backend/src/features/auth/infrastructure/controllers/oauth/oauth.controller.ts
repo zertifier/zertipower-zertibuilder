@@ -1,23 +1,23 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
-import { Response } from 'express';
-import { OAuth2Client } from 'google-auth-library';
+import { Controller, Get, Query, Res } from "@nestjs/common";
+import { Response } from "express";
+import { OAuth2Client } from "google-auth-library";
 import {
   EnvironmentService,
   PrismaService,
-} from '../../../../../shared/infrastructure/services';
-import { HttpResponse } from '../../../../../shared/infrastructure/http/HttpResponse';
-import { UserNotFoundError } from '../../../../users/domain/errors';
-import { OAuthServices } from '../../../domain/web2/OAuthServices';
-import { InfrastructureError } from '../../../../../shared/domain/error/common';
-import { User } from '../../../../users/domain/User';
-import { UserRole } from '../../../../roles/domain/UserRole';
-import { SaveUserAction } from '../../../../users/application/save-user-action/save-user-action';
-import { FindUsersAction } from '../../../../users/application/find-users-action/find-users-action';
-import { ByUserIdCriteria } from '../../../../users/domain/UserId/ByUserIdCriteria';
-import { GenerateUserTokensAction } from '../../../application/generate-user-tokens-action/generate-user-tokens-action';
-import { UserIdNotDefinedError } from '../../../../users/domain/UserId/UserIdNotDefinedError';
+} from "../../../../../shared/infrastructure/services";
+import { HttpResponse } from "../../../../../shared/infrastructure/http/HttpResponse";
+import { UserNotFoundError } from "../../../../users/domain/errors";
+import { OAuthServices } from "../../../domain/web2/OAuthServices";
+import { InfrastructureError } from "../../../../../shared/domain/error/common";
+import { User } from "../../../../users/domain/User";
+import { UserRole } from "../../../../roles/domain/UserRole";
+import { SaveUserAction } from "../../../../users/application/save-user-action/save-user-action";
+import { FindUsersAction } from "../../../../users/application/find-users-action/find-users-action";
+import { ByUserIdCriteria } from "../../../../users/domain/UserId/ByUserIdCriteria";
+import { GenerateUserTokensAction } from "../../../application/generate-user-tokens-action/generate-user-tokens-action";
+import { UserIdNotDefinedError } from "../../../../users/domain/UserId/UserIdNotDefinedError";
 
-@Controller('oauth')
+@Controller("oauth")
 export class OauthController {
   private readonly oauthClient: OAuth2Client;
   constructor(
@@ -25,7 +25,7 @@ export class OauthController {
     private prisma: PrismaService,
     private saveUserAction: SaveUserAction,
     private findUserAction: FindUsersAction,
-    private generateTokensAction: GenerateUserTokensAction,
+    private generateTokensAction: GenerateUserTokensAction
   ) {
     const clientId = this.environment.getEnv().GOOGLE_CLIENT_ID;
     const clientSecret = this.environment.getEnv().GOOGLE_CLIENT_SECRET;
@@ -33,26 +33,26 @@ export class OauthController {
     this.oauthClient = new OAuth2Client(
       clientId,
       clientSecret,
-      'http://localhost:3000/oauth/google-callback',
+      "http://localhost:3000/oauth/google-callback"
     );
   }
-  @Get('google')
+  @Get("google")
   googleOauth(@Res() res: Response) {
     const authUrl = this.oauthClient.generateAuthUrl({
-      access_type: 'online',
+      access_type: "online",
       scope: [
-        'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/userinfo.email',
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email",
       ],
     });
 
     res.redirect(authUrl);
   }
 
-  @Get('google-callback')
+  @Get("google-callback")
   async googleCallback(
-    @Query('code') code: string,
-    @Res() res: Response,
+    @Query("code") code: string,
+    @Res() res: Response
   ): Promise<any> {
     const tokenResponse = await this.oauthClient.getToken(code);
 
@@ -63,7 +63,7 @@ export class OauthController {
       email: string;
       name: string;
     }>({
-      url: 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json',
+      url: "https://www.googleapis.com/oauth2/v1/userinfo?alt=json",
     });
 
     let result;
@@ -75,7 +75,7 @@ export class OauthController {
         },
       });
     } catch (err) {
-      throw new InfrastructureError('Error getting local oauth data');
+      throw new InfrastructureError("Error getting local oauth data");
     }
 
     // If there is not a user associated with that account create new user
@@ -85,9 +85,9 @@ export class OauthController {
         role: UserRole.user(),
         email: response.data.email,
         firstname: response.data.name,
-        lastname: '',
+        lastname: "",
         username: response.data.name,
-        password: '',
+        password: "",
       });
       user = await this.saveUserAction.run(userToSave);
       if (!user.id) {
@@ -103,15 +103,15 @@ export class OauthController {
           },
         });
       } catch (err) {
-        throw new InfrastructureError('Error saving user oauth');
+        throw new InfrastructureError("Error saving user oauth");
       }
     } else {
       const users = await this.findUserAction.run(
-        new ByUserIdCriteria(result.user_id),
+        new ByUserIdCriteria(result.user_id)
       );
       user = users[0];
       if (!user) {
-        throw new UserNotFoundError('User linked to google account not found');
+        throw new UserNotFoundError("User linked to google account not found");
       }
     }
 
@@ -123,16 +123,16 @@ export class OauthController {
         this.environment.getEnv().FRONTEND_URL
       }/auth/oauth-callback?access_token=${
         tokens.signedAccessToken
-      }&refresh_token=${tokens.signedRefreshToken}`,
+      }&refresh_token=${tokens.signedRefreshToken}`
     );
   }
 
-  @Get('twitter')
+  @Get("twitter")
   twitterOauth() {
-    return HttpResponse.success('TODO implement route');
+    return HttpResponse.success("TODO implement route");
   }
-  @Get('facebook')
+  @Get("facebook")
   facebookOauth() {
-    return HttpResponse.success('TODO implement route');
+    return HttpResponse.success("TODO implement route");
   }
 }

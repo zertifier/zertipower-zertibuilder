@@ -1,5 +1,5 @@
-import { ValueObject } from './ValueObject';
-import * as moment from 'moment';
+import { ValueObject } from "./ValueObject";
+import * as moment from "moment";
 
 export class DateValueObject extends ValueObject<Date> {
   constructor(value: Date) {
@@ -7,12 +7,12 @@ export class DateValueObject extends ValueObject<Date> {
   }
 
   toUtcDateTimeString() {
-    return moment(this.value).utc().format('YYYY-MM-DD HH:mm');
+    return moment(this.value).utc().format("YYYY-MM-DD HH:mm");
   }
   toUtcDateString() {
-    return moment(this.value).utc().format('YYYY-MM-DD');
+    return moment(this.value).utc().format("YYYY-MM-DD");
   }
   toUtcTimeString() {
-    return moment(this.value).utc().format('HH:mm');
+    return moment(this.value).utc().format("HH:mm");
   }
 }

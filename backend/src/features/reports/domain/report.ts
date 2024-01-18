@@ -1,6 +1,6 @@
-import { ReportParam } from './report-param';
-import { ReportColumn } from './report-column';
-import { DateValueObject } from '../../../shared/domain/value-object';
+import { ReportParam } from "./report-param";
+import { ReportColumn } from "./report-column";
+import { DateValueObject } from "../../../shared/domain/value-object";
 
 export interface Report {
   id?: number;

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class TextTemplateService {
@@ -12,7 +12,7 @@ export class TextTemplateService {
     }
 
     for (const variable of match) {
-      const variableName = variable.replaceAll(/({{\s+?)|(\s+?}})/g, '');
+      const variableName = variable.replaceAll(/({{\s+?)|(\s+?}})/g, "");
       const value = variables[variableName];
       parsedTemplate = parsedTemplate.replace(variable, value.toString());
     }

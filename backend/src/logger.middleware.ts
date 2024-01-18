@@ -1,6 +1,6 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { WinstonLogger } from './shared/infrastructure/services';
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import { Request, Response, NextFunction } from "express";
+import { WinstonLogger } from "./shared/infrastructure/services";
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -8,7 +8,7 @@ export class LoggerMiddleware implements NestMiddleware {
   use(request: Request, response: Response, next: NextFunction) {
     const { ip, method, originalUrl: url } = request;
 
-    response.on('close', () => {
+    response.on("close", () => {
       const { statusCode } = response;
 
       this.logger.log(`${method} ${url} ${statusCode} - ${ip}`);

@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { HandlebarsViewsService } from './handlebars-views.service';
-import { ConfigEnvironmentService } from '../config-environment-service/config-environment.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { HandlebarsViewsService } from "./handlebars-views.service";
+import { ConfigEnvironmentService } from "../config-environment-service/config-environment.service";
 
-describe('ViewsService', () => {
+describe("ViewsService", () => {
   let provider: HandlebarsViewsService;
 
   beforeEach(async () => {
@@ -13,7 +13,7 @@ describe('ViewsService', () => {
     provider = module.get<HandlebarsViewsService>(HandlebarsViewsService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(provider).toBeDefined();
   });
 });

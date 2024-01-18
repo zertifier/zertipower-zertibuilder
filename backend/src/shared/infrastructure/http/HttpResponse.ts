@@ -1,6 +1,6 @@
-import { ErrorCode } from '../../domain/error';
-import { InvalidArgumentError } from '../../domain/error/common';
-import { ApiProperty } from '@nestjs/swagger';
+import { ErrorCode } from "../../domain/error";
+import { InvalidArgumentError } from "../../domain/error/common";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class HttpResponse {
   @ApiProperty()
@@ -21,7 +21,7 @@ export class HttpResponse {
     const { message, data, error_code, success } = payload;
     if (!success && !error_code) {
       throw new InvalidArgumentError(
-        "Error code must be defined when it's not a successful response",
+        "Error code must be defined when it's not a successful response"
       );
     }
     this.success = success;

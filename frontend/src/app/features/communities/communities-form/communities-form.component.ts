@@ -156,7 +156,6 @@ export class CommunitiesFormComponent implements OnInit {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
 
       this.allCups = res.data;
-      console.log("all cups", this.allCups)
 
       //get the cups that doesnt own to other communities
       this.customers = this.allCups.filter((cups: any) =>
@@ -204,7 +203,7 @@ export class CommunitiesFormComponent implements OnInit {
       this.sumYearExport += cups.yearEnergy.sumExport | 0;
     })
     await Promise.all(getAllEnergy)
-    console.log(this.sumYearImport, this.sumYearConsumption, this.sumYearGeneration, this.sumYearExport)
+    //console.log(this.sumYearImport, this.sumYearConsumption, this.sumYearGeneration, this.sumYearExport)
     this.updateYearChartValues()
   }
 
@@ -265,14 +264,14 @@ export class CommunitiesFormComponent implements OnInit {
     this.sumYearGeneration = 0;
     this.sumYearExport = 0;
 
-    console.log("COMMUNITY CUPS", this.communityCups)
+    //console.log("COMMUNITY CUPS", this.communityCups)
 
     const getAllEnergy = this.communityCups.map(async (cups: any) => {
 
       //get energy by cups
       let yearEnergy: any = await this.getYearEnergyByCups(cups.id, this.selectedYear);
 
-      console.log("year energy",yearEnergy)
+      //console.log("year energy",yearEnergy)
 
       cups.yearEnergy = yearEnergy;
       cups.yearEnergy.factor = 0;
@@ -286,7 +285,7 @@ export class CommunitiesFormComponent implements OnInit {
 
     await Promise.all(getAllEnergy)
 
-    console.log("community id: ",this.communityId)
+    //console.log("community id: ",this.communityId)
 
     if (this.sumYearImport == 0 && this.sumYearGeneration == 0 && this.sumYearConsumption == 0 && this.sumYearExport == 0 && this.communityId) {
       Swal.fire({
@@ -341,10 +340,11 @@ export class CommunitiesFormComponent implements OnInit {
 
     await Promise.all(getAllEnergy)
 
-    console.log(this.sumMonthImport, this.sumMonthImport.every(e => e == 0),
+    /*console.log(this.sumMonthImport, this.sumMonthImport.every(e => e == 0),
       this.sumMonthExport, this.sumMonthExport.every(e => e == 0),
       this.sumMonthGeneration, this.sumMonthGeneration.every(e => e == 0),
       this.sumMonthConsumption, this.sumMonthConsumption.every(e => e == 0))
+     */
 
     if (this.sumMonthImport.every(e => e == 0) && this.sumMonthExport.every(e => e == 0) && this.sumMonthGeneration.every(e => e == 0) && this.sumMonthConsumption.every(e => e == 0) && this.communityId) {
       Swal.fire({
@@ -428,7 +428,7 @@ export class CommunitiesFormComponent implements OnInit {
     }
 
     const values = this.getValues();
-    console.log("values: ", values)
+    //console.log("values: ", values)
     let request: Observable<any>;
 
     if (!this.id) {

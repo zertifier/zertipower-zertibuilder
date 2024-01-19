@@ -4,9 +4,10 @@ import {CoreComponentsModule} from "../../core/core-components/core-components.m
 import {FormsModule} from "@angular/forms";
 import {SearchRoutingModule} from "./search.routing-module";
 import {SearchComponent} from "./search-component/search.component";
+import {AppMapComponent} from "../../shared/infrastructure/components/map/map.component";
 
 @NgModule({
-  declarations: [SearchComponent],
+  declarations: [SearchComponent,AppMapComponent],
   imports: [
     CommonModule,
     CoreComponentsModule,

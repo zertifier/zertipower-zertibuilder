@@ -45,7 +45,7 @@ export class CommunitiesFormComponent implements OnInit {
     promotion: false,
   }
 
-  community:any={};
+  community: any = {};
   customers: any;
   allCups: any;
   test: number = 1;
@@ -125,8 +125,8 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    if(!this.id){
-      this.isEdit=true;
+    if (!this.id) {
+      this.isEdit = true;
       this.getInfo();
     }
   }
@@ -162,7 +162,7 @@ export class CommunitiesFormComponent implements OnInit {
         cups.communityId == this.id || cups.communityId == null || cups.communityId == 0
       )
 
-      if(!this.communityId){
+      if (!this.communityId) {
         return;
       }
 
@@ -238,9 +238,9 @@ export class CommunitiesFormComponent implements OnInit {
 
   updateData() {
 
-    if(!this.isEdit){
+    if (!this.isEdit) {
       this.isEditChange();
-    }else{
+    } else {
       switch (this.selectedTab) {
         case 'yearly':
           this.getYearEnergy();
@@ -340,10 +340,13 @@ export class CommunitiesFormComponent implements OnInit {
 
     await Promise.all(getAllEnergy)
 
-    /*console.log(this.sumMonthImport, this.sumMonthImport.every(e => e == 0),
+    /*
+
+      console.log(this.sumMonthImport, this.sumMonthImport.every(e => e == 0),
       this.sumMonthExport, this.sumMonthExport.every(e => e == 0),
       this.sumMonthGeneration, this.sumMonthGeneration.every(e => e == 0),
       this.sumMonthConsumption, this.sumMonthConsumption.every(e => e == 0))
+
      */
 
     if (this.sumMonthImport.every(e => e == 0) && this.sumMonthExport.every(e => e == 0) && this.sumMonthGeneration.every(e => e == 0) && this.sumMonthConsumption.every(e => e == 0) && this.communityId) {
@@ -463,12 +466,8 @@ export class CommunitiesFormComponent implements OnInit {
         })
       })
 
-      console.log("all Cups", this.allCups)
-
       //delete community id from cups that dont pertain to community anymore:
       this.allCups.map((cups: any) => {
-
-        console.log("cups" , cups)
 
         // if cups contains the community id but dont includes in community cups, delete it:
         if (cups.communityId == this.communityId) {

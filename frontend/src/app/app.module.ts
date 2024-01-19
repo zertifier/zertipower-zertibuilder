@@ -32,8 +32,7 @@ import { ReportsServicesModule } from "./features/reports/infrastructure/service
 		CoreServicesModule,
 		QRCodeModule,
 		PermissionsServicesModule,
-		ReportsServicesModule,
-
+		ReportsServicesModule
 	],
 	providers: [
 		{provide: HTTP_INTERCEPTORS, useClass: AccessTokenInterceptor, multi: true},

@@ -42,8 +42,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   simpleWeekDateInit: string = '';
   simpleWeekDateEnd: string = '';
-
-
+  
   constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder) {}
 
   ngOnInit() {

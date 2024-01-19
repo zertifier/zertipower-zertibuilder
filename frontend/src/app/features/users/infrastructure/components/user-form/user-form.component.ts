@@ -56,7 +56,9 @@ export class UserFormComponent implements OnInit, OnDestroy {
 		const fetchedUsers = await ObservableUtils.toPromise(
 			this.userApi.getUsers(new ById(this.userStore.editingUserId()!)),
 		);
+
 		const user = fetchedUsers[0];
+
 		if (!user) {
 			this.ngbActiveModal.close();
 			throw new Error("User not found");

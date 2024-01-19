@@ -28,10 +28,28 @@ export class SearchComponent implements OnInit, AfterViewInit {
       zoom: 7 // starting zoom
     });
 
+    const marker = new mapboxgl.Marker()
+      .setLngLat([42.09540937071633, 2.788595535066709])
+      .addTo(this.map);
+
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
       this.customers = res.data[0];
+      this.customers.map((customer:any)=>{
+        console.log("customer",customer)
 
+        if(customer.geolocalization){
+          console.log(customer.geolocalization.y,customer.geolocalization.x)
+          const marker = new mapboxgl.Marker()
+            .setLngLat([customer.geolocalization.y,customer.geolocalization.x])
+            .addTo(this.map);
+        }
+
+      })
     })
+
+
+
+
 
   }
 

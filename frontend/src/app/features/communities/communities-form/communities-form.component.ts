@@ -125,22 +125,19 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   ngOnInit() {
-
     if(!this.id){
-      console.log("this community id: ",this.communityId)
       this.isEdit=true;
+      this.getInfo();
     }
-
-    this.getInfo();
   }
 
   setEditingId(id: number) {
-    console.log("setEditingId:",id)
     this.id = id;
     if (!this.id) {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
+
       this.community = data;
       this.form.controls.id.setValue(data.id);
       this.communityId = data.id;
@@ -149,13 +146,17 @@ export class CommunitiesFormComponent implements OnInit {
       this.test = data.test;
       this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
       this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
+
+      this.getInfo();
+
     });
   }
 
   getInfo() {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
 
-      this.allCups = res.data[0];
+      this.allCups = res.data;
+      console.log("all cups", this.allCups)
 
       //get the cups that doesnt own to other communities
       this.customers = this.allCups.filter((cups: any) =>
@@ -170,6 +171,7 @@ export class CommunitiesFormComponent implements OnInit {
       this.communityCups = this.customers.filter((cups: any) =>
         cups.communityId == this.id
       )
+
 
       this.updateData();
 
@@ -236,6 +238,7 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   updateData() {
+
     if(!this.isEdit){
       this.isEditChange();
     }else{
@@ -262,9 +265,15 @@ export class CommunitiesFormComponent implements OnInit {
     this.sumYearGeneration = 0;
     this.sumYearExport = 0;
 
+    console.log("COMMUNITY CUPS", this.communityCups)
+
     const getAllEnergy = this.communityCups.map(async (cups: any) => {
+
       //get energy by cups
       let yearEnergy: any = await this.getYearEnergyByCups(cups.id, this.selectedYear);
+
+      console.log("year energy",yearEnergy)
+
       cups.yearEnergy = yearEnergy;
       cups.yearEnergy.factor = 0;
 
@@ -417,9 +426,11 @@ export class CommunitiesFormComponent implements OnInit {
       });
       return;
     }
+
     const values = this.getValues();
     console.log("values: ", values)
     let request: Observable<any>;
+
     if (!this.id) {
       delete values.id;
       delete values.updatedAt;
@@ -452,13 +463,20 @@ export class CommunitiesFormComponent implements OnInit {
         })
       })
 
+      console.log("all Cups", this.allCups)
+
       //delete community id from cups that dont pertain to community anymore:
       this.allCups.map((cups: any) => {
 
+        console.log("cups" , cups)
+
+        // if cups contains the community id but dont includes in community cups, delete it:
         if (cups.communityId == this.communityId) {
-          let found = this.communityCups.find(cc => {
+
+          let found = this.communityCups.find(cc =>
             cc.id == cups.id
-          })
+          )
+
           if (!found) {
 
             let cupsToUpdate: CupsApiInterface = {
@@ -505,6 +523,7 @@ export class CommunitiesFormComponent implements OnInit {
   getYearEnergyByCups(cups: number, year: number): Promise<any> {
     return new Promise((resolve, reject) => {
       this.energyService.getYearByCups(year, cups!).subscribe((res: any) => {
+
         let monthlyCupsData = res.data;
 
         let months: string[] = monthlyCupsData.map((entry: any) => entry.month);
@@ -634,7 +653,7 @@ export class CommunitiesFormComponent implements OnInit {
   isEditChange() {
     if (this.isEdit) {
 
-    } else { //TODO: solve this: los charts no funcionan, pensaba que era por que la dat no estaba inicializada por eso
+    } else {
       //he puesto estas peticiones
       this.getMonthEnergy();
       this.getDayEnergy();
@@ -643,7 +662,6 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   getDayEnergyByCups(cups: number, date: string): Promise<any> {
-    console.log('selected date', this.selectedDate)
     return new Promise((resolve, reject) => {
         this.energyService.getHoursByCups(cups, this.selectedDate).subscribe((res: any) => {
 
@@ -662,7 +680,6 @@ export class CommunitiesFormComponent implements OnInit {
           let kwhExport = hourlyData.map((entry: any) => entry.export);
 
           let dayEnergy = {hours, kwhImport, kwhGeneration, kwhConsumption, kwhExport}
-          console.log("day energy", dayEnergy)
           resolve(dayEnergy)
         })
       }

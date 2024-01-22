@@ -11,10 +11,11 @@ export class MysqlService {
 
   constructor(private environment: EnvironmentService) {
     this.pool = mysql.createPool({
-      host: "46.253.45.22",
-      user: "root",
-      password: "Meg@tr@IPFS_7a7s7d7f7g8h8j8k8l",
-      database: "zertipowerv2",
+      uri: this.environment.getEnv().DATABASE_URL,
+      // host: "46.253.45.22",
+      // user: "root",
+      // password: "Meg@tr@IPFS_7a7s7d7f7g8h8j8k8l",
+      // database: "zertipowerv2",
       connectionLimit: 25,
       // uri: this.environment.getEnv().DATABASE_URL,
     });

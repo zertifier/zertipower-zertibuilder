@@ -30,6 +30,9 @@ export function setupMqttConnection() {
       //let payload = JSON.parse(data.payload)
       //console.log("payload", payload);
       const messageObj: Mqtt = JSON.parse(message);
+
+    //console.log("messageObj",messageObj);
+
       //console.log("message:",messageObj);
       const energiaHores: EnergiaHores = messageObj.energiaHores;
 
@@ -74,12 +77,12 @@ export function setupMqttConnection() {
 
     if(mqttData.length){
       if(userDataHour.energiaHores.length==mqttData[mqttData.length-1].energiaHores.length){
-        console.log("son iguales");
+        //console.log("son iguales");
       } else {
         mqttData.push(userDataHour)
-        console.log("son diferentes");
+        //console.log("son diferentes");
       }
-    }else{
+    } else {
       mqttData.push(userDataHour)
     }
 
@@ -98,24 +101,20 @@ setInterval(async () => {
   let dateInit;
   let dateEnd;
 
-  mqttData.map(async (data:any)=>{
+  if(mqttData.length>0) {
+    mqttData.map(async (data: any) => {
 
-    cupsId = data.userId;
-    dateInit= data.energiaHores[1];
-    dateEnd=data.energiaHores[data.energiaHores.length-1];
+      cupsId = data.userId;
+      dateInit = data.energiaHores[1];
+      dateEnd = data.energiaHores[data.energiaHores.length - 1];
 
-    //sql question last records
-    let [ROWS] = await conn.query('SELECT * from energy_registers_original_hourly WHERE cups_id=? AND info_dt BETWEEN ? AND ?',[cupsId,dateInit,dateEnd])
-  })
+      //sql question last records
+      //let [ROWS] = await conn.query(`SELECT * from energy_registers_original_hourly WHERE cups_id=? AND info_dt BETWEEN ? AND ?`, [cupsId, dateInit, dateEnd])
+    })
+  }
 
-
-
-
-
-
-
-  console.log("mqtt data: ",JSON.stringify(mqttData));
-  console.log("");
+  //console.log("mqtt data: ",JSON.stringify(mqttData));
+  //console.log("");
 }, 60000);
 
 interface Mqtt {

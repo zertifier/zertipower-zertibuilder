@@ -15,21 +15,32 @@ import { SaveCommunitiesDTO } from "./save-communities-dto";
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
+import mysql from "mysql2/promise";
 
 export const RESOURCE_NAME = "communities";
+
 
 @ApiTags(RESOURCE_NAME)
 @Controller("communities")
 export class CommunitiesController {
-  constructor(private prisma: PrismaService, private datatable: Datatable) {}
+
+  private conn: mysql.Pool;
+  constructor(private prisma: PrismaService, private datatable: Datatable, private mysql: MysqlService) {
+    this.conn = this.mysql.pool;
+  }
 
   @Get()
   @Auth(RESOURCE_NAME)
   async get() {
-    const data = await this.prisma.communities.findMany();
-    const mappedData = data.map(this.mapData);
+
+      let url = `SELECT * FROM communities`;
+    const [ROWS]:any[] = await this.conn.query(url);
+
+    //console.log("commmunities:",data);
+    //const mappedData = data.map(this.mapData);
+    //console.log("mappedData",mappedData);
     return HttpResponse.success("communities fetched successfully").withData(
-      data
+      ROWS
     );
   }
 
@@ -88,7 +99,7 @@ export class CommunitiesController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,name,test,created_at,updated_at
+      `SELECT id,name,test,geolocation,energy_price,created_at,updated_at
                   FROM communities`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
@@ -101,6 +112,8 @@ export class CommunitiesController {
     mappedData.id = data.id;
     mappedData.name = data.name;
     mappedData.test = data.test;
+    mappedData.geolocation=data.geolocation;
+    mappedData.energyPrice=data.energyPrice;
     mappedData.createdAt = data.createdAt;
     mappedData.updatedAt = data.updatedAt;
     return mappedData;

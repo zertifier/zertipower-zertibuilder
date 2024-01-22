@@ -9,6 +9,8 @@ export interface CommunitiesApiInterface {
   id: number;
   name: string;
   test: number;
+  energyPrice: number,
+  geolocation: string,
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,6 +19,8 @@ export interface CommunitiesApiDTO {
   id: number;
   name: string;
   test: number;
+  energyPrice: number,
+  geolocation: string,
   createdAt: string;
   updatedAt: string;
 }
@@ -27,9 +31,8 @@ export interface CommunitiesApiDTO {
 export class CommunitiesApiService {
   constructor(private httpClient: HttpClient) {}
 
-  get(): Observable<CommunitiesApiInterface> {
-    return this.httpClient.get<HttpResponse<CommunitiesApiDTO>>(`${environment.api_url}/communities`)
-      .pipe(map(response => mapToApiInterface(response.data)));
+  get() {
+    return this.httpClient.get(`${environment.api_url}/communities`);
   }
 
   getById(id: number): Observable<CommunitiesApiInterface> {
@@ -58,6 +61,8 @@ function mapToApiInterface(dto: CommunitiesApiDTO): CommunitiesApiInterface {
     id: dto.id,
     name: dto.name,
     test: dto.test,
+    energyPrice: dto.energyPrice,
+    geolocation: dto.geolocation,
     createdAt: moment(dto.createdAt, "YYYY-MM-DD HH:mm").toDate(),
     updatedAt: moment(dto.updatedAt, "YYYY-MM-DD HH:mm").toDate(),
   }
@@ -68,6 +73,8 @@ function mapToDTO(dto: CommunitiesApiInterface): CommunitiesApiDTO {
     id: dto.id,
     name: dto.name,
     test: dto.test,
+    energyPrice: dto.energyPrice,
+    geolocation: dto.geolocation,
     createdAt: moment.utc(dto.createdAt).format("YYYY-MM-DD HH:mm"),
     updatedAt: moment.utc(dto.updatedAt).format("YYYY-MM-DD HH:mm"),
   }

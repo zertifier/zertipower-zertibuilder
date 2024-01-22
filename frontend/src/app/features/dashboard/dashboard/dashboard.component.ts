@@ -42,7 +42,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   simpleWeekDateInit: string = '';
   simpleWeekDateEnd: string = '';
-  
+
   constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder) {}
 
   ngOnInit() {
@@ -72,7 +72,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
 
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
-      this.customers = res.data[0];
+      this.customers = res.data;
       //set default value to selected cups:
       this.cupsId = this.customers[0].id
       //get chart info:

@@ -5,8 +5,8 @@ import Swal from 'sweetalert2';
 import {BehaviorSubject, Observable, repeat, Subject} from 'rxjs';
 import {CommunitiesApiService} from '../communities.service';
 import moment from 'moment';
-import {CustomersService} from "../../../core/core-services/customers/customers.service";
-import {EnergyService} from "../../../core/core-services/energy/energy.service";
+import {CustomersService} from "../../../core/core-services/customers.service";
+import {EnergyService} from "../../../core/core-services/energy.service";
 import Chart from "chart.js/auto";
 import {CupsApiInterface, CupsApiService} from "../../cups/cups.service";
 

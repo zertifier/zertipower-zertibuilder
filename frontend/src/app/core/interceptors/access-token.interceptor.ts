@@ -7,9 +7,9 @@ import {
 	HttpRequest,
 } from "@angular/common/http";
 import { catchError, EMPTY, Observable, switchMap, throwError } from "rxjs";
-import { AuthStoreService } from "../../../features/auth/infrastructure/services/auth-store/auth-store.service";
-import { ErrorCode } from "../../../shared/domain/ErrorCode";
-import { AuthApiService } from "../../../features/auth/infrastructure/services/auth-api/auth-api.service";
+import { AuthStoreService } from "../../features/auth/infrastructure/services/auth-store/auth-store.service";
+import { ErrorCode } from "../../shared/domain/ErrorCode";
+import { AuthApiService } from "../../features/auth/infrastructure/services/auth-api/auth-api.service";
 
 export const InterceptorSkipHeader = "X-Skip-Interceptor";
 

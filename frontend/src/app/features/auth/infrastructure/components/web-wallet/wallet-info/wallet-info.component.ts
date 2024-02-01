@@ -11,7 +11,7 @@ import { AuthStoreService } from "../../../services/auth-store/auth-store.servic
 import {
 	BreakPoints,
 	ScreenService,
-} from "../../../../../../core/core-services/screen/screen.service";
+} from "../../../../../../core/core-services/screen.service";
 import { ElementRefDirective } from "../../../../../../core/core-directives/app-element-ref/element-ref.directive";
 import { ethers } from "ethers";
 

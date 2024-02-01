@@ -1,8 +1,8 @@
 import {Component, ViewChild, AfterViewInit, ElementRef, OnInit} from "@angular/core";
 import Chart from 'chart.js/auto';
 import {CustomersApiService} from "../../customers/customers.service";
-import {EnergyService} from "../../../core/core-services/energy/energy.service";
-import {CustomersService} from "../../../core/core-services/customers/customers.service";
+import {EnergyService} from "../../../core/core-services/energy.service";
+import {CustomersService} from "../../../core/core-services/customers.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import moment from "moment";
 import { log } from "console";

@@ -1,8 +1,8 @@
 import { ErrorHandler, Injectable, NgZone } from "@angular/core";
 import Swal from "sweetalert2";
-import { CoreServicesModule } from "../core-services.module";
+import { CoreServicesModule } from "./core-services.module";
 import {HttpClient, HttpErrorResponse} from "@angular/common/http";
-import {environment} from "../../../../environments/environment";
+import {environment} from "../../../environments/environment";
 
 
 @Injectable({

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { CoreServicesModule } from "../core-services.module";
+import { CoreServicesModule } from "./core-services.module";
 
 // Bootstrap breakpoints
 export enum BreakPoints {

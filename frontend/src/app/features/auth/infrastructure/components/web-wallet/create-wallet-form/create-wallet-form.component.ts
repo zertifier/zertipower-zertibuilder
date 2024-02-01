@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { ethers } from "ethers";
-import { ErrorDisplayService } from "../../../../../../core/core-services/error-displayer/error-display.service";
+import { ErrorDisplayService } from "../../../../../../core/core-services/error-display.service";
 import { AuthStoreService } from "../../../services/auth-store/auth-store.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 

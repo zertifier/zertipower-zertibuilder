@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {firstValueFrom, map} from "rxjs";
 import {environment} from "../../../../../../environments/environment";
 import {HttpResponse} from "../../../../../shared/infrastructure/http/HttpResponse";
-import {InterceptorSkipHeader} from "../../../../../core/interceptors/access-token/access-token.interceptor";
+import {InterceptorSkipHeader} from "../../../../../core/interceptors/access-token.interceptor";
 
 @Injectable({
     providedIn: "root",

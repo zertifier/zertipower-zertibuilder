@@ -3,7 +3,7 @@ import { AuthStoreService } from "../../services/auth-store/auth-store.service";
 import { AuthApiService } from "../../services/auth-api/auth-api.service";
 import { ObservableUtils } from "../../../../../shared/domain/ObservableUtils";
 import { Router } from "@angular/router";
-import { ErrorDisplayService } from "../../../../../core/core-services/error-displayer/error-display.service";
+import { ErrorDisplayService } from "../../../../../core/core-services/error-display.service";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { WebWalletLoginComponent } from "../web-wallet/web-wallet-login/web-wallet-login.component";
 

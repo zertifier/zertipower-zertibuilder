@@ -7,6 +7,7 @@ import {AppMapComponent} from "../../../shared/infrastructure/components/map/map
 import {CommunitiesApiService} from "../../communities/communities.service";
 import {EnergyAreasService} from "../../../core/core-services/energy-areas.service";
 
+
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
@@ -19,9 +20,7 @@ export class SearchComponent implements AfterViewInit {
   communities=[];
   @ViewChild(AppMapComponent) map!:AppMapComponent ;
 
-  constructor(private customersService: CustomersService, private communitiesService: CommunitiesApiService,private energyAreasService:EnergyAreasService){
-
-  }
+  constructor(private customersService: CustomersService, private communitiesService: CommunitiesApiService,private energyAreasService:EnergyAreasService){}
 
   ngAfterViewInit() {
 
@@ -48,15 +47,26 @@ export class SearchComponent implements AfterViewInit {
         if(community.lat && community.lng){
 
           let marker = this.map.addMarker(community.lat,community.lng)
-          marker.on('click',()=>{
+          //marker.on('click',()=>{
             console.log("click on ", community.name)
             this.map.addCircle(community.lat,community.lng,100)
             this.energyAreasService.getByArea(community.lat,community.lng,100)
               .subscribe((res:any)=>{
                 //console.log("get by area", res)
-                const energyAreasPoints = groupArrayByAttribute(res.data, 'energy_area_id');
+                const energyPolygons = groupArrayByAttribute(res.data, 'energy_area_id');
+                  energyPolygons.map(energyPolygon=>{
+                      console.log("energy polygon", energyPolygon)
+                    let polygons = energyPolygon.map((energyCoords:any)=>{
+                      delete energyCoords.id;
+                      delete energyCoords.energy_area_id
+                        return energyCoords;
+                    })
+                      this.map.addPolygon(polygons,'red')
+                      console.log("energy coord", polygons)
+                })
+
               })
-          })
+          //})
         }
       })
     })

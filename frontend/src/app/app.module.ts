@@ -36,8 +36,8 @@ import {MockBackendInterceptor} from "./core/interceptors/mock-backend.intercept
 		ReportsServicesModule
 	],
 	providers: [
-		//{provide: HTTP_INTERCEPTORS, useClass: AccessTokenInterceptor, multi: true},
-    {provide: HTTP_INTERCEPTORS, useClass: MockBackendInterceptor, multi: true},
+		{provide: HTTP_INTERCEPTORS, useClass: AccessTokenInterceptor, multi: true},
+    //{provide: HTTP_INTERCEPTORS, useClass: MockBackendInterceptor, multi: true},
 		{provide: TINYMCE_SCRIPT_SRC, useValue: "tinymce/tinymce.min.js"},
 		{
 			provide: ErrorHandler,

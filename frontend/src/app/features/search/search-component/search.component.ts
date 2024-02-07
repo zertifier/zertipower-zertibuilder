@@ -30,7 +30,7 @@ export class SearchComponent implements AfterViewInit {
       console.log("res",res)
       this.customers = res.data;
       this.customers.map((customer:any)=>{
-        console.log("customer",customer)
+        //console.log("customer",customer)
         if(customer.geolocalization){
           //this.map.addMarker(customer.geolocalization.y,customer.geolocalization.x)
         }
@@ -45,28 +45,28 @@ export class SearchComponent implements AfterViewInit {
       console.log("communities: ",this.communities)
       this.communities.map((community:any)=>{
         if(community.lat && community.lng){
-
+          console.log(community.lat && community.lng)
           let marker = this.map.addMarker(community.lat,community.lng)
-          //marker.on('click',()=>{
-            console.log("click on ", community.name)
-            this.map.addCircle(community.lat,community.lng,100)
-            this.energyAreasService.getByArea(community.lat,community.lng,100)
-              .subscribe((res:any)=>{
-                //console.log("get by area", res)
-                const energyPolygons = groupArrayByAttribute(res.data, 'energy_area_id');
-                  energyPolygons.map(energyPolygon=>{
-                      console.log("energy polygon", energyPolygon)
-                    let polygons = energyPolygon.map((energyCoords:any)=>{
-                      delete energyCoords.id;
-                      delete energyCoords.energy_area_id
-                        return energyCoords;
-                    })
-                      this.map.addPolygon(polygons,'red')
-                      console.log("energy coord", polygons)
-                })
+          marker.addListener('click',()=>{
+             console.log("click on ", community.name)
+             this.map.addCircle(community.lat,community.lng,200)
+            // this.energyAreasService.getByArea(community.lat,community.lng,100)
+            //   .subscribe((res:any)=>{
+            //     //console.log("get by area", res)
+            //     const energyPolygons = groupArrayByAttribute(res.data, 'energy_area_id');
+            //       energyPolygons.map(energyPolygon=>{
+            //           console.log("energy polygon", energyPolygon)
+            //         let polygons = energyPolygon.map((energyCoords:any)=>{
+            //           delete energyCoords.id;
+            //           delete energyCoords.energy_area_id
+            //             return energyCoords;
+            //         })
+            //           this.map.addPolygon(polygons,'red')
+            //           console.log("energy coord", polygons)
+            //     })
 
-              })
-          //})
+            //   })
+          })
         }
       })
     })

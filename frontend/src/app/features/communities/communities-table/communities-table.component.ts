@@ -1,5 +1,5 @@
 import { Component, OnDestroy, ViewChild } from '@angular/core';
-import { NgbModal, NgbModalConfig  } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { dtColumns } from "src/app/shared/infrastructure/components/app-datatable/interfaces/dtColumns.interface";
 import { filterParams } from "src/app/shared/infrastructure/components/app-datatable/interfaces/filterParams.interface";
 import { environment } from 'src/environments/environment';
@@ -9,6 +9,7 @@ import { AppDatatableComponent } from 'src/app/shared/infrastructure/components/
 import Swal from 'sweetalert2';
 import { CommunitiesApiService } from '../communities.service';
 import moment from 'moment';
+import { EnergyService } from 'src/app/core/core-services/energy.service';
 
 @Component({
   selector: 'communities-table',
@@ -21,9 +22,8 @@ export class CommunitiesTableComponent implements OnDestroy {
   constructor(
     private ngbModal: NgbModal,
     private apiService: CommunitiesApiService,
-    private config: NgbModalConfig
+    private energyService: EnergyService
   ) {
-    this.config.size = 'lg';
   }
 
   readonly subscriptions: Array<Subscription> = []
@@ -88,25 +88,9 @@ export class CommunitiesTableComponent implements OnDestroy {
         title: 'test',
         description: '',
         value: '',
-        type: 2,
-        defaultData: 1,
-        "binarySelector":true,
-        "defaultTranslation":["yes","no"],
-        "options":
-          [
-            {
-              "name": "",
-              "value": ""
-            },
-            {
-              "name": "yes",
-              "value": "1"
-            },
-            {
-              "name": "no",
-              "value": "0"
-            }
-          ]
+        type: 0,
+        defaultData: 0,
+        options: [],
       },
       {
         title: 'created_at',
@@ -159,7 +143,7 @@ export class CommunitiesTableComponent implements OnDestroy {
   ];
 
   editRequest(id:any) {
-    const modalRef = this.ngbModal.open(CommunitiesFormComponent,{fullscreen: true});
+    const modalRef = this.ngbModal.open(CommunitiesFormComponent, {size: 'xl'});
     modalRef.componentInstance.setEditingId(parseInt(id));
 
     this.subscriptions.push(
@@ -185,5 +169,26 @@ export class CommunitiesTableComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  getYearEnergy(year: number, cups?: number, communityId?: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      //if(cups){
+      this.energyService.getYearByCommunity(year, communityId!).subscribe((res: any) => {
+        console.log(res.data)
+        let monthlyCommunityData = res.data;
+        let months: string[] = monthlyCommunityData .map((entry: any) => entry.month);
+        let kwhImport: number[] = monthlyCommunityData .map((entry: any) => entry.import);
+        let kwhGeneration: number[] = monthlyCommunityData .map((entry: any) => entry.generation);
+        let kwhExport: number[] = monthlyCommunityData .map((entry: any) => entry.export);
+        let kwhConsumption: number[] = monthlyCommunityData .map((entry: any) => entry.consumption);
+        let yearEnergy = {months, kwhImport, kwhGeneration,kwhConsumption,kwhExport}
+        resolve(yearEnergy)
+      })
+      //}else if (community){
+      //todo
+      //}
+
+    })
   }
 }

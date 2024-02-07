@@ -45,7 +45,7 @@ export class AppMapComponent implements AfterViewInit {
 
   lat = 41.505;
   lng = 1.509;
-  polygonT = [{lat:this.lat,lng:this.lng},{lat:this.lng,lng:this.lat}]
+  polygonT = [{lat:this.lat,lng:this.lng},{lat:this.lat+0.001,lng:this.lng+0.001}]
 
   coordinates = new google.maps.LatLng(this.lat, this.lng);
   mapOptions: google.maps.MapOptions = {
@@ -62,16 +62,17 @@ export class AppMapComponent implements AfterViewInit {
 
   mapInitializer() {
     this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
-    const marker = new google.maps.Marker({
-      position: this.coordinates,
-      map: this.map,
-      clickable: true
-    });
-    const polygon = new google.maps.Polygon({
-      paths: this.polygonT,
-      map: this.map,
-      clickable: true
-    });
+    // const marker = new google.maps.Marker({
+    //   position: this.coordinates,
+    //   map: this.map,
+    //   clickable: true
+    // });
+    // const polygon = new google.maps.Polygon({
+    //   paths: this.polygonT,
+    //   map: this.map,
+    //   clickable: true
+    // });
+    //this.addPolygon(this.polygonT,'red')
   }
 
   addMarker(lat:any,lng:any) {
@@ -85,6 +86,19 @@ export class AppMapComponent implements AfterViewInit {
   }
 
   addCircle(lat:number,lng:number,radius:number){
+    console.log("CIRCLE")
+    const cityCircle = new google.maps.Circle({
+      strokeColor: "#FF0000",
+      strokeOpacity: 0.5,
+      strokeWeight: 2,
+      fillColor: "#FF0000",
+      fillOpacity: 0.15,
+      map:this.map,
+      center:{lat:lat,lng:lng},
+      radius: radius,
+    });
+    console.log("CIRCULO",cityCircle)
+    return cityCircle;
   }
 
   addPolygon(latLngArray: [{lat:number,long:number}] | any,color:string){

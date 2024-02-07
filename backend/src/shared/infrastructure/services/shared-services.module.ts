@@ -6,12 +6,13 @@ import { WinstonLogger } from "./winston-logger";
 import { EmailService } from "./email-service";
 import { MustacheViewsService } from "./mustache-views-service";
 import { EventEmitter } from "./event-emitter";
-import { TextTemplateService } from "./text-template/text-template.service";
-import { HandlebarsViewsService } from "./handlebars-views-service/handlebars-views.service";
+import { TextTemplateService } from "./text-template.service";
+import { HandlebarsViewsService } from "./handlebars-views.service";
 import { PostgresService } from "./postgres/postgres.service";
 import { Datatable } from "./datatable/Datatable";
 //import { PostgresDatatable } from './datatable/PostgresDatatable';
 import { MysqlDatatable } from "./datatable/MysqlDatatable";
+import { DatadisService } from "./datadis-service";
 
 @Global()
 @Module({
@@ -27,6 +28,7 @@ import { MysqlDatatable } from "./datatable/MysqlDatatable";
     HandlebarsViewsService,
     PostgresService,
     { provide: Datatable, useClass: MysqlDatatable },
+    DatadisService
   ],
   exports: [
     PrismaService,
@@ -39,6 +41,7 @@ import { MysqlDatatable } from "./datatable/MysqlDatatable";
     TextTemplateService,
     HandlebarsViewsService,
     Datatable,
+    DatadisService
   ],
 })
 export class SharedServicesModule {}

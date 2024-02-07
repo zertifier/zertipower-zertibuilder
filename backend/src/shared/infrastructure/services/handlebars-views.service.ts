@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import * as fs from "fs";
 import * as path from "path";
-import { InvalidArgumentError } from "../../../domain/error/common";
+import { InvalidArgumentError } from "../../domain/error/common";
 import * as handlebars from "handlebars";
-import { EnvironmentService } from "../environment-service";
+import { EnvironmentService } from "./environment-service";
 
 /**
  * This service implements {@link ViewsService} with handlebars engine.

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import * as nodemailer from "nodemailer";
-import { SendEmailError } from "../../../domain/error/common";
-import { EnvironmentService } from "../environment-service";
+import { SendEmailError } from "../../domain/error/common";
+import { EnvironmentService } from "./environment-service";
 
 /**
  * Service to send emails

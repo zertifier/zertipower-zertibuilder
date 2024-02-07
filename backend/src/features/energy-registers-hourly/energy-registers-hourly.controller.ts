@@ -17,9 +17,6 @@ import { Auth } from "src/features/auth/infrastructure/decorators";
 import { ErrorCode } from "../../shared/domain/error";
 import mysql from "mysql2/promise";
 import { MysqlService } from "../../shared/infrastructure/services";
-import * as mqtt from "mqtt";
-import * as moment from "moment";
-import { setupMqttConnection } from "../mqtt-controller/mqtt-controller";
 
 export const RESOURCE_NAME = "energyRegistersHourly";
 
@@ -35,7 +32,6 @@ export class EnergyRegistersHourlyController {
     private mysql: MysqlService
   ) {
     this.conn = this.mysql.pool;
-    setupMqttConnection()
   }
 
   @Get("/hourly/:day")

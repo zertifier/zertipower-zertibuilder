@@ -23,12 +23,12 @@ import {
 } from "../../../../../shared/domain/error/common";
 import { ByReportId } from "../../../domain/ByReportId";
 import { ExecuteReportDTO } from "./DTOs/ExecuteReportDTO";
-import { TextTemplateService } from "../../../../../shared/infrastructure/services/text-template/text-template.service";
+import { TextTemplateService } from "../../../../../shared/infrastructure/services/text-template.service";
 import { MysqlService } from "../../../../../shared/infrastructure/services";
 import { ReportParam, ReportParamTypes } from "../../../domain/report-param";
 import * as moment from "moment";
 import * as mysql from "mysql2";
-import { HandlebarsViewsService } from "../../../../../shared/infrastructure/services/handlebars-views-service/handlebars-views.service";
+import { HandlebarsViewsService } from "../../../../../shared/infrastructure/services/handlebars-views.service";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "../../../../auth/infrastructure/decorators";
 import { Datatable } from "../../../../../shared/infrastructure/services/datatable/Datatable";

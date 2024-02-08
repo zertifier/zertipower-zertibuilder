@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import axios from 'axios';
-import { log } from "console";
+import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
+import mysql from "mysql2/promise";
+
 
 interface supply {
     address : string
@@ -24,6 +26,7 @@ interface energyHourData {
     surplusEnergyKWh : number
 }
 
+
 /**
  * Service used t
  */
@@ -34,21 +37,32 @@ export class DatadisService {
     loginData = {username:'g67684878',password:'acEM2020!'}
     token:any=undefined;
     supplies:supply[];
-    startDate='2023/11'
-    endDate='2024/02' //todo change
+    startDate='2023/11' //todo now
+    endDate='2024/02' //todo 5 days before
     energyHourData:energyHourData[]=[];
+    private conn: mysql.Pool;
 
-    constructor(){
-        this.login().then(async()=>{
-            await this.getSupplies();
-            this.supplies.forEach(async (supply)=>{
-                console.log(supply)
-                let consumptionCupsData:any = await this.getConsumptionData(supply.cups,supply.distributorCode,this.startDate,this.endDate,0,supply.pointType).catch((e)=>{
-                    return e;
-                })
-                this.energyHourData.push(consumptionCupsData) //todo: quitar 
-            })
-        })
+    constructor(private mysql: MysqlService){
+
+        this.conn = this.mysql.pool;
+
+        // this.login().then(async()=>{
+        //     await this.getSupplies();
+        //     for (const supply of this.supplies){
+        //         console.log(supply)
+        //         let consumptionCupsData:any = await this.getConsumptionData(supply.cups,supply.distributorCode,this.startDate,this.endDate,0,supply.pointType).catch((e)=>{
+        //             return e;
+        //         })
+        //         this.energyHourData = this.energyHourData.concat(consumptionCupsData) 
+        //     }
+        //     for (const energy of this.energyHourData){
+        //         //todo get cups id from cups
+        //         //todo check if hour is registered
+        //         //todo post if it isn't registered
+        //     }
+        //     this.energyHourData=[];
+        // })
+
     }
 
     async login(){
@@ -105,7 +119,7 @@ export class DatadisService {
                 let response = await axios.request(config);
                 
                 if (!response) {
-                    console.log("Unknown error");
+                    console.log("Unknown error. Undefined response");
                     reject('Unknown error occurred');
                 } else {
                     console.log(response);

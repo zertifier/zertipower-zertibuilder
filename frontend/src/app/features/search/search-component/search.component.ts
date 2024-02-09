@@ -6,6 +6,8 @@ import {Coordinate} from "mapbox-gl";
 import {AppMapComponent} from "../../../shared/infrastructure/components/map/map.component";
 import {CommunitiesApiService} from "../../communities/communities.service";
 import {EnergyAreasService} from "../../../core/core-services/energy-areas.service";
+import * as turf from '@turf/turf'
+import { log } from 'console';
 
 
 @Component({
@@ -34,12 +36,10 @@ export class SearchComponent implements AfterViewInit {
         if(customer.geolocalization){
           //this.map.addMarker(customer.geolocalization.y,customer.geolocalization.x)
         }
-
       })
     })
 
     this.communitiesService.get().subscribe((communities:any)=>{
-
       console.log("communities: ",communities)
       this.communities = communities.data;
       console.log("communities: ",this.communities)
@@ -50,28 +50,26 @@ export class SearchComponent implements AfterViewInit {
           marker.addListener('click',()=>{
              console.log("click on ", community.name)
              this.map.addCircle(community.lat,community.lng,200)
-            // this.energyAreasService.getByArea(community.lat,community.lng,100)
-            //   .subscribe((res:any)=>{
-            //     //console.log("get by area", res)
-            //     const energyPolygons = groupArrayByAttribute(res.data, 'energy_area_id');
-            //       energyPolygons.map(energyPolygon=>{
-            //           console.log("energy polygon", energyPolygon)
-            //         let polygons = energyPolygon.map((energyCoords:any)=>{
-            //           delete energyCoords.id;
-            //           delete energyCoords.energy_area_id
-            //             return energyCoords;
-            //         })
-            //           this.map.addPolygon(polygons,'red')
-            //           console.log("energy coord", polygons)
-            //     })
-
-            //   })
+             this.energyAreasService.getByArea(community.lat,community.lng,100)
+               .subscribe((res:any)=>{
+                 console.log("get by area", res.fata)
+                 const energyPolygons = this.groupArrayByAttribute(res.data, 'energy_area_id');
+                   energyPolygons.map(energyPolygon=>{
+                     let polygon = energyPolygon.map((energyCoords:any)=>{
+                         return {lat:parseFloat(energyCoords.lat),lng:parseFloat(energyCoords.lng)};
+                     })
+                        polygon = this.orderCoords(polygon);
+                       this.map.addPolygon(polygon,'red')
+                 })
+               })
           })
         }
       })
     })
 
-    function groupArrayByAttribute(array:[], attribute:string) {
+  }
+
+  groupArrayByAttribute(array:[], attribute:string) {
       const groupedArrays: [][] = [];
 
       // Creamos un mapa para almacenar los arrays agrupados temporalmente
@@ -92,9 +90,14 @@ export class SearchComponent implements AfterViewInit {
       return groupedArrays;
     }
 
+  orderCoords(coords:any) {
+    let orderedCoords:any = [];
+    let simpleCords = coords.map((obj:any) => [obj.lat, obj.lng]);
+    // Calcular la envoltura convexa de los puntos
+    const convexHull = turf.convex(turf.points(simpleCords));
+    // Obtener las coordenadas del polígono convexo
+    orderedCoords = convexHull!.geometry.coordinates[0].map(coord => ({ lat: coord[0], lng: coord[1] }));
+    return orderedCoords;
   }
-
-
-
 
 }

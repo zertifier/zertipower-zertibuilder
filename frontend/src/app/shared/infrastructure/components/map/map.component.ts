@@ -50,7 +50,8 @@ export class AppMapComponent implements AfterViewInit {
   coordinates = new google.maps.LatLng(this.lat, this.lng);
   mapOptions: google.maps.MapOptions = {
     center: this.coordinates,
-    zoom: 8
+    zoom: 8,
+    mapTypeId:'satellite'
   };
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -101,7 +102,7 @@ export class AppMapComponent implements AfterViewInit {
     return cityCircle;
   }
 
-  addPolygon(latLngArray: [{lat:number,long:number}] | any,color:string){
+  addPolygon(latLngArray: [{lat:number,lng:number}] | any,color:string){
     let polygon = new google.maps.Polygon({
           paths: latLngArray,
           map: this.map,

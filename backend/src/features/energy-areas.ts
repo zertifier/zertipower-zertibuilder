@@ -16,6 +16,7 @@ import {
   import { ApiTags } from "@nestjs/swagger";
   import { Auth } from "src/features/auth/infrastructure/decorators";
   import mysql from "mysql2/promise";
+import { log } from "console";
   export const RESOURCE_NAME = "energy-areas";
   
   @ApiTags(RESOURCE_NAME)
@@ -34,20 +35,33 @@ import {
   
     @Post("/geojson")
     async postGeojson(@Body() body: any) {
-      let geojsonFeature = body.geojsonFeature;
-      let type = geojsonFeature.properties.currentUse;
-      let m2 = geojsonFeature.properties.value;
-      let catastralReference = geojsonFeature.properties.reference;
+      
+      let type = body.properties.currentUse;
+      let m2 = body.properties.value;
+      let cadastralReference = body.properties.reference;
 
-      const insertEnergyAreaQuery = `INSERT INTO energy_areas (type,m2,catastral_rerence,geojson_feature) VALUES (?,?,?,?)`;
-      const [result]: any[] = await this.conn.query(insertEnergyAreaQuery, [type,m2,catastralReference,geojsonFeature]);
-      let energyAreaId=result.insertId;
+      console.log(type,m2,cadastralReference)
 
-      let coordinates = geojsonFeature.geometry.coordinates;
-      coordinates = simplifyCoordinates(coordinates);
+    
+      try{
 
-      //const insertEnergyAreaCoordinatesQuery = `INSERT INTO energy_area_coodinates (type,m2,catastral_rerence,geojson_feature) VALUES (?,?,?,?)`;
-      createMultiplePostQuery('energy_area_coordinates',coordinates)
+      const insertEnergyAreaQuery = `INSERT INTO energy_areas (type,m2,cadastral_reference,geojson_feature) VALUES (?,?,?,?)`;
+      const [result]: any[] = await this.conn.query(insertEnergyAreaQuery, [type,m2,cadastralReference,JSON.stringify(body)]);
+      let energyAreaId=1//result.insertId;
+
+      let coordinates = body.geometry.coordinates;
+      coordinates = simplifyCoordinates(coordinates,energyAreaId);
+
+      let {query,values} = createMultiplePostQuery('energy_area_coordinates',coordinates)
+      await this.conn.query(query,values);
+
+      }catch(e){
+        console.log(e);
+        return HttpResponse.failure;
+      }
+
+      return HttpResponse.success("energyAreas posted successfully");
+      
     }
 
 
@@ -55,10 +69,11 @@ import {
     @Auth(RESOURCE_NAME)
     async getEnergyAreasByArea(@Query('lat') lat: string, @Query('lng') lng: string, @Query('radius') radius: string) {
       try {
+
         // let url = `SELECT * FROM energy_areas LEFT JOIN energy_area_coordinates on energy_areas.id = energy_area_coordinates.energy_area_id WHERE 
         // ? IS BETWEEN lat AND lat + ? AND ? is BETWEEN lng AND lng + ? 
         // `;
-        // const [ROWS]:any[] = await this.conn.query(url,[lat,radius,lng,radius]);        
+        // const [ROWS]:any[] = await this.conn.query(url,[lat,radius,lng,radius]);
 
         // Convertir los parámetros de consulta a números
         const latNum = parseFloat(lat);
@@ -112,7 +127,7 @@ const camelToSnake = (camelCaseString:any) => {
 }
 
 
-function simplifyCoordinates(coordinates:any) {
+function simplifyCoordinates(coordinates:any[], areaId:number) {
   let simplifiedCoordinates:any = [];
   coordinates.forEach((subgroup:any) => {
       if (Array.isArray(subgroup)) {
@@ -121,5 +136,21 @@ function simplifyCoordinates(coordinates:any) {
           });
       }
   });
+
+  let coordenadasObj:any = [];
+
+  
+  simplifiedCoordinates[0].forEach((coord:any)=>{
+      //console.log("coord:",coord)
+      let obj:any = {};
+      obj.lng = coord[0]
+      obj.lat = coord[1]
+      obj.energy_area_id=areaId;
+      coordenadasObj.push(obj)
+    })
+  
+    // Devolver el array de coordenadas simplificadas
+    return coordenadasObj;
+
   return simplifiedCoordinates;
 }

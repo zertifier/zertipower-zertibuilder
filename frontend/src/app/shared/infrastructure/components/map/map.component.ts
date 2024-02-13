@@ -29,11 +29,11 @@ import {GoogleMap} from '@angular/google-maps';
     max-width: 50px;
   }
 
-/* mapa.component.css */
-#mapContainer {
-  height: 400px;
-  width: 100%;
-}
+  /* mapa.component.css */
+  #mapContainer {
+    height: 400px;
+    width: 100%;
+  }
 
 `
 })
@@ -56,13 +56,15 @@ export class AppMapComponent implements AfterViewInit {
 
   constructor(private cdr: ChangeDetectorRef) {}
 
-
   ngAfterViewInit() {
     this.mapInitializer();
   }
 
   mapInitializer() {
     this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
+
+    this.map.data.loadGeoJson('../assets/datos_olot_transformados.geojson');
+    
     // const marker = new google.maps.Marker({
     //   position: this.coordinates,
     //   map: this.map,

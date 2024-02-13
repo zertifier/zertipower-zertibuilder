@@ -47,7 +47,7 @@ import { log } from "console";
 
       const insertEnergyAreaQuery = `INSERT INTO energy_areas (type,m2,cadastral_reference,geojson_feature) VALUES (?,?,?,?)`;
       const [result]: any[] = await this.conn.query(insertEnergyAreaQuery, [type,m2,cadastralReference,JSON.stringify(body)]);
-      let energyAreaId=1//result.insertId;
+      let energyAreaId=result.insertId;
 
       let coordinates = body.geometry.coordinates;
       coordinates = simplifyCoordinates(coordinates,energyAreaId);
@@ -149,8 +149,5 @@ function simplifyCoordinates(coordinates:any[], areaId:number) {
       coordenadasObj.push(obj)
     })
   
-    // Devolver el array de coordenadas simplificadas
     return coordenadasObj;
-
-  return simplifiedCoordinates;
 }

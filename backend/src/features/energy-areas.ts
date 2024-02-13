@@ -32,6 +32,25 @@ import {
       this.conn = this.mysql.pool;
     }
   
+    @Post("/geojson")
+    async postGeojson(@Body() body: any) {
+      let geojsonFeature = body.geojsonFeature;
+      let type = geojsonFeature.properties.currentUse;
+      let m2 = geojsonFeature.properties.value;
+      let catastralReference = geojsonFeature.properties.reference;
+
+      const insertEnergyAreaQuery = `INSERT INTO energy_areas (type,m2,catastral_rerence,geojson_feature) VALUES (?,?,?,?)`;
+      const [result]: any[] = await this.conn.query(insertEnergyAreaQuery, [type,m2,catastralReference,geojsonFeature]);
+      let energyAreaId=result.insertId;
+
+      let coordinates = geojsonFeature.geometry.coordinates;
+      coordinates = simplifyCoordinates(coordinates);
+
+      //const insertEnergyAreaCoordinatesQuery = `INSERT INTO energy_area_coodinates (type,m2,catastral_rerence,geojson_feature) VALUES (?,?,?,?)`;
+      createMultiplePostQuery('energy_area_coordinates',coordinates)
+    }
+
+
     @Get("/by-area")
     @Auth(RESOURCE_NAME)
     async getEnergyAreasByArea(@Query('lat') lat: string, @Query('lng') lng: string, @Query('radius') radius: string) {
@@ -61,4 +80,46 @@ import {
         console.log("error getting energy areas", e);
       }
     }
+}
+
+const createMultiplePostQuery = (table:any, records:any) => {
+  let query = 'INSERT INTO ' + table;
+  let columns = [];
+  let queryValues = [];
+  let values = [];
+
+  for (let i = 0; i < records.length; i++) {
+      const record = records[i];
+
+      if (i === 0) {
+          // Solo para el primer registro, obtén las columnas
+          columns = Object.keys(record).map((col) => camelToSnake(col));
+      }
+
+      const recordValues = Object.values(record);
+      queryValues.push('(' + Array(recordValues.length).fill('?').join(', ') + ')');
+      values.push(...recordValues);
+  }
+
+  query = query.concat(' (' + columns.join(', ') + ') VALUES ');
+  query = query.concat(queryValues.join(', '));
+
+  return { query, values };
+};
+
+const camelToSnake = (camelCaseString:any) => {
+  return camelCaseString.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
+}
+
+
+function simplifyCoordinates(coordinates:any) {
+  let simplifiedCoordinates:any = [];
+  coordinates.forEach((subgroup:any) => {
+      if (Array.isArray(subgroup)) {
+        subgroup.forEach(coord => {
+            simplifiedCoordinates.push(coord);
+          });
+      }
+  });
+  return simplifiedCoordinates;
 }

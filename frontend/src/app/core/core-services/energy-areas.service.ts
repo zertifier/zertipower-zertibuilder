@@ -15,7 +15,12 @@ export class EnergyAreasService {
   }
 
   getByCommunity(communityId: number) {
-    let url = `${environment.api_url}/by-community?id=${communityId}`;
+    let url = `${this.baseUrl}/by-community?id=${communityId}`;
+    return this.http.get(url);
+  }
+
+  getByLocation(locationId:number){
+    let url = `${this.baseUrl}/by-location?id=${locationId}`;
     return this.http.get(url);
   }
 
@@ -23,9 +28,8 @@ export class EnergyAreasService {
    *
    * @param lat
    * @param lng
-   * @param radius in kilometers   */
+   * @param radius in kilometers */
   getByArea(lat: number, lng: number, radius: number = 1) {
-    console.log("ep by area")
     let url = `${this.baseUrl}/by-area?lat=${lat}&lng=${lng}&radius=${radius}`;
     return this.http.get(url);
   }

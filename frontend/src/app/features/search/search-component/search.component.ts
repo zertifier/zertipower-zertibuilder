@@ -8,6 +8,7 @@ import {CommunitiesApiService} from "../../communities/communities.service";
 import {EnergyAreasService} from "../../../core/core-services/energy-areas.service";
 import * as turf from '@turf/turf'
 import { log } from 'console';
+import { LocationService } from 'src/app/core/core-services/location.service';
 
 
 @Component({
@@ -19,54 +20,117 @@ import { log } from 'console';
 export class SearchComponent implements AfterViewInit {
 
   customers:any=[];
-  communities=[];
+  communities:any=[];
+  locations:any=[];
+  selectedCommunity:any;
+  selectedCommunities:any;
+  selectedLocation:any;
   @ViewChild(AppMapComponent) map!:AppMapComponent ;
 
-  constructor(private customersService: CustomersService, private communitiesService: CommunitiesApiService,private energyAreasService:EnergyAreasService){}
+  constructor(
+    private customersService: CustomersService, 
+    private communitiesService: CommunitiesApiService,
+    private energyAreasService:EnergyAreasService,
+    private locationService:LocationService){}
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
 
-    //this.communitiesService.get
-
-    this.customersService.getCustomersCups().subscribe(async (res: any) => {
-      console.log("res",res)
-      this.customers = res.data;
-      this.customers.map((customer:any)=>{
-        //console.log("customer",customer)
-        if(customer.geolocalization){
-          //this.map.addMarker(customer.geolocalization.y,customer.geolocalization.x)
-        }
+    this.locations = await new Promise((resolve:any,reject:any)=>{
+      this.locationService.getLocations().subscribe(async (res:any)=>{
+        resolve(res.data)
+      },(error:any)=>{
+        console.log("error getting locations")
+        reject("error")
+      })
+    })
+    
+    this.communities =  await new Promise((resolve:any,reject:any)=>{
+      this.communitiesService.get().subscribe((res:any)=>{
+        resolve(res.data)
+      },(error:any)=>{
+        console.log("error getting locations")
+        reject("error")
       })
     })
 
-    this.communitiesService.get().subscribe((communities:any)=>{
-      console.log("communities: ",communities)
-      this.communities = communities.data;
-      console.log("communities: ",this.communities)
-      this.communities.map((community:any)=>{
-        if(community.lat && community.lng){
-          console.log(community.lat && community.lng)
-          let marker = this.map.addMarker(community.lat,community.lng)
-          marker.addListener('click',()=>{
-             console.log("click on ", community.name)
-             this.map.addCircle(community.lat,community.lng,200)
-             this.energyAreasService.getByArea(community.lat,community.lng,100)
-               .subscribe((res:any)=>{
-                 console.log("get by area", res.fata)
-                 const energyPolygons = this.groupArrayByAttribute(res.data, 'energy_area_id');
-                   energyPolygons.map(energyPolygon=>{
-                     let polygon = energyPolygon.map((energyCoords:any)=>{
-                         return {lat:parseFloat(energyCoords.lat),lng:parseFloat(energyCoords.lng)};
-                     })
-                        polygon = this.orderCoords(polygon);
-                       this.map.addPolygon(polygon,'red')
-                 })
-               })
-          })
-        }
-      })
-    })
+    // this.customersService.getCustomersCups().subscribe(async (res: any) => {
+    //   console.log("res",res)
+    //   this.customers = res.data;
+    //   this.customers.map((customer:any)=>{
+    //     //console.log("customer",customer)
+    //     if(customer.geolocalization){
+    //       //this.map.addMarker(customer.geolocalization.y,customer.geolocalization.x)
+    //     }
+    //   })
+    // })
+   
 
+  }
+
+  OnSelectorChange(element: any, attribute: string) {
+    switch(attribute){
+      case 'location':
+        //this.selectedLocation=element;
+        this.selectedCommunities = this.communities.map((community:any)=>{
+          if(community.locationId==this.selectedLocation.id){
+            return community;
+          }  
+        })
+        this.renderSelectedCommunities();
+        this.renderLocation();
+        break;
+        default: break;
+    }
+    
+  }
+
+  renderLocation(){
+    
+    this.energyAreasService.getByLocation(this.selectedLocation.id).subscribe((res:any)=>{
+      let geoJsonFeatures = res.data;
+      console.log("geoJsonFeatures",geoJsonFeatures)
+      this.map.addGeoJsonFeatures(geoJsonFeatures)
+    })
+    
+  }
+
+  renderSelectedCommunities(){
+    
+    //todo: delete old markers
+
+    this.selectedCommunities.map((community:any)=>{
+
+      if(community.lat && community.lng){
+
+        let marker = this.map.addMarker(community.lat,community.lng)
+
+        marker.addListener('click',()=>{
+
+          this.selectedCommunity=community;
+
+          /*this.map.addCircle(community.lat,community.lng,200);
+
+          this.energyAreasService.getByArea(community.lat,community.lng,100).subscribe((res:any)=>{
+              
+              const energyPolygons = this.groupArrayByAttribute(res.data, 'energy_area_id');
+
+              energyPolygons.map(energyPolygon=>{
+
+                let polygon = energyPolygon.map((energyCoords:any)=>{
+
+                  return {lat:parseFloat(energyCoords.lat),lng:parseFloat(energyCoords.lng)};
+
+                })
+
+              polygon = this.orderCoords(polygon);
+
+              this.map.addPolygon(polygon,'red')
+
+            })
+          })*/
+        })
+      }
+    })
   }
 
   groupArrayByAttribute(array:[], attribute:string) {

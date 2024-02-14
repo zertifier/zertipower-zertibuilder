@@ -63,7 +63,7 @@ export class AppMapComponent implements AfterViewInit {
   mapInitializer() {
     this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
 
-    this.map.data.loadGeoJson('../assets/datos_olot_transformados.geojson');
+    //this.map.data.loadGeoJson('../assets/datos_olot_transformados.geojson');
     
     // const marker = new google.maps.Marker({
     //   position: this.coordinates,
@@ -111,6 +111,14 @@ export class AppMapComponent implements AfterViewInit {
           clickable: true
     });
     return polygon;
+  }
+
+  addGeoJsonFeatures(geojsonFeatures:any){
+    let jsonData = {
+      "type": "FeatureCollection",
+      "features": geojsonFeatures
+    }
+    this.map.data.loadGeoJson(JSON.stringify(jsonData));
   }
 
 }

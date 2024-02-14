@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["native", "debian-openssl-3.0.x"]
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -94,7 +94,7 @@ model Report {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Calendar {
-  day         DateTime? @unique(map: "day") @map("day") @db.Date
+  day         DateTime @unique(map: "day") @map("day") @db.Date
   weekday     String?   @map("weekday") @db.VarChar(50)
   dayType     String?   @map("day_type") @db.VarChar(50)
   festiveType String?   @map("festive_type") @db.VarChar(50)
@@ -212,7 +212,7 @@ model SmartContracts {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model blockchains {
-  blockchain_id     Int?
+  blockchain_id     Int @unique
   blockchain_name   String? @db.VarChar(50)
   rpc_url           String? @db.VarChar(50)
   blockchain_tx_url String? @db.VarChar(50)
@@ -242,27 +242,6 @@ model energy_areas {
   geojson_feature     String?   @db.LongText
 }
 
-/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-view energy_registers_original_monthly {
-  cups_id     Int?
-  year        Int?
-  month       Int?
-  import      Float?
-  consumption Float?
-  export      Float?
-  generation  Float?
-}
-
-/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-view energy_registers_original_hourly {
-  cups_id       Int?
-  info_datetime DateTime? @db.DateTime(0)
-  import        Float?
-  consumption   Float?
-  export        Float?
-  generation    Float?
-
-}
 
 enum cups_type {
   consumer

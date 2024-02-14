@@ -23,6 +23,7 @@ import { AuthRepositoriesModule } from "./features/auth/infrastructure/repositor
 import { LoggerMiddleware } from "./logger.middleware";
 import { EnergyRegistersHourlyController } from "./features/energy-registers-hourly/energy-registers-hourly.controller";
 import { EnergyAreasController } from "./features/energy-areas";
+import { LocationsController } from "./features/locations";
 
 @Module({
   imports: [
@@ -52,7 +53,8 @@ import { EnergyAreasController } from "./features/energy-areas";
     EnergyRegistersHourlyController,
     ProvidersController,
     SmartContractsController,
-    EnergyAreasController
+    EnergyAreasController,
+    LocationsController
   ],
 })
 export class AppModule implements NestModule {

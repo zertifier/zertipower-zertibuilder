@@ -16,26 +16,24 @@ model User {
   password              String      @db.VarChar(255)
   email                 String      @unique(map: "email") @db.VarChar(255)
   wallet_address        String?     @db.VarChar(255)
+  tokens                Token[]
   created_at            DateTime    @default(now())
   updated_at            DateTime    @default(now()) @updatedAt
   recover_password_code String?
+  role                  Role        @relation(fields: [role_id], references: [id])
   role_id               Int
   UserOatuh             UserOatuh[]
-  tokens                Token[]
-  role                  Role        @relation(fields: [role_id], references: [id])
 
-  @@index([role_id], map: "users_role_id_fkey")
   @@map("users")
 }
 
 model UserOatuh {
   oauth_id String
   type     String
-  user_id  Int
   user     User   @relation(fields: [user_id], references: [id])
+  user_id  Int
 
   @@id([oauth_id, user_id])
-  @@index([user_id], map: "user_oauth_user_id_fkey")
   @@map("user_oauth")
 }
 
@@ -49,33 +47,31 @@ model Permission {
 }
 
 model RolePermission {
+  role                Role       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   role_id             Int
+  permission          Permission @relation(fields: [permission_resource, permission_action], references: [resource, action], onDelete: Cascade, onUpdate: Cascade)
   permission_resource String
   permission_action   String
   allow               Boolean
-  permission          Permission @relation(fields: [permission_resource, permission_action], references: [resource, action], onDelete: Cascade)
-  role                Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
 
   @@id([role_id, permission_action, permission_resource])
-  @@index([permission_resource, permission_action], map: "role_permission_permission_resource_permission_action_fkey")
   @@map("role_permission")
 }
 
 model Token {
   token           String   @unique @db.VarChar(300)
+  user            User     @relation(fields: [user_id], references: [id])
   expiration_time DateTime
   user_id         Int
-  user            User     @relation(fields: [user_id], references: [id])
 
-  @@index([user_id], map: "user_tokens_user_id_fkey")
   @@map("user_tokens")
 }
 
 model Role {
   id             Int              @id @default(autoincrement())
   name           String           @unique @db.VarChar(255)
-  RolePermission RolePermission[]
   users          User[]
+  RolePermission RolePermission[]
 
   @@map("roles")
 }
@@ -92,131 +88,59 @@ model Report {
   @@map("reports")
 }
 
+
+model blockchains {
+  blockchain_id     Int     @id
+  blockchain_name   String? @db.VarChar(50)
+  rpc_url           String? @db.VarChar(50)
+  blockchain_tx_url String? @db.VarChar(50)
+}
+
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model Calendar {
-  day         DateTime @unique(map: "day") @map("day") @db.Date
-  weekday     String?   @map("weekday") @db.VarChar(50)
-  dayType     String?   @map("day_type") @db.VarChar(50)
-  festiveType String?   @map("festive_type") @db.VarChar(50)
-  festivity   String?   @map("festivity") @db.VarChar(50)
-  updatedAt   DateTime? @default(now()) @updatedAt @map("updated_at") @db.DateTime(0)
-  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+model calendar {
+  day          DateTime @unique(map: "day") @db.Date
+  weekday      String?   @db.VarChar(50)
+  day_type     String?   @db.VarChar(50)
+  festive_type String?   @db.VarChar(50)
+  festivity    String?   @db.VarChar(50)
+  updated_at   DateTime? @default(now()) @db.DateTime(0)
+  created_at   DateTime? @default(now()) @db.DateTime(0)
 
-  @@map("calendar")
 }
 
-model Communities {
-  id          Int       @id @default(autoincrement()) @map("id")
-  name        String?   @map("name") @db.VarChar(50)
-  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt   DateTime? @updatedAt @map("updated_at") @db.DateTime(0)
-  test        Int?      @default(dbgenerated("(current_timestamp())")) @map("test") @db.TinyInt
-  energyPrice Float?    @map("energy_price")
-  lat         Float?
-  lng         Float?
-
-  @@map("communities")
+model communities {
+  id           Int       @id @default(autoincrement())
+  name         String?   @db.VarChar(50)
+  created_at   DateTime? @default(now()) @db.DateTime(0)
+  updated_at   DateTime? @db.DateTime(0)
+  test         Int?      @default(dbgenerated("(current_timestamp())")) @db.TinyInt
+  energy_price Float?
+  lat          Float?
+  lng          Float?
+  location_id  Int?
 }
 
-model Cups {
-  id                           Int        @id @default(autoincrement()) @map("id")
-  cups                         String     @default("") @map("cups") @db.VarChar(50)
-  providerId                   Int        @default(0) @map("provider_id")
-  communityId                  Int        @default(0) @map("community_id")
-  ubication                    String     @default("") @map("ubication") @db.VarChar(50)
-  customerId                   Int?       @map("customer_id")
+model cups {
+  id                           Int        @id @default(autoincrement())
+  cups                         String     @default("") @db.VarChar(50)
+  provider_id                  Int        @default(0)
+  community_id                 Int        @default(0)
+  ubication                    String     @default("") @db.VarChar(50)
+  customer_id                  Int?
   lng                          Float?
   lat                          Float?
   surplus_distribution_default String?    @db.LongText
   type                         cups_type?
-  createdAt                    DateTime?  @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt                    DateTime?  @updatedAt @map("updated_at") @db.DateTime(0)
-
-  @@map("cups")
+  created_at                   DateTime?  @default(now()) @db.DateTime(0)
+  updated_at                   DateTime?  @db.DateTime(0)
 }
 
-model Customers {
-  id            Int       @id @default(autoincrement()) @map("id")
-  name          String?   @map("name") @db.VarChar(50)
-  createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt     DateTime? @updatedAt @map("updated_at") @db.DateTime(0)
-  walletAddress String?   @map("wallet_address") @db.VarChar(200)
-
-  @@map("customers")
-}
-
-model EnergyBlocks {
-  id               Int       @id @default(autoincrement()) @map("id")
-  reference        String    @default("0") @map("reference") @db.VarChar(50)
-  expirationDt     DateTime? @map("expiration_dt") @db.DateTime(0)
-  activeInit       DateTime  @default(dbgenerated("('00:00:00')")) @map("active_init") @db.Time(0)
-  activeEnd        DateTime  @default(dbgenerated("('00:00:00')")) @map("active_end") @db.Time(0)
-  consumptionPrice Float?    @map("consumption_price")
-  generationPrice  Float?    @map("generation_price")
-  provider_id      Int       @default(0)
-  createdAt        DateTime  @default(dbgenerated("(curdate())")) @map("created_at") @db.DateTime(0)
-  updatedAt        DateTime? @default(now()) @updatedAt @map("updated_at") @db.DateTime(0)
-
-  @@map("energy_blocks")
-}
-
-model EnergyTransactions {
-  id            Int       @id @default(autoincrement()) @map("id")
-  cupsId        Int?      @map("cups_id")
-  infoDt        DateTime? @map("info_dt") @db.DateTime(0)
-  kwhIn         Float?    @map("kwh_in")
-  kwhOut        Float?    @map("kwh_out")
-  kwhSurplus    Float?    @map("kwh_surplus")
-  kwh_in_price  Float?
-  kwh_out_price Float?
-  tx_kwh_in     String?   @db.VarChar(100)
-  tx_kwh_out    String?   @db.VarChar(100)
-  blockId       Int?      @map("block_id")
-  createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt     DateTime? @updatedAt @map("updated_at") @db.DateTime(0)
-
-  @@map("energy_transactions")
-}
-
-model EnergyRegisters {
-  id          Int       @id @default(autoincrement()) @map("id")
-  infoDt      DateTime? @map("info_dt") @db.DateTime(0)
-  cupsId      Int?      @map("cups_id")
-  import      Float?    @map("import")
-  consumption Float?    @map("consumption")
-  export      Float?    @map("export")
-  generation  Float?    @map("generation")
-  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt   DateTime? @updatedAt @map("updated_at") @db.DateTime(0)
-
-  @@index([cupsId], map: "cups_id")
-  @@index([infoDt], map: "info_dt")
-  @@map("energy_registers")
-}
-
-model Providers {
-  id       Int     @id @default(autoincrement()) @map("id")
-  provider String? @map("provider") @db.VarChar(50)
-
-  @@map("providers")
-}
-
-model SmartContracts {
-  id              Int     @id @default(autoincrement()) @map("id")
-  name            String  @default("0") @db.VarChar(50)
-  contractAddress String? @map("contract_address") @db.VarChar(100)
-  blockchainId    Int?    @map("blockchain_id")
-
-  @@map("smart_contracts")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model blockchains {
-  blockchain_id     Int @unique
-  blockchain_name   String? @db.VarChar(50)
-  rpc_url           String? @db.VarChar(50)
-  blockchain_tx_url String? @db.VarChar(50)
-
+model customers {
+  id             Int       @id @default(autoincrement())
+  name           String?   @db.VarChar(50)
+  created_at     DateTime? @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @db.DateTime(0)
+  wallet_address String?   @db.VarChar(200)
 }
 
 model energy_area_coordinates {
@@ -240,8 +164,87 @@ model energy_areas {
   m2                  Int?
   cadastral_reference String?   @db.VarChar(50)
   geojson_feature     String?   @db.LongText
+  location_id         Int?
 }
 
+model energyBlocks {
+  id                Int       @id @default(autoincrement())
+  reference         String    @default("0") @db.VarChar(50)
+  expiration_dt     DateTime? @db.DateTime(0)
+  active_init       DateTime  @default(dbgenerated("('00:00:00')")) @db.Time(0)
+  active_end        DateTime  @default(dbgenerated("('00:00:00')")) @db.Time(0)
+  consumption_price Float?
+  generation_price  Float?
+  provider_id       Int       @default(0)
+  created_at        DateTime  @default(dbgenerated("(curdate())")) @db.DateTime(0)
+  updated_at        DateTime? @default(now()) @db.DateTime(0)
+
+  @@map("energy_blocks")
+}
+
+model energyRegisters {
+  id          Int       @id @default(autoincrement())
+  info_dt     DateTime? @db.DateTime(0)
+  cups_id     Int?
+  import      Float?
+  consumption Float?
+  export      Float?
+  generation  Float?
+  created_at  DateTime? @default(now()) @db.DateTime(0)
+  updated_at  DateTime? @db.DateTime(0)
+
+  @@index([cups_id], map: "cups_id")
+  @@index([info_dt], map: "info_dt")
+
+  @@map("energy_registers")
+}
+
+model energyTransactions {
+  id            Int       @id @default(autoincrement())
+  cups_id       Int?
+  info_dt       DateTime? @db.DateTime(0)
+  kwh_in        Float?
+  kwh_out       Float?
+  kwh_surplus   Float?
+  kwh_in_price  Float?
+  kwh_out_price Float?
+  tx_kwh_in     String?   @db.VarChar(100)
+  tx_kwh_out    String?   @db.VarChar(100)
+  block_id      Int?
+  created_at    DateTime? @default(now()) @db.DateTime(0)
+  updated_at    DateTime? @db.DateTime(0)
+
+  @@map("energy_transactions")
+}
+
+model locations {
+  id           Int     @id @default(autoincrement())
+  municipality String? @db.VarChar(50)
+  province     String? @db.VarChar(50)
+}
+
+model providers {
+  id       Int     @id @default(autoincrement())
+  provider String? @db.VarChar(50)
+}
+
+model smartContracts {
+  id               Int     @id @default(autoincrement())
+  name             String  @default("0") @db.VarChar(50)
+  contract_address String? @db.VarChar(100)
+  blockchain_id    Int?
+
+  @@map("smart_contracts")
+}
+
+
+
+
+enum read_data_log_status {
+  ERROR
+  SUCCESS
+  WARNING
+}
 
 enum cups_type {
   consumer

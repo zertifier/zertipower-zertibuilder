@@ -7,7 +7,7 @@
 
   <div class="col-12 col-md-4 p-2">
 
-    <div class="mb-2">
+    <!-- <div class="mb-2">
       <label for="cups">cups</label>
       <input id="cups" placeholder="CUPS" type="number" class="form-control">
     </div>
@@ -15,11 +15,35 @@
     <div class="mb-2">
       <label for="consum">consum</label>
       <input id="consum" placeholder="consum" type="number" class="form-control">
-    </div>
+    </div> -->
 
     <div class="mb-2">
-      <label for="comunitat">comunitat</label>
-      <input id="comunitat" placeholder="comunitat" type="text" class="form-control" disabled readonly>
+
+      <label for="location" class="my-2">Municipi</label>
+      <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="OnSelectorChange(selectedLocation,'location')">
+        <option></option>
+        <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
+      </select>
+
+      <label for="location-comunnity" class="my-2">Comunitats del municipi</label>
+      <select id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2" (change)="OnSelectorChange(selectedCommunity,'community')">
+        <option></option>
+        <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
+      </select>
+
+      <!-- <label for="comunitat" class="my-2">Comunitat energética</label>
+      <select id="comunitat" [(ngModel)]="selectedCommunity" class="form-select px-2" (change)="OnSelectorChange(selectedCommunity,'community')">
+        <option></option>
+        <option *ngFor="let community of communities" [ngValue]="community">{{community.name}}</option>
+      </select> -->
+
+      <!-- <label for="comunitat" class="my-2">comunitat</label>
+      <div *ngIf="selectedCommunity">
+        <input id="comunitat" placeholder="comunitat" type="text" class="form-control" disabled readonly  [ngModel]="selectedCommunity['name']">
+      </div>
+      <div *ngIf="!selectedCommunity">
+        <input id="nom de comunitat" placeholder="comunitat" type="text" class="form-control" disabled readonly>
+      </div> -->
     </div>
 
   </div>

@@ -48,11 +48,15 @@ export class AppMapComponent implements AfterViewInit {
   polygonT = [{lat:this.lat,lng:this.lng},{lat:this.lat+0.001,lng:this.lng+0.001}]
 
   coordinates = new google.maps.LatLng(this.lat, this.lng);
+  
   mapOptions: google.maps.MapOptions = {
     center: this.coordinates,
     zoom: 8,
-    mapTypeId:'satellite'
+    mapTypeId:'satellite',
+    mapId: '4ad7272795cc4f73'
   };
+
+  markers: google.maps.Marker[] = [];
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -63,7 +67,25 @@ export class AppMapComponent implements AfterViewInit {
   mapInitializer() {
     this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
 
-    this.map.data.loadGeoJson('../assets/datos_olot_transformados.geojson');
+    this.map.data.setStyle({fillColor:"red",fillOpacity:0.0,strokeColor:"red"})
+
+    this.map.data.addListener('click', (event:any) => {
+      this.map.data.overrideStyle(event.feature, {fillColor: 'blue',fillOpacity:0.5,strokeColor:'blue'});
+      const latLng = event.latLng;
+      // Obtener la propiedad del polígono clicado
+      let m2 = `${event.feature.getProperty('value')} m2`;
+      console.log("value m2",m2)
+      // Crear una ventana de información (info window) con el nombre del polígono
+      const infoWindow = new google.maps.InfoWindow({
+        content: m2
+      });
+      // Abrir la ventana de información en la posición del clic
+      infoWindow.setPosition(latLng);
+      infoWindow.open(this.map);
+
+   });
+
+    //this.map.data.loadGeoJson('../assets/datos_olot_transformados.geojson');
     
     // const marker = new google.maps.Marker({
     //   position: this.coordinates,
@@ -83,9 +105,24 @@ export class AppMapComponent implements AfterViewInit {
       const marker = new google.maps.Marker({
           position: coordinates,
           map: this.map,
-          clickable: true
+          clickable: true,
+          icon: {
+            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+            scaledSize: new google.maps.Size(50, 50)
+            // path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+            // strokeColor: '#07AEC4',
+            // fillColor: '#1BD4EC',
+            // strokeWeight:1,
+            // scale: 8,
+            // fillOpacity: 1
+          }
       });
+      this.markers.push(marker)
       return marker
+  }
+
+  deleteMarkers(){
+      this.markers = [];
   }
 
   addCircle(lat:number,lng:number,radius:number){
@@ -112,5 +149,23 @@ export class AppMapComponent implements AfterViewInit {
     });
     return polygon;
   }
+
+  addGeoJsonFeatures(geojsonFeatures:any){
+    let jsonData = {
+      "type": "FeatureCollection",
+      "features": geojsonFeatures
+    }
+    this.map.data.addGeoJson(jsonData);
+  }
+
+  addGeoJson(geoJson:any){
+    this.map.data.addGeoJson(geoJson);
+  }
+
+  setMapStyle(fillColor:string,fillOpacity:number,strokeColor:string,strokeOpacity:number){
+    this.map.data.setStyle({fillColor,fillOpacity,strokeColor,strokeOpacity})
+  }
+
+  
 
 }

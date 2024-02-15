@@ -77,13 +77,13 @@
         <!--Theme dropdown-->
         <div class="w-50" ngbDropdown>
           <button class="btn btn-dark w-100" ngbDropdownToggle><i class="bi"
-                                                                  [classList]="getThemeIcon()"></i> {{ getThemeName() }}
+                                                                   [classList]="getThemeIcon()"></i> <!-- {{ getThemeName() }} -->
           </button>
           <div class="dropdown-menu-end" ngbDropdownMenu>
-            <button ngbDropdownItem (click)="changeTheme('light')"><i class="bi bi-brightness-high-fill"></i> Light
+            <button ngbDropdownItem (click)="changeTheme('light')"><i class="bi bi-brightness-high-fill"></i> 
             </button>
-            <button ngbDropdownItem (click)="changeTheme('dark')"><i class="bi bi-moon-stars-fill"></i> Dark</button>
-            <button ngbDropdownItem (click)="changeTheme('auto')"><i class="bi bi-circle-half"></i> Auto</button>
+            <button ngbDropdownItem (click)="changeTheme('dark')"><i class="bi bi-moon-stars-fill"></i> </button>
+            <button ngbDropdownItem (click)="changeTheme('auto')"><i class="bi bi-circle-half"></i> </button>
           </div>
         </div>
 

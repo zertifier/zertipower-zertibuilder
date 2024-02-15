@@ -34,29 +34,34 @@ import { log } from "console";
     }
   
     @Post("/geojson")
+    @Auth(RESOURCE_NAME)
     async postGeojson(@Body() body: any) {
       
-      let type = body.properties.currentUse;
-      let m2 = body.properties.value;
-      let cadastralReference = body.properties.reference;
+      //console.log("body",body)
+      let geoJsonFeature = body.geoJsonFeature
+      //console.log("geoJSON_feature",geoJsonFeature)
+      let type = geoJsonFeature.properties.currentUse;
+      let m2 = geoJsonFeature.properties.value;
+      let cadastralReference = geoJsonFeature.properties.reference;
 
-      console.log(type,m2,cadastralReference)
+      //todo: obtener el id de la ciudad del body parameters, y postear energy_areas con location_id
 
-    
+      //console.log(type,m2,cadastralReference)
+
       try{
 
       const insertEnergyAreaQuery = `INSERT INTO energy_areas (type,m2,cadastral_reference,geojson_feature) VALUES (?,?,?,?)`;
-      const [result]: any[] = await this.conn.query(insertEnergyAreaQuery, [type,m2,cadastralReference,JSON.stringify(body)]);
+      const [result]: any[] = await this.conn.query(insertEnergyAreaQuery, [type,m2,cadastralReference,JSON.stringify(geoJsonFeature)]);
       let energyAreaId=result.insertId;
-
-      let coordinates = body.geometry.coordinates;
+        console.log(energyAreaId)
+      let coordinates = geoJsonFeature.geometry.coordinates;
       coordinates = simplifyCoordinates(coordinates,energyAreaId);
 
       let {query,values} = createMultiplePostQuery('energy_area_coordinates',coordinates)
       await this.conn.query(query,values);
 
       }catch(e){
-        console.log(e);
+        console.log("Error with database connection",e);
         return HttpResponse.failure;
       }
 
@@ -64,6 +69,20 @@ import { log } from "console";
       
     }
 
+    @Get("/by-location")
+    @Auth(RESOURCE_NAME)
+    async getEnergyAreasLocation(@Query('id') locationId: number) {
+      try{
+        const query = `SELECT * FROM energy_areas WHERE location_id=?`
+        const [ROWS]: any[] = await this.conn.query(query, [locationId]);
+        return HttpResponse.success("energyAreas fetched successfully").withData(
+          ROWS
+        );
+      } catch (e:any) {
+        console.log("error getting energy areas", e);
+        return HttpResponse.failure;
+      }
+    }
 
     @Get("/by-area")
     @Auth(RESOURCE_NAME)
@@ -87,12 +106,13 @@ import { log } from "console";
         LEFT JOIN energy_area_coordinates ON energy_areas.id = energy_area_coordinates.energy_area_id 
         HAVING distance <= ?;`;
         const [ROWS]: any[] = await this.conn.query(query, [latNum, lngNum, latNum, radiusNum]);
-    
+
         return HttpResponse.success("energyAreas fetched successfully").withData(
             ROWS
         );
       } catch (e) {
         console.log("error getting energy areas", e);
+        return HttpResponse.failure;
       }
     }
 }

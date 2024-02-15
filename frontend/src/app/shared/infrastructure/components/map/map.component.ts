@@ -52,7 +52,8 @@ export class AppMapComponent implements AfterViewInit {
   mapOptions: google.maps.MapOptions = {
     center: this.coordinates,
     zoom: 8,
-    mapTypeId:'satellite'
+    mapTypeId:'satellite',
+    mapId: '4ad7272795cc4f73'
   };
 
   markers: google.maps.Marker[] = [];
@@ -66,22 +67,21 @@ export class AppMapComponent implements AfterViewInit {
   mapInitializer() {
     this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
 
-    this.map.data.setStyle({fillColor:"red",fillOpacity:0.5,strokeColor:"red"})
-    
+    this.map.data.setStyle({fillColor:"red",fillOpacity:0.0,strokeColor:"red"})
+
     this.map.data.addListener('click', (event:any) => {
-      this.map.data.overrideStyle(event.feature, {fillColor: 'blue',strokeColor:'blue'});
+      this.map.data.overrideStyle(event.feature, {fillColor: 'blue',fillOpacity:0.5,strokeColor:'blue'});
       const latLng = event.latLng;
-      // Obtener la propiedad "name" del polígono clicado
-  let m2 = `${event.feature.getProperty('value')} m2`;
-    
-  console.log("value m2",m2)
-    // Crear una ventana de información (info window) con el nombre del polígono
-  const infoWindow = new google.maps.InfoWindow({
-    content: m2
-  });
-// Abrir la ventana de información en la posición del clic
-infoWindow.setPosition(latLng);
-infoWindow.open(this.map);
+      // Obtener la propiedad del polígono clicado
+      let m2 = `${event.feature.getProperty('value')} m2`;
+      console.log("value m2",m2)
+      // Crear una ventana de información (info window) con el nombre del polígono
+      const infoWindow = new google.maps.InfoWindow({
+        content: m2
+      });
+      // Abrir la ventana de información en la posición del clic
+      infoWindow.setPosition(latLng);
+      infoWindow.open(this.map);
 
    });
 
@@ -105,7 +105,17 @@ infoWindow.open(this.map);
       const marker = new google.maps.Marker({
           position: coordinates,
           map: this.map,
-          clickable: true
+          clickable: true,
+          icon: {
+            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+            scaledSize: new google.maps.Size(50, 50)
+            // path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+            // strokeColor: '#07AEC4',
+            // fillColor: '#1BD4EC',
+            // strokeWeight:1,
+            // scale: 8,
+            // fillOpacity: 1
+          }
       });
       this.markers.push(marker)
       return marker

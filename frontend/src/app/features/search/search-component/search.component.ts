@@ -25,6 +25,7 @@ export class SearchComponent implements AfterViewInit {
   selectedCommunity:any;
   selectedCommunities:any;
   selectedLocation:any;
+
   @ViewChild(AppMapComponent) map!:AppMapComponent ;
 
   constructor(
@@ -63,7 +64,6 @@ export class SearchComponent implements AfterViewInit {
     //     }
     //   })
     // })
-   
 
   }
 
@@ -72,10 +72,11 @@ export class SearchComponent implements AfterViewInit {
       case 'location':
         //this.selectedLocation=element;
         this.selectedCommunities = this.communities.map((community:any)=>{
-          if(community.locationId==this.selectedLocation.id){
+          if(community.location_id==this.selectedLocation.id){
             return community;
           }  
-        })
+        }) .filter((element: any) => element);
+      
         this.renderSelectedCommunities();
         this.renderLocation();
         break;
@@ -86,24 +87,45 @@ export class SearchComponent implements AfterViewInit {
 
   renderLocation(){
     
+    let geoJson:any = {
+      "type": "FeatureCollection",
+      "features": []
+    }
+
     this.energyAreasService.getByLocation(this.selectedLocation.id).subscribe((res:any)=>{
-      let geoJsonFeatures = res.data;
-      console.log("geoJsonFeatures",geoJsonFeatures)
-      this.map.addGeoJsonFeatures(geoJsonFeatures)
+      let energyAreas = res.data;
+      energyAreas.map((energyArea:any)=>{
+        let geoJsonFeature = energyArea.geojson_feature;
+        geoJsonFeature=JSON.parse(geoJsonFeature)
+        geoJsonFeature.properties.color="red";
+        geoJsonFeature.properties.strokeColor="red";
+        geoJsonFeature.properties.fillColor="red";
+        //this.map.addGeoJsonFeatures(geoJsonFeature)
+        geoJson.features.push(geoJsonFeature)
+      })
+      this.map.addGeoJson(geoJson)
+      
+      // geoJson.features[0]=JSON.parse(geoJson.features[0])
+       console.log(geoJson.features[0])
+      // geoJson.features[0].properties.color="red";
+      // this.map.addGeoJsonFeatures(geoJson.features[0])
     })
     
   }
 
   renderSelectedCommunities(){
     
-    //todo: delete old markers
+    this.map.deleteMarkers();
+
+    console.log("selected communities",this.selectedCommunities)
 
     this.selectedCommunities.map((community:any)=>{
 
+      console.log("selected",community)
       if(community.lat && community.lng){
 
         let marker = this.map.addMarker(community.lat,community.lng)
-
+        
         marker.addListener('click',()=>{
 
           this.selectedCommunity=community;
@@ -162,6 +184,10 @@ export class SearchComponent implements AfterViewInit {
     // Obtener las coordenadas del polígono convexo
     orderedCoords = convexHull!.geometry.coordinates[0].map(coord => ({ lat: coord[0], lng: coord[1] }));
     return orderedCoords;
+  }
+
+  deleteMarkers(){
+
   }
 
 }

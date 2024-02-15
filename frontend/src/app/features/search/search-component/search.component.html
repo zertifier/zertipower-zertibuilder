@@ -25,11 +25,17 @@
         <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
       </select>
 
-      <label for="comunitat" class="my-2">Comunitat energética</label>
+      <label for="location-comunnity" class="my-2">Comunitats del municipi</label>
+      <select id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2" (change)="OnSelectorChange(selectedCommunity,'community')">
+        <option></option>
+        <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
+      </select>
+
+      <!-- <label for="comunitat" class="my-2">Comunitat energética</label>
       <select id="comunitat" [(ngModel)]="selectedCommunity" class="form-select px-2" (change)="OnSelectorChange(selectedCommunity,'community')">
         <option></option>
         <option *ngFor="let community of communities" [ngValue]="community">{{community.name}}</option>
-      </select>
+      </select> -->
 
       <!-- <label for="comunitat" class="my-2">comunitat</label>
       <div *ngIf="selectedCommunity">

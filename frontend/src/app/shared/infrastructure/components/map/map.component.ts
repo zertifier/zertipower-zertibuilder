@@ -6,6 +6,7 @@ import {
   OnInit, ViewChild,
 } from "@angular/core";
 import {GoogleMap} from '@angular/google-maps';
+import { log } from "console";
 
 @Component({
   selector: 'app-map',
@@ -58,6 +59,11 @@ export class AppMapComponent implements AfterViewInit {
 
   markers: google.maps.Marker[] = [];
 
+  previousFeature: any = null;
+
+  infoWindow: google.maps.InfoWindow | null = null;
+  originalStyle: any = {fillColor:"red",fillOpacity:0.0,strokeColor:"red"}
+
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngAfterViewInit() {
@@ -70,19 +76,37 @@ export class AppMapComponent implements AfterViewInit {
     this.map.data.setStyle({fillColor:"red",fillOpacity:0.0,strokeColor:"red"})
 
     this.map.data.addListener('click', (event:any) => {
+
+      // Restaurar el estilo de la feature anterior
+      if (this.previousFeature) {
+        this.map.data.overrideStyle(this.previousFeature,this.originalStyle);
+      }
+
+      // Resaltar la característica clicada
+      this.map.data.overrideStyle(event.feature, { fillColor: 'blue', fillOpacity: 0.5, strokeColor: 'blue' });
+
+      if (this.infoWindow) {
+        this.infoWindow.close();
+        this.infoWindow = null;
+      } 
+
       this.map.data.overrideStyle(event.feature, {fillColor: 'blue',fillOpacity:0.5,strokeColor:'blue'});
-      const latLng = event.latLng;
+
       // Obtener la propiedad del polígono clicado
       let m2 = `${event.feature.getProperty('value')} m2`;
-      console.log("value m2",m2)
+    
       // Crear una ventana de información (info window) con el nombre del polígono
-      const infoWindow = new google.maps.InfoWindow({
+      this.infoWindow = new google.maps.InfoWindow({
         content: m2
       });
-      // Abrir la ventana de información en la posición del clic
-      infoWindow.setPosition(latLng);
-      infoWindow.open(this.map);
 
+      // Abrir la ventana de información en la posición del clic
+      const latLng = event.latLng;
+      this.infoWindow.setPosition(latLng);
+      this.infoWindow.open(this.map);
+    
+      this.previousFeature=event.feature
+      
    });
 
     //this.map.data.loadGeoJson('../assets/datos_olot_transformados.geojson');

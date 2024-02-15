@@ -14,7 +14,7 @@ export class ErrorDisplayService implements ErrorHandler {
 
 		if (!err) {
 			console.error(error);
-			this.displayError(error);
+			//this.displayError(error);
 			return;
 		}
 
@@ -23,7 +23,7 @@ export class ErrorDisplayService implements ErrorHandler {
 		}
 
 		this.zone.run(() => {
-			this.displayError(err);
+			//this.displayError(err);
 		});
 
 		console.error("Error from global error handler", err);

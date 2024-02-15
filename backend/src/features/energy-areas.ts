@@ -70,7 +70,6 @@ import { log } from "console";
     }
 
     @Get("/by-location")
-    @Auth(RESOURCE_NAME)
     async getEnergyAreasLocation(@Query('id') locationId: number) {
       try{
         const query = `SELECT * FROM energy_areas WHERE location_id=?`

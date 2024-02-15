@@ -32,7 +32,6 @@ export class LocationsController {
     }
   
     @Get()
-    @Auth(RESOURCE_NAME)
     async getLocations() {
         try{
             const query = `SELECT * FROM locations`

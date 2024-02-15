@@ -30,7 +30,6 @@ export class CommunitiesController {
   }
 
   @Get()
-  @Auth(RESOURCE_NAME)
   async get() {
 
       let url = `SELECT * FROM communities`;

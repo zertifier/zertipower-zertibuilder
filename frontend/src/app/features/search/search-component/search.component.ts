@@ -25,6 +25,9 @@ export class SearchComponent implements AfterViewInit {
   selectedCommunity:any;
   selectedCommunities:any;
   selectedLocation:any;
+  cadastresMap:any;
+  energyAreas:any;
+  selectedEnergyArea:any;
 
   @ViewChild(AppMapComponent) map!:AppMapComponent ;
 
@@ -93,22 +96,30 @@ export class SearchComponent implements AfterViewInit {
     }
 
     this.energyAreasService.getByLocation(this.selectedLocation.id).subscribe((res:any)=>{
-      let energyAreas = res.data;
-      energyAreas.map((energyArea:any)=>{
+      this.energyAreas = res.data;
+      this.energyAreas.map((energyArea:any)=>{
         let geoJsonFeature = energyArea.geojson_feature;
         geoJsonFeature=JSON.parse(geoJsonFeature)
-        geoJsonFeature.properties.color="red";
-        geoJsonFeature.properties.strokeColor="red";
-        geoJsonFeature.properties.fillColor="red";
-        //this.map.addGeoJsonFeatures(geoJsonFeature)
+        geoJsonFeature.properties.energyAreaId = energyArea.id;
         geoJson.features.push(geoJsonFeature)
       })
-      this.map.addGeoJson(geoJson)
+      console.log(geoJson.features[0])
+      this.cadastresMap = this.map.addGeoJson(geoJson);
+
+      const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
+        // Aquí puedes manejar el evento de clic en la feature
+        const feature = event.feature;
+        console.log('Clic en la feature:', feature.getProperty('localId'));
+        console.log(feature)
+        console.log(feature.getProperty('energyAreaId'))
+        let energyAreaId = feature.getProperty('energyAreaId')
+        this.selectedEnergyArea = this.energyAreas.find((energyArea:any)=>
+          energyArea.id === energyAreaId
+        )
+        console.log(`selected energy area = `, this.selectedEnergyArea)
+
+      });
       
-      // geoJson.features[0]=JSON.parse(geoJson.features[0])
-       console.log(geoJson.features[0])
-      // geoJson.features[0].properties.color="red";
-      // this.map.addGeoJsonFeatures(geoJson.features[0])
     })
     
   }
@@ -188,6 +199,10 @@ export class SearchComponent implements AfterViewInit {
 
   deleteMarkers(){
 
+  }
+
+  multipleSelection(){
+    
   }
 
 }

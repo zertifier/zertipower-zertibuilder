@@ -75,11 +75,9 @@
       </ul>
       <div class="ms-auto d-flex gap-2 mt-2  mt-lg-0">
         <!--Theme dropdown-->
-        <div class="w-50" ngbDropdown>
-          <button class="btn btn-dark w-100" ngbDropdownToggle><i class="bi"
-                                                                   [classList]="getThemeIcon()"></i> <!-- {{ getThemeName() }} -->
-          </button>
-          <div class="dropdown-menu-end" ngbDropdownMenu>
+        <div class="w-50" ngbDropdown >
+          <button class="btn btn-dark w-100" ngbDropdownToggle><i class="bi" [classList]="getThemeIcon()"></i> </button>
+          <div class="dropdown-menu-start" ngbDropdownMenu styles="min-width: 55px !important">
             <button ngbDropdownItem (click)="changeTheme('light')"><i class="bi bi-brightness-high-fill"></i> 
             </button>
             <button ngbDropdownItem (click)="changeTheme('dark')"><i class="bi bi-moon-stars-fill"></i> </button>

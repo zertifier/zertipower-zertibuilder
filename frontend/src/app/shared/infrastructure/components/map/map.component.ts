@@ -126,19 +126,19 @@ export class AppMapComponent implements AfterViewInit {
 
   addMarker(lat:any,lng:any) {
       let coordinates = new google.maps.LatLng(lat,lng);
+      
       const marker = new google.maps.Marker({
           position: coordinates,
           map: this.map,
           clickable: true,
           icon: {
-            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-            scaledSize: new google.maps.Size(50, 50)
-            // path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-            // strokeColor: '#07AEC4',
-            // fillColor: '#1BD4EC',
-            // strokeWeight:1,
-            // scale: 8,
-            // fillOpacity: 1
+            path: "M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z",
+            fillColor: "blue",
+            fillOpacity: 1,
+            strokeWeight: 0,
+            rotation: 0,
+            scale: 0.1,
+            anchor: new google.maps.Point(200, 550),
           }
       });
       this.markers.push(marker)
@@ -183,7 +183,8 @@ export class AppMapComponent implements AfterViewInit {
   }
 
   addGeoJson(geoJson:any){
-    this.map.data.addGeoJson(geoJson);
+    let geoJsonMap = this.map.data.addGeoJson(geoJson);
+    return this.map.data;
   }
 
   setMapStyle(fillColor:string,fillOpacity:number,strokeColor:string,strokeOpacity:number){

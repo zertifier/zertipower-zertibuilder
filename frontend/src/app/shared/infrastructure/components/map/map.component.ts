@@ -78,13 +78,28 @@ export class AppMapComponent implements AfterViewInit {
 
     this.map.data.addListener('click', (event:any) => {
 
+      if (event.feature.getProperty('selected')) {
+        console.log("unselect")
+        event.feature.setProperty('selected',false);
+        this.map.data.overrideStyle(event.feature,this.originalStyle); 
+      }else{
+        console.log("select")
+        if(!this.multipleSelection && this.previousFeature){
+          this.previousFeature.setProperty('selected',false);
+          this.map.data.overrideStyle(this.previousFeature,this.originalStyle); 
+        }
+        event.feature.setProperty('selected',true);
+        this.map.data.overrideStyle(event.feature, { fillColor: 'blue', fillOpacity: 0.5, strokeColor: 'blue' });
+      }
+      this.previousFeature=event.feature
+
+/*
       // Restaurar el estilo de la feature anterior
       if (this.previousFeature && !this.multipleSelection) {
         this.map.data.overrideStyle(this.previousFeature,this.originalStyle);
       }
 
-      if(this.previousFeature==event.feature){
-        console.log("deseleccionar feature")
+      if(this.previousFeature==event.feature){ //deseleccionar feature (devolver al estilo original)
         this.previousFeature= null
         this.map.data.overrideStyle(this.previousFeature,this.originalStyle);
         //todo: enviar info que se ha deselecionado
@@ -113,7 +128,7 @@ export class AppMapComponent implements AfterViewInit {
       //this.infoWindow.open(this.map);
     
       this.previousFeature=event.feature
-      
+      */
    });
 
     //this.map.data.loadGeoJson('../assets/datos_olot_transformados.geojson');
@@ -196,6 +211,15 @@ export class AppMapComponent implements AfterViewInit {
 
   setMapStyle(fillColor:string,fillOpacity:number,strokeColor:string,strokeOpacity:number){
     this.map.data.setStyle({fillColor,fillOpacity,strokeColor,strokeOpacity})
+  }
+
+  unselect(){
+    console.log("unselect")
+    this.map.data.forEach((feature)=>{
+      console.log(feature)
+      this.map.data.overrideStyle(feature,this.originalStyle); 
+      feature.setProperty('selected',false);
+    })
   }
 
   

@@ -44,6 +44,7 @@ export class SearchComponent implements AfterViewInit {
   updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   sumMonthGeneration: number[] = [];
   kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25]
+ 
 
 
   @ViewChild(AppMapComponent) map!:AppMapComponent ;
@@ -120,13 +121,13 @@ export class SearchComponent implements AfterViewInit {
         geoJsonFeature.properties.energyAreaId = energyArea.id;
         geoJson.features.push(geoJsonFeature)
       })
-      console.log(geoJson.features[0])
+      //console.log(geoJson.features[0])
       this.cadastresMap = this.map.addGeoJson(geoJson);
 
       const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
         // Aquí puedes manejar el evento de clic en la feature
         const feature = event.feature;
-        console.log('Clic en la feature:', feature.getProperty('localId'));
+        //console.log('Clic en la feature:', feature.getProperty('localId'));
         //console.log(feature)
         //console.log(feature.getProperty('energyAreaId'))
         let energyAreaId = feature.getProperty('energyAreaId')
@@ -141,10 +142,10 @@ export class SearchComponent implements AfterViewInit {
         this.selectedEnergyArea = this.energyAreas.find((energyArea:any)=>
           energyArea.id === energyAreaId
         )
-        console.log(`foo = `, this.selectedEnergyArea.m2, this.selectedEnergyArea.m2*0.2,(this.selectedEnergyArea.m2*0.2)/2,Math.floor((this.selectedEnergyArea.m2*0.2)/2))
+        //console.log(`foo = `, this.selectedEnergyArea.m2, this.selectedEnergyArea.m2*0.2,(this.selectedEnergyArea.m2*0.2)/2,Math.floor((this.selectedEnergyArea.m2*0.2)/2))
         this.nPlaquesCalc = Math.floor((this.selectedEnergyArea.m2 * 0.2) / 2)
-        console.log(`selected energy area = `, this.selectedEnergyArea)
-        console.log("nplaquescalc", this.nPlaquesCalc)
+        //console.log(`selected energy area = `, this.selectedEnergyArea)
+        //console.log("nplaquescalc", this.nPlaquesCalc)
         this.updatekWhPerMonth(this.nPlaquesCalc)
 
       });
@@ -157,11 +158,11 @@ export class SearchComponent implements AfterViewInit {
     
     this.map.deleteMarkers();
 
-    console.log("selected communities",this.selectedCommunities)
+    //console.log("selected communities",this.selectedCommunities)
 
     this.selectedCommunities.map((community:any)=>{
 
-      console.log("selected",community)
+      //console.log("selected",community)
       if(community.lat && community.lng){
 
         let marker = this.map.addMarker(community.lat,community.lng)
@@ -231,7 +232,13 @@ export class SearchComponent implements AfterViewInit {
   }
 
   multipleSelection(){
-    this.map.multipleSelection
+    if(this.map.multipleSelection){
+      this.map.multipleSelection=false;
+      this.map.unselect();
+    }else{
+      this.map.multipleSelection=true;
+    }
+    
   }
 
   updatekWhPerMonth(panelNumber:number) {

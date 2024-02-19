@@ -3,7 +3,10 @@
 
   <div class="col-12 col-md-8 p-2">
     <app-map></app-map>
-    <!-- <button class="btn btn-dark mt-2" (click)="multipleSelection()">Selecció múltiple</button> -->
+    <div *ngIf="map">
+      <button (click)="multipleSelection()"  data-toggle="button" type="button" [ngClass]="map.multipleSelection ? 'btn btn-dark mt-2 active' : 'btn btn-dark mt-2'">Selecció múltiple</button>
+    </div>
+    
   </div>
 
   <div class="col-12 col-md-4 p-2">

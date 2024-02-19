@@ -3,7 +3,7 @@
 
   <div class="col-12 col-md-8 p-2">
     <app-map></app-map>
-    <button class="btn btn-dark mt-2" (click)="multipleSelection()">Selecció múltiple</button>
+    <!-- <button class="btn btn-dark mt-2" (click)="multipleSelection()">Selecció múltiple</button> -->
   </div>
 
   <div class="col-12 col-md-4 p-2">
@@ -38,8 +38,17 @@
         <div class="my-2">m2</div>
         <input id="" placeholder="m2" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.m2 || 0}}">
         <div class="my-2">número de plaques</div>
-        <input id="" placeholder="número de plaques" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.n_plaques || 0}}">
+        <input id="" placeholder="número de plaques" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.n_plaques || nPlaquesCalc}}">
+        <div class="my-2">Producció mensual</div>
+        <!-- <input id="" placeholder="produccio mensual" type="text" class="form-control" disabled readonly value="{{kwhMonth}}"> -->
+        <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
+        [update]="updateMonthChart" [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
+
+
       </div>
+
+      
+      
 
       <!-- <label for="comunitat" class="my-2">Comunitat energética</label>
       <select id="comunitat" [(ngModel)]="selectedCommunity" class="form-select px-2" (change)="OnSelectorChange(selectedCommunity,'community')">

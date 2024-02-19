@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import {CustomersService} from "../../../core/core-services/customers.service";
@@ -9,12 +9,14 @@ import {EnergyAreasService} from "../../../core/core-services/energy-areas.servi
 import * as turf from '@turf/turf'
 import { log } from 'console';
 import { LocationService } from 'src/app/core/core-services/location.service';
+import { BehaviorSubject } from 'rxjs';
 
 
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
-  styleUrl: './search.component.scss'
+  styleUrl: './search.component.scss',
+  encapsulation: ViewEncapsulation.None
 })
 
 export class SearchComponent implements AfterViewInit {
@@ -28,6 +30,21 @@ export class SearchComponent implements AfterViewInit {
   cadastresMap:any;
   energyAreas:any;
   selectedEnergyArea:any;
+  nPlaquesCalc:any;
+  kwhMonth:any;
+  wp:number = 460; //potencia pico (potencia nominal)
+
+  //chart variables
+  monthChartType: string = 'bar';
+  monthChartLabels: string[] = [];
+  monthChartDatasets: any[] | undefined = undefined;
+  monthChartData: any[] = [];
+  monthChartBackgroundColor: string [] = [];
+  updateMonthChart: boolean = false;
+  updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  sumMonthGeneration: number[] = [];
+  kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25]
+
 
   @ViewChild(AppMapComponent) map!:AppMapComponent ;
 
@@ -110,13 +127,17 @@ export class SearchComponent implements AfterViewInit {
         // Aquí puedes manejar el evento de clic en la feature
         const feature = event.feature;
         console.log('Clic en la feature:', feature.getProperty('localId'));
-        console.log(feature)
-        console.log(feature.getProperty('energyAreaId'))
+        //console.log(feature)
+        //console.log(feature.getProperty('energyAreaId'))
         let energyAreaId = feature.getProperty('energyAreaId')
         this.selectedEnergyArea = this.energyAreas.find((energyArea:any)=>
           energyArea.id === energyAreaId
         )
+        console.log(`foo = `, this.selectedEnergyArea.m2, this.selectedEnergyArea.m2*0.2,(this.selectedEnergyArea.m2*0.2)/2,Math.floor((this.selectedEnergyArea.m2*0.2)/2))
+        this.nPlaquesCalc = Math.floor((this.selectedEnergyArea.m2 * 0.2) / 2)
         console.log(`selected energy area = `, this.selectedEnergyArea)
+        console.log("nplaquescalc", this.nPlaquesCalc)
+        this.updatekWhPerMonth(this.nPlaquesCalc)
 
       });
       
@@ -203,6 +224,26 @@ export class SearchComponent implements AfterViewInit {
 
   multipleSelection(){
     
+  }
+
+  updatekWhPerMonth(panelNumber:number) {
+
+    this.sumMonthGeneration = Array.apply(null, Array(12)).map((element,index)=>{
+      let monthGeneration =  this.kwhMonth460wp[index]*panelNumber
+      return monthGeneration;
+    });
+
+    this.monthChartLabels = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Augost', 'Setembre', 'Octobre', 'Novembre', 'Decembre']
+    this.monthChartData = [ this.sumMonthGeneration ]
+    this.monthChartDatasets = [
+      {
+        label: 'Generation (Kwh)',
+        data: this.monthChartData[0],
+        backgroundColor: 'rgb(54, 162, 235)'
+      }
+    ]
+
+    this.updateMonthChartSubject.next(true);
   }
 
 }

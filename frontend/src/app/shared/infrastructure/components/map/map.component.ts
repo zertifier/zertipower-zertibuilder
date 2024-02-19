@@ -90,20 +90,18 @@ export class AppMapComponent implements AfterViewInit {
         this.infoWindow = null;
       } 
 
-      this.map.data.overrideStyle(event.feature, {fillColor: 'blue',fillOpacity:0.5,strokeColor:'blue'});
-
       // Obtener la propiedad del polígono clicado
       let m2 = `${event.feature.getProperty('value')} m2`;
     
       // Crear una ventana de información (info window) con el nombre del polígono
-      this.infoWindow = new google.maps.InfoWindow({
-        content: m2
-      });
+      //this.infoWindow = new google.maps.InfoWindow({
+      //  content: m2
+      //});
 
       // Abrir la ventana de información en la posición del clic
       const latLng = event.latLng;
-      this.infoWindow.setPosition(latLng);
-      this.infoWindow.open(this.map);
+      //this.infoWindow.setPosition(latLng);
+      //this.infoWindow.open(this.map);
     
       this.previousFeature=event.feature
       

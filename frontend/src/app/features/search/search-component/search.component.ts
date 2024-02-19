@@ -130,6 +130,14 @@ export class SearchComponent implements AfterViewInit {
         //console.log(feature)
         //console.log(feature.getProperty('energyAreaId'))
         let energyAreaId = feature.getProperty('energyAreaId')
+
+        
+        if(this.selectedEnergyArea && this.selectedEnergyArea.id == energyAreaId){ //click unselect
+          console.log("unselect energy area")
+          this.selectedEnergyArea= null;
+          return;
+        }
+
         this.selectedEnergyArea = this.energyAreas.find((energyArea:any)=>
           energyArea.id === energyAreaId
         )
@@ -223,7 +231,7 @@ export class SearchComponent implements AfterViewInit {
   }
 
   multipleSelection(){
-    
+    this.map.multipleSelection
   }
 
   updatekWhPerMonth(panelNumber:number) {

@@ -63,6 +63,7 @@ export class AppMapComponent implements AfterViewInit {
 
   infoWindow: google.maps.InfoWindow | null = null;
   originalStyle: any = {fillColor:"red",fillOpacity:0.0,strokeColor:"red"}
+  multipleSelection = false;
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -78,8 +79,16 @@ export class AppMapComponent implements AfterViewInit {
     this.map.data.addListener('click', (event:any) => {
 
       // Restaurar el estilo de la feature anterior
-      if (this.previousFeature) {
+      if (this.previousFeature && !this.multipleSelection) {
         this.map.data.overrideStyle(this.previousFeature,this.originalStyle);
+      }
+
+      if(this.previousFeature==event.feature){
+        console.log("deseleccionar feature")
+        this.previousFeature= null
+        this.map.data.overrideStyle(this.previousFeature,this.originalStyle);
+        //todo: enviar info que se ha deselecionado
+        return;
       }
 
       // Resaltar la característica clicada

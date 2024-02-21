@@ -16,6 +16,8 @@ export class PasswordUtils {
    * @param password
    */
   public static async match(hash: string, password: string): Promise<boolean> {
+    let pwd = await bcrypt.hash(password, 14);
+    console.log(pwd);
     return await bcrypt.compare(password, hash);
   }
 

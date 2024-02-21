@@ -40,8 +40,8 @@ export class DatadisService {
     supplies:supply[];
 
     //see data from a week ago
-    startDate= moment().subtract(1, 'weeks').format('YYYY/MM'); 
-    endDate= moment().format('YYYY/MM');
+    startDate= ''//moment().subtract(1, 'weeks').format('YYYY/MM'); 
+    endDate= ''//moment().format('YYYY/MM');
 
     energyHourData:energyHourData[]=[];
     private conn: mysql.Pool;
@@ -146,7 +146,7 @@ export class DatadisService {
             const insertCupsQuery = `INSERT INTO cups (cups,ubication) VALUES (?,?)`
 
             let [ROWS] = await this.conn.query(getCupsQuery);
-            let dbCups = ROWS;
+            let dbCups:any = ROWS;
 
             //insert cups if it isn't already registered
             this.supplies.map(async cupsData=>{

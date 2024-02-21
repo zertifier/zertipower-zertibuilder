@@ -80,7 +80,7 @@ export class CupsController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,cups,provider_id,community_id,ubication,geolocalization,customer_id,created_at,updated_at
+      `SELECT id,cups,provider_id,community_id,location_id,customer_id,created_at,updated_at
                   FROM cups`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(

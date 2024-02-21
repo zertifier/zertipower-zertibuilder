@@ -1,6 +1,6 @@
 import {Component, computed, OnInit} from "@angular/core";
-import { AuthStoreService } from "../../../features/auth/infrastructure/services/auth-store/auth-store.service";
-import { AuthApiService } from "../../../features/auth/infrastructure/services/auth-api/auth-api.service";
+import { AuthStoreService } from "../../../features/auth/services/auth-store.service";
+import { AuthApiService } from "../../../features/auth/services/auth-api.service";
 import { Router } from "@angular/router";
 import {Theme, ThemeStoreService} from "../../../shared/infrastructure/theme/theme-store.service";
 import {capitalCase} from 'change-case';

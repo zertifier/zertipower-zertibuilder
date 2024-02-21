@@ -45,8 +45,6 @@ export class SearchComponent implements AfterViewInit {
   sumMonthGeneration: number[] = [];
   kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25]
  
-
-
   @ViewChild(AppMapComponent) map!:AppMapComponent ;
 
   constructor(

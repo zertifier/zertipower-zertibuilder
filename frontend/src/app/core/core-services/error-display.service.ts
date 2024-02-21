@@ -14,7 +14,7 @@ export class ErrorDisplayService implements ErrorHandler {
 
 		if (!err) {
 			console.error(error);
-			//this.displayError(error);
+			this.displayError(error.error);
 			return;
 		}
 

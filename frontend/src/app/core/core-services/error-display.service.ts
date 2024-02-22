@@ -19,7 +19,7 @@ export class ErrorDisplayService implements ErrorHandler {
 		}
 
 		if (err instanceof HttpErrorResponse) {
-			err = new Error(err.error.message);
+			err = new Error(err.error);
 		}
 
 		this.zone.run(() => {
@@ -29,11 +29,20 @@ export class ErrorDisplayService implements ErrorHandler {
 		console.error("Error from global error handler", err);
 	}
 
-	private async displayError(error: Error) {
-		await Swal.fire({
-			icon: "error",
-			title: "Error",
-			text: error.message,
-		});
+	private async displayError(error: any) {
+		if(error.error && error.error.message){
+			await Swal.fire({
+				icon: "error",
+				title: "Error",
+				text: error.error.message,
+			});
+		}else {
+			await Swal.fire({
+				icon: "error",
+				title: "Error",
+				text: error.message,
+			});
+		}
+		
 	}
 }

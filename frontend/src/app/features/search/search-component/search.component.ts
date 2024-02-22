@@ -36,7 +36,7 @@ export class SearchComponent implements AfterViewInit {
 
   //chart variables
   monthChartType: string = 'bar';
-  monthChartLabels: string[] = [];
+  monthChartLabels: string[] =  ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Augost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
   monthChartDatasets: any[] | undefined = undefined;
   monthChartData: any[] = [];
   monthChartBackgroundColor: string [] = [];
@@ -46,6 +46,8 @@ export class SearchComponent implements AfterViewInit {
   kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25]
  
   @ViewChild(AppMapComponent) map!:AppMapComponent ;
+
+  folder:number=1;
 
   constructor(
     private customersService: CustomersService, 
@@ -246,7 +248,6 @@ export class SearchComponent implements AfterViewInit {
       return monthGeneration;
     });
 
-    this.monthChartLabels = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Augost', 'Setembre', 'Octobre', 'Novembre', 'Decembre']
     this.monthChartData = [ this.sumMonthGeneration ]
     this.monthChartDatasets = [
       {

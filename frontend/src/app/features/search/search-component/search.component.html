@@ -23,33 +23,61 @@
 
     <div class="mb-2">
 
-      <label for="location" class="my-2">Municipi</label>
-      <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="OnSelectorChange(selectedLocation,'location')">
-        <option></option>
-        <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
-      </select>
+      <!-- <div class="btn-group d-flex justify-content-center" role="group">
+        <button class="btn mx-1" [ngClass]="folder == 1 ? 'folder-selected' : 'btn-folder'" (click)="folder = 1" >Model predictiu</button>
+        <button class="btn mx-1" [ngClass]="folder == 2 ? 'folder-selected' : 'btn-folder'" (click)="folder = 2">Model real</button>
+        <button class="btn mx-1" [ngClass]="folder == 3 ? 'folder-selected' : 'btn-folder'"(click)="folder = 3">Dades consum</button>
+        <button class="btn mx-1" [ngClass]="folder == 4 ? 'folder-selected' : 'btn-folder'"(click)="folder = 4">Resum</button>
+      </div> -->
 
-      <label for="location-comunnity" class="my-2">Comunitats del municipi</label>
-      <select id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2" (change)="OnSelectorChange(selectedCommunity,'community')">
-        <option></option>
-        <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
-      </select>
-
-      <div *ngIf="selectedEnergyArea">
-        <div class="my-2">Referencia cadastral</div>
-        <input id="" placeholder="referència cadastral" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.cadastral_reference}}">
-        <div class="my-2">m2</div>
-        <input id="" placeholder="m2" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.m2 || 0}}">
-        <div class="my-2">número de plaques</div>
-        <input id="" placeholder="número de plaques" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.n_plaques || nPlaquesCalc}}">
-        <div class="my-2">Producció mensual</div>
-        <!-- <input id="" placeholder="produccio mensual" type="text" class="form-control" disabled readonly value="{{kwhMonth}}"> -->
-        <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
-        [update]="updateMonthChart" [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
-
-
+      <div *ngIf="folder == 1" class="mx-1">
+      
+        <label for="location" class="my-2 mt-5">Municipi</label>
+        <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="OnSelectorChange(selectedLocation,'location')">
+          <option></option>
+          <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
+        </select>
+      
+        <label for="location-comunnity" class="my-2">Comunitats del municipi</label>
+        <select id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2" (change)="OnSelectorChange(selectedCommunity,'community')">
+          <option></option>
+          <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
+        </select>
+      
+  
+        <div *ngIf="selectedEnergyArea">
+          <div class="my-2">Referència cadastral</div>
+          <input id="" placeholder="referència cadastral" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.cadastral_reference}}">
+          <div class="my-2">M2</div>
+          <input id="" placeholder="m2" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.m2 || 0}}">
+          <div class="my-2">Número de plaques</div>
+          <input id="" placeholder="número de plaques" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.n_plaques || nPlaquesCalc}}">
+          <div class="my-2">Producció mensual</div>
+          <!-- <input id="" placeholder="produccio mensual" type="text" class="form-control" disabled readonly value="{{kwhMonth}}"> -->
+          <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
+          [update]="updateMonthChart" [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
+        </div>
+  
       </div>
 
+      <!-- <div *ngIf="folder == 2" class="mx-1">
+        <div class="my-2">Referència cadastral</div>
+        <input id="" placeholder="referència cadastral" type="text" class="form-control" value="{{selectedEnergyArea.cadastral_reference}}">
+
+        <div class="my-2">M2</div>
+        <input id="" placeholder="m2" type="text" class="form-control" value="{{selectedEnergyArea.m2 || 0}}">
+
+        <div class="my-2">Cups</div>
+        <input id="" placeholder="m2" type="text" class="form-control" value="{{selectedEnergyArea.m2 || 0}}">
+
+        <div class="my-2">Producció mensual</div>
+        <div *ngFor="let month of monthChartLabels">
+          <div>{{month}}</div>
+          <input id="" placeholder="" type="text" class="form-control" value="">
+        </div>
+
+      </div> -->
+      
       
       
 

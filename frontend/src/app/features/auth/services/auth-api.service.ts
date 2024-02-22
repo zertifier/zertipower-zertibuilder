@@ -48,6 +48,18 @@ export class AuthApiService {
             .pipe(map((response) => response.data));
     }
 
+    webWalletLogin(params:{wallet_address:string,private_key:string}){
+        const headers = new HttpHeaders().append(InterceptorSkipHeader, "");
+        return this.httpClient
+            .post<
+                HttpResponse<{
+                    access_token: string;
+                    refresh_token: string;
+                }>
+            >(`${environment.api_url}/auth/web-wallet-login`, params, {headers})
+            .pipe(map((response) => response.data));
+    }
+
     web2Login(params: { user: string; password: string }) {
         const headers = new HttpHeaders().append(InterceptorSkipHeader, "");
         return this.httpClient

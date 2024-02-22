@@ -62,7 +62,7 @@ export class AppMapComponent implements AfterViewInit {
   previousFeature: any = null;
 
   infoWindow: google.maps.InfoWindow | null = null;
-  originalStyle: any = {fillColor:"red",fillOpacity:0.0,strokeColor:"red"}
+  originalStyle: any = {fillColor:"red",fillOpacity:0.0,strokeColor:"white",strokeWeight:1.0,strokeDashArray: '10000, 10000'}
   multipleSelection = false;
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -74,7 +74,7 @@ export class AppMapComponent implements AfterViewInit {
   mapInitializer() {
     this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
 
-    this.map.data.setStyle({fillColor:"red",fillOpacity:0.0,strokeColor:"red"})
+    this.map.data.setStyle(this.originalStyle)
 
     this.map.data.addListener('click', (event:any) => {
 
@@ -89,7 +89,7 @@ export class AppMapComponent implements AfterViewInit {
           this.map.data.overrideStyle(this.previousFeature,this.originalStyle); 
         }
         event.feature.setProperty('selected',true);
-        this.map.data.overrideStyle(event.feature, { fillColor: 'blue', fillOpacity: 0.5, strokeColor: 'blue' });
+        this.map.data.overrideStyle(event.feature, { fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white' });
       }
       this.previousFeature=event.feature
 

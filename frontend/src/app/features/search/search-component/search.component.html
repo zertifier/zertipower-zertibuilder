@@ -23,12 +23,12 @@
 
     <div class="mb-2">
 
-       <!-- <div class="btn-group d-flex justify-content-center" role="group">
+       <div class="btn-group d-flex justify-content-center" role="group">
         <button class="btn mx-1" [ngClass]="folder == 1 ? 'folder-selected' : 'btn-folder'" (click)="folder = 1" >Model predictiu</button>
         <button class="btn mx-1" [ngClass]="folder == 2 ? 'folder-selected' : 'btn-folder'" (click)="folder = 2">Model real</button>
         <button class="btn mx-1" [ngClass]="folder == 3 ? 'folder-selected' : 'btn-folder'"(click)="folder = 3">Dades consum</button>
         <button class="btn mx-1" [ngClass]="folder == 4 ? 'folder-selected' : 'btn-folder'"(click)="folder = 4">Resum</button>
-      </div>  -->
+      </div> 
 
       <div *ngIf="folder == 1 && locations" class="mx-1">
       
@@ -60,23 +60,26 @@
   
       </div>
 
-     <!-- <div *ngIf="folder == 2" class="mx-1">
+     <div *ngIf="folder == 2" class="mx-1">
         <div class="my-2">Referència cadastral</div>
-        <input id="" placeholder="referència cadastral" type="text" class="form-control" value="{{selectedEnergyArea.cadastral_reference}}">
+        <input id="" placeholder="referència cadastral" type="text" class="form-control" value="{{energyArea.cadastral_reference}}">
 
         <div class="my-2">M2</div>
-        <input id="" placeholder="m2" type="text" class="form-control" value="{{selectedEnergyArea.m2 || 0}}">
+        <input id="" placeholder="m2" type="text" class="form-control" value="{{energyArea.m2 || 0}}">
 
         <div class="my-2">Cups</div>
-        <input id="" placeholder="m2" type="text" class="form-control" value="{{selectedEnergyArea.m2 || 0}}">
+        <input id="" placeholder="m2" type="text" class="form-control" value="{{energyArea.m2 || 0}}">
 
-        <div class="my-2">Producció mensual</div>
-        <div *ngFor="let month of monthChartLabels">
+        
+        <div class="my-2">Producció mensual (kWh)</div>
+        <div class="row">
+        <div *ngFor="let month of monthChartLabels" style="" class="col-2 text-center">
           <div>{{month}}</div>
-          <input id="" placeholder="" type="text" class="form-control" value="">
+          <input id="" placeholder="" type="text" class="form-control">
         </div>
+      </div>
 
-      </div> -->
+      </div>
       
       
       

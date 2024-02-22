@@ -29,6 +29,7 @@ export class SearchComponent implements AfterViewInit {
   selectedLocation:any;
   cadastresMap:any;
   energyAreas:any;
+  energyArea={cadastral_reference:'',m2:0,cups:''};
   selectedEnergyArea:any;
   nPlaquesCalc:any;
   kwhMonth:any;

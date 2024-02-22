@@ -48,7 +48,7 @@ export class DatadisService {
 
     constructor(private mysql: MysqlService){
 
-        this.conn = this.mysql.pool;
+        this.conn = this.mysql.pool; 
 
         /*
          this.login().then(async()=>{
@@ -149,7 +149,7 @@ export class DatadisService {
             let dbCups:any = ROWS;
 
             //insert cups if it isn't already registered
-            this.supplies.map(async cupsData=>{
+            this.supplies.map(async cupsData => {
                 let dbFound = dbCups.find((registeredCups:any)=>registeredCups.cups===cupsData.cups)
                 if(!dbFound){
                     //todo: add address, province, municipality at db cups table

@@ -20,7 +20,7 @@ import {getLocaleFirstDayOfWeek} from "@angular/common";
   templateUrl: './chart.component.html'
 })
 
-export class AppChartComponent implements OnInit, OnChanges, AfterViewInit {
+export class AppChartComponent implements OnChanges, AfterViewInit {
 
   @ViewChild('chart') chart: any;
   chartCanvas: any;
@@ -36,23 +36,7 @@ export class AppChartComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() update: boolean = false;
   @Input() updateSubject!: Observable<any>;
 
-  constructor(private cdr: ChangeDetectorRef) {
-
-  }
-
-  ngOnInit() {
-/*
-    this.chartCanvas = document.getElementById(this.chartId);
-    this.chartCanvasContent = this.chartCanvas.getContext('2d');
-    console.log("chart canvas content", this.chartCanvasContent)
-
-    this.updateSubject?.subscribe(async (update) => {
-      await this.delay(500);
-      if (update) {
-        this.updateChart();
-      }
-    }) */
-  }
+  constructor(private cdr: ChangeDetectorRef) {}
 
   ngAfterViewInit() {
     console.log(this.chartId)
@@ -60,6 +44,7 @@ export class AppChartComponent implements OnInit, OnChanges, AfterViewInit {
     this.chartCanvasContent = this.chartCanvas.getContext('2d');
 
     this.updateSubject?.subscribe(async (update) => {
+      console.log("update",update)
       await this.delay(500);
       if (update) {
         this.updateChart();

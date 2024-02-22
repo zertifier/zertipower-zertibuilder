@@ -98,7 +98,7 @@ export class CommunitiesController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,name,test,geolocation,energy_price,created_at,updated_at
+      `SELECT id,name,test,energy_price,lat,lng,location_id,created_at,updated_at
                   FROM communities`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(

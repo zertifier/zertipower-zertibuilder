@@ -6,6 +6,7 @@ import {SearchRoutingModule} from "./search.routing-module";
 import {SearchComponent} from "./search-component/search.component";
 import {AppMapComponent} from "../../shared/infrastructure/components/map/map.component";
 import {GoogleMap} from "@angular/google-maps";
+import { SharedComponentsModule } from 'src/app/shared/infrastructure/components/shared-components.module';
 
 @NgModule({
   declarations: [SearchComponent,AppMapComponent],
@@ -14,7 +15,8 @@ import {GoogleMap} from "@angular/google-maps";
     CoreComponentsModule,
     SearchRoutingModule,
     FormsModule,
-    GoogleMap
+    GoogleMap,
+    SharedComponentsModule
   ]
 })
 export class SearchModule {

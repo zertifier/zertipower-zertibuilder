@@ -248,7 +248,7 @@ export class EnergyRegistersHourlyController {
                 consumption,
                 export,
                 generation
-         FROM energy_registers_hourly`
+         FROM energy_registers_original_hourly`
       );
       return HttpResponse.success("Datatables fetched successfully").withData(
         data

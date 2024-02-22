@@ -1,18 +1,18 @@
 import {NgModule} from "@angular/core";
 import {RouterModule, Routes} from "@angular/router";
-import {loggedIn} from "./features/auth/infrastructure/guards/session-guards";
-import {pageAccess} from "./features/auth/infrastructure/guards/page-access-guard";
+import {loggedIn} from "./features/auth/guards/session-guards";
+import {pageAccess} from "./features/auth/guards/page-access-guard";
 
 const routes: Routes = [
   {
     path: "auth",
     loadChildren: () =>
-      import("./features/auth/infrastructure/pages/auth-pages.module").then((m) => m.AuthPagesModule),
+      import("./features/auth/pages/auth-pages.module").then((m) => m.AuthPagesModule),
   },
   {
     path: "users",
     loadChildren: () =>
-      import("./features/users/infrastructure/pages/user-pages.module").then(
+      import("./features/users/pages/user-pages.module").then(
         (m) => m.UserPagesModule,
       ),
     canActivate: [loggedIn, pageAccess('users')],
@@ -78,12 +78,13 @@ const routes: Routes = [
   },
   {
     path: 'search',
-    loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule)
+    loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule),
+    canActivate:[loggedIn]
   },
   {
     path: "**",
     pathMatch: "full",
-    redirectTo: "users",
+    redirectTo: "search"
   },
 ];
 

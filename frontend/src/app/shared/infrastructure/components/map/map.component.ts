@@ -62,7 +62,8 @@ export class AppMapComponent implements AfterViewInit {
   previousFeature: any = null;
 
   infoWindow: google.maps.InfoWindow | null = null;
-  originalStyle: any = {fillColor:"red",fillOpacity:0.0,strokeColor:"red"}
+  originalStyle: any = {fillColor:"red",fillOpacity:0.0,strokeColor:"white",strokeWeight:1.0,strokeDashArray: '10000, 10000'}
+  multipleSelection = false;
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -73,13 +74,36 @@ export class AppMapComponent implements AfterViewInit {
   mapInitializer() {
     this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
 
-    this.map.data.setStyle({fillColor:"red",fillOpacity:0.0,strokeColor:"red"})
+    this.map.data.setStyle(this.originalStyle)
 
     this.map.data.addListener('click', (event:any) => {
 
+      if (event.feature.getProperty('selected')) {
+        console.log("unselect")
+        event.feature.setProperty('selected',false);
+        this.map.data.overrideStyle(event.feature,this.originalStyle); 
+      }else{
+        console.log("select")
+        if(!this.multipleSelection && this.previousFeature){
+          this.previousFeature.setProperty('selected',false);
+          this.map.data.overrideStyle(this.previousFeature,this.originalStyle); 
+        }
+        event.feature.setProperty('selected',true);
+        this.map.data.overrideStyle(event.feature, { fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white' });
+      }
+      this.previousFeature=event.feature
+
+/*
       // Restaurar el estilo de la feature anterior
-      if (this.previousFeature) {
+      if (this.previousFeature && !this.multipleSelection) {
         this.map.data.overrideStyle(this.previousFeature,this.originalStyle);
+      }
+
+      if(this.previousFeature==event.feature){ //deseleccionar feature (devolver al estilo original)
+        this.previousFeature= null
+        this.map.data.overrideStyle(this.previousFeature,this.originalStyle);
+        //todo: enviar info que se ha deselecionado
+        return;
       }
 
       // Resaltar la característica clicada
@@ -90,23 +114,21 @@ export class AppMapComponent implements AfterViewInit {
         this.infoWindow = null;
       } 
 
-      this.map.data.overrideStyle(event.feature, {fillColor: 'blue',fillOpacity:0.5,strokeColor:'blue'});
-
       // Obtener la propiedad del polígono clicado
       let m2 = `${event.feature.getProperty('value')} m2`;
     
       // Crear una ventana de información (info window) con el nombre del polígono
-      this.infoWindow = new google.maps.InfoWindow({
-        content: m2
-      });
+      //this.infoWindow = new google.maps.InfoWindow({
+      //  content: m2
+      //});
 
       // Abrir la ventana de información en la posición del clic
       const latLng = event.latLng;
-      this.infoWindow.setPosition(latLng);
-      this.infoWindow.open(this.map);
+      //this.infoWindow.setPosition(latLng);
+      //this.infoWindow.open(this.map);
     
       this.previousFeature=event.feature
-      
+      */
    });
 
     //this.map.data.loadGeoJson('../assets/datos_olot_transformados.geojson');
@@ -126,19 +148,19 @@ export class AppMapComponent implements AfterViewInit {
 
   addMarker(lat:any,lng:any) {
       let coordinates = new google.maps.LatLng(lat,lng);
+      
       const marker = new google.maps.Marker({
           position: coordinates,
           map: this.map,
           clickable: true,
           icon: {
-            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-            scaledSize: new google.maps.Size(50, 50)
-            // path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-            // strokeColor: '#07AEC4',
-            // fillColor: '#1BD4EC',
-            // strokeWeight:1,
-            // scale: 8,
-            // fillOpacity: 1
+            path: "M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z",
+            fillColor: "blue",
+            fillOpacity: 1,
+            strokeWeight: 0,
+            rotation: 0,
+            scale: 0.1,
+            anchor: new google.maps.Point(200, 550),
           }
       });
       this.markers.push(marker)
@@ -183,11 +205,21 @@ export class AppMapComponent implements AfterViewInit {
   }
 
   addGeoJson(geoJson:any){
-    this.map.data.addGeoJson(geoJson);
+    let geoJsonMap = this.map.data.addGeoJson(geoJson);
+    return this.map.data;
   }
 
   setMapStyle(fillColor:string,fillOpacity:number,strokeColor:string,strokeOpacity:number){
     this.map.data.setStyle({fillColor,fillOpacity,strokeColor,strokeOpacity})
+  }
+
+  unselect(){
+    console.log("unselect")
+    this.map.data.forEach((feature)=>{
+      console.log(feature)
+      this.map.data.overrideStyle(feature,this.originalStyle); 
+      feature.setProperty('selected',false);
+    })
   }
 
   

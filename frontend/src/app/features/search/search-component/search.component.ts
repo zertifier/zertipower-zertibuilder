@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import {CustomersService} from "../../../core/core-services/customers.service";
@@ -9,12 +9,14 @@ import {EnergyAreasService} from "../../../core/core-services/energy-areas.servi
 import * as turf from '@turf/turf'
 import { log } from 'console';
 import { LocationService } from 'src/app/core/core-services/location.service';
+import { BehaviorSubject } from 'rxjs';
 
 
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
-  styleUrl: './search.component.scss'
+  styleUrl: './search.component.scss',
+  encapsulation: ViewEncapsulation.None
 })
 
 export class SearchComponent implements AfterViewInit {
@@ -25,8 +27,28 @@ export class SearchComponent implements AfterViewInit {
   selectedCommunity:any;
   selectedCommunities:any;
   selectedLocation:any;
+  cadastresMap:any;
+  energyAreas:any;
+  energyArea={cadastral_reference:'',m2:0,cups:''};
+  selectedEnergyArea:any;
+  nPlaquesCalc:any;
+  kwhMonth:any;
+  wp:number = 460; //potencia pico (potencia nominal)
 
+  //chart variables
+  monthChartType: string = 'bar';
+  monthChartLabels: string[] =  ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Augost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  monthChartDatasets: any[] | undefined = undefined;
+  monthChartData: any[] = [];
+  monthChartBackgroundColor: string [] = [];
+  updateMonthChart: boolean = false;
+  updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  sumMonthGeneration: number[] = [];
+  kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25]
+ 
   @ViewChild(AppMapComponent) map!:AppMapComponent ;
+
+  folder:number=1;
 
   constructor(
     private customersService: CustomersService, 
@@ -93,22 +115,42 @@ export class SearchComponent implements AfterViewInit {
     }
 
     this.energyAreasService.getByLocation(this.selectedLocation.id).subscribe((res:any)=>{
-      let energyAreas = res.data;
-      energyAreas.map((energyArea:any)=>{
+      this.energyAreas = res.data;
+      this.energyAreas.map((energyArea:any)=>{
         let geoJsonFeature = energyArea.geojson_feature;
         geoJsonFeature=JSON.parse(geoJsonFeature)
-        geoJsonFeature.properties.color="red";
-        geoJsonFeature.properties.strokeColor="red";
-        geoJsonFeature.properties.fillColor="red";
-        //this.map.addGeoJsonFeatures(geoJsonFeature)
+        geoJsonFeature.properties.energyAreaId = energyArea.id;
         geoJson.features.push(geoJsonFeature)
       })
-      this.map.addGeoJson(geoJson)
+      //console.log(geoJson.features[0])
+      this.cadastresMap = this.map.addGeoJson(geoJson);
+
+      const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
+        // Aquí puedes manejar el evento de clic en la feature
+        const feature = event.feature;
+        //console.log('Clic en la feature:', feature.getProperty('localId'));
+        //console.log(feature)
+        //console.log(feature.getProperty('energyAreaId'))
+        let energyAreaId = feature.getProperty('energyAreaId')
+
+        
+        if(this.selectedEnergyArea && this.selectedEnergyArea.id == energyAreaId){ //click unselect
+          console.log("unselect energy area")
+          this.selectedEnergyArea= null;
+          return;
+        }
+
+        this.selectedEnergyArea = this.energyAreas.find((energyArea:any)=>
+          energyArea.id === energyAreaId
+        )
+        //console.log(`foo = `, this.selectedEnergyArea.m2, this.selectedEnergyArea.m2*0.2,(this.selectedEnergyArea.m2*0.2)/2,Math.floor((this.selectedEnergyArea.m2*0.2)/2))
+        this.nPlaquesCalc = Math.floor((this.selectedEnergyArea.m2 * 0.2) / 2)
+        //console.log(`selected energy area = `, this.selectedEnergyArea)
+        //console.log("nplaquescalc", this.nPlaquesCalc)
+        this.updatekWhPerMonth(this.nPlaquesCalc)
+
+      });
       
-      // geoJson.features[0]=JSON.parse(geoJson.features[0])
-       console.log(geoJson.features[0])
-      // geoJson.features[0].properties.color="red";
-      // this.map.addGeoJsonFeatures(geoJson.features[0])
     })
     
   }
@@ -117,11 +159,11 @@ export class SearchComponent implements AfterViewInit {
     
     this.map.deleteMarkers();
 
-    console.log("selected communities",this.selectedCommunities)
+    //console.log("selected communities",this.selectedCommunities)
 
     this.selectedCommunities.map((community:any)=>{
 
-      console.log("selected",community)
+      //console.log("selected",community)
       if(community.lat && community.lng){
 
         let marker = this.map.addMarker(community.lat,community.lng)
@@ -188,6 +230,35 @@ export class SearchComponent implements AfterViewInit {
 
   deleteMarkers(){
 
+  }
+
+  multipleSelection(){
+    if(this.map.multipleSelection){
+      this.map.multipleSelection=false;
+      this.map.unselect();
+    }else{
+      this.map.multipleSelection=true;
+    }
+    
+  }
+
+  updatekWhPerMonth(panelNumber:number) {
+
+    this.sumMonthGeneration = Array.apply(null, Array(12)).map((element,index)=>{
+      let monthGeneration =  this.kwhMonth460wp[index]*panelNumber
+      return monthGeneration;
+    });
+
+    this.monthChartData = [ this.sumMonthGeneration ]
+    this.monthChartDatasets = [
+      {
+        label: 'Generation (Kwh)',
+        data: this.monthChartData[0],
+        backgroundColor: 'rgb(54, 162, 235)'
+      }
+    ]
+
+    this.updateMonthChartSubject.next(true);
   }
 
 }

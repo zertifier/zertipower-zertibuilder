@@ -10,6 +10,7 @@ import {
   EnvironmentService,
   EventEmitter,
   MustacheViewsService,
+  MysqlService,
   PrismaService,
   WinstonLogger,
 } from "../../../../../shared/infrastructure/services";
@@ -62,6 +63,8 @@ import { CredentialsChangedEvent } from "../../../../users/domain/CredentialsCha
 import { TimeUtils } from "../../../../../shared/domain/utils";
 import { Cron } from "@nestjs/schedule";
 import { GenerateUserTokensAction } from "../../../application/generate-user-tokens-action/generate-user-tokens-action";
+import mysql from "mysql2/promise";
+import { log } from "console";
 
 const signCodesRepository: { [walletAddress: string]: string } = {};
 const RESOURCE_NAME = "auth";
@@ -70,6 +73,9 @@ const RESOURCE_NAME = "auth";
 @ApiExtraModels(HttpResponse)
 @ApiTags(RESOURCE_NAME)
 export class AuthController {
+
+  private conn: mysql.Pool;
+
   constructor(
     private prisma: PrismaService,
     private userRepository: UserRepository,
@@ -81,8 +87,75 @@ export class AuthController {
     private eventEmitter: EventEmitter,
     private logger: WinstonLogger,
     private environment: EnvironmentService,
-    private generateUserTokensAction: GenerateUserTokensAction
-  ) {}
+    private generateUserTokensAction: GenerateUserTokensAction,
+    private mysql: MysqlService
+  ) {
+
+    this.conn = this.mysql.pool;
+
+  }
+
+
+  @Post("web-wallet-login")
+  async webWalletLogin(@Body() body:any) {
+    const { wallet_address, private_key } = body;
+    const getUserQuery = `SELECT * FROM users WHERE wallet_address = ?`;
+    const insertUserQuery = `INSERT INTO users (wallet_address,password,role_id, username, firstname, lastname, email) VALUES (?,?,?,?,?,?,?)`
+    let dbUser;
+    let user: User;
+    
+    try{
+      const [ROWS]:any = await this.conn.query(getUserQuery,[wallet_address]);
+      dbUser = ROWS[0];
+      if(dbUser){
+        let passwordMatch = await PasswordUtils.match(dbUser.password,private_key);
+        if (!passwordMatch) {
+          throw new PasswordNotMatchError();
+        }  
+      }
+    }catch(e){
+      console.log("error web wallet login get",e);
+      throw new UserNotFoundError();
+    }
+
+    if(!dbUser){
+      try{
+        let encryptedPassword = await PasswordUtils.encrypt(private_key);
+        await this.conn.query(insertUserQuery,[wallet_address,encryptedPassword,2,'','','','']);
+      }catch(e){
+        console.log("error web wallet login",e);
+        throw new UserNotFoundError();
+      } 
+    }
+
+    try{
+      console.log("wallet",wallet_address)
+      let fetchedUsers = await this.userRepository.find(
+        new ByWalletAddress(wallet_address)
+      );
+      user = fetchedUsers[0];
+      
+    }catch(e){
+      console.log(e)
+      throw new UserNotFoundError();
+    }
+    
+    const { signedRefreshToken, signedAccessToken } =
+    await this.generateUserTokensAction.run(user);
+
+    const responseData: LoggedInDTO = new LoggedInDTO(
+      signedAccessToken,
+      signedRefreshToken
+    );
+
+    return HttpResponse.success("Logged in successfully").withData(
+      responseData
+    );
+
+    
+  }
+
+    
 
   /**
    * A traditional login with user and password
@@ -139,6 +212,8 @@ export class AuthController {
     if (!passwordMatch) {
       throw new PasswordNotMatchError();
     }
+
+    console.log("user",user)
 
     // Creating errors
     const { signedRefreshToken, signedAccessToken } =

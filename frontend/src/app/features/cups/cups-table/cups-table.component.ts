@@ -54,13 +54,8 @@ export class CupsTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'Ubication',
-      data: 'ubication',
-      width: '100px',
-    },
-    {
-      title: 'Geolocalization',
-      data: 'geolocalization',
+      title: 'Location',
+      data: 'location_id',
       width: '100px',
     },
     {
@@ -119,15 +114,7 @@ export class CupsTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'ubication',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'geolocalization',
+        title: 'location',
         description: '',
         value: '',
         type: 0,

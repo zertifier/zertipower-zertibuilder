@@ -174,7 +174,7 @@ export class DatadisService {
         return new Promise(async (resolve,reject)=>{
             try{
                 //todo: table is energy_registers_original_hourly (change database)
-                const getCupsEnergyDataQuery = `SELECT * FROM energy_registers_hourly where cups_id = ? and info_datetime IS BEETWEEN ? AND ?`;
+                const getCupsEnergyDataQuery = `SELECT * FROM energy_registers_original_hourly where cups_id = ? and info_datetime IS BEETWEEN ? AND ?`;
                 let [ROWS] = await this.conn.query(getCupsEnergyDataQuery, [cupsId, startDate, endDate]);
                 resolve(ROWS);
                 } catch (e:any) {

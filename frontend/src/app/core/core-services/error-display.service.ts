@@ -13,8 +13,8 @@ export class ErrorDisplayService implements ErrorHandler {
 		let err = error.rejection;
 
 		if (!err) {
-			console.error(error);
-			this.displayError(error.error);
+			//console.error(error);
+			//this.displayError(error);
 			return;
 		}
 
@@ -30,6 +30,7 @@ export class ErrorDisplayService implements ErrorHandler {
 	}
 
 	private async displayError(error: any) {
+		console.log(error)
 		if(error.error && error.error.message){
 			await Swal.fire({
 				icon: "error",

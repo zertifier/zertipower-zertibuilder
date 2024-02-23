@@ -33,6 +33,7 @@ export class LoginPageComponent implements OnDestroy {
 	web2 = computed(() => this.authStore.loginMode() === LoginMode.WEB2);
 	web3 = computed(() => this.authStore.loginMode() === LoginMode.WEB3);
 	loginMode = computed(() => this.authStore.loginMode().toString());
+	loading:boolean=false;
 	protected readonly environment = environment;
 
 	constructor(private authStore: AuthStoreService, private router: Router,private themeStoreService: ThemeStoreService,private route: ActivatedRoute, private http: HttpClient, private loginActionService:LoginActionService, private authApiService: AuthApiService) {
@@ -65,6 +66,7 @@ export class LoginPageComponent implements OnDestroy {
 		this.route.queryParams.subscribe(params => {
 		  const code = params['code'];
 		  if (code) {
+			this.loading=true;
 			this.getPrivateKey(code).subscribe({
 			  next: (res: PrivateKeyHttpResponse) => {
 				localStorage.removeItem('baseCodeChallenge');
@@ -76,11 +78,13 @@ export class LoginPageComponent implements OnDestroy {
 					const access_token = response.access_token;
 					const refresh_token = response.refresh_token;
 					this.authStore.setTokens(access_token, refresh_token);
+					this.loading=false;
 				})
 			  },
 			  error: (error) => {
 				localStorage.removeItem('baseCodeChallenge');
 				console.log(error)
+				this.loading=false;
 			  }
 			})
 		  }

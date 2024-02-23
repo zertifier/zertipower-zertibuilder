@@ -20,7 +20,7 @@ import { OauthCallbackPageComponent } from './oauth-callback-page/oauth-callback
 		AuthComponentsModule,
 		ReactiveFormsModule,
 		SharedComponentsModule,
-		CoreComponentsModule,
+		CoreComponentsModule
 	],
 })
 export class AuthPagesModule {}

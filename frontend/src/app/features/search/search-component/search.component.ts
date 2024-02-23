@@ -44,7 +44,9 @@ export class SearchComponent implements AfterViewInit {
   updateMonthChart: boolean = false;
   updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   sumMonthGeneration: number[] = [];
-  kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25]
+  kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25];
+
+  selectedAreaM2:number| undefined;
  
   @ViewChild(AppMapComponent) map!:AppMapComponent ;
 
@@ -143,8 +145,11 @@ export class SearchComponent implements AfterViewInit {
         this.selectedEnergyArea = this.energyAreas.find((energyArea:any)=>
           energyArea.id === energyAreaId
         )
+
+        console.log("selectedeeed",this.selectedAreaM2)
+
         //console.log(`foo = `, this.selectedEnergyArea.m2, this.selectedEnergyArea.m2*0.2,(this.selectedEnergyArea.m2*0.2)/2,Math.floor((this.selectedEnergyArea.m2*0.2)/2))
-        this.nPlaquesCalc = Math.floor((this.selectedEnergyArea.m2 * 0.2) / 2)
+        this.nPlaquesCalc = Math.floor((this.selectedAreaM2! * 0.2) / 2)
         //console.log(`selected energy area = `, this.selectedEnergyArea)
         //console.log("nplaquescalc", this.nPlaquesCalc)
         this.updatekWhPerMonth(this.nPlaquesCalc)
@@ -259,6 +264,10 @@ export class SearchComponent implements AfterViewInit {
     ]
 
     this.updateMonthChartSubject.next(true);
+  }
+
+  setSelectedAreaM2(areaM2:any){
+    this.selectedAreaM2=Math.floor(areaM2)
   }
 
 }

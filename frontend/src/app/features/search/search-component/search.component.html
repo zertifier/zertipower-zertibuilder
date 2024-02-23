@@ -2,9 +2,9 @@
 <div class="row px-4 container-flex">
 
   <div class="col-12 col-md-8 p-2">
-    <app-map></app-map>
+    <app-map (selectedAreaM2)="setSelectedAreaM2($event)"></app-map>
     <div *ngIf="map">
-      <button (click)="multipleSelection()"  data-toggle="button" type="button" [ngClass]="map.multipleSelection ? 'btn btn-dark mt-2 active' : 'btn btn-dark mt-2'">Selecció múltiple</button>
+      <button (click)="multipleSelection()"  data-toggle="button" type="button" [ngClass]="map.multipleSelection ? 'btn btn-dark mt-2 active' : 'btn btn-dark mt-2'" >Selecció múltiple</button>
     </div>
     
   </div>
@@ -49,7 +49,7 @@
           <div class="my-2">Referència cadastral</div>
           <input id="" placeholder="referència cadastral" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.cadastral_reference}}">
           <div class="my-2">M2</div>
-          <input id="" placeholder="m2" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.m2 || 0}}">
+          <input id="" placeholder="m2" type="text" class="form-control" disabled readonly value="{{selectedAreaM2}}">
           <div class="my-2">Número de plaques</div>
           <input id="" placeholder="número de plaques" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.n_plaques || nPlaquesCalc}}">
           <div class="my-2">Producció mensual</div>

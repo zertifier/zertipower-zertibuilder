@@ -37,7 +37,8 @@ export class SearchComponent implements AfterViewInit {
 
   //chart variables
   monthChartType: string = 'bar';
-  monthChartLabels: string[] =  ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Augost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  monthChartLabels: string[] =  ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  monthChartClientData: any[] = new Array(12).fill({ p1: 0, p2: 0, p3: 0, production: 0 });;
   monthChartDatasets: any[] | undefined = undefined;
   monthChartData: any[] = [];
   monthChartBackgroundColor: string [] = [];

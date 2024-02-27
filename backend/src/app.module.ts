@@ -4,7 +4,7 @@ import { EnergyRegistersController } from "src/features/energy-registers/energy-
 import { EnergyTransactionsController } from "src/features/energy-transactions/energy-transactions.controller";
 import { EnergyBlocksController } from "src/features/energy-blocks/energy-blocks.controller";
 import { CustomersController } from "src/features/customers/customers.controller";
-import { CupsController } from "src/features/cups/cups.controller";
+import { CupsController } from "src/features/cups.controller";
 import { CommunitiesController } from "src/features/communities/communities.controller";
 import { CalendarController } from "src/features/calendar/calendar.controller";
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
@@ -24,6 +24,7 @@ import { LoggerMiddleware } from "./logger.middleware";
 import { EnergyRegistersHourlyController } from "./features/energy-registers-hourly/energy-registers-hourly.controller";
 import { EnergyAreasController } from "./features/energy-areas";
 import { LocationsController } from "./features/locations";
+import { EnergyRegistersLogsController } from "./features/energy_registers_logs";
 
 @Module({
   imports: [
@@ -54,7 +55,8 @@ import { LocationsController } from "./features/locations";
     ProvidersController,
     SmartContractsController,
     EnergyAreasController,
-    LocationsController
+    LocationsController,
+    EnergyRegistersLogsController
   ],
 })
 export class AppModule implements NestModule {

@@ -11,7 +11,6 @@ import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
 import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
 import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
 import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
-import { SaveCupsDTO } from "./save-cups-dto";
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
@@ -46,14 +45,14 @@ export class CupsController {
 
   @Post()
   @Auth(RESOURCE_NAME)
-  async create(@Body() body: SaveCupsDTO) {
+  async create(@Body() body: any) {
     const data = await this.prisma.cups.create({ data: body });
     return HttpResponse.success("cups saved successfully").withData(data);
   }
 
   @Put(":id")
   @Auth(RESOURCE_NAME)
-  async update(@Param("id") id: string, @Body() body: SaveCupsDTO) {
+  async update(@Param("id") id: string, @Body() body: any) {
     console.log("bodycups : ", body);
     const data = await this.prisma.cups.updateMany({
       where: {

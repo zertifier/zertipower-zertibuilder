@@ -1,12 +1,17 @@
 <app-navbar></app-navbar>
-<div class="row px-4 container-flex">
+<div class="row px-4 container-fluid justify-content-center">
 
-  <div class="col-12 col-md-6 p-2">
-    <app-map (selectedAreaM2)="setSelectedAreaM2($event)"></app-map>
-    <div *ngIf="map">
-      <button (click)="multipleSelection()"  data-toggle="button" type="button" [ngClass]="map.multipleSelection ? 'btn btn-dark mt-2 active' : 'btn btn-dark mt-2'" >Selecció múltiple</button>
-    </div>
+  <div class="col-12 col-md-6 p-2 ps-4">
     
+    <app-map (selectedAreaM2)="setSelectedAreaM2($event)"></app-map>
+
+    <!-- <div *ngIf="map">
+      <button (click)="multipleSelection()"  data-toggle="button" type="button" [ngClass]="map.multipleSelection ? 'btn btn-dark mt-2 active' : 'btn btn-dark mt-2'" >Selecció múltiple</button>
+      
+    </div> -->
+    
+    <button class="btn mt-2 btn-dark" (click)="folder = 0" ><i class="bi bi-search"></i> Cerca comunitats</button>
+
   </div>
 
   <div class="col-12 col-md-6 p-2">
@@ -23,15 +28,15 @@
 
     <div class="mb-2">
 
-       <div class="row gx-2 gy-2  flex-wrap">
+       <div class="row gx-2 gy-2 flex-wrap">
         <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 1 ? 'folder-selected' : 'btn-folder'" (click)="folder = 1" >Model predictiu</button>
         <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 2 ? 'folder-selected' : 'btn-folder'" (click)="folder = 2">Model real</button>
         <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 3 ? 'folder-selected' : 'btn-folder'"(click)="folder = 3">Dades consum</button>
         <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 4 ? 'folder-selected' : 'btn-folder'"(click)="folder = 4">Resum</button>
       </div> 
 
-      <div *ngIf="folder == 1 && locations" class="mx-1 pt-4">
-      
+      <div *ngIf="folder == 0" class="mx-1 pt-4">
+        
         <label for="location" class="my-2">Municipi</label>
         <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="OnSelectorChange(selectedLocation,'location')">
           <option></option>
@@ -44,7 +49,6 @@
           <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
         </select>
       
-
         <div *ngIf="selectedEnergyArea">
           <div class="my-2">Referència cadastral</div>
           <input id="" placeholder="referència cadastral" type="text" class="form-control" disabled readonly value="{{selectedEnergyArea.cadastral_reference}}">
@@ -57,26 +61,119 @@
           <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
           [update]="updateMonthChart" [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
         </div>
+
+
+        <div *ngIf="energyArea">
+
+          <div class="my-2">Referència cadastral</div>
+          <input id="" placeholder="referència cadastral" type="text" class="form-control" value="{{energyArea.cadastral_reference}}">
   
+          <div class="my-2">M2</div>
+          <input id="" placeholder="m2" type="text" class="form-control" value="{{energyArea.m2 || 0}}">
+  
+          <div class="my-2">Cups</div>
+          <input id="" placeholder="m2" type="text" class="form-control" value="{{energyArea.m2 || 0}}">
+  
+        </div>
+
       </div>
 
-     <div *ngIf="folder == 2" class="mx-1 pt-4">
-        <div class="my-2">Referència cadastral</div>
-        <input id="" placeholder="referència cadastral" type="text" class="form-control" value="{{energyArea.cadastral_reference}}">
+      <div *ngIf="folder == 1 && locations" class="mx-1 pt-4">
+      
+        <div class="row">
 
-        <div class="my-2">M2</div>
-        <input id="" placeholder="m2" type="text" class="form-control" value="{{energyArea.m2 || 0}}">
-
-        <div class="my-2">Cups</div>
-        <input id="" placeholder="m2" type="text" class="form-control" value="{{energyArea.m2 || 0}}">
-
+        <div class="col">
+          <div class="my-2">M2 teulada</div>
+          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+        </div>
         
+        <div class="col">
+          <div class="my-2">M2 plaques</div>
+          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+        </div>
+
+        <div class="col">
+          <div class="my-2">N. plaques</div>
+          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+        </div>
+
+        <div class="col">
+          <div class="my-2">Kwh Producció</div>
+          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+        </div>
+  
+        <div class="col">
+          <div class="my-2">Inversió</div>
+          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+        </div>
+
+      </div>
+
+      <div class="my-2">Producció mensual (kWh)</div>
+
+      <div class="row">
+        <div *ngFor="let month of monthChartLabels; index as i" style="" class="col-6 col-sm-4 col-md-4 col-lg-1 col-xl-1 text-center">
+          <div>{{i+1}}</div>
+          <input id="" placeholder="" disabled type="text" class="form-control">
+        </div>
+      </div>
+
+    <!-- TODO MONTH CHART -->
+
+    </div>
+
+     <div *ngIf="folder == 2" class="mx-1 pt-4">
+
+      <div class="row">
+
+        <div class="col">
+          <div class="my-2">CUPS</div>
+          <input id="" placeholder="" type="text" class="form-control" value="">
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col">
+          <div class="my-2">M2 teulada</div>
+          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+        </div>
+        
+        <div class="col">
+          <div class="my-2">M2 plaques</div>
+          <input id="" placeholder="" type="text" class="form-control" value="">
+        </div>
+
+        <div class="col">
+          <div class="my-2">N. plaques</div>
+          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+        </div>
+
+        <div class="col">
+          <div class="my-2">Kwh Producció</div>
+          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+        </div>
+  
+        <div class="col">
+          <div class="my-2">Inversió</div>
+          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+        </div>
+
+      </div>
+
         <div class="my-2">Producció mensual (kWh)</div>
         <div class="row">
-        <div *ngFor="let month of monthChartLabels" style="" class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 text-center">
-          <div>{{month}}</div>
-          <input id="" placeholder="" type="text" class="form-control">
+        <div *ngFor="let month of monthChartLabels; index as i" class="col-6 col-sm-4 col-md-4 col-lg-1 col-xl-1 text-center">
+          <div>{{i+1}}</div>
+          <input id="" placeholder="" type="text" disabled class="form-control">
         </div>
+      </div>
+
+<!-- TODO: month chart  -->
+
+      <div class="d-flex justify-content-center mt-5">
+        <button type="button" class="btn btn-dark"> Guarda la informació </button>
       </div>
 
       </div>
@@ -85,37 +182,31 @@
         
         <div class="row">
 
-          <div class="my-2 text-center fw-bolder">Preus de consum per tram</div>
-
           <div class="col">
-            <div class="my-2">P1</div>
-            <input id="" placeholder="" type="text" class="form-control" value="">
+            <div class="my-2">Preu p1</div>
+            <input id="" placeholder="" type="text"  class="form-control" value="">
           </div>
           
           <div class="col">
-            <div class="my-2">P2</div>
+            <div class="my-2">Preu p2</div>
             <input id="" placeholder="" type="text" class="form-control" value="">
           </div>
   
           <div class="col">
-            <div class="my-2">P3</div>
-            <input id="" placeholder="" type="text" class="form-control" value="">
+            <div class="my-2">Preu p3</div>
+            <input id="" placeholder="" type="text"  class="form-control" value="">
           </div>
-
-        </div>
-
-        <div class="row">
-
+  
           <div class="col">
             <div class="my-2">Preu excedent</div>
-            <input id="" placeholder="" type="text" class="form-control" value="">
+            <input id="" placeholder="" type="text"  class="form-control" value="">
           </div>
-  
+    
           <div class="col">
             <div class="my-2">Preu intercanvi CEC</div>
-            <input id="" placeholder="" type="text" class="form-control" value="">
+            <input id="" placeholder="0.15" type="text" disabled class="form-control" value="">
           </div>
-
+  
         </div>
 
 
@@ -163,6 +254,74 @@
             </tr>
           </tbody>
         </table>
+
+      <!-- TODO: month chart  -->
+
+      <div class="d-flex justify-content-center mt-5">
+        <button type="button" class="btn btn-dark"> Guarda la informació </button>
+      </div>
+
+      </div>
+
+      <div *ngIf="folder == 4" class="mx-1 pt-4">
+
+        <div class="row">
+
+          <div class="my-2 text-center fw-bolder">Instal·lació individual</div>
+
+          <div class="col">
+            <div class="my-2">Total consum €</div>
+            <input id="" placeholder="" type="text" class="form-control" value="">
+          </div>
+          
+          <div class="col">
+            <div class="my-2">Total producció €</div>
+            <input id="" placeholder="" type="text" class="form-control" value="">
+          </div>
+  
+          <div class="col">
+            <div class="my-2">Total estalvi €</div>
+            <input id="" placeholder="" type="text" class="form-control" value="">
+          </div>
+
+          <div class="col">
+            <div class="my-2">ROI</div>
+            <input id="" placeholder="" type="text" class="form-control" value="">
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <div class="my-2 text-center fw-bolder">Instal·lació agregada a comunitat energètica ciutadana</div>
+
+          <div class="col">
+            <div class="my-2">Total consum €</div>
+            <input id="" placeholder="" type="text" class="form-control" value="">
+          </div>
+          
+          <div class="col">
+            <div class="my-2">Total producció €</div>
+            <input id="" placeholder="" type="text" class="form-control" value="">
+          </div>
+  
+          <div class="col">
+            <div class="my-2">Total estalvi €</div>
+            <input id="" placeholder="" type="text" class="form-control" value="">
+          </div>
+
+          <div class="col">
+            <div class="my-2">ROI</div>
+            <input id="" placeholder="" type="text" class="form-control" value="">
+          </div>
+
+        </div>
+
+        <!-- TODO: month chart  -->
+
+        <div class="d-flex justify-content-center mt-5">
+          <button type="button" class="btn btn-dark"> Guarda la informació </button>
+        </div>
 
       </div>
       

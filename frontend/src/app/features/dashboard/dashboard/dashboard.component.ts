@@ -73,13 +73,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
       this.customers = res.data;
+      console.log(this.customers)
       //set default value to selected cups:
       this.cupsId = this.customers[0].id
       //get chart info:
       let {yearEnergy,weekEnergy,dayEnergy} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
       //update charts:
       this.updateCharts(yearEnergy,weekEnergy,dayEnergy)
-
     })
 
     //customer selector listener

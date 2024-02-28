@@ -456,8 +456,7 @@ export class CommunitiesFormComponent implements OnInit {
           cups: cups.cups,
           providerId: cups.providerId,
           communityId: cups.communityId,
-          ubication: cups.ubication,
-          geolocalization: cups.geolocalization,
+          locationId: cups.locationId,
           customerId: cups.customerId
         }
 
@@ -483,8 +482,7 @@ export class CommunitiesFormComponent implements OnInit {
               cups: cups.cups,
               providerId: cups.providerId,
               communityId: 0,
-              ubication: cups.ubication,
-              geolocalization: cups.geolocalization,
+              locationId: cups.locationId,
               customerId: cups.customerId
             }
 

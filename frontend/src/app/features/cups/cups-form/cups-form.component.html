@@ -3,51 +3,113 @@
 </div>
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
-    <div>
-      <label for="id-input">id</label>
-      <input id="id-input" type="number" formControlName="id" class="form-control">
+    <div *ngIf="form.controls.id.value">
+      <label for="id-input">id {{form.controls.id.value}}</label>
     </div>
     <div>
       <label for="cups-input">cups</label>
-      <editor
-          [init]="tinymceConfig"
-          formControlName="cups"
-          id="description"></editor>
+      <input id="cups" type="number" formControlName="cups" class="form-control">
     </div>
     <div>
-      <label for="provider-id-input">provider_id</label>
-      <input id="provider-id-input" type="number" formControlName="providerId" class="form-control">
-    </div>
-    <div>
-      <label for="community-id-input">community_id</label>
-      <input id="community-id-input" type="number" formControlName="communityId" class="form-control">
-    </div>
-    <div>
-      <label for="ubication-input">ubication</label>
-      <editor
-          [init]="tinymceConfig"
-          formControlName="ubication"
-          id="description"></editor>
-    </div>
-    <div>
-      <label for="geolocalization-input">geolocalization</label>
-      <editor
-          [init]="tinymceConfig"
-          formControlName="geolocalization"
-          id="description"></editor>
-    </div>
-    <div>
-      <label for="customer-id-input">customer_id</label>
+      <label for="customer-id-input">customer id</label>
       <input id="customer-id-input" type="number" formControlName="customerId" class="form-control">
     </div>
     <div>
-      <label for="created-at-input">created_at</label>
-      <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
+      <label for="provider-id-input">provider id</label>
+      <input id="provider-id-input" type="number" formControlName="providerId" class="form-control">
     </div>
     <div>
-      <label for="updated-at-input">updated_at</label>
+      <label for="community-id-input">community id</label>
+      <input id="community-id-input" type="number" formControlName="communityId" class="form-control">
+    </div>
+    <div>
+      <label for="location-id-input">location id</label>
+      <input id="location-id-input" type="number" formControlName="locationId" class="form-control">
+    </div>
+    <div class="row d-flex justify-content-beetween">
+      <div class="col">
+        <label for="lat-input">lat</label>
+        <input id="lat-input" type="number" formControlName="lat" class="form-control">
+      </div>
+      <div class="col">
+        <label for="lng-input">lng</label>
+        <input id="lng-input" type="number" formControlName="lng" class="form-control">
+      </div>
+    </div>
+
+    <label for="lng-input">Cups type</label>
+    <select class="px-2 form-select">
+    <option></option>
+    <option *ngFor="let element of cupsTypes" [ngValue]="element">{{element}}</option>
+    </select>
+
+    <div class="form-check mt-1">
+      <input class="form-check-input" type="checkbox"  formControlName="datadis" id="flexCheckDatadis">
+      <label class="form-check-label" for="flexCheckDatadis">
+        Datadis
+      </label>
+    </div>
+
+    <div *ngIf="form.controls.datadis.value" class="row d-flex justify-content-beetween">
+      <div class="col">
+        <label for="lat-input">Datadis username</label>
+        <input id="lat-input" type="text" formControlName="lat" class="form-control">
+      </div>
+      <div class="col">
+        <label for="lng-input">Datadis password</label>
+        <input id="lng-input" type="text" formControlName="lng" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-check mt-1">
+      <input class="form-check-input" type="checkbox" formControlName="smartMeter" id="flexCheckSmartMeter">
+      <label class="form-check-label" for="flexCheckSmartMeter">
+        Smart meter
+      </label>
+    </div>
+
+    <div *ngIf="form.controls.smartMeter.value" class="row d-flex justify-content-beetween">
+      <div class="col">
+        <label for="lat-input">Smart meter model</label>
+        <input id="lat-input" type="text" formControlName="lat" class="form-control">
+      </div>
+      <div class="col">
+        <label for="lng-input">Smart meter api key</label>
+        <input id="lng-input" type="text" formControlName="lng" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-check mt-1">
+      <input class="form-check-input" type="checkbox" formControlName="inverter" id="flexCheckInverter">
+      <label class="form-check-label" for="flexCheckInverter">
+        Inverter
+      </label>
+    </div>
+
+    <div *ngIf="form.controls.inverter.value" class="row d-flex justify-content-beetween">
+      <div class="col">
+        <label for="lat-input">Inverter model</label>
+        <input id="lat-input" type="text" formControlName="lat" class="form-control">
+      </div>
+      <div class="col">
+        <label for="lng-input">Inverter api key</label>
+        <input id="lng-input" type="text" formControlName="lng" class="form-control">
+      </div>
+    </div>
+    
+    <!-- created at and updated at -->
+
+    <div class="row d-flex justify-content-beetween">
+      <div class="col">
+      <label for="created-at-input">creation date</label>
+      <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
+    </div>
+    <div class="col">
+      <label for="updated-at-input">update date</label>
       <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
     </div>
+    </div>
+
   </form>
 </div>
 <div class="modal-footer">

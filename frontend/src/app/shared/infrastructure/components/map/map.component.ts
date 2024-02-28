@@ -47,6 +47,7 @@ export class AppMapComponent implements AfterViewInit {
 
   lat = 41.505;
   lng = 1.509;
+  
   polygonT = [{lat:this.lat,lng:this.lng},{lat:this.lat+0.001,lng:this.lng+0.001}]
 
   coordinates = new google.maps.LatLng(this.lat, this.lng);

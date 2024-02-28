@@ -10,6 +10,7 @@ import * as turf from '@turf/turf'
 import { log } from 'console';
 import { LocationService } from 'src/app/core/core-services/location.service';
 import { BehaviorSubject } from 'rxjs';
+import axios from 'axios';
 
 
 @Component({
@@ -49,7 +50,7 @@ export class SearchComponent implements AfterViewInit {
 
   selectedAreaM2:number| undefined;
  
-  @ViewChild(AppMapComponent) map!:AppMapComponent ;
+  @ViewChild(AppMapComponent) map!:AppMapComponent;
 
   folder:number=1;
 

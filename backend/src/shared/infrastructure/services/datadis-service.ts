@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import axios from 'axios';
 import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
 import mysql from "mysql2/promise";
-import moment from 'moment';
+import * as moment from 'moment';
 import { throwError } from "rxjs";
 import { PasswordUtils } from "src/features/users/domain/Password/PasswordUtils";
 import { LocationUtils } from "src/shared/domain/utils/locationUtils";
@@ -39,6 +39,8 @@ interface dbCups {
     lat: number,
     community_id: number,
     datadis_active: number,
+    datadis_user:string,
+    datadis_password:string,
     surplus_distribution: number
 }
 
@@ -64,6 +66,9 @@ export class DatadisService {
         
         let startDate= moment().subtract(1, 'weeks').format('YYYY/MM'); 
         let endDate= moment().format('YYYY/MM');
+
+        console.log(startDate,endDate)
+        
         //this.run(startDate,endDate)
 
         setInterval(()=>{
@@ -75,12 +80,30 @@ export class DatadisService {
     }
 
     async run(startDate:any,endDate:any){
-        //get auth token
-        this.login().then(async()=>{
+
+        let error = false;
+
+
+        this.dbCups = await this.getCups()
+
+        this.dbCups.forEach(async (cups)=>{
+
+            if(!cups.datadis_active || !cups.datadis_user || !cups.datadis_password){
+                return;
+            }
+            
+            this.loginData.username=cups.datadis_user;
+            this.loginData.password= PasswordUtils.decryptData(cups.datadis_password,process.env.JWT_SECRET!);
+
+            //get auth token
+            await this.login();
+
             //get datadis cups
             await this.getSupplies();
+
             //check if all cups are in database already
             await this.checkCups();
+
             //go across cups:
             for (const supply of this.supplies){
                 let cupsData:any = this.dbCups.find((registeredCups:any)=>registeredCups.cups===supply.cups)
@@ -92,10 +115,12 @@ export class DatadisService {
                 })
                 console.log(JSON.stringify(datadisCupsEnergyData).substring(0,200))
                 //get cups energy hours db registers 
-                let databaseEnergyHourData = await this.postCupsEnergyData(cupsData,datadisCupsEnergyData,startDate,endDate) //todo check!
+                let databaseEnergyHourData = await this.postCupsEnergyData(cupsData,datadisCupsEnergyData,startDate,endDate).catch(e=>{
+                    error=true;
+                }) //todo check!
 
                 //insert readed cups energy hours 
-                this.postLogs(supply.cups,datadisCupsEnergyData.length)
+                this.postLogs(supply.cups,datadisCupsEnergyData.length,startDate,endDate, error)
 
             }
         })
@@ -172,7 +197,6 @@ export class DatadisService {
             try{
                 const getCupsQuery = `SELECT * FROM cups`;
                 let [ROWS]:any = await this.conn.query(getCupsQuery);
-                this.dbCups = ROWS;
                 resolve(this.dbCups);
             }catch(e){
                 console.log("error getting cups", e);
@@ -184,7 +208,7 @@ export class DatadisService {
     async checkCups():Promise<any>{
         return new Promise(async (resolve,reject)=>{
         try{
-            const getCupsQuery = `SELECT * FROM cups`;
+            
             const getLocationQuery = `SELECT * FROM locations WHERE province = ? AND municipality = ?`;
             const insertCupsQuery = `INSERT INTO cups (cups,location_id,address,datadis_user,datadis_password) VALUES (?,?,?,?,?)`;
             const insertCupsQueryLatLng = `INSERT INTO cups (cups,location_id,address,datadis_user,datadis_password, lat, lng) VALUES (?,?,?,?,?,?,?)`;
@@ -205,7 +229,7 @@ export class DatadisService {
                         const [result]:any = await this.conn.query(insertLocationQuery,[cupsData.province,cupsData.municipality])
                         locationId = result.insertId;
                     }
-                    let datadisEncriptedPassword = await PasswordUtils.encrypt(this.loginData.password)
+                    let datadisEncriptedPassword = PasswordUtils.encryptData(this.loginData.password,process.env.JWT_SECRET!)
                     //get cups geolocation
                      try {
                         let {lat,lng} = await LocationUtils.getCoordinates(cupsData.address,cupsData.municipality)
@@ -219,9 +243,8 @@ export class DatadisService {
                     await this.conn.query(insertCupsQueryLatLng,[cupsData.cups,locationId,cupsData.address,this.loginData.username,datadisEncriptedPassword,coordinates.lat,coordinates.lng]);
                 }
             })
-            let [allCups]:any = await this.conn.query(getCupsQuery);
-            this.dbCups = allCups;
-            resolve(allCups);
+            this.dbCups = await this.getCups()
+            resolve(this.dbCups);
           } catch (e:any) {
             console.log("error getting energy areas", e);
             reject(e)
@@ -298,14 +321,23 @@ export class DatadisService {
 
     }
 
-    postLogs(cups:string, n_registers:number){
-        const insertLogsQuery = `INSERT INTO energy_registers_logs (cups,n_registers) VALUES (?,?)`
+    postLogs(cups:string, n_registers:number,startDate:any,endDate:any,error:boolean){
+
+        const log = {
+            cups,
+            n_registers,
+            startDate,
+            endDate,
+            error
+        };
+
+        const insertLogQuery = `INSERT INTO logs (log) VALUES (?)`
         return new Promise(async (resolve,reject)=>{
             try{
-                let [ROWS] = await this.conn.query(insertLogsQuery, [cups, n_registers]);
+                let [ROWS] = await this.conn.query(insertLogQuery, [JSON.stringify(log)]);
                 resolve(ROWS);
             } catch (e:any) {
-                console.log("error setting logs energy data", e);
+                console.log("error inserting logs energy data", e);
                 reject(e)
             }
         })

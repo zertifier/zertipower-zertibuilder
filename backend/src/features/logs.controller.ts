@@ -19,7 +19,7 @@ import {
   
 @ApiTags(RESOURCE_NAME)
 @Controller("energyRegistersLogs")
-export class EnergyRegistersLogsController {
+export class LogsController {
 
     private conn: mysql.Pool;
     
@@ -32,9 +32,9 @@ export class EnergyRegistersLogsController {
     }
   
     @Get()
-    async getEnergyRegistersLogs() {
+    async Logs() {
         try{
-            const query = `SELECT * FROM energy_registers_logs`
+            const query = `SELECT * FROM logs`
             const [ROWS]: any[] = await this.conn.query(query);
             return HttpResponse.success("locations fetched successfully").withData(
               ROWS
@@ -51,7 +51,7 @@ export class EnergyRegistersLogsController {
       const data = await this.datatable.getData(
         body,
         `SELECT *
-                    FROM energy_registers_logs`
+                    FROM logs`
       );
       return HttpResponse.success("Datatables fetched successfully").withData(
         data

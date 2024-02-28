@@ -246,21 +246,6 @@ model smartContracts {
   @@map("smart_contracts")
 }
 
-model energy_registers_logs {
-  id          Int       @id @default(autoincrement())
-  cups        String?   @db.VarChar(100)
-  n_registers Int?
-  creation_dt DateTime? @default(dbgenerated("(curdate())")) @db.Timestamp(0)
-}
-
-model read_data_log {
-  id          Int                   @id @default(autoincrement())
-  cups_id     Int?
-  readed      String?               @db.VarChar(50)
-  status      read_data_log_status?
-  creation_dt DateTime?             @default(dbgenerated("(curdate())")) @db.Timestamp(0)
-}
-
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view energy_registers_original_monthly {
   cups_id     Int?

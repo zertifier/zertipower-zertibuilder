@@ -14,13 +14,14 @@ import { Datatable } from "src/shared/infrastructure/services/datatable/Datatabl
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
+import { DatadisService } from "src/shared/infrastructure/services";
 
 export const RESOURCE_NAME = "cups";
 
 @ApiTags(RESOURCE_NAME)
 @Controller("cups")
 export class CupsController {
-  constructor(private prisma: PrismaService, private datatable: Datatable) {}
+  constructor(private prisma: PrismaService, private datatable: Datatable, private datadisService:DatadisService) {}
 
   @Get()
   @Auth(RESOURCE_NAME)

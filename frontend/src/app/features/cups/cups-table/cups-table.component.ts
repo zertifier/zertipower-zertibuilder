@@ -152,13 +152,13 @@ export class CupsTableComponent implements OnDestroy {
       orderable: false, targets: [this.filterParams.length],
     },
     {
-      targets: 7,
+      targets: 6,
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     {
-      targets: 8,
+      targets: 7,
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }

@@ -1,5 +1,6 @@
 import * as bcrypt from "bcrypt";
 import { RandUtils } from "../../../../shared/domain/utils";
+import * as CryptoJS from 'crypto-js';
 
 export class PasswordUtils {
   /**
@@ -32,4 +33,18 @@ export class PasswordUtils {
     }
     return passwordCharacters.join("");
   }
+
+// Función para cifrar datos
+public static encryptData(data: string, key: string): string {
+  const encryptedData = CryptoJS.AES.encrypt(data, key).toString();
+  return encryptedData;
+}
+
+// Función para descifrar datos
+public static decryptData(encryptedData: string, key: string): string {
+  const decryptedDataBytes = CryptoJS.AES.decrypt(encryptedData, key);
+  const decryptedData = decryptedDataBytes.toString(CryptoJS.enc.Utf8);
+  return decryptedData;
+}
+
 }

@@ -26,8 +26,9 @@
 </div> -->
 
 <div class="container-flex h-100 w-100">
-  <div class="row h-100">
-    <div class="col-12 col-md-6">
+  <div class="row h-100 p-0 m-0">
+    
+    <div class="col-12 col-lg-6">
       <h2 class="text-center mb-5 fw-semibold mt-4" style="font-size: 45px">CALCULADORA <br> Comunitat Energètica Ciutadana</h2>
       <div class="mt-2 w-100 text-center">
         <img *ngIf="getThemeName() == 'Light'" src="assets/img/icons8-calculator-500.png" style="width: 50vw; max-width:250px !important">
@@ -36,8 +37,11 @@
       <h3 class="text-center mb-4 fw-semibold mt-5" style="font-size: 45px">Log in</h3>
       <app-web2-login-form></app-web2-login-form>
     </div>
-    <div class="col-12 col-md-6 ">
-      <img src="assets/img/solar-city.png" class="h-100" style="min-height: 100%; overflow: hidden;">
+
+    <div class="col-12 col-lg-6 d-none d-lg-block" style=" background-image: url('assets/img/solar-city.png');background-repeat: no-repeat;background-size: cover;">
+      <!-- <img src="assets/img/solar-city.png" class="h-100" style="min-height: 100%; overflow: hidden;"> -->
     </div>
+
   </div>
+
 </div>

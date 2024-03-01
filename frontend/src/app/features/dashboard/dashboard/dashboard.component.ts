@@ -79,7 +79,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       let {yearEnergy,weekEnergy,dayEnergy} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
       //update charts:
       this.updateCharts(yearEnergy,weekEnergy,dayEnergy)
-
     })
 
     //customer selector listener
@@ -144,6 +143,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   async getChartInfo(cupsId: number, year: number, week: number, date: string){
+    console.log(cupsId, year, week, date)
     let yearEnergy = await this.getYearEnergy(year, cupsId)
     let weekEnergy = await this.getEnergyByWeek(week, year, cupsId)
     let dayEnergy = await this.getEnergyByDay(cupsId, date)
@@ -155,6 +155,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     return new Promise((resolve, reject) => {
       //if(cups){
       this.energyService.getYearByCups(year, cups!).subscribe((res: any) => {
+        console.log(res)
         console.log(res.data)
         let monthlyCupsData = res.data;
         let months: string[] = monthlyCupsData.map((entry: any) => entry.month);

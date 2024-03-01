@@ -10,8 +10,7 @@ export interface CupsApiInterface {
   cups: string;
   providerId: number;
   communityId: number;
-  ubication: string;
-  geolocalization: string;
+  locationId: string;
   customerId: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -22,8 +21,7 @@ export interface CupsApiDTO {
   cups: string;
   providerId: number;
   communityId: number;
-  ubication: string;
-  geolocalization: string;
+  locationId: string;
   customerId: number;
   createdAt?: string;
   updatedAt?: string;
@@ -68,8 +66,7 @@ function mapToApiInterface(dto: CupsApiDTO): CupsApiInterface {
     cups: dto.cups,
     providerId: dto.providerId,
     communityId: dto.communityId,
-    ubication: dto.ubication,
-    geolocalization: dto.geolocalization,
+    locationId: dto.locationId,
     customerId: dto.customerId,
     createdAt: moment(dto.createdAt, "YYYY-MM-DD HH:mm").toDate(),
     updatedAt: moment(dto.updatedAt, "YYYY-MM-DD HH:mm").toDate(),
@@ -82,8 +79,7 @@ function mapToDTO(dto: CupsApiInterface): CupsApiDTO {
     cups: dto.cups,
     providerId: dto.providerId,
     communityId: dto.communityId,
-    ubication: dto.ubication,
-    geolocalization: dto.geolocalization,
+    locationId: dto.locationId,
     customerId: dto.customerId,
     //createdAt: moment.utc(dto.createdAt).format("YYYY-MM-DD HH:mm"),
     //updatedAt: moment.utc(dto.updatedAt).format("YYYY-MM-DD HH:mm"),

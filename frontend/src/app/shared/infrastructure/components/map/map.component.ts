@@ -6,6 +6,7 @@ import {
   OnInit, ViewChild,
 } from "@angular/core";
 import {GoogleMap} from '@angular/google-maps';
+import { Output, EventEmitter } from '@angular/core';
 import { log } from "console";
 
 @Component({
@@ -46,6 +47,7 @@ export class AppMapComponent implements AfterViewInit {
 
   lat = 41.505;
   lng = 1.509;
+  
   polygonT = [{lat:this.lat,lng:this.lng},{lat:this.lat+0.001,lng:this.lng+0.001}]
 
   coordinates = new google.maps.LatLng(this.lat, this.lng);
@@ -64,6 +66,9 @@ export class AppMapComponent implements AfterViewInit {
   infoWindow: google.maps.InfoWindow | null = null;
   originalStyle: any = {fillColor:"red",fillOpacity:0.0,strokeColor:"white",strokeWeight:1.0,strokeDashArray: '10000, 10000'}
   multipleSelection = false;
+
+  @Output() selectedAreaM2 = new EventEmitter<number>();
+
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -91,8 +96,13 @@ export class AppMapComponent implements AfterViewInit {
         event.feature.setProperty('selected',true);
         this.map.data.overrideStyle(event.feature, { fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white' });
       }
-      this.previousFeature=event.feature
+      
+      this.previousFeature=event.feature;
 
+      this.emitFetureArea(event.feature)
+      
+
+  
 /*
       // Restaurar el estilo de la feature anterior
       if (this.previousFeature && !this.multipleSelection) {
@@ -222,6 +232,35 @@ export class AppMapComponent implements AfterViewInit {
     })
   }
 
-  
+  emitFetureArea(feature:any){
+
+    let geometry = feature.getGeometry().getArray()
+
+    for (var i = 0; i < geometry.length; i++) {
+      
+      console.log(geometry[i].getType())
+
+      // Verificar si la geometría es un polígono
+      if (geometry[i].getType() === 'Polygon') {
+        
+        // Obtener los puntos del polígono
+        const coordinates = geometry[i].getArray()[0].getArray();
+
+        // Convertir las coordenadas a objetos google.maps.LatLng
+        const path = coordinates.map((coordinate:any) => {
+            return { lat: coordinate.lat(), lng: coordinate.lng() };
+        });
+
+        // Calcular el área del polígono
+        const areaM2 = google.maps.geometry.spherical.computeArea(path);
+
+        console.log('Área del polígono en metros cuadrados:', areaM2);
+        this.selectedAreaM2.emit(areaM2);
+
+      } else {
+          console.log('La geometría no es un polígono.');
+      }
+    }
+  }
 
 }

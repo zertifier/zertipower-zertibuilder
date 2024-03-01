@@ -45,12 +45,11 @@ export class CustomersController {
   @Auth(RESOURCE_NAME)
   async getByCups() {
     try {
-      let url = `SELECT * FROM cups LEFT JOIN customers on cups.customer_id = customers.id`;
+      let url = `SELECT cups.* , customers.name, customers.wallet_address FROM cups LEFT JOIN customers on cups.customer_id = customers.id`;
       const [ROWS]:any[] = await this.conn.query(url);
-      const mappedData = this.mapCustomerCupsData(ROWS);
-      //console.log(data, mappedData);
+
       return HttpResponse.success("customers fetched successfully").withData(
-        mappedData
+        ROWS
       );
     } catch (e) {
       console.log("error getting customers-cups:", e);

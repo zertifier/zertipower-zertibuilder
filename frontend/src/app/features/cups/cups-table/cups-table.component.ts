@@ -44,32 +44,32 @@ export class CupsTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'ProviderId',
+      title: 'Provider id',
       data: 'provider_id',
       width: '100px',
     },
     {
-      title: 'CommunityId',
+      title: 'Community id',
       data: 'community_id',
       width: '100px',
     },
     {
-      title: 'Location',
+      title: 'Location id',
       data: 'location_id',
       width: '100px',
     },
     {
-      title: 'CustomerId',
+      title: 'Customer id',
       data: 'customer_id',
       width: '100px',
     },
     {
-      title: 'CreatedAt',
+      title: 'Created at',
       data: 'created_at',
       width: '100px',
     },
     {
-      title: 'UpdatedAt',
+      title: 'Updated at',
       data: 'updated_at',
       width: '100px',
     },
@@ -144,12 +144,18 @@ export class CupsTableComponent implements OnDestroy {
         type: 0,
         defaultData: 0,
         options: [],
-      },
+      }
   ];
 
   columnDefs:any[] = [
     {
       orderable: false, targets: [this.filterParams.length],
+    },
+    {
+      targets: 6,
+      render: (data: any, type: any, row: any) => {
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+      }
     },
     {
       targets: 7,
@@ -158,14 +164,8 @@ export class CupsTableComponent implements OnDestroy {
       }
     },
     {
-      targets: 8,
-      render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
-      }
-    },
-    {
       targets: this.filterParams.length,
-      title: '',
+      title: 'eee',
       render: (data: any, type: any, row: any) => {
         return `
          <div class="d-flex justify-content-end">

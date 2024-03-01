@@ -6,7 +6,7 @@ import { CupsTableComponent } from "./cups-table/cups-table.component";
 import { CupsFormComponent } from "./cups-form/cups-form.component";
 import {SharedComponentsModule} from "../../shared/infrastructure/components/shared-components.module";
 import {CoreComponentsModule} from "../../core/core-components/core-components.module";
-import { ReactiveFormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { EditorComponent } from '@tinymce/tinymce-angular';
 
 
@@ -18,7 +18,8 @@ import { EditorComponent } from '@tinymce/tinymce-angular';
     SharedComponentsModule,
     CoreComponentsModule,
     ReactiveFormsModule,
-    EditorComponent
+    EditorComponent,
+    FormsModule
   ]
 })
 export class CupsModule { }

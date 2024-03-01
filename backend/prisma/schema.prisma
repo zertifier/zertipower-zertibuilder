@@ -10,30 +10,32 @@ datasource db {
 
 model User {
   id                    Int         @id @default(autoincrement())
-  username              String      @db.VarChar(255)
-  firstname             String      @db.VarChar(255)
-  lastname              String      @db.VarChar(255)
-  password              String      @db.VarChar(255)
-  email                 String      @unique(map: "email") @db.VarChar(255)
+  username              String     @db.VarChar(255)
+  firstname             String     @db.VarChar(255)
+  lastname              String     @db.VarChar(255)
+  password              String     @db.VarChar(255)
+  email                 String     @db.VarChar(255)
   wallet_address        String?     @db.VarChar(255)
-  tokens                Token[]
   created_at            DateTime    @default(now())
   updated_at            DateTime    @default(now()) @updatedAt
   recover_password_code String?
-  role                  Role        @relation(fields: [role_id], references: [id])
   role_id               Int
   UserOatuh             UserOatuh[]
+  role                  Role        @relation(fields: [role_id], references: [id])
 
+  @@index([email], map: "email")
+  @@index([role_id], map: "users_role_id_fkey")
   @@map("users")
 }
 
 model UserOatuh {
   oauth_id String
   type     String
-  user     User   @relation(fields: [user_id], references: [id])
   user_id  Int
+  user     User   @relation(fields: [user_id], references: [id])
 
   @@id([oauth_id, user_id])
+  @@index([user_id], map: "user_oauth_user_id_fkey")
   @@map("user_oauth")
 }
 
@@ -47,20 +49,21 @@ model Permission {
 }
 
 model RolePermission {
-  role                Role       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   role_id             Int
-  permission          Permission @relation(fields: [permission_resource, permission_action], references: [resource, action], onDelete: Cascade, onUpdate: Cascade)
   permission_resource String
   permission_action   String
   allow               Boolean
+  permission          Permission @relation(fields: [permission_resource, permission_action], references: [resource, action], onDelete: Cascade)
+  role                Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
 
   @@id([role_id, permission_action, permission_resource])
+  @@index([permission_resource, permission_action], map: "role_permission_permission_resource_permission_action_fkey")
   @@map("role_permission")
 }
 
 model Token {
-  token           String   @unique @db.VarChar(300)
-  user            User     @relation(fields: [user_id], references: [id])
+  id              Int      @id @default(autoincrement())
+  token           String   @db.VarChar(300)
   expiration_time DateTime
   user_id         Int
 
@@ -70,8 +73,8 @@ model Token {
 model Role {
   id             Int              @id @default(autoincrement())
   name           String           @unique @db.VarChar(255)
-  users          User[]
   RolePermission RolePermission[]
+  users          User[]
 
   @@map("roles")
 }
@@ -88,7 +91,6 @@ model Report {
   @@map("reports")
 }
 
-
 model blockchains {
   blockchain_id     Int     @id
   blockchain_name   String? @db.VarChar(50)
@@ -96,43 +98,51 @@ model blockchains {
   blockchain_tx_url String? @db.VarChar(50)
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model calendar {
-  day          DateTime @unique(map: "day") @db.Date
+  day          DateTime  @unique(map: "day") @db.Date
   weekday      String?   @db.VarChar(50)
   day_type     String?   @db.VarChar(50)
   festive_type String?   @db.VarChar(50)
   festivity    String?   @db.VarChar(50)
   updated_at   DateTime? @default(now()) @db.DateTime(0)
   created_at   DateTime? @default(now()) @db.DateTime(0)
-
 }
 
 model communities {
   id           Int       @id @default(autoincrement())
   name         String?   @db.VarChar(50)
-  created_at   DateTime? @default(now()) @db.DateTime(0)
-  updated_at   DateTime? @db.DateTime(0)
   test         Int?      @default(dbgenerated("(current_timestamp())")) @db.TinyInt
   energy_price Float?
   lat          Float?
   lng          Float?
   location_id  Int?
+  created_at   DateTime? @default(now()) @db.DateTime(0)
+  updated_at   DateTime? @db.DateTime(0)
 }
 
 model cups {
-  id                           Int        @id @default(autoincrement())
-  cups                         String     @default("") @db.VarChar(50)
-  provider_id                  Int        @default(0)
-  community_id                 Int        @default(0)
-  ubication                    String     @default("") @db.VarChar(50)
-  customer_id                  Int?
-  lng                          Float?
-  lat                          Float?
-  surplus_distribution_default String?    @db.LongText
-  type                         cups_type?
-  created_at                   DateTime?  @default(now()) @db.DateTime(0)
-  updated_at                   DateTime?  @db.DateTime(0)
+  id                   Int        @id @default(autoincrement())
+  cups                 String     @default("") @db.VarChar(50)
+  provider_id          Int        @default(0)
+  community_id         Int        @default(0)
+  surplus_distribution String?    @db.LongText
+  location_id          String     @default("") @db.VarChar(50)
+  address              String     @default("") @db.VarChar(50)
+  customer_id          Int?
+  lng                  Float?
+  lat                  Float?
+  type                 cups_type?
+  datadis_active       Int?       @default(0) @db.TinyInt
+  datadis_user         String?    @db.VarChar(50)
+  datadis_password     String?    @db.VarChar(50)
+  smart_meter_active   Int?       @default(0) @db.TinyInt
+  smart_meter_model    String     @default("") @db.VarChar(100)
+  smart_meter_api_key  String?    @db.VarChar(50)
+  inverter_active      Int        @default(0) @db.TinyInt
+  inverter_model       String?    @db.VarChar(100)
+  inverter_api_key     String?    @db.VarChar(50)
+  created_at           DateTime?  @default(now()) @db.DateTime(0)
+  updated_at           DateTime?  @db.DateTime(0)
 }
 
 model customers {
@@ -195,7 +205,6 @@ model energyRegisters {
 
   @@index([cups_id], map: "cups_id")
   @@index([info_dt], map: "info_dt")
-
   @@map("energy_registers")
 }
 
@@ -237,17 +246,39 @@ model smartContracts {
   @@map("smart_contracts")
 }
 
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view energy_registers_original_monthly {
+  cups_id     Int?
+  year        Int?
+  month       Int?
+  import      Float?
+  consumption Float?
+  export      Float?
+  generation  Float?
 
+  @@ignore
+}
 
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view energy_registers_original_hourly {
+  cups_id       Int?
+  info_datetime DateTime? @db.DateTime(0)
+  import        Float?
+  consumption   Float?
+  export        Float?
+  generation    Float?
 
-enum read_data_log_status {
-  ERROR
-  SUCCESS
-  WARNING
+  @@ignore
 }
 
 enum cups_type {
   consumer
   producer
   prosumer
+}
+
+enum read_data_log_status {
+  ERROR
+  SUCCESS
+  WARNING
 }

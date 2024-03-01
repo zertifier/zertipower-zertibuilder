@@ -10,6 +10,7 @@ import * as turf from '@turf/turf'
 import { log } from 'console';
 import { LocationService } from 'src/app/core/core-services/location.service';
 import { BehaviorSubject } from 'rxjs';
+import axios from 'axios';
 
 
 @Component({
@@ -37,16 +38,19 @@ export class SearchComponent implements AfterViewInit {
 
   //chart variables
   monthChartType: string = 'bar';
-  monthChartLabels: string[] =  ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Augost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  monthChartLabels: string[] =  ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  monthChartClientData: any[] = new Array(12).fill({ p1: 0, p2: 0, p3: 0, production: 0 });;
   monthChartDatasets: any[] | undefined = undefined;
   monthChartData: any[] = [];
   monthChartBackgroundColor: string [] = [];
   updateMonthChart: boolean = false;
   updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   sumMonthGeneration: number[] = [];
-  kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25]
+  kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25];
+
+  selectedAreaM2:number| undefined;
  
-  @ViewChild(AppMapComponent) map!:AppMapComponent ;
+  @ViewChild(AppMapComponent) map!:AppMapComponent;
 
   folder:number=1;
 
@@ -143,8 +147,11 @@ export class SearchComponent implements AfterViewInit {
         this.selectedEnergyArea = this.energyAreas.find((energyArea:any)=>
           energyArea.id === energyAreaId
         )
+
+        console.log("selectedeeed",this.selectedAreaM2)
+
         //console.log(`foo = `, this.selectedEnergyArea.m2, this.selectedEnergyArea.m2*0.2,(this.selectedEnergyArea.m2*0.2)/2,Math.floor((this.selectedEnergyArea.m2*0.2)/2))
-        this.nPlaquesCalc = Math.floor((this.selectedEnergyArea.m2 * 0.2) / 2)
+        this.nPlaquesCalc = Math.floor((this.selectedAreaM2! * 0.2) / 2)
         //console.log(`selected energy area = `, this.selectedEnergyArea)
         //console.log("nplaquescalc", this.nPlaquesCalc)
         this.updatekWhPerMonth(this.nPlaquesCalc)
@@ -259,6 +266,10 @@ export class SearchComponent implements AfterViewInit {
     ]
 
     this.updateMonthChartSubject.next(true);
+  }
+
+  setSelectedAreaM2(areaM2:any){
+    this.selectedAreaM2=Math.floor(areaM2)
   }
 
 }

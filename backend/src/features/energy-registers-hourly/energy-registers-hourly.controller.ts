@@ -93,7 +93,7 @@ export class EnergyRegistersHourlyController {
         registers
       );
     } catch (e) {
-      console.log("error getting energy");
+      console.log("error getting energy",e);
     }
   }
 
@@ -163,7 +163,7 @@ export class EnergyRegistersHourlyController {
         registers
       );
     } catch (e) {
-      console.log("error getting energy");
+      console.log("error getting energy",e);
     }
   }
 
@@ -172,6 +172,7 @@ export class EnergyRegistersHourlyController {
   async getMonthly(@Param("year") year: string, @Query() queryParams: any) {
     try {
       const { cups, wallet, community } = queryParams;
+
       let query: string = "";
       let registers: any;
       const monthsName: string[] = [
@@ -232,7 +233,7 @@ export class EnergyRegistersHourlyController {
         yearlyRegisters
       );
     } catch (e) {
-      console.log("error getting energy");
+      console.log("error getting energy",e);
     }
   }
 

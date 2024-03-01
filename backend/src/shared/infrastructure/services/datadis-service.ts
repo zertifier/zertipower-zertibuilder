@@ -89,15 +89,11 @@ export class DatadisService {
 
         this.dbCups = await this.getCups()
 
-        console.log("cups number",this.dbCups.length)
-
         for (let cups of this.dbCups) {
 
             if(!cups.datadis_active || !cups.datadis_user || !cups.datadis_password){
                 continue;
             }
-
-            console.log("reading cups! ",cups.id)
 
             this.loginData.username=cups.datadis_user;
             this.loginData.password= PasswordUtils.decryptData(cups.datadis_password,process.env.JWT_SECRET!);
@@ -111,15 +107,22 @@ export class DatadisService {
             //check if all cups are in database already
             await this.checkCups();
 
-            console.log("supplies number",this.supplies.length)
-
             //go across cups:
             for (const supply of this.supplies){
+
+                error = false;
+                errorType = '';
+                errorMessage = '';
+                operation = ''
 
                 let cupsData:any = this.dbCups.find((registeredCups:any)=>registeredCups.cups===supply.cups)
                 
                 if(!cupsData){
                     console.log("Error cups data not found on db : " , supply.cups)
+                    error = true;
+                    errorType = 'Error cups data not found on db';
+                    operation = 'Find cups data register by datadis supply.cups'
+                    await this.postLogs(supply.cups,cupsData.id,operation,0,startDate,endDate,null,null,error,errorType,errorMessage)
                     continue;
                 }
 
@@ -137,7 +140,11 @@ export class DatadisService {
                 })
 
                 if(!datadisCupsEnergyData){
-                    console.log("datadisCupsEnergyData ",datadisCupsEnergyData, ". Continue")
+                    console.log("no datadisCupsEnergyData ",datadisCupsEnergyData, ". Continue")
+                    error = true;
+                    errorType = 'no datadis cups energy data';
+                    operation = 'Get energy data from datadis (https://datadis.es/api-private/api/get-consumption-data)'
+                    await this.postLogs(supply.cups,cupsData.id,operation,0,startDate,endDate,null,null,error,errorType,errorMessage)
                     continue;
                 }
 
@@ -398,8 +405,6 @@ export class DatadisService {
             getDatadisBegginningDate,
             getDatadisEndingDate
         };
-
-        console.log("errorMessage",typeof errorMessage,errorMessage)
 
         const insertLogQuery = `INSERT INTO logs (log,cups,cups_id,error,operation,n_affected_registers,error_message) VALUES (?,?,?,?,?,?,?)`
         return new Promise(async (resolve,reject)=>{

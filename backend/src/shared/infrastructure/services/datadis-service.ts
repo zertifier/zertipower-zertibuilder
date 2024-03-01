@@ -73,7 +73,7 @@ export class DatadisService {
         this.run(startDate,endDate)
 
         setInterval(()=>{
-            startDate= moment().subtract(1, 'weeks').format('YYYY/MM'); 
+            startDate= moment().subtract(1, 'months').format('YYYY/MM');
             endDate= moment().format('YYYY/MM');
             //this.run(startDate,endDate)
         },86400000) //24 h => ms
@@ -85,8 +85,7 @@ export class DatadisService {
         let error = false;
         let errorType = '';
         let errorMessage = '';
-
-        console.log("run")
+        let operation = '';
 
         this.dbCups = await this.getCups()
 
@@ -119,16 +118,21 @@ export class DatadisService {
 
                 let cupsData:any = this.dbCups.find((registeredCups:any)=>registeredCups.cups===supply.cups)
                 
-                console.log("cupsData found?",cupsData.id)
+                if(!cupsData){
+                    console.log("Error cups data not found on db : " , supply.cups)
+                    continue;
+                }
 
                 let getDatadisBegginningDate = moment().format("DD-MM-YYYY HH:mm:ss");
 
                 //obtain datadis hour energy:
                 let datadisCupsEnergyData:any = await this.getConsumptionData(supply.cups,supply.distributorCode,startDate,endDate,0,supply.pointType).catch(async (e)=>{
                     let getDatadisEndingDate = moment().format("DD-MM-YYYY HH:mm:ss");
+                    error=true;
                     errorType="datadis request error";
-                    errorMessage=e;
-                    await this.postLogs(supply.cups,0,startDate,endDate, error,getDatadisBegginningDate,getDatadisEndingDate,errorType,errorMessage)
+                    errorMessage=e.toString().substring(0,200)
+                    operation="get datadis hourly energy registers"
+                    await this.postLogs(supply.cups,cupsData.id,operation,0,startDate,endDate,getDatadisBegginningDate,getDatadisEndingDate,error,errorType,errorMessage)
                     return null;
                 })
 
@@ -143,10 +147,12 @@ export class DatadisService {
                 let databaseEnergyHourData = await this.postCupsEnergyData(cupsData,datadisCupsEnergyData,startDate,endDate).catch(e=>{
                     error=true;
                     errorType="post datadis data error";
+                    errorMessage=e.toString().substring(0,200);
+                    operation="post datadis hourly energy registers data into database";
                 });
 
                 //insert readed cups energy hours 
-                await this.postLogs(supply.cups,datadisCupsEnergyData.length,startDate,endDate, error,getDatadisBegginningDate,getDatadisEndingDate,errorType,errorMessage)
+                await this.postLogs(supply.cups,cupsData.id,operation,datadisCupsEnergyData.length,startDate,endDate,getDatadisBegginningDate,getDatadisEndingDate,error,errorType,errorMessage)
 
             }
         }
@@ -317,13 +323,16 @@ export class DatadisService {
         let firstEnergyDate = datadisCupsEnergyData[0]
         datadisCupsEnergyData = datadisCupsEnergyData.slice(1)
         
-        let day = moment(firstEnergyDate.date ).format('YYYY-MM-DD')
-        let hour = moment(firstEnergyDate.time).format('HH:mm:ss') 
+        let day = moment(firstEnergyDate.date,'YYYY/MM/DD').format('YYYY-MM-DD')
+        let hour = moment(firstEnergyDate.time,'HH:mm').format('HH:mm:ss') 
         let infoDt = `${day} ${hour}`;
         let consumption = firstEnergyDate.consumptionKWh;
         let generation = firstEnergyDate.surplusEnergyKWh;
 
-        dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as consumption, ? as generation, ? as cups_id`)
+        let startDateFormat=moment(startDate,'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
+        let endDateFormat=moment(endDate,'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
+
+        dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as import, ? as generation, ? as cups_id`)
 
         pushToValues(infoDt,consumption,generation,cupsData)
 
@@ -343,8 +352,8 @@ export class DatadisService {
         }
 
         let query = ` 
-        INSERT INTO energy_registers (info_dt, consumption,generation,cups_id) 
-        SELECT info_dt, consumption,generation, cups_id
+        INSERT INTO energy_registers (info_dt, import,generation,cups_id) 
+        SELECT info_dt, import, generation, cups_id
         FROM ( ${dataToSearchQueryPart} ) AS data_to_check 
         WHERE data_to_check.info_dt
         NOT IN (
@@ -356,7 +365,7 @@ export class DatadisService {
         AND cups_id = ?
         ` 
 
-        values.push(startDate); values.push(endDate);values.push(cupsData.id);
+        values.push(startDateFormat); values.push(endDateFormat);values.push(cupsData.id);
 
         return new Promise(async (resolve,reject)=>{
 
@@ -376,7 +385,7 @@ export class DatadisService {
 
     }
 
-    postLogs(cups:string, n_registers:number,startDate:any,endDate:any,error:boolean,getDatadisBegginningDate:any,getDatadisEndingDate:any,errorType:string,errorMessage:string){
+    postLogs(cups:string,cupsId:number,operation:string,n_registers:number,startDate:any,endDate:any,getDatadisBegginningDate:any,getDatadisEndingDate:any,error:boolean,errorType:string,errorMessage:string){
 
         const log = {
             cups,
@@ -390,10 +399,12 @@ export class DatadisService {
             getDatadisEndingDate
         };
 
-        const insertLogQuery = `INSERT INTO logs (log) VALUES (?)`
+        console.log("errorMessage",typeof errorMessage,errorMessage)
+
+        const insertLogQuery = `INSERT INTO logs (log,cups,cups_id,error,operation,n_affected_registers,error_message) VALUES (?,?,?,?,?,?,?)`
         return new Promise(async (resolve,reject)=>{
             try{
-                let [ROWS] = await this.conn.query(insertLogQuery, [JSON.stringify(log)]);
+                let [ROWS] = await this.conn.query(insertLogQuery, [JSON.stringify(log),cups,cupsId,error,operation,n_registers,errorMessage]);
                 resolve(ROWS);
             } catch (e:any) {
                 console.log("error inserting logs energy data", e);

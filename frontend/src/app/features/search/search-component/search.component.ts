@@ -151,7 +151,7 @@ export class SearchComponent implements AfterViewInit {
         console.log("selectedeeed",this.selectedAreaM2)
 
         //console.log(`foo = `, this.selectedEnergyArea.m2, this.selectedEnergyArea.m2*0.2,(this.selectedEnergyArea.m2*0.2)/2,Math.floor((this.selectedEnergyArea.m2*0.2)/2))
-        this.nPlaquesCalc = Math.floor((this.selectedAreaM2! * 0.2) / 2)
+        this.nPlaquesCalc = Math.floor((this.selectedAreaM2! * 0.2) / 1.7)
         //console.log(`selected energy area = `, this.selectedEnergyArea)
         //console.log("nplaquescalc", this.nPlaquesCalc)
         this.updatekWhPerMonth(this.nPlaquesCalc)

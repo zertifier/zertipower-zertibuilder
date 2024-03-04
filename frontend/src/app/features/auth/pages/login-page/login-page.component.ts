@@ -1,4 +1,4 @@
-import { Component, computed, effect, EffectRef, OnDestroy } from "@angular/core";
+import { Component, computed, effect, EffectRef, OnDestroy, ViewEncapsulation } from "@angular/core";
 import { AuthStoreService, LoginMode } from "../../services/auth-store.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { environment } from "../../../../../environments/environment";
@@ -8,6 +8,8 @@ import { HttpClient } from "@angular/common/http";
 import {ethers} from "ethers";
 import { LoginActionService } from "../../services/login-action.service";
 import { AuthApiService } from "../../services/auth-api.service";
+import Swal from "sweetalert2";
+import { Subject } from "rxjs";
 
 export interface HttpResponse {
 	message: string,
@@ -27,13 +29,14 @@ export interface HttpResponse {
 	selector: "app-logout-page",
 	templateUrl: "./login-page.component.html",
 	styleUrls: ["./login-page.component.scss"],
+	encapsulation: ViewEncapsulation.None
 })
 export class LoginPageComponent implements OnDestroy {
 	effectRefs: EffectRef[] = [];
 	web2 = computed(() => this.authStore.loginMode() === LoginMode.WEB2);
 	web3 = computed(() => this.authStore.loginMode() === LoginMode.WEB3);
 	loginMode = computed(() => this.authStore.loginMode().toString());
-	loading:boolean=false;
+	loading:Subject<boolean>=new Subject<boolean>;
 	protected readonly environment = environment;
 
 	constructor(private authStore: AuthStoreService, private router: Router,private themeStoreService: ThemeStoreService,private route: ActivatedRoute, private http: HttpClient, private loginActionService:LoginActionService, private authApiService: AuthApiService) {
@@ -60,13 +63,28 @@ export class LoginPageComponent implements OnDestroy {
 
 	getThemeName() {
 		return capitalCase(this.themeStoreService.theme().toString());
-	  }
+	}
 
-	  loadWallet() {
+	loadWallet() {
+
+		let that = this
+
 		this.route.queryParams.subscribe(params => {
 		  const code = params['code'];
 		  if (code) {
-			this.loading=true;
+			Swal.fire({
+				title:'Logging in',
+				allowOutsideClick: false,
+				showConfirmButton:false,
+				didOpen:function(){
+					Swal.showLoading();
+					that.loading.subscribe((res)=>{
+						Swal.close();
+					})
+
+				}
+			})
+			
 			this.getPrivateKey(code).subscribe({
 			  next: (res: PrivateKeyHttpResponse) => {
 				localStorage.removeItem('baseCodeChallenge');
@@ -78,13 +96,13 @@ export class LoginPageComponent implements OnDestroy {
 					const access_token = response.access_token;
 					const refresh_token = response.refresh_token;
 					this.authStore.setTokens(access_token, refresh_token);
-					this.loading=false;
+					this.loading.next(false);
 				})
 			  },
 			  error: (error) => {
 				localStorage.removeItem('baseCodeChallenge');
 				console.log(error)
-				this.loading=false;
+				this.loading.next(false);
 			  }
 			})
 		  }

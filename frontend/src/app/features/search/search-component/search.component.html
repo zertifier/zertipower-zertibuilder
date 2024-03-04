@@ -63,7 +63,7 @@
         </div>
 
 
-        <div *ngIf="energyArea">
+        <!-- <div *ngIf="energyArea">
 
           <div class="my-2">Referència cadastral</div>
           <input id="" placeholder="referència cadastral" type="text" class="form-control" value="{{energyArea.cadastral_reference}}">
@@ -74,7 +74,7 @@
           <div class="my-2">Cups</div>
           <input id="" placeholder="m2" type="text" class="form-control" value="{{energyArea.m2 || 0}}">
   
-        </div>
+        </div> -->
 
       </div>
 
@@ -84,17 +84,17 @@
 
         <div class="col">
           <div class="my-2">M2 teulada</div>
-          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+          <input id="" placeholder="" type="text" disabled class="form-control" value="{{selectedAreaM2}}">
         </div>
         
         <div class="col">
           <div class="my-2">M2 plaques</div>
-          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+          <input id="" placeholder="" type="text" disabled class="form-control" value="1.7">
         </div>
 
         <div class="col">
           <div class="my-2">N. plaques</div>
-          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+          <input id="" placeholder="" type="text" disabled class="form-control" value="{{nPlaquesCalc}}">
         </div>
 
         <div class="col">
@@ -173,7 +173,7 @@
 <!-- TODO: month chart  -->
 
       <div class="d-flex justify-content-center mt-5">
-        <button type="button" class="btn btn-dark"> Guarda la informació </button>
+        <button type="button" class="btn btn-dark" disabled> Guarda la informació </button>
       </div>
 
       </div>
@@ -258,7 +258,7 @@
       <!-- TODO: month chart  -->
 
       <div class="d-flex justify-content-center mt-5">
-        <button type="button" class="btn btn-dark"> Guarda la informació </button>
+        <button type="button" class="btn btn-dark" disabled> Guarda la informació </button>
       </div>
 
       </div>
@@ -320,7 +320,7 @@
         <!-- TODO: month chart  -->
 
         <div class="d-flex justify-content-center mt-5">
-          <button type="button" class="btn btn-dark"> Guarda la informació </button>
+          <button type="button" class="btn btn-dark" disabled> Guarda la informació </button>
         </div>
 
       </div>

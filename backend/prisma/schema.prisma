@@ -247,29 +247,29 @@ model smartContracts {
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-view energy_registers_original_monthly {
-  cups_id     Int?
-  year        Int?
-  month       Int?
-  import      Float?
-  consumption Float?
-  export      Float?
-  generation  Float?
-
-  @@ignore
-}
+// view energy_registers_original_monthly {
+//   cups_id     Int?
+//   year        Int?
+//   month       Int?
+//   import      Float?
+//   consumption Float?
+//   export      Float?
+//   generation  Float?
+//
+//   @@ignore
+// }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-view energy_registers_original_hourly {
-  cups_id       Int?
-  info_datetime DateTime? @db.DateTime(0)
-  import        Float?
-  consumption   Float?
-  export        Float?
-  generation    Float?
-
-  @@ignore
-}
+// view energy_registers_original_hourly {
+//   cups_id       Int?
+//   info_datetime DateTime? @db.DateTime(0)
+//   import        Float?
+//   consumption   Float?
+//   export        Float?
+//   generation    Float?
+//
+//   @@ignore
+// }
 
 enum cups_type {
   consumer

@@ -90,15 +90,30 @@ export class CupsController {
 
   mapData(data: any) {
     const mappedData: any = {};
-    mappedData.id = data.id;
-    mappedData.cups = data.cups;
-    mappedData.providerId = data.providerId;
-    mappedData.communityId = data.communityId;
-    mappedData.ubication = data.ubication;
-    mappedData.geolocalization = data.geolocalization;
-    mappedData.customerId = data.customerId;
-    mappedData.createdAt = data.createdAt;
-    mappedData.updatedAt = data.updatedAt;
+    
+    mappedData.id=data.id
+    mappedData.cups=data.cups
+    mappedData.providerId=data.provider_id
+    mappedData.communityId=data.community_id
+    mappedData.surplusDistribution=data.surplus_distribution
+    mappedData.locationId=data.location_id
+    mappedData.address=data.address
+    mappedData.customerId=data.customer_id
+    mappedData.lng=data.lng
+    mappedData.lat=data.lat
+    mappedData.type=data.type
+    mappedData.datadisActive=data.datadis_active
+    mappedData.datadisUser=data.datadis_user
+    mappedData.datadisPassword=data.datadis_password
+    mappedData.smartMeterActive=data.smart_meter_active
+    mappedData.smartMeterModel=data.smart_meter_model
+    mappedData.smartMeterApiKey=data.smart_meter_api_key
+    mappedData.inverterActive=data.inverter_active
+    mappedData.inverterModel=data.inverter_model
+    mappedData.inverterApiKey=data.inverter_api_key
+    mappedData.createdAt=data.created_at
+    mappedData.updatedAt=data.updated_at
+
     return mappedData;
   }
 }

@@ -6,5 +6,5 @@ export enum ErrorCode {
   UNAUTHORIZED = "001",
   BAD_REQUEST = "002",
   INTERNAL_ERROR = "003",
-  FORBIDDEN = "004",
+  FORBIDDEN = "004"
 }

@@ -23,7 +23,7 @@ export class CupsFormComponent {
     cups: new FormControl<string | null>(null),
     providerId: new FormControl<number | null>(null),
     communityId: new FormControl<number | null>(null),
-    locationId: new FormControl<string | null>(null),
+    locationId: new FormControl<number | null>(null),
     address: new FormControl<string | null>(null),
     lat: new FormControl<number | null>(null),
     lng: new FormControl<number | null>(null),
@@ -31,9 +31,15 @@ export class CupsFormComponent {
     customerId: new FormControl<number | null>(null),
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
-    datadis:new FormControl<boolean>(false),
-    smartMeter:new FormControl<boolean>(false),
-    inverter:new FormControl<boolean>(false)
+    datadis:new FormControl<number>(0),
+    datadisUser: new FormControl<string | null>(null),
+    datadisPwd: new FormControl<string | null>(null),
+    smartMeter:new FormControl<number>(0),
+    smartMeterModel:new FormControl<string|null>(null),
+    smartMeterApiKey:new FormControl<string|null>(null),
+    inverter:new FormControl<number>(0),
+    inverterModel:new FormControl<string|null>(null),
+    inverterApiKey:new FormControl<string|null>(null),
   });
 
   constructor(
@@ -48,11 +54,27 @@ export class CupsFormComponent {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
+
+      console.log(data)
+
       this.form.controls.id.setValue(data.id);
       this.form.controls.cups.setValue(data.cups);
+      this.form.controls.type.setValue(data.type);
       this.form.controls.providerId.setValue(data.providerId);
       this.form.controls.communityId.setValue(data.communityId);
       this.form.controls.locationId.setValue(data.locationId);
+      this.form.controls.address.setValue(data.address);
+      this.form.controls.lat.setValue(data.lat);
+      this.form.controls.lng.setValue(data.lng);
+      this.form.controls.datadis.setValue(data.datadis);
+      this.form.controls.smartMeter.setValue(data.smartMeter);
+      this.form.controls.inverter.setValue(data.inverter);
+      this.form.controls.datadisUser.setValue(data.datadisUser);
+      this.form.controls.datadisPwd.setValue(data.datadisPwd);
+      this.form.controls.smartMeterModel.setValue(data.smartMeterModel);
+      this.form.controls.smartMeterApiKey.setValue(data.smartMeterApiKey);
+      this.form.controls.inverterModel.setValue(data.inverterModel);
+      this.form.controls.inverterApiKey.setValue(data.inverterApiKey);
       this.form.controls.customerId.setValue(data.customerId);
       this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
       this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));

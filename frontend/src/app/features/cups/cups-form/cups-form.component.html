@@ -8,7 +8,7 @@
     </div>
     <div>
       <label for="cups-input">cups</label>
-      <input id="cups" type="number" formControlName="cups" class="form-control">
+      <input id="cups" type="string" formControlName="cups" class="form-control">
     </div>
     <div>
       <label for="customer-id-input">customer id</label>
@@ -26,6 +26,10 @@
       <label for="location-id-input">location id</label>
       <input id="location-id-input" type="number" formControlName="locationId" class="form-control">
     </div>
+    <div>
+      <label for="address-input">address</label>
+      <input id="address-input" type="text" formControlName="address" class="form-control">
+    </div>
     <div class="row d-flex justify-content-beetween">
       <div class="col">
         <label for="lat-input">lat</label>
@@ -38,7 +42,7 @@
     </div>
 
     <label for="lng-input">Cups type</label>
-    <select class="px-2 form-select">
+    <select class="px-2 form-select" formControlName="type">
     <option></option>
     <option *ngFor="let element of cupsTypes" [ngValue]="element">{{element}}</option>
     </select>
@@ -102,11 +106,11 @@
     <div class="row d-flex justify-content-beetween">
       <div class="col">
       <label for="created-at-input">creation date</label>
-      <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
+      <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control-plaintext"  readonly>
     </div>
     <div class="col">
       <label for="updated-at-input">update date</label>
-      <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
+      <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control-plaintext" readonly>
     </div>
     </div>
 

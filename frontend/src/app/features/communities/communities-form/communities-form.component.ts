@@ -451,7 +451,7 @@ export class CommunitiesFormComponent implements OnInit {
 
         cups.communityId = res.id | this.communityId;
 
-        let cupsToUpdate: CupsApiInterface = {
+        let cupsToUpdate: any = {
           id: cups.id,
           cups: cups.cups,
           providerId: cups.providerId,
@@ -477,7 +477,7 @@ export class CommunitiesFormComponent implements OnInit {
 
           if (!found) {
 
-            let cupsToUpdate: CupsApiInterface = {
+            let cupsToUpdate: any = {
               id: cups.id,
               cups: cups.cups,
               providerId: cups.providerId,

@@ -85,7 +85,7 @@ export class DatadisService {
         let status = 'success';
         let errorType = '';
         let errorMessage = '';
-        let operation = '';
+        let operation = 'insert datadis data';
 
         this.dbCups = await this.getCups()
 

@@ -345,7 +345,7 @@ export class DatadisService {
 
         for (const energy of datadisCupsEnergyData) {
             
-            let day = moment(energy.date).format('YYYY-MM-DD')
+            let day = moment(energy.date,'YYYY/MM/DD').format('YYYY-MM-DD')
             let hour = moment(energy.time,'HH:mm').format('HH:mm:ss') 
 
             let datetime = `${day} ${hour}`;

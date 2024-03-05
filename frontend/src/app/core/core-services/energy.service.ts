@@ -27,11 +27,13 @@ export class EnergyService {
     return this.http.get(url);
   }
 
-  //todo
+  //TODO:
   getYearByCommunity(year:number,communityId:number){
     let url = ''//`${environment.api_url}/energy-registers-hourly/hourly/${date}?cups=${cups}`;
     return this.http.get(url);
   }
+
+
 
 
 

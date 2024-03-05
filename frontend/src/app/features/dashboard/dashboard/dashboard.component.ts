@@ -6,6 +6,7 @@ import {CustomersService} from "../../../core/core-services/customers.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import moment from "moment";
 import { log } from "console";
+import { DatadisEnergyService } from "src/app/core/core-services/datadis-energy.service";
 
 @Component({
   selector: 'dashboard',
@@ -33,6 +34,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   customers: any;
   customersSelectorListener: any;
+  selectedCupsCustomer:any;
   dateSelectorListener: any;
   year!: number;
   date!: string;
@@ -43,7 +45,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   simpleWeekDateInit: string = '';
   simpleWeekDateEnd: string = '';
 
-  constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder) {}
+  originDataTypes:string[]=['Datadis','Inverter','Smart meter','Other']
+  selectedCupsOriginDataType:string='';
+
+  constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder, private datadisEnergyService:DatadisEnergyService) {}
 
   ngOnInit() {
     this.yearlyChartCanvas = document.getElementById('doughnut-yearly-chart');
@@ -73,6 +78,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
       this.customers = res.data;
+
+      console.log(this.customers)
+
       //set default value to selected cups:
       this.cupsId = this.customers[0].id
       //get chart info:
@@ -83,7 +91,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     //customer selector listener
     this.customersSelectorListener = document.getElementById('customerSelector')!.addEventListener('change', async (event: any) => {
-      this.cupsId = event.target.value;
+      
+      this.cupsId = this.selectedCupsCustomer.id;
+      this.getOriginData();
 
       //get chart info:
       let {yearEnergy,weekEnergy,dayEnergy} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
@@ -111,6 +121,21 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     })
 
   }
+
+
+  getOriginData(){
+    console.log(this.selectedCupsCustomer)
+    if(this.selectedCupsCustomer.datadis_active){
+      this.selectedCupsOriginDataType='Datadis';
+    } else if(this.selectedCupsCustomer.inverter_active) {
+      this.selectedCupsOriginDataType='Inverter';
+    } else if(this.selectedCupsCustomer.smart_meter_active) {
+      this.selectedCupsOriginDataType='Smart meter';
+    } else {
+      this.selectedCupsOriginDataType='Other';
+    }
+    console.log(this.selectedCupsOriginDataType)
+  } 
 
   async updateCharts(yearEnergy:any,weekEnergy:any,dayEnergy:any) {
 
@@ -154,22 +179,30 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   getYearEnergy(year: number, cups?: number, community?: number): Promise<any> {
     return new Promise((resolve, reject) => {
       //if(cups){
-      this.energyService.getYearByCups(year, cups!).subscribe((res: any) => {
-        console.log(res)
-        console.log(res.data)
-        let monthlyCupsData = res.data;
-        let months: string[] = monthlyCupsData.map((entry: any) => entry.month);
-        let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
-        let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
-        let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
-        let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.consumption);
-        let yearEnergy = {months, kwhImport, kwhGeneration,kwhConsumption,kwhExport}
-        resolve(yearEnergy)
-      })
-      //}else if (community){
-      //todo
-      //}
 
+      if(this.selectedCupsOriginDataType=='Datadis'){
+        this.datadisEnergyService.getYearByCups(year, cups!).subscribe((res: any) => {
+          let monthlyCupsData = res.data;
+          let months: string[] = monthlyCupsData.map((entry: any) => entry.month);
+          let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
+          let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
+          let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
+          let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.consumption);
+          let yearEnergy = {months, kwhImport, kwhGeneration,kwhConsumption,kwhExport}
+          resolve(yearEnergy)
+        })
+      } else {
+        this.energyService.getYearByCups(year, cups!).subscribe((res: any) => {
+          let monthlyCupsData = res.data;
+          let months: string[] = monthlyCupsData.map((entry: any) => entry.month);
+          let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
+          let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
+          let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
+          let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.consumption);
+          let yearEnergy = {months, kwhImport, kwhGeneration,kwhConsumption,kwhExport}
+          resolve(yearEnergy)
+        })
+      }
     })
   }
 

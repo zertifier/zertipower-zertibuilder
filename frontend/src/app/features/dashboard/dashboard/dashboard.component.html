@@ -3,14 +3,14 @@
 <div class="row m-0">
   <div class="col-md-3 bg-secondary text-light p-4 config-bar col-12">
     <div class="row">
+
       <div class="mb-2 col-12" id="customers">
         <label for="customerSelector">Select a prosumer:</label>
-        <select id="customerSelector" class="form-select">
-          @for (customer of customers;track customer) {
-          <option value={{customer.id}}>
+        <select id="customerSelector" class="form-select" [(ngModel)]="selectedCupsCustomer">
+          <option></option>
+          <option  *ngFor="let customer of customers" [ngValue]="customer">
           {{customer.name}} {{customer.cups}}
           </option>
-          }
         </select>
       </div>
 
@@ -18,6 +18,27 @@
         <label for="daySelector">Select a date:</label>
         <input id="daySelector" class="form-control" type="date" [ngModel] ="unformattedDate | date:'yyyy-MM-dd'">
       </div>
+
+      <div class="mb-2 col-12">
+        <!-- <label for="originDataTypeSelector">Origin:</label>
+        <select id="originDataTypeSelector" class="form-select">
+          @for (originDataType of originDataTypes) {
+          <option value={{customer.id}}>
+          {{originDataType}}
+          </option>
+          }
+        </select> -->
+
+
+        <label for="originDataTypeSelector">Origen:</label>
+        <select id="originDataTypeSelector" [(ngModel)]="selectedCupsOriginDataType" class="form-select px-2">
+          <option></option>
+          <option *ngFor="let originDataType of originDataTypes" [ngValue]="originDataType">{{originDataType}}</option>
+        </select>
+
+      </div>
+
+      
 
     </div>
   </div>

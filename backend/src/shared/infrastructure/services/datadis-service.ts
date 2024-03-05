@@ -113,7 +113,7 @@ export class DatadisService {
                 status = 'success';
                 errorType = '';
                 errorMessage = '';
-                operation = ''
+                operation = 'register datadis energy data';
 
                 let cupsData:any = this.dbCups.find((registeredCups:any)=>registeredCups.cups===supply.cups)
                 
@@ -349,18 +349,18 @@ export class DatadisService {
             let hour = moment(energy.time,'HH:mm').format('HH:mm:ss') 
 
             let datetime = `${day} ${hour}`;
-            let consumption = energy.consumptionKWh;
-            let generation = energy.surplusEnergyKWh;
+            let energyImport = energy.consumptionKWh;
+            let energyExport = energy.surplusEnergyKWh;
 
-            pushToValues(datetime,consumption,generation,cupsData)
+            pushToValues(datetime,energyImport,energyExport,cupsData)
             
             dataToSearchQueryPart = dataToSearchQueryPart.concat(` UNION ALL SELECT ?,?,?,? `)
 
         }
 
         let query = ` 
-        INSERT INTO energy_registers (info_dt, import,generation,cups_id) 
-        SELECT info_dt, import, generation, cups_id
+        INSERT INTO datadis_energy_registers (info_dt,import,export,cups_id) 
+        SELECT info_dt, import, export, cups_id
         FROM ( ${dataToSearchQueryPart} ) AS data_to_check 
         WHERE data_to_check.info_dt
         NOT IN (

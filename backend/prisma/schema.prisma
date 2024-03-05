@@ -10,11 +10,11 @@ datasource db {
 
 model User {
   id                    Int         @id @default(autoincrement())
-  username              String?     @db.VarChar(255)
-  firstname             String?     @db.VarChar(255)
-  lastname              String?     @db.VarChar(255)
-  password              String?     @db.VarChar(255)
-  email                 String?     @db.VarChar(255)
+  username              String     @db.VarChar(255)
+  firstname             String     @db.VarChar(255)
+  lastname              String     @db.VarChar(255)
+  password              String     @db.VarChar(255)
+  email                 String     @db.VarChar(255)
   wallet_address        String?     @db.VarChar(255)
   created_at            DateTime    @default(now())
   updated_at            DateTime    @default(now()) @updatedAt

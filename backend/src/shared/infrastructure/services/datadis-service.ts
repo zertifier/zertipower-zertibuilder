@@ -151,15 +151,16 @@ export class DatadisService {
                 let getDatadisEndingDate = moment().format("DD-MM-YYYY HH:mm:ss");
 
                 //get cups energy hours db registers 
-                let databaseEnergyHourData = await this.postCupsEnergyData(cupsData,datadisCupsEnergyData,startDate,endDate).catch(e=>{
+                let insertedEnergyDataNumber:number = await this.postCupsEnergyData(cupsData,datadisCupsEnergyData,startDate,endDate).catch(e=>{
                     status='error';
                     errorType="post datadis data error";
                     errorMessage=e.toString().substring(0,200);
                     operation="post datadis hourly energy registers data into database";
-                });
+                    return 0;
+                })
 
                 //insert readed cups energy hours 
-                await this.postLogs(supply.cups,cupsData.id,operation,datadisCupsEnergyData.length,startDate,endDate,getDatadisBegginningDate,getDatadisEndingDate,status,errorType,errorMessage)
+                await this.postLogs(supply.cups,cupsData.id,operation,insertedEnergyDataNumber,startDate,endDate,getDatadisBegginningDate,getDatadisEndingDate,status,errorType,errorMessage)
 
             }
         }
@@ -321,7 +322,7 @@ export class DatadisService {
         })
     }
 
-    async postCupsEnergyData(cupsData:any,datadisCupsEnergyData:any[],startDate:string,endDate:string){
+    async postCupsEnergyData(cupsData:any,datadisCupsEnergyData:any[],startDate:string,endDate:string): Promise<number>{
 
         //create get not inserted energy per cups query
 
@@ -339,7 +340,7 @@ export class DatadisService {
         let startDateFormat=moment(startDate,'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
         let endDateFormat=moment(endDate,'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
 
-        dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as import, ? as generation, ? as cups_id`)
+        dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as import, ? as export, ? as cups_id`)
 
         pushToValues(infoDt,consumption,generation,cupsData)
 
@@ -377,8 +378,9 @@ export class DatadisService {
         return new Promise(async (resolve,reject)=>{
 
             try{
-                let [ROWS] = await this.conn.query(query, values);
-                resolve(ROWS);
+                let [result] = await this.conn.execute<mysql.ResultSetHeader>(query, values);
+                const insertedRows = result.affectedRows;
+                resolve(insertedRows);
             }catch(e:any){
                 console.log("error putting cups energy data", e);
                 reject(e)

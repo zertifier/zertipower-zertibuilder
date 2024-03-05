@@ -5,7 +5,7 @@
     <div class="row">
 
       <div class="mb-2 col-12" id="customers">
-        <label for="customerSelector">Select a prosumer:</label>
+        <label for="customerSelector">Selecciona un usuari:</label>
         <select id="customerSelector" class="form-select" [(ngModel)]="selectedCupsCustomer">
           <option></option>
           <option  *ngFor="let customer of customers" [ngValue]="customer">
@@ -15,7 +15,7 @@
       </div>
 
       <div class="mb-2 col-12" id="date">
-        <label for="daySelector">Select a date:</label>
+        <label for="daySelector">Selecciona una data:</label>
         <input id="daySelector" class="form-control" type="date" [ngModel] ="unformattedDate | date:'yyyy-MM-dd'">
       </div>
 

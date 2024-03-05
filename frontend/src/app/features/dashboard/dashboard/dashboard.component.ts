@@ -207,67 +207,94 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   getEnergyByWeek(week: number, year: number, cups?: number, community?: number): Promise<any> {
+
+    console.log(week, year, cups, community, this.selectedCupsOriginDataType)
+
     return new Promise((resolve, reject) => {
-      //if(cups){
-      this.energyService.getWeekByCups(year, cups!, week).subscribe((res: any) => {
-        let weekDateLimits: any;
-        let weekCupsData = res.data;
-        let weekDays = weekCupsData.map((entry: any) => entry.week_day);
-        let weekImport = weekCupsData.map((entry: any) => entry.import);
-        let weekGeneration = weekCupsData.map((entry: any) => entry.generation);
-        let weekConsumption = weekCupsData.map((entry: any) => entry.consumption);
-        let weekExport = weekCupsData.map((entry: any) => entry.export);
-        console.log("week cups data", weekCupsData)
+      
+      if(this.selectedCupsOriginDataType=='Datadis'){
 
-        if (weekCupsData[0] && weekCupsData[1]) {
-          weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
-        }
+        let date = moment(this.date,'D/M/YYYY').format('YYYY-MM-DD')
+        this.datadisEnergyService.getWeekByCups(date, cups!).subscribe((res: any) => {
+          let weekDateLimits: any;
+          let weekCupsData = res.data;
+          let weekDays = weekCupsData.map((entry: any) => entry.week_day);
+          let weekImport = weekCupsData.map((entry: any) => entry.import);
+          let weekGeneration = weekCupsData.map((entry: any) => entry.generation);
+          let weekConsumption = weekCupsData.map((entry: any) => entry.consumption);
+          let weekExport = weekCupsData.map((entry: any) => entry.export);
+          console.log("week cups data", weekCupsData)
 
-        let weekEnergy = {weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits}
-        resolve(weekEnergy)
-      })
-      //}else if(community){{
-      //todo
-      //}
+          if (weekCupsData[0] && weekCupsData[1]) {
+            weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
+          }
+
+          let weekEnergy = {weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits}
+          resolve(weekEnergy)
+        })
+      }else{
+      
+        this.energyService.getWeekByCups(year, cups!, week).subscribe((res: any) => {
+          let weekDateLimits: any;
+          let weekCupsData = res.data;
+          let weekDays = weekCupsData.map((entry: any) => entry.week_day);
+          let weekImport = weekCupsData.map((entry: any) => entry.import);
+          let weekGeneration = weekCupsData.map((entry: any) => entry.generation);
+          let weekConsumption = weekCupsData.map((entry: any) => entry.consumption);
+          let weekExport = weekCupsData.map((entry: any) => entry.export);
+          console.log("week cups data", weekCupsData)
+
+          if (weekCupsData[0] && weekCupsData[1]) {
+            weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
+          }
+
+          let weekEnergy = {weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits}
+          resolve(weekEnergy)
+        })
+      }
     })
   }
 
   getEnergyByDay(cups: number, date: string): Promise<any> {
     date = moment(date,'DD/MM/yyyy').format('YYYY-MM-DD')
     return new Promise((resolve, reject) => {
-        this.energyService.getHoursByCups(cups, date).subscribe((res: any) => {
 
+      if(this.selectedCupsOriginDataType=='Datadis'){
+        this.datadisEnergyService.getHoursByCups(cups, date).subscribe((res: any) => {
           let hourlyData = res.data
+          console.log("hourly data", hourlyData)
+
+          hourlyData.map((hd:any)=>{if(!hd.info_datetime){hd.info_datetime=hd.info_dt} })
+
           const getHour = (datetimeString: any) => {
             return parseInt(datetimeString.slice(11, 13));
           };
 
-          // Ordenar hourlyData por la hora
           hourlyData = hourlyData.sort((a: any, b: any) => getHour(a.info_datetime) - getHour(b.info_datetime));
-
-        /*  console.log("hourly data: ",hourlyData)*/
-
-        /*  let hours: any = hourlyData
-            .filter((entry: any) => {
-              entry
-            })
-            .map((entry: any) => {
-              if (entry.info_datetime) {
-                return moment.utc(entry.info_datetime).format('HH');
-              } else return undefined
-            });*/
-
           let hours = hourlyData.map((entry: any) => moment.utc(entry.info_datetime).format('HH'));
           let dayImport = hourlyData.map((entry: any) => entry.import);
           let dayGeneration = hourlyData.map((entry: any) => entry.generation);
           let dayConsumption = hourlyData.map((entry: any) => entry.consumption);
           let dayExport = hourlyData.map((entry: any) => entry.export);
-
           let dayEnergy = {hours, dayImport, dayGeneration, dayConsumption, dayExport}
-
-          //console.log( "day result : ",hours,dayImport,dayGeneration,dayConsumption,dayExport)
           resolve(dayEnergy)
         })
+      }else{
+        this.energyService.getHoursByCups(cups, date).subscribe((res: any) => {
+          let hourlyData = res.data
+          const getHour = (datetimeString: any) => {
+            return parseInt(datetimeString.slice(11, 13));
+          };
+          hourlyData = hourlyData.sort((a: any, b: any) => getHour(a.info_datetime) - getHour(b.info_datetime));
+          let hours = hourlyData.map((entry: any) => moment.utc(entry.info_datetime).format('HH'));
+          let dayImport = hourlyData.map((entry: any) => entry.import);
+          let dayGeneration = hourlyData.map((entry: any) => entry.generation);
+          let dayConsumption = hourlyData.map((entry: any) => entry.consumption);
+          let dayExport = hourlyData.map((entry: any) => entry.export);
+          let dayEnergy = {hours, dayImport, dayGeneration, dayConsumption, dayExport}
+          resolve(dayEnergy)
+        })
+      }
       }
     )
   }
@@ -284,7 +311,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
 
     this.yearlyChart.data = {
-      labels: [`Import: ${sumImport} Kwh`, `Generation: ${sumGeneration} Kwh`,`Consumption: ${sumConsumption} Kwh`,`Surplus: ${sumExport} Kwh`],
+      labels: [`Import: ${sumImport} Kwh`, `Generació: ${sumGeneration} Kwh`,`Consum: ${sumConsumption} Kwh`,`Exportació: ${sumExport} Kwh`],
       datasets: [{
         data: [sumImport, sumGeneration,sumConsumption,sumExport],
         backgroundColor: [
@@ -315,19 +342,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
         borderWidth: 1
       }, {
-        label: 'Generation (Kwh)',
+        label: 'Generació (Kwh)',
         data: yearEnergy.kwhGeneration,
         backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
         borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
         borderWidth: 1
       }, {
-        label: 'Consumption (Kwh)',
+        label: 'Consum (Kwh)',
         data: yearEnergy.kwhConsumption,
         backgroundColor: 'rgba(240, 190, 48, 1)', // Color para importación
         borderColor: 'rgba(240, 190, 48, 1)', // Borde del color de importación
         borderWidth: 1
       }, {
-        label: 'Surplus (Kwh)',
+        label: 'Exportació (Kwh)',
         data: yearEnergy.kwhExport,
         backgroundColor: 'rgba(33, 217, 92, 0.71)', // Color para importación
         borderColor: 'rgba(33, 217, 92, 0.71)', // Borde del color de importación
@@ -354,19 +381,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
         borderWidth: 1
       }, {
-        label: 'Generation (Kwh)',
+        label: 'Generación (Kwh)',
         data: weekEnergy.weekGeneration,
         backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
         borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
         borderWidth: 1
       }, {
-        label: 'Consumption (Kwh)',
+        label: 'Consump (Kwh)',
         data: weekEnergy.weekConsumption,
         backgroundColor: 'rgba(240, 190, 48, 1)', // Color para importación
         borderColor: 'rgba(240, 190, 48, 1)', // Borde del color de importación
         borderWidth: 1
       }, {
-        label: 'Surplus (Kwh)',
+        label: 'Exportació (Kwh)',
         data: weekEnergy.weekExport,
         backgroundColor: 'rgba(33, 217, 92, 0.71)', // Color para importación
         borderColor: 'rgba(33, 217, 92, 0.71)', // Borde del color de importación
@@ -393,14 +420,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
         borderWidth: 1
       }, {
-        label: 'Generation (Kwh)',
+        label: 'Generació (Kwh)',
         data: dayEnergy.dayGeneration,
         backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
         borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
         borderWidth: 1
       },
        {
-        label: 'Surplus (Kwh)',
+        label: 'Exportació (Kwh)',
         data: dayEnergy.dayExport,
         backgroundColor: 'rgba(33, 217, 92, 0.71)', // Color para importación
         borderColor: 'rgba(33, 217, 92, 0.71)', // Borde del color de importación

@@ -19,13 +19,14 @@ export class DatadisEnergyService {
     return this.http.get(url);
   }
 
-  getWeekByCups(year:number,cups:number,week:number){
-    let url = `${this.baseUrl}/weekly/${week}?year=${year}&cups=${cups}`;
+  getWeekByCups(date:string,cups:number){
+    console.log(date)
+    let url = `${this.baseUrl}/weekly/${date}?cups=${cups}`;
     return this.http.get(url);
   }
 
   getHoursByCups(cups:number,date:string){
-    let url = `${this.baseUrl}//hourly/${date}?cups=${cups}`;
+    let url = `${this.baseUrl}/hourly/${date}?cups=${cups}`;
     return this.http.get(url);
   }
 

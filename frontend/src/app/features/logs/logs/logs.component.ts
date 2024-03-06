@@ -94,14 +94,6 @@ export class LogsComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'status',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
         title: 'operation',
         description: '',
         value: '',
@@ -110,10 +102,35 @@ export class LogsComponent implements OnDestroy {
         options: [],
       },
       {
+        title: 'status',
+        description: '',
+        value: '',
+        type: 2,
+        defaultData: 1,
+        options: [
+            {
+            "name": "",
+            "value": ""
+            },
+            {
+            "name":"error",
+            "value":"error"
+            },
+            {
+            "name":"success",
+            "value":"success"
+            },
+            {
+            "name":"warning",
+            "value":"warning"
+            },
+        ]
+      },
+      {
         title: 'n_affected_registers',
         description: '',
         value: '',
-        type: 0,
+        type: 1,
         defaultData: 0,
         options: [],
       },

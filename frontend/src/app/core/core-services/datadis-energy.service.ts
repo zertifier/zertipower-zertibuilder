@@ -10,7 +10,10 @@ import {environment} from "../../../environments/environment";
 export class DatadisEnergyService {
 
     baseUrl = `${environment.api_url}/datadisEnergy`;
-    constructor(private http:HttpClient) {}
+
+    constructor(private http:HttpClient) {
+      console.log(this.baseUrl)
+    }
 
 //datadis
 

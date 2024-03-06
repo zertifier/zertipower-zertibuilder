@@ -9,27 +9,27 @@ import {environment} from "../../../environments/environment";
 })
 export class EnergyService {
 
-  baseUrl = `${environment.api_url}/energy/energy-flow`;
+  baseUrl = `${environment.api_url}/energy-registers-hourly`;
   constructor(private http:HttpClient) {}
 
   getYearByCups(year:number,cups:number){
-    let url = `${environment.api_url}/energy-registers-hourly/monthly/${year}?cups=${cups}`;
+    let url = `${this.baseUrl}/monthly/${year}?cups=${cups}`;
     return this.http.get(url);
   }
 
   getWeekByCups(date:string,cups:number){
-    let url = `${environment.api_url}/energy-registers-hourly/weekly/${date}?cups=${cups}`;
+    let url = `${this.baseUrl}/weekly/${date}?cups=${cups}`;
     return this.http.get(url);
   }
 
   getHoursByCups(cups:number,date:string){
-    let url = `${environment.api_url}/energy-registers-hourly/hourly/${date}?cups=${cups}`;
+    let url = `${this.baseUrl}/hourly/${date}?cups=${cups}`;
     return this.http.get(url);
   }
 
   //TODO:
   getYearByCommunity(year:number,communityId:number){
-    let url = ''//`${environment.api_url}/energy-registers-hourly/hourly/${date}?cups=${cups}`;
+    let url = ''//`${this.baseUrl}/hourly/${date}?cups=${cups}`;
     return this.http.get(url);
   }
 

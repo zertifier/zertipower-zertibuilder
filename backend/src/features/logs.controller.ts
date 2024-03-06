@@ -50,8 +50,7 @@ export class LogsController {
     async datatables(@Body() body: any) {
       const data = await this.datatable.getData(
         body,
-        `SELECT *
-                    FROM logs`
+        `SELECT * FROM logs`
       );
       return HttpResponse.success("Datatables fetched successfully").withData(
         data

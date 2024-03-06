@@ -149,58 +149,63 @@ import { MysqlService } from "../shared/infrastructure/services";
     @Get("/weekly/:date")
     @Auth(RESOURCE_NAME)
     async getWeekly(@Param("date") date: string, @Query() queryParams: any) {
-      try {
-        let registers: any;
+      
+        try {
+
         let query: string = "";
         const { cups, wallet, community } = queryParams;
+
+        await this.conn.query(`SET @@lc_time_names = 'ca_ES'`);
+
+        const [firstDayRow]:any = await this.conn.execute('SELECT DATE_SUB(?, INTERVAL WEEKDAY(?) DAY) AS first_day', [date, date]);
+        const firstDay = firstDayRow[0].first_day;
+
+        const [lastDayRow]:any = await this.conn.execute('SELECT DATE_ADD(?, INTERVAL 6 DAY) AS last_day', [firstDay]);
+        const lastDay = lastDayRow[0].last_day;
+
         if (community) {
-          // Si se pasa la comunidad, obtenemos todos los cups asociados a esa comunidad.
           query = `
-            SELECT DAYNAME(eh.info_dt) AS week_day,
+            SELECT DAYNAME(eh.info_dt)       AS week_day,
                    eh.info_datetime          as date,
                    SUM(eh.import)            AS import,
                    SUM(eh.export)            AS export
             FROM datadis_energy_registers eh
                    LEFT JOIN cups c ON eh.cups_id = c.id
             WHERE c.community_id = ?
-              AND YEARWEEK(?,1)
-            GROUP BY WEEKDAY(eh.info_dt)
+            AND eh.info_dt BETWEEN ? AND ?
+            GROUP BY DAYNAME(eh.info_dt)
             ORDER BY eh.info_dt`;
         } else if (cups) {
-          // Si se pasa un cups, buscamos la energía gastada por ese cups.
           query = `
-            SELECT DAYNAME(eh.info_dt) AS week_day,
-                   eh.info_dt          as date,
+            SELECT DAYNAME(eh.info_dt)       AS week_day,
+                   eh.info_dt                as date,
                    SUM(eh.import)            AS import,
                    SUM(eh.export)            AS export
             FROM datadis_energy_registers eh
             WHERE eh.cups_id = ?
-              AND YEARWEEK(?,1)
-            GROUP BY WEEKDAY(eh.info_dt)
+            AND eh.info_dt BETWEEN ? AND ?
+            GROUP BY DAYNAME(eh.info_dt)
             ORDER BY eh.info_dt`;
         } else if (wallet) {
-          // Si se pasa una wallet, obtenemos todos los cups asociados a ese customer y sumamos sus gastos y generaciones.
           query = `
-            SELECT DAYNAME(eh.info_dt) AS week_day,
-                   eh.info_dt          as date,
+            SELECT DAYNAME(eh.info_dt)       AS week_day,
+                   eh.info_dt                as date,
                    SUM(eh.import)            AS import,
                    SUM(eh.export)            AS export,
             FROM datadis_energy_registers eh
                    LEFT JOIN cups c ON eh.cups_id = c.id
                    LEFT JOIN customers cu ON c.customer_id = cu.id
             WHERE cu.wallet_address = ?
-            AND YEARWEEK(?,1)
-            GROUP BY WEEKDAY(eh.info_dt)
+            AND eh.info_dt BETWEEN ? AND ?
+            GROUP BY DAYNAME(eh.info_dt)
             ORDER BY eh.info_dt`;
         }
         const [rows] = await this.conn.query(query, [
           community || cups || wallet,
-          date
+          firstDay,lastDay
         ]);
-        console.log("WEEK",rows)
-        registers = rows;
         return HttpResponse.success("week energy fetched successfully").withData(
-          registers
+          rows
         );
       } catch (e) {
         console.log("error getting week energy",e);
@@ -212,37 +217,21 @@ import { MysqlService } from "../shared/infrastructure/services";
     async getMonthly(@Param("year") year: string, @Query() queryParams: any) {
       try {
         const { cups, wallet, community } = queryParams;
-  
         let query: string = "";
-        let registers: any;
-        const monthsName: string[] = [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ];
-        const yearlyRegisters = [];
-        const defaultMonth = { month: "", import: 0, export: 0 };
+        await this.conn.query(`SET @@lc_time_names = 'ca_ES'`);
   
         if (cups) {
             query = `
             SELECT 
-            MONTH(eh.info_dt) AS month,
+            MONTHNAME(eh.info_dt) AS month_name,
+            MONTH(eh.info_dt) AS month_number,
             SUM(eh.import)       AS import,
             SUM(eh.export)       AS export
             FROM datadis_energy_registers eh
             WHERE eh.cups_id = ?
             AND YEAR(eh.info_dt) = ?
-            GROUP BY month
-            ORDER BY month
+            GROUP BY month_number
+            ORDER BY month_number
             `;
         } else if (community) {
             //TODO:
@@ -255,24 +244,8 @@ import { MysqlService } from "../shared/infrastructure/services";
           year
         ]);
 
-        registers = ROWS;
-  
-        for (let i = 0; i < monthsName.length; i++) {
-          const monthData = registers.find(
-            (register: any) =>
-              monthsName.indexOf(monthsName[i]) + 1 === register.month
-          );
-          if (monthData) {
-            monthData.month = monthsName[i];
-            yearlyRegisters.push(monthData);
-          } else {
-            defaultMonth.month = monthsName[i];
-            yearlyRegisters.push({ ...defaultMonth });
-          }
-        }
-  
         return HttpResponse.success("months energy fetched successfully").withData(
-          yearlyRegisters
+          ROWS
         );
       } catch (e) {
         console.log("error getting month energy",e);

@@ -311,7 +311,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
 
     this.yearlyChart.data = {
-      labels: [`Import: ${sumImport} Kwh`, `Generació: ${sumGeneration} Kwh`,`Consum: ${sumConsumption} Kwh`,`Exportació: ${sumExport} Kwh`],
+      labels: [`Importació: ${sumImport} Kwh`, `Generació: ${sumGeneration} Kwh`,`Consum: ${sumConsumption} Kwh`,`Exportació: ${sumExport} Kwh`],
       datasets: [{
         data: [sumImport, sumGeneration,sumConsumption,sumExport],
         backgroundColor: [
@@ -336,7 +336,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.monthlyChart.data = {
       labels: yearEnergy.months,
       datasets: [{
-        label: 'Import (Kwh)',
+        label: 'Importació (Kwh)',
         data: yearEnergy.kwhImport,
         backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
         borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
@@ -375,7 +375,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.weeklyChart.data = {
       labels: weekEnergy.weekDays,
       datasets: [{
-        label: 'Import (Kwh)',
+        label: 'Importació (Kwh)',
         data: weekEnergy.weekImport,
         backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
         borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
@@ -414,7 +414,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.hourlyChart.data = {
       labels: dayEnergy.hours,
       datasets: [{
-        label: 'Import (Kwh)',
+        label: 'Importació (Kwh)',
         data: dayEnergy.dayImport,
         backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
         borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación

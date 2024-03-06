@@ -1,5 +1,4 @@
-<app-navbar></app-navbar>
-<div class="row px-4 container-fluid justify-content-center">
+<div class="row px-4 pt-4 container-fluid justify-content-center">
 
   <div class="col-12 col-md-6 p-2 ps-4">
     
@@ -28,12 +27,20 @@
 
     <div class="mb-2">
 
-       <div class="row gx-2 gy-2 flex-wrap">
-        <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 1 ? 'folder-selected' : 'btn-folder'" (click)="folder = 1" >Model predictiu</button>
-        <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 2 ? 'folder-selected' : 'btn-folder'" (click)="folder = 2">Model real</button>
-        <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 3 ? 'folder-selected' : 'btn-folder'"(click)="folder = 3">Dades consum</button>
-        <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 4 ? 'folder-selected' : 'btn-folder'"(click)="folder = 4">Resum</button>
-      </div> 
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="folder == 1 ? 'active' : ''" (click)="folder = 1">Model predictiu</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="folder == 2 ? 'active' : ''" (click)="folder = 2">Model real</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="folder == 3 ? 'active' : ''" (click)="folder = 3">Dades consum</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="folder == 4 ? 'active' : ''" (click)="folder = 4">Resum</a>
+        </li>
+      </ul>
 
       <div *ngIf="folder == 0" class="mx-1 pt-4">
         

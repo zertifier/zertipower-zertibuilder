@@ -80,6 +80,10 @@ const routes: Routes = [
     path: 'search',
     loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule),
     canActivate:[loggedIn]
+  },{
+    path: 'logs',
+    loadChildren: () => import('./features/logs/logs.module').then(m => m.LogsModule),
+    canActivate:[loggedIn]
   },
   {
     path: "**",

@@ -17,6 +17,7 @@ import { ErrorDisplayService } from "./core/core-services/error-display.service"
 import { PermissionsServicesModule } from "./features/permissions/infrastructure/services/permissions-services.module";
 import { ReportsServicesModule } from "./features/reports/infrastructure/services/reports-services.module";
 import {MockBackendInterceptor} from "./core/interceptors/mock-backend.interceptor";
+import { LogsModule } from "./features/logs/logs.module";
 
 @NgModule({
 	declarations: [AppComponent],
@@ -33,7 +34,8 @@ import {MockBackendInterceptor} from "./core/interceptors/mock-backend.intercept
 		CoreServicesModule,
 		QRCodeModule,
 		PermissionsServicesModule,
-		ReportsServicesModule
+		ReportsServicesModule,
+		LogsModule
 	],
 	providers: [
 		{provide: HTTP_INTERCEPTORS, useClass: AccessTokenInterceptor, multi: true},

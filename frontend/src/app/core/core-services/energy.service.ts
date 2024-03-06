@@ -17,8 +17,8 @@ export class EnergyService {
     return this.http.get(url);
   }
 
-  getWeekByCups(year:number,cups:number,week:number){
-    let url = `${environment.api_url}/energy-registers-hourly/weekly/${week}?year=${year}&cups=${cups}`;
+  getWeekByCups(date:string,cups:number){
+    let url = `${environment.api_url}/energy-registers-hourly/weekly/${date}?cups=${cups}`;
     return this.http.get(url);
   }
 

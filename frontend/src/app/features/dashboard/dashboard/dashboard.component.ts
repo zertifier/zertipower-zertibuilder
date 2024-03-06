@@ -183,7 +183,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       if(this.selectedCupsOriginDataType=='Datadis'){
         this.datadisEnergyService.getYearByCups(year, cups!).subscribe((res: any) => {
           let monthlyCupsData = res.data;
-          let months: string[] = monthlyCupsData.map((entry: any) => entry.month);
+          let months: string[] = monthlyCupsData.map((entry: any) => entry.month_name);
           let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
           let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
           let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
@@ -194,7 +194,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       } else {
         this.energyService.getYearByCups(year, cups!).subscribe((res: any) => {
           let monthlyCupsData = res.data;
-          let months: string[] = monthlyCupsData.map((entry: any) => entry.month);
+          let months: string[] = monthlyCupsData.map((entry: any) => entry.month_name);
           let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
           let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
           let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
@@ -208,13 +208,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   getEnergyByWeek(week: number, year: number, cups?: number, community?: number): Promise<any> {
 
-    console.log(week, year, cups, community, this.selectedCupsOriginDataType)
+    let date = moment(this.date,'D/M/YYYY').format('YYYY-MM-DD')
 
     return new Promise((resolve, reject) => {
       
       if(this.selectedCupsOriginDataType=='Datadis'){
 
-        let date = moment(this.date,'D/M/YYYY').format('YYYY-MM-DD')
         this.datadisEnergyService.getWeekByCups(date, cups!).subscribe((res: any) => {
           let weekDateLimits: any;
           let weekCupsData = res.data;
@@ -232,9 +231,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           let weekEnergy = {weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits}
           resolve(weekEnergy)
         })
+
       }else{
       
-        this.energyService.getWeekByCups(year, cups!, week).subscribe((res: any) => {
+        this.energyService.getWeekByCups(date, cups!).subscribe((res: any) => {
           let weekDateLimits: any;
           let weekCupsData = res.data;
           let weekDays = weekCupsData.map((entry: any) => entry.week_day);
@@ -387,7 +387,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
         borderWidth: 1
       }, {
-        label: 'Consump (Kwh)',
+        label: 'Consum (Kwh)',
         data: weekEnergy.weekConsumption,
         backgroundColor: 'rgba(240, 190, 48, 1)', // Color para importación
         borderColor: 'rgba(240, 190, 48, 1)', // Borde del color de importación

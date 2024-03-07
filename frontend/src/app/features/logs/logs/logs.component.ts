@@ -61,7 +61,7 @@ export class LogsComponent implements OnDestroy {
     {
       title: 'Operation',
       data: 'operation',
-      width: '200px',
+      width: '150px',
     },
     {
         title: 'Inserts',
@@ -71,7 +71,7 @@ export class LogsComponent implements OnDestroy {
     {
         title: 'Error message',
         data: 'error_message',
-        width: '130px',
+        width: '150px',
     },
     // {
     //   title: 'UpdatedAt',

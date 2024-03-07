@@ -5,7 +5,7 @@ import { environment } from 'src/environments/environment';
 import { HttpResponse } from 'src/app/shared/infrastructure/http/HttpResponse';
 import moment from 'moment';
 
-export interface CupsApiInterface {
+export interface CupsInterface {
   id: number;
   cups: string;
   type:string;
@@ -15,39 +15,17 @@ export interface CupsApiInterface {
   address:string;
   lat:number;
   lng:number;
-  datadis:number
-  smartMeter:number;
-  inverter:number;
+  datadisActive:number
+  smartMeterActive:number;
+  inverterActive:number;
   datadisUser:string;
-  datadisPwd:string;
+  datadisPassword:string;
   smartMeterModel:string;
   smartMeterApiKey:string;
   inverterModel:string;
   inverterApiKey:string;
-  customerId: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface CupsApiDTO {
-  id: number;
-  cups: string;
-  type:string;
-  providerId: number;
-  communityId: number;
-  locationId:number;
-  address:string;
-  lat:number;
-  lng:number;
-  datadis:number
-  smartMeter:number;
-  inverter:number;
-  datadisUser:string;
-  datadisPwd:string;
-  smartMeterModel:string;
-  smartMeterApiKey:string;
-  inverterModel:string;
-  inverterApiKey:string;
+  sensorModel:string;
+  sensorApiKey:string;
   customerId: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -57,27 +35,28 @@ export interface CupsApiDTO {
   providedIn: "root",
 })
 export class CupsApiService {
+
   constructor(private httpClient: HttpClient) {}
 
-  get(): Observable<CupsApiInterface> {
-    return this.httpClient.get<HttpResponse<CupsApiDTO>>(`${environment.api_url}/cups`)
-      .pipe(map(response => mapToApiInterface(response.data)));
+  get(): Observable<CupsInterface> {
+    return this.httpClient.get<HttpResponse<CupsInterface>>(`${environment.api_url}/cups`)
+      .pipe(map(response => (response.data)));
   }
 
-  getById(id: number): Observable<CupsApiInterface> {
-    return this.httpClient.get<HttpResponse<CupsApiDTO>>(`${environment.api_url}/cups/${id}`)
-      .pipe(map(response => mapToApiInterface(response.data)));
+  getById(id: number): Observable<CupsInterface> {
+    return this.httpClient.get<HttpResponse<any>>(`${environment.api_url}/cups/${id}`)
+      .pipe(map(response => (response.data)));
   }
 
-  save(data: CupsApiInterface): Observable<CupsApiInterface> {
-    return this.httpClient.post<HttpResponse<CupsApiDTO>>(`${environment.api_url}/cups`, mapToDTO(data))
-      .pipe(map(response => mapToApiInterface(response.data)));
+  save(data: CupsInterface): Observable<CupsInterface> {
+    return this.httpClient.post<HttpResponse<CupsInterface>>(`${environment.api_url}/cups`, data)
+      .pipe(map(response => (response.data)));
   }
 
-  update(id: number, data: CupsApiInterface): Observable<CupsApiInterface> {
+  update(id: number, data: CupsInterface): Observable<CupsInterface> {
     console.log("body data", data)
-    return this.httpClient.put<HttpResponse<CupsApiDTO>>(`${environment.api_url}/cups/${id}`, mapToDTO(data))
-      .pipe(map(response => mapToApiInterface(response.data)));
+    return this.httpClient.put<HttpResponse<CupsInterface>>(`${environment.api_url}/cups/${id}`, data)
+      .pipe(map(response => (response.data)));
   }
 
   remove(id: number): Observable<void> {
@@ -86,55 +65,3 @@ export class CupsApiService {
   }
 }
 
-function mapToApiInterface(dto: CupsApiDTO): CupsApiInterface {
-  console.log(dto)
-  return {
-    id: dto.id,
-    cups: dto.cups,
-    type:dto.type,
-    providerId: dto.providerId,
-    communityId: dto.communityId,
-    locationId: dto.locationId,
-    customerId: dto.customerId,
-    address:dto.address,
-    lat:dto.lat,
-    lng:dto.lng,
-    datadis:dto.datadis,
-    smartMeter:dto.smartMeter,
-    inverter:dto.inverter,
-    datadisUser:dto.datadisUser,
-    datadisPwd:dto.datadisPwd,
-    smartMeterModel:dto.smartMeterModel,
-    smartMeterApiKey:dto.smartMeterApiKey,
-    inverterModel:dto.inverterModel,
-    inverterApiKey:dto.inverterApiKey,
-    createdAt: moment(dto.createdAt, "YYYY-MM-DD HH:mm").toDate(),
-    updatedAt: moment(dto.updatedAt, "YYYY-MM-DD HH:mm").toDate(),
-  }
-}
-
-function mapToDTO(dto: CupsApiInterface): CupsApiDTO {
-  return {
-    id: dto.id,
-    cups: dto.cups,
-    type:dto.type,
-    providerId: dto.providerId,
-    communityId: dto.communityId,
-    locationId: dto.locationId,
-    address:dto.address,
-    lat:dto.lat,
-    lng:dto.lng,
-    datadis:dto.datadis,
-    smartMeter:dto.smartMeter,
-    inverter:dto.inverter,
-    datadisUser:dto.datadisUser,
-    datadisPwd:dto.datadisPwd,
-    smartMeterModel:dto.smartMeterModel,
-    smartMeterApiKey:dto.smartMeterApiKey,
-    inverterModel:dto.inverterModel,
-    inverterApiKey:dto.inverterApiKey,
-    customerId: dto.customerId,
-    //createdAt: moment.utc(dto.createdAt).format("YYYY-MM-DD HH:mm"),
-    //updatedAt: moment.utc(dto.updatedAt).format("YYYY-MM-DD HH:mm"),
-  }
-}

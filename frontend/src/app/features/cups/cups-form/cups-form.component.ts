@@ -40,6 +40,9 @@ export class CupsFormComponent {
     inverter:new FormControl<number>(0),
     inverterModel:new FormControl<string|null>(null),
     inverterApiKey:new FormControl<string|null>(null),
+    sensor:new FormControl<number>(0),
+    sensorModel:new FormControl<string|null>(null),
+    sensorApiKey:new FormControl<string|null>(null),
   });
 
   constructor(
@@ -66,15 +69,17 @@ export class CupsFormComponent {
       this.form.controls.address.setValue(data.address);
       this.form.controls.lat.setValue(data.lat);
       this.form.controls.lng.setValue(data.lng);
-      this.form.controls.datadis.setValue(data.datadis);
-      this.form.controls.smartMeter.setValue(data.smartMeter);
-      this.form.controls.inverter.setValue(data.inverter);
+      this.form.controls.datadis.setValue(data.datadisActive);
+      this.form.controls.smartMeter.setValue(data.smartMeterActive);
+      this.form.controls.inverter.setValue(data.inverterActive);
       this.form.controls.datadisUser.setValue(data.datadisUser);
-      this.form.controls.datadisPwd.setValue(data.datadisPwd);
+      this.form.controls.datadisPwd.setValue(data.datadisPassword);
       this.form.controls.smartMeterModel.setValue(data.smartMeterModel);
       this.form.controls.smartMeterApiKey.setValue(data.smartMeterApiKey);
       this.form.controls.inverterModel.setValue(data.inverterModel);
       this.form.controls.inverterApiKey.setValue(data.inverterApiKey);
+      this.form.controls.sensorModel.setValue(data.sensorModel);
+      this.form.controls.sensorApiKey.setValue(data.sensorApiKey);
       this.form.controls.customerId.setValue(data.customerId);
       this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
       this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));

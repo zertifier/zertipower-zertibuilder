@@ -164,6 +164,20 @@ export class DatatablesFeatures {
 								});
 								filterType = selector;
 								break;
+							case 3: //date
+								let date = that.renderer.createElement("input")
+								that.renderer.setProperty(date, "type", "date");
+								that.renderer.listen(date, "keyup", () => {
+									let searchValue = date.value;
+									console.log(searchValue)
+									that.dtInstance.column(columnNumber).search(searchValue,false,true).draw();
+								});
+								that.renderer.listen(date, "change", (e) => {
+									console.log(e.target.value)
+									that.dtInstance.column(columnNumber).search(e.target.value,false,true).draw();
+								});
+								filterType = date;
+								break;
 							default:
 								break;
 						}

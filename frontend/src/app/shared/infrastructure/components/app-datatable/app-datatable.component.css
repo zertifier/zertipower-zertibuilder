@@ -17,6 +17,7 @@
     min-width: 90%;
     height: 30px;
     border-radius: 5px;
+    margin-bottom: 10px;
   }
   
   input[type=text]{
@@ -24,6 +25,7 @@
     min-width: 90%;
     height: 30px;
     border-radius: 5px;
+    margin-bottom: 10px;
   }
   
   input[type=number]{
@@ -31,4 +33,13 @@
     min-width: 90%;
     height: 30px;
     border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  input[type=date]{
+    width: 90%;
+    min-width: 90%;
+    height: 30px;
+    border-radius: 5px;
+    margin-bottom: 10px;
   }

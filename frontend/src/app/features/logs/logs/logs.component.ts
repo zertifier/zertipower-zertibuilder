@@ -29,9 +29,15 @@ export class LogsComponent implements OnDestroy {
   filterColumns: boolean = true;
   url: string = `${environment.api_url}/energyRegistersLogs/datatable`;
   columns: dtColumns[] = [
+    // {
+    //   title: 'Id',
+    //   data: 'id',
+    //   width: '100px',
+    // },
+    
     {
-      title: 'Id',
-      data: 'id',
+      title: 'Date',
+      data: 'creation_dt',
       width: '100px',
     },
     {
@@ -58,11 +64,6 @@ export class LogsComponent implements OnDestroy {
         title: 'Error message',
         data: 'error_message',
         width: '100px',
-    },
-    {
-      title: 'CreatedAt',
-      data: 'created_at',
-      width: '100px',
     }
     // {
     //   title: 'UpdatedAt',
@@ -77,11 +78,20 @@ export class LogsComponent implements OnDestroy {
   ];
 
   filterParams: filterParams[] = [
+      // {
+      //   title: 'id',
+      //   description: '',
+      //   value: '',
+      //   type: 1,
+      //   defaultData: 0,
+      //   options: [],
+      // },
+      
       {
-        title: 'id',
+        title: 'creation_dt',
         description: '',
         value: '',
-        type: 1,
+        type: 3,
         defaultData: 0,
         options: [],
       },
@@ -141,15 +151,7 @@ export class LogsComponent implements OnDestroy {
         type: 0,
         defaultData: 0,
         options: [],
-      },
-      {
-        title: 'created_at',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
+      }
   ];
 
   columnDefs:any[] = [
@@ -157,7 +159,7 @@ export class LogsComponent implements OnDestroy {
       orderable: false, targets: [this.filterParams.length-1],
     },
     {
-      targets: 6,
+      targets: 0,
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }

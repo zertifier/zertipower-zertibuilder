@@ -141,6 +141,9 @@ model cups {
   inverter_active      Int        @default(0) @db.TinyInt
   inverter_model       String?    @db.VarChar(100)
   inverter_api_key     String?    @db.VarChar(50)
+  sensor_active      Int        @default(0) @db.TinyInt
+  sensor_model       String?    @db.VarChar(100)
+  sensor_api_key     String?    @db.VarChar(50)
   created_at           DateTime?  @default(now()) @db.DateTime(0)
   updated_at           DateTime?  @db.DateTime(0)
 }
@@ -293,31 +296,6 @@ model logs {
   log                  String       @db.LongText
   error_message        String       @db.LongText
   creation_dt          DateTime?    @default(now()) @db.DateTime(0)
-}
-
-/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-view energy_registers_original_monthly {
-  cups_id     Int?
-  year        Int?
-  month       Int?
-  import      Float?
-  consumption Float?
-  export      Float?
-  generation  Float?
-
-  @@ignore
-}
-
-/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-view energy_registers_original_hourly {
-  cups_id       Int?
-  info_datetime DateTime? @db.DateTime(0)
-  import        Float?
-  consumption   Float?
-  export        Float?
-  generation    Float?
-
-  @@ignore
 }
 
 enum cups_type {

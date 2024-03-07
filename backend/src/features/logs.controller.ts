@@ -57,4 +57,16 @@ export class LogsController {
       );
     }
 
+    @Get(":id")
+    @Auth(RESOURCE_NAME)
+    async getById(@Param("id") id: string) {
+      const data = await this.prisma.logs.findUnique({
+        where: {
+          id: parseInt(id),
+        },
+      });
+      return HttpResponse.success("cups fetched successfully").withData(data)
+      
+    }
+
 }

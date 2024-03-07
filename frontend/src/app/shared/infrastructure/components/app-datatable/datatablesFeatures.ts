@@ -31,6 +31,10 @@ export class DatatablesFeatures {
 		this.elementRef = elementRef;
 	}
 
+	async getTable(): Promise<DataTables.Api> {
+		return await this.datatableElement.dtInstance;
+	  }
+
 	/** modifies the datatables data response following filterParams default translations criteria
 	 *  to set more understandable columns data
 	 * @param filterParams

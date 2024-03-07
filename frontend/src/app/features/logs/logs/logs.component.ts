@@ -7,6 +7,7 @@ import { Subscription } from "rxjs";
 import { AppDatatableComponent } from 'src/app/shared/infrastructure/components/app-datatable/app-datatable.component';
 import Swal from 'sweetalert2';
 import moment from 'moment';
+import { LogsFormComponent } from '../logs-form/logs-form.component';
 
 @Component({
   selector: 'logs',
@@ -34,7 +35,14 @@ export class LogsComponent implements OnDestroy {
     //   data: 'id',
     //   width: '100px',
     // },
-    
+    {
+      title:'',
+      className: '', //dt-control
+      orderable: false,
+      data: null,
+      defaultContent: '',
+      width:'20px'
+    },
     {
       title: 'Date',
       data: 'creation_dt',
@@ -43,38 +51,39 @@ export class LogsComponent implements OnDestroy {
     {
       title: 'Cups',
       data: 'cups',
-      width: '100px',
+      width: '70px',
+    },
+    {
+      title: 'status',
+      data: 'status',
+      width: '30px',
     },
     {
       title: 'Operation',
       data: 'operation',
-      width: '100px',
-    }
-    ,{
-        title: 'status',
-        data: 'status',
-        width: '100px',
+      width: '200px',
     },
     {
-        title: 'Affected registers',
+        title: 'Inserts',
         data: 'n_affected_registers',
-        width: '100px',
+        width: '20px',
     },
     {
         title: 'Error message',
         data: 'error_message',
-        width: '100px',
-    }
+        width: '130px',
+    },
     // {
     //   title: 'UpdatedAt',
     //   data: 'updated_at',
     //   width: '100px',
     // },
-    // {
-    //   title: '',
-    //   data: 'id',
-    //   width: '100px'
-    // }
+    {
+      title: '',
+      data: 'id',
+      width: '100px',
+      orderable: false
+    }
   ];
 
   filterParams: filterParams[] = [
@@ -86,7 +95,14 @@ export class LogsComponent implements OnDestroy {
       //   defaultData: 0,
       //   options: [],
       // },
-      
+      {
+        title: 'open',
+        description: '',
+        value: '',
+        type: 4,
+        defaultData: 0,
+        options: [],
+      },
       {
         title: 'creation_dt',
         description: '',
@@ -97,14 +113,6 @@ export class LogsComponent implements OnDestroy {
       },
       {
         title: 'cups',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'operation',
         description: '',
         value: '',
         type: 0,
@@ -137,6 +145,14 @@ export class LogsComponent implements OnDestroy {
         ]
       },
       {
+        title: 'operation',
+        description: '',
+        value: '',
+        type: 0,
+        defaultData: 0,
+        options: [],
+      },
+      {
         title: 'n_affected_registers',
         description: '',
         value: '',
@@ -161,28 +177,69 @@ export class LogsComponent implements OnDestroy {
     {
       targets: 0,
       render: (data: any, type: any, row: any) => {
+
+        for (let clave in data){
+          if(typeof data[clave]=='string'){
+            if(data[clave].length>25)
+            data[clave]=`${data[clave].slice(0,25)}...`
+          }
+        }
+
+        return ``
+      }
+    },
+    {
+      targets: 1,
+      render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
+    {
+    targets: 3,
+        render: (data: any, type: any, row: any) => {
+            // Variable para almacenar el estilo del círculo
+            let circleStyle = '';
+            
+            // Asignar el estilo de acuerdo al valor de los datos
+            switch (data) {
+                case 'warning':
+                    circleStyle = 'background-color: yellow;';
+                    break;
+                case 'error':
+                    circleStyle = 'background-color: red;';
+                    break;
+                case 'success':
+                    circleStyle = 'background-color: green;';
+                    break;
+                default:
+                    circleStyle = '';
+            }
+            
+            // Generar HTML con el círculo y la fecha
+            return `<div class="">
+                        <div style="width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; ${circleStyle}"></div>
+                    </div>`;
+        }
+      },
     // {
     //   targets: 4,
     //   render: (data: any, type: any, row: any) => {
     //     return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
     //   }
     // },
-    // {
-    //   targets: this.filterParams.length,
-    //   title: '',
-    //   render: (data: any, type: any, row: any) => {
-    //     return `
-    //      <div class="d-flex justify-content-end">
-    //         <div class="d-flex justify-content-start" style="width: 80px">
-    //             <button type="button" class="btn btn-column column btn-transparent editRow" data-id=${data}><i class="fa-solid fa-pen-to-square hoverPrimary editRow" data-id=${data}></i></button>
-    //         </div>
-    //      </div>
-    //     `
-    //   }
-    // }
+    {
+      targets: this.filterParams.length,
+      title: '',
+      render: (data: any, type: any, row: any) => {
+        return `
+         <div class="d-flex justify-content-end">
+            <div class="d-flex justify-content-start" style="width: 80px">
+                <button type="button" class="btn btn-column column btn-transparent editRow" data-id=${data}><i class="fa-solid fa-eye hoverPrimary editRow" data-id=${data}></i></button>
+            </div>
+         </div>
+        `
+      }
+    }
   ];
 
   ngOnDestroy(): void {
@@ -190,12 +247,12 @@ export class LogsComponent implements OnDestroy {
   }
 
   editRequest(id:any) {
-    // const modalRef = this.ngbModal.open(CustomersFormComponent);
-    // modalRef.componentInstance.setEditingId(parseInt(id));
+    const modalRef = this.ngbModal.open(LogsFormComponent);
+    modalRef.componentInstance.setEditingId(parseInt(id));
 
-    // this.subscriptions.push(
-    //   modalRef.closed.subscribe(() => this.datatable.updateTable()),
-    // )
+    this.subscriptions.push(
+      modalRef.closed.subscribe(() => this.datatable.updateTable()),
+    )
   }
 
   async deleteRequest(id:any) {

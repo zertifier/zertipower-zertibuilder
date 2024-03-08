@@ -45,6 +45,10 @@ export class CupsFormComponent {
     sensorApiKey:new FormControl<string|null>(null),
   });
 
+  smartMeterModels=['Fronius 63A-3','Fronius TS 100A-1','SMETS 1','SMETS 2']
+  inverterModels=['Turbo Energy 5000W 48V','Soiis S6-GR1P5K Monofásico 2MPPT 5000W','Huawei SUN2000-6KTL-L1 6kW']
+  sensorModels=['iEM2000','PowerLogic PM5000']
+
   constructor(
     private formBuilder: FormBuilder,
     private apiService: CupsApiService,

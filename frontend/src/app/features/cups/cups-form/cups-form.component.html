@@ -74,8 +74,12 @@
 
     <div *ngIf="form.controls.smartMeter.value" class="row d-flex justify-content-beetween">
       <div class="col">
-        <label for="smart-meter-model-input">Smart meter model</label>
-        <input id="smart-meter-model-input" type="text" formControlName="smartMeterModel" class="form-control">
+        <label for="smart-meter-model-selector">Smart meter model</label>
+        <select id="smart-meter-model-selector" class="form-select" formControlName="smartMeterModel">
+          <option></option>
+          <option *ngFor="let smartMeterModel of smartMeterModels">{{smartMeterModel}}</option>
+        </select>
+        <!-- <input id="smart-meter-model-input" type="text" formControlName="smartMeterModel" class="form-control"> -->
       </div>
       <div class="col">
         <label for="smart-meter-api-key-input">Smart meter api key</label>
@@ -92,8 +96,11 @@
 
     <div *ngIf="form.controls.inverter.value" class="row d-flex justify-content-beetween">
       <div class="col">
-        <label for="inverter-model-input">Inverter model</label>
-        <input id="inverter-model-input" type="text" formControlName="inverterModel" class="form-control">
+        <label for="inverter-model-selector">Inverter model</label>
+        <select id="inverter-model-selector" class="form-select" formControlName="inverterModel">
+          <option></option>
+          <option *ngFor="let inverterModel of inverterModels">{{inverterModel}}</option>
+        </select>
       </div>
       <div class="col">
         <label for="inverter-api-key-input">Inverter api key</label>
@@ -110,8 +117,11 @@
 
     <div *ngIf="form.controls.sensor.value" class="row d-flex justify-content-beetween">
       <div class="col">
-        <label for="sensor-model-input">Sensor model</label>
-        <input id="sensor-model-input" type="text" formControlName="sensorModel" class="form-control">
+        <label for="sensor-model-selector">Sensor model</label>
+        <select id="sensor-model-selector" class="form-select" formControlName="sensorModel">
+          <option></option>
+          <option *ngFor="let sensorModel of sensorModels">{{sensorModel}}</option>
+        </select>
       </div>
       <div class="col">
         <label for="sensor-api-key-input">Sensor api key</label>

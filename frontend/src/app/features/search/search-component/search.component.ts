@@ -256,6 +256,8 @@ export class SearchComponent implements AfterViewInit {
       return monthGeneration;
     });
 
+    console.log(this.monthChartData)
+
     this.monthChartData = [ this.sumMonthGeneration ]
     this.monthChartDatasets = [
       {

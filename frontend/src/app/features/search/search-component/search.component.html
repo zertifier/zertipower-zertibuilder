@@ -1,20 +1,49 @@
-<div class="row px-4 pt-4 container-fluid justify-content-center">
+<app-map (selectedAreaM2)="setSelectedAreaM2($event)" class="position-absolute top-0 start-0 p-0 m-0" style="width:100%;height:100%"></app-map>
 
-  <div class="col-12 col-md-6 p-2 ps-4">
-    
 
-    <button class="btn mb-2 btn-dark" (click)="folder = 0" ><i class="bi bi-search"></i> Cerca comunitats</button>
 
-    <app-map (selectedAreaM2)="setSelectedAreaM2($event)"></app-map>
+<div class="d-flex justify-content-center" style="z-index:2;">
+
+  <div class="card mt-2" style="z-index:2; width: 500px;">
+
+    <div class="row">
+
+    <div class="col col-1 d-flex align-items-center justify-content-center">
+      <i class="fa-solid fa-arrow-left ms-2"></i> 
+    </div>
+      
+    <div class="col col-11 col-md-3 d-flex align-items-center justify-content-center">
+      {{selectedLocation.municipality}}
+    </div>
+
+    <div class="col col-12 col-md-8">
+    <select id="location-comunnity" [(ngModel)]="selectedCommunity"  class="form-select px-2" (change)="OnSelectorChange(selectedCommunity,'community')"
+    data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Tooltip on bottom">
+      <option>Nova comunitat</option>
+      <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
+    </select>
+    </div>
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="row px-4 pt-2 d-none">
+
+  <!-- <div class="col-12 col-md-6 p-2 ps-4"> -->
 
     <!-- <div *ngIf="map">
       <button (click)="multipleSelection()"  data-toggle="button" type="button" [ngClass]="map.multipleSelection ? 'btn btn-dark mt-2 active' : 'btn btn-dark mt-2'" >Selecció múltiple</button>
       
     </div> -->
     
-  </div>
+  <!-- </div> -->
 
-  <div class="col-12 col-md-6 p-2">
+  <div class="col-12 col-md-4 p-2"  style="z-index:2">
+
+    <button class="btn mb-2 btn-dark" style="z-index: 4" (click)="folder = 0" ><i class="bi bi-search"></i> Cerca comunitats</button>
 
     <!-- <div class="mb-2">
       <label for="cups">cups</label>
@@ -26,7 +55,7 @@
       <input id="consum" placeholder="consum" type="number" class="form-control">
     </div> -->
 
-    <div class="mb-2">
+    <div class="card p-2 mb-2">
 
       <ul class="nav nav-tabs">
         <li class="nav-item">
@@ -106,7 +135,7 @@
         </div>
 
         <div class="col">
-          <div class="my-2">Kwh Producció</div>
+          <div class="my-2">Kwh Prod.</div>
           <input id="" placeholder="" type="text" disabled class="form-control" value="">
         </div>
   
@@ -159,7 +188,7 @@
         </div>
 
         <div class="col">
-          <div class="my-2">Kwh Producció</div>
+          <div class="my-2">Kwh Prod.</div>
           <input id="" placeholder="" type="text" disabled class="form-control" value="">
         </div>
   
@@ -206,12 +235,12 @@
           </div>
   
           <div class="col">
-            <div class="my-2">Preu excedent</div>
+            <div class="my-2">Preu ex.</div>
             <input id="" placeholder="" type="text"  class="form-control" value="">
           </div>
     
           <div class="col">
-            <div class="my-2">Preu intercanvi CEC</div>
+            <div class="my-2">Preu CEC</div>
             <input id="" placeholder="0.15" type="text" disabled class="form-control" value="">
           </div>
   

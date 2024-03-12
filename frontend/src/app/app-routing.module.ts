@@ -2,6 +2,7 @@ import {NgModule} from "@angular/core";
 import {RouterModule, Routes} from "@angular/router";
 import {loggedIn} from "./features/auth/guards/session-guards";
 import {pageAccess} from "./features/auth/guards/page-access-guard";
+import { SelectLocationComponent } from "./features/select-location/select-location.component";
 
 const routes: Routes = [
   {
@@ -76,11 +77,21 @@ const routes: Routes = [
     path: 'dashboard',
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
   },
+  // {
+  //   path: 'search',
+  //   loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule),
+  //   canActivate:[loggedIn]
+  // },
   {
-    path: 'search',
+    path: 'search/:id',
     loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule),
     canActivate:[loggedIn]
-  },{
+  },
+  {
+    path:'select-location',
+    component:SelectLocationComponent
+  },
+  {
     path: 'logs',
     loadChildren: () => import('./features/logs/logs.module').then(m => m.LogsModule),
     canActivate:[loggedIn]
@@ -88,7 +99,7 @@ const routes: Routes = [
   {
     path: "**",
     pathMatch: "full",
-    redirectTo: "search"
+    redirectTo: "select-location"
   },
 ];
 

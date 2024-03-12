@@ -11,6 +11,7 @@ import { log } from 'console';
 import { LocationService } from 'src/app/core/core-services/location.service';
 import { BehaviorSubject } from 'rxjs';
 import axios from 'axios';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -20,14 +21,14 @@ import axios from 'axios';
   encapsulation: ViewEncapsulation.None
 })
 
-export class SearchComponent implements AfterViewInit {
+export class SearchComponent implements OnInit, AfterViewInit {
 
   customers:any=[];
   communities:any=[];
   locations:any=[];
   selectedCommunity:any;
   selectedCommunities:any;
-  selectedLocation:any;
+  selectedLocation:any= {municipality:''};
   cadastresMap:any;
   energyAreas:any;
   energyArea={cadastral_reference:'',m2:0,cups:''};
@@ -47,8 +48,9 @@ export class SearchComponent implements AfterViewInit {
   updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   sumMonthGeneration: number[] = [];
   kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25];
-
   selectedAreaM2:number| undefined;
+  paramsSub:any;
+  locationId:number|undefined;
  
   @ViewChild(AppMapComponent) map!:AppMapComponent;
 
@@ -58,12 +60,22 @@ export class SearchComponent implements AfterViewInit {
     private customersService: CustomersService, 
     private communitiesService: CommunitiesApiService,
     private energyAreasService:EnergyAreasService,
-    private locationService:LocationService){}
+    private locationService:LocationService,
+    private activatedRoute: ActivatedRoute){}
+
+  async ngOnInit() {
+    this.paramsSub = this.activatedRoute.params.subscribe(
+      params => (this.locationId = parseInt(params['id'], 10))
+    );
+  }
 
   async ngAfterViewInit() {
 
     this.locations = await new Promise((resolve:any,reject:any)=>{
       this.locationService.getLocations().subscribe(async (res:any)=>{
+        this.selectedLocation = res.data.find((location:any)=>location.id=this.locationId)
+        //this.createLocationControl(res.data);
+        this.map.centerToAddress(`${this.selectedLocation.municipality}, España`)
         resolve(res.data)
       },(error:any)=>{
         console.log("error getting locations")
@@ -80,6 +92,8 @@ export class SearchComponent implements AfterViewInit {
       })
     })
 
+    this.OnSelectorChange(this.selectedLocation,'location')
+
     // this.customersService.getCustomersCups().subscribe(async (res: any) => {
     //   console.log("res",res)
     //   this.customers = res.data;
@@ -93,9 +107,33 @@ export class SearchComponent implements AfterViewInit {
 
   }
 
+  createLocationControl(locations:any[]){
+    const locationSelector = document.createElement('select');
+    locationSelector.classList.add("form-select")
+    locationSelector.addEventListener("change",()=>{this.OnSelectorChange(locationSelector.value,'location')})
+    
+    for (var i = 0; i < locations.length; i++) {
+      var option = document.createElement("option");
+      option.value = locations[i];
+      option.text = locations[i].municipality;
+      locationSelector.appendChild(option);
+    }
+
+    const centerControlDiv = document.createElement('div');
+    centerControlDiv.classList.add("p-4")
+    centerControlDiv.appendChild(locationSelector)
+
+    
+    this.map.addControl(centerControlDiv)
+  }
+
+
+
   OnSelectorChange(element: any, attribute: string) {
     switch(attribute){
+  
       case 'location':
+
         //this.selectedLocation=element;
         this.selectedCommunities = this.communities.map((community:any)=>{
           if(community.location_id==this.selectedLocation.id){
@@ -106,7 +144,14 @@ export class SearchComponent implements AfterViewInit {
         this.renderSelectedCommunities();
         this.renderLocation();
         break;
-        default: break;
+  
+      case 'community':
+      
+        //this.renderSelectedCommunities();
+        //this.renderLocation();
+  
+      default: 
+        break;
     }
     
   }
@@ -148,7 +193,7 @@ export class SearchComponent implements AfterViewInit {
           energyArea.id === energyAreaId
         )
 
-        console.log("selectedeeed",this.selectedAreaM2)
+        console.log("selected",this.selectedAreaM2)
 
         //console.log(`foo = `, this.selectedEnergyArea.m2, this.selectedEnergyArea.m2*0.2,(this.selectedEnergyArea.m2*0.2)/2,Math.floor((this.selectedEnergyArea.m2*0.2)/2))
         this.nPlaquesCalc = Math.floor((this.selectedAreaM2! * 0.2) / 1.7)

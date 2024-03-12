@@ -1,3 +1,25 @@
 .dropdown-menu.show{
     min-width: 60px !important;
 }
+
+.btn-shrink {
+  position: absolute;
+  top: 50%;
+  left: 266px;
+  transform: translate(-50%, -50%);
+}
+
+.btn-shrank{
+  left: 110px;
+}
+
+
+.navbar-dropdown .dropdown-toggle::after{
+  margin-left: 2.255em !important;
+
+}
+
+.dropdown-toggle::after {
+  margin-left: 2.255em !important;
+
+}

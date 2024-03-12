@@ -22,7 +22,8 @@ app-root {
 /*Datatable settings*/
 
 // Colors
-$primary: #5e0aff;
+$primary: #0e2b4c;
+$secondary: #5f7187;
 $text-primary: #101828;
 $text-secondary: #34393E;
 $text-titles: #667085;
@@ -112,6 +113,9 @@ $btn-bg: $primary;
   background-color: $primary !important;
 }
 
+.btn-primary{
+  color: #e8e8e8;
+}
 
 
 //-----------------------------------------------------------------

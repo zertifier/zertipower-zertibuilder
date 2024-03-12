@@ -15,8 +15,10 @@
 
 
 .navbar-dropdown > .dropdown-toggle::after{
-  //margin-left: 2.255em !important;
-  justify-content: end;
+  margin-right: 5px;
+  position: absolute;
+  right: 0;
+  bottom: 50%;
   transform: rotate(-90deg) translateX(6px);
   transform-origin: 100% 100%;
 }

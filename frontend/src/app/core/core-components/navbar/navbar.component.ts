@@ -20,7 +20,7 @@ export class NavbarComponent {
     {
       text: 'Estadístiques',
       dbName: 'dashboard',
-      iconClass: 'fa-solid fa-id-badge',
+      iconClass: 'fa-solid fa-chart-line',
       url: '/dashboard',
       status: true
     },

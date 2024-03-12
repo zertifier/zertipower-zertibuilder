@@ -126,8 +126,12 @@
         </div>
 
 
-        <div class="mx-3 my-3" ngbDropdown placement="end-top">
-          <button class="btn btn-primary w-100 navbar-dropdown" ngbDropdownToggle> Energia</button>
+        <div class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+          <button class="nav-link navbar-dropdown text-start fs-5 w-100" ngbDropdownToggle>
+            <i class="fa-solid fa-leaf" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
+               placement="end" [ngbTooltip]="isShrunk ? 'Energia'.toUpperCase() + 'Energia'.slice(1) : ''"></i>
+            <span *ngIf="!isShrunk" class="ms-2">Energia</span>
+          </button>
           <div class="dropdown-menu-end" ngbDropdownMenu>
             <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/energy-blocks']" class="nav-link">Trams d'energia</a>
@@ -147,8 +151,12 @@
           </div>
         </div>
 
-        <div class="mx-3 my-3" ngbDropdown placement="end-top">
-          <button class="btn btn-primary w-100 navbar-dropdown" ngbDropdownToggle> Participants</button>
+        <div class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+          <button class="nav-link navbar-dropdown text-start fs-5" ngbDropdownToggle>
+            <i class="fa-solid fa-users" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
+               placement="end" [ngbTooltip]="isShrunk ? 'Participants'.toUpperCase() + 'Participants'.slice(1) : ''"></i>
+            <span *ngIf="!isShrunk" class="ms-2">Participants</span>
+          </button>
           <div class="dropdown-menu-end" ngbDropdownMenu>
             <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/communities']" class="nav-link">Communitats</a>
@@ -168,8 +176,12 @@
           </div>
         </div>
 
-        <div class="mx-3 my-3" ngbDropdown placement="end-top">
-          <button class="btn btn-primary w-100 navbar-dropdown" ngbDropdownToggle> Més info</button>
+        <div class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+          <button class="nav-link text-start fs-5" ngbDropdownToggle>
+            <i class="fa-solid fa-circle-info" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
+               placement="end" [ngbTooltip]="isShrunk ? 'Més info'.toUpperCase() + 'Més info'.slice(1) : ''"></i>
+            <span *ngIf="!isShrunk" class="ms-2">Més info</span>
+          </button>
           <div class="dropdown-menu-end" ngbDropdownMenu>
             <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/smart-contracts']" class="nav-link">Smart contracts</a>
@@ -188,8 +200,8 @@
       <div id="div-shrink" class="d-flex align-content-center ms-auto">
         <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none"
                 [ngClass]="getThemeName() == 'Dark' ? 'text-light' : 'text-dark'" (click)="changeShrinkState()">
-          <i *ngIf="isShrunk" class="fa-solid fa-angle-right"></i>
-          <i *ngIf="!isShrunk" class="fa-solid fa-angle-left"></i>
+          <i *ngIf="isShrunk" class="fa-solid fa-caret-right fs-5"></i>
+          <i *ngIf="!isShrunk" class="fa-solid fa-caret-left fs-5"></i>
         </button>
       </div>
     </div>
@@ -200,7 +212,7 @@
 
       <!--Navbar profile dropdown-->
       <div class="my-3" ngbDropdown>
-        <button class="btn btn-dark w-100" ngbDropdownToggle style="width: 60px !important;">
+        <button class="btn btn-primary bg-transparent w-100" ngbDropdownToggle style="width: 60px !important;">
           <i class="fa-solid fa-user me-2"></i> <!--{{firstname()}} -->
         </button>
         <div class="dropdown-menu-start" ngbDropdownMenu>

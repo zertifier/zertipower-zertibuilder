@@ -14,12 +14,12 @@
 }
 
 
-.navbar-dropdown .dropdown-toggle::after{
-  margin-left: 2.255em !important;
-
+.navbar-dropdown > .dropdown-toggle::after{
+  //margin-left: 2.255em !important;
+  justify-content: end;
+  transform: rotate(-90deg) translateX(6px);
+  transform-origin: 100% 100%;
 }
 
-.dropdown-toggle::after {
-  margin-left: 2.255em !important;
 
-}
+

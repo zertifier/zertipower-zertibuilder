@@ -1,16 +1,11 @@
 import {AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import { CommonModule } from '@angular/common';
-
 import {CustomersService} from "../../../core/core-services/customers.service";
-import {Coordinate} from "mapbox-gl";
 import {AppMapComponent} from "../../../shared/infrastructure/components/map/map.component";
 import {CommunitiesApiService} from "../../communities/communities.service";
 import {EnergyAreasService} from "../../../core/core-services/energy-areas.service";
 import * as turf from '@turf/turf'
-import { log } from 'console';
 import { LocationService } from 'src/app/core/core-services/location.service';
 import { BehaviorSubject } from 'rxjs';
-import axios from 'axios';
 import { ActivatedRoute } from '@angular/router';
 
 
@@ -55,6 +50,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
   @ViewChild(AppMapComponent) map!:AppMapComponent;
 
   folder:number=1;
+
+  isShrunk:boolean=false;
 
   constructor(
     private customersService: CustomersService, 
@@ -317,6 +314,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   setSelectedAreaM2(areaM2:any){
     this.selectedAreaM2=Math.floor(areaM2)
+  }
+
+  changeShrinkState(){
+    this.isShrunk = !this.isShrunk
   }
 
 }

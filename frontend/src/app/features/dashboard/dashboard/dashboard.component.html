@@ -1,4 +1,4 @@
-<app-navbar/>
+<!--<app-navbar/>-->
 
 <div class="row m-0">
   <div class="col-md-3 bg-secondary text-light p-4 config-bar col-12">
@@ -38,7 +38,7 @@
 
       </div>
 
-      
+
 
     </div>
   </div>
@@ -49,12 +49,12 @@
         class="text-center" id="yearTitle">Any {{year}}</b></div>
       <div class="col-12 col-md-6 m-auto d-flex align-items-center justify-content-center m-auto" style="min-height: 300px">
            <app-chart [chartId]="'monthChart'" [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
-            [updateSubject]="updateMonthChartSubject.asObservable()" class="w-100 h-100"></app-chart> 
+            [updateSubject]="updateMonthChartSubject.asObservable()" class="w-100 h-100"></app-chart>
       </div>
       <div class="col-6 d-flex align-items-center justify-content-center m-auto">
         <div class="col-md-6 col-12">
          <app-chart [chartId]="'yearChart'" [chartType]="yearChartType" [datasets]="yearChartDatasets" [labels]="yearChartLabels"
-          [updateSubject]="updateYearChartSubject.asObservable()" class="w-100 h-100"></app-chart> 
+          [updateSubject]="updateYearChartSubject.asObservable()" class="w-100 h-100"></app-chart>
         </div>
       </div>
     </div>
@@ -73,15 +73,15 @@
 
         </div>
          <app-chart [chartType]="weekChartType" [labels]="weekChartLabels" [datasets]="weekChartDatasets" [chartId]="'weekChart'"
-          [updateSubject]="updateWeekChartSubject.asObservable()"></app-chart> 
+          [updateSubject]="updateWeekChartSubject.asObservable()"></app-chart>
       </div>
       <div class="col-12 col-md-6 m-0 p-0">
         <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
           <b>Dia &nbsp;{{date}}</b><b id="dayTitle"></b>
         </div>
          <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets" [chartId]="'dayChart'"
-          [updateSubject]="updateDayChartSubject.asObservable()"></app-chart> 
-        
+          [updateSubject]="updateDayChartSubject.asObservable()"></app-chart>
+
       </div>
     </div>
   </div>

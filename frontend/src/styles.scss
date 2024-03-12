@@ -117,6 +117,19 @@ $btn-bg: $primary;
   color: #e8e8e8;
 }
 
+.nav-link{
+  color: $secondary;
+}
+
+.nav-link:hover, .nav-link:hover i {
+  color: #aaaaaa;
+}
+
+
+.nav-link.active:hover i{
+  color: white;
+}
+
 
 //-----------------------------------------------------------------
 

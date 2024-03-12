@@ -120,7 +120,8 @@
                [ngClass]="isShrunk ? 'text-center' : 'text-start'">
               <i class="{{page.iconClass}}" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
                  placement="end" [ngbTooltip]="isShrunk ? page.text[0].toUpperCase() + page.text.slice(1) : ''">
-              </i><span *ngIf="!isShrunk" class="ms-2">{{ page.text }}</span>
+              </i>
+              <span *ngIf="!isShrunk" class="ms-2">{{ page.text }}</span>
             </a>
           </li>
         </div>
@@ -198,8 +199,9 @@
       </ul>
 
       <div id="div-shrink" class="d-flex align-content-center ms-auto">
-        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none"
-                [ngClass]="getThemeName() == 'Dark' ? 'text-light' : 'text-dark'" (click)="changeShrinkState()">
+        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none text-light" (click)="changeShrinkState()">
+<!--        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none"-->
+<!--                [ngClass]="getThemeName() == 'Dark' ? 'text-light' : 'text-dark'" (click)="changeShrinkState()">-->
           <i *ngIf="isShrunk" class="fa-solid fa-caret-right fs-5"></i>
           <i *ngIf="!isShrunk" class="fa-solid fa-caret-left fs-5"></i>
         </button>

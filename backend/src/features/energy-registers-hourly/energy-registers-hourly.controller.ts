@@ -225,8 +225,10 @@ export class EnergyRegistersHourlyController {
                 import,
                 consumption,
                 export,
-                generation
-         FROM energy_registers_original_hourly`
+                generation,
+                cups
+         FROM energy_registers_original_hourly erh
+                LEFT JOIN cups ON cups.id = cups_id`
       );
       return HttpResponse.success("Datatables fetched successfully").withData(
         data

@@ -54,11 +54,6 @@ export class CustomersTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'UpdatedAt',
-      data: 'updated_at',
-      width: '100px',
-    },
-    {
       title: '',
       data: 'id',
       width: '100px'
@@ -98,14 +93,6 @@ export class CustomersTableComponent implements OnDestroy {
         defaultData: 0,
         options: [],
       },
-      {
-        title: 'updated_at',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
   ];
 
   columnDefs:any[] = [
@@ -115,13 +102,7 @@ export class CustomersTableComponent implements OnDestroy {
     {
       targets: 3,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
-      }
-    },
-    {
-      targets: 4,
-      render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     {

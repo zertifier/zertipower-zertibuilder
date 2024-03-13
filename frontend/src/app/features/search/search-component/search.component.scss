@@ -36,3 +36,23 @@
   transform: rotate(-90deg) translateX(6px);
   transform-origin: 100% 100%;
 }
+
+.number-input{
+  width: 70px;
+}
+
+.open-nav{
+  width: 500px;
+}
+
+.closed-nav{
+  display:none;
+}
+
+.location-bar-open{
+  left:550px;
+}
+
+.location-bar-closed{
+  left:50px;
+}

@@ -141,7 +141,9 @@ export class EnergyBlocksTableComponent implements OnDestroy {
     {
       targets: 2,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-clock"></i> ${data}`
+        // return `<i class="fa-solid fa-clock"></i> ${data}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+
       }
     },
     {

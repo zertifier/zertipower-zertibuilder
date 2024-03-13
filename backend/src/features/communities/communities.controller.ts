@@ -32,7 +32,7 @@ export class CommunitiesController {
   @Get()
   async get() {
 
-      let url = `SELECT * FROM communities`;
+      let url = `SELECT communities.*, count(cups.id) as cups_number FROM communities LEFT join cups ON community_id = communities.id GROUP BY communities.id`;
     const [ROWS]:any[] = await this.conn.query(url);
 
     //console.log("commmunities:",data);

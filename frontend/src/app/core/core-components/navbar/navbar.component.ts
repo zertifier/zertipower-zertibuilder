@@ -30,14 +30,7 @@ export class NavbarComponent {
       iconClass: 'fa-solid fa-map',
       url: '/search',
       status: true
-    },
-    {
-      text: 'pedidos',
-      dbName: 'orders',
-      iconClass: 'fa-solid fa-box-open',
-      url: '/orders',
-      status: false
-    },
+    }
   ]
 
 	constructor(

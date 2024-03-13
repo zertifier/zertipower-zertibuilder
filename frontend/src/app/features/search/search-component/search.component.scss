@@ -11,3 +11,28 @@
   .btn-folder:hover {
     background-color: rgb(196, 196, 196);
   }
+
+  .dropdown-menu.show{
+    min-width: 60px !important;
+}
+
+.btn-shrink {
+  position: absolute;
+  top: 50%;
+  left: 266px;
+  transform: translate(-50%, -50%);
+}
+
+.btn-shrank{
+  left: 110px;
+}
+
+
+.navbar-dropdown > .dropdown-toggle::after{
+  margin-right: 5px;
+  position: absolute;
+  right: 0;
+  bottom: 50%;
+  transform: rotate(-90deg) translateX(6px);
+  transform-origin: 100% 100%;
+}

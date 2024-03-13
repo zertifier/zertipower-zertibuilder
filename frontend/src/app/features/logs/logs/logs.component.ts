@@ -191,7 +191,7 @@ export class LogsComponent implements OnDestroy {
     {
       targets: 1,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     {
@@ -199,7 +199,7 @@ export class LogsComponent implements OnDestroy {
         render: (data: any, type: any, row: any) => {
             // Variable para almacenar el estilo del círculo
             let circleStyle = '';
-            
+
             // Asignar el estilo de acuerdo al valor de los datos
             switch (data) {
                 case 'warning':
@@ -214,7 +214,7 @@ export class LogsComponent implements OnDestroy {
                 default:
                     circleStyle = '';
             }
-            
+
             // Generar HTML con el círculo y la fecha
             return `<div class="">
                         <div style="width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; ${circleStyle}"></div>

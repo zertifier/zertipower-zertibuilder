@@ -46,6 +46,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
   selectedAreaM2:number| undefined;
   paramsSub:any;
   locationId:number|undefined;
+
+  cupsNumber:number=0;
  
   @ViewChild(AppMapComponent) map!:AppMapComponent;
 
@@ -82,6 +84,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     
     this.communities =  await new Promise((resolve:any,reject:any)=>{
       this.communitiesService.get().subscribe((res:any)=>{
+        console.log(res.data)
         resolve(res.data)
       },(error:any)=>{
         console.log("error getting locations")

@@ -25,7 +25,7 @@
 </div> 
 </div>
 
-<div class="position-absolute top-0 start-0 h-100" style=" z-index:2">
+<div class="position-absolute top-0 start-0 h-100" style=" z-index:2;">
 
   <div class="d-flex">
 
@@ -43,6 +43,7 @@
 
               <div class="col-6 d-flex justify-content-center">
                 <span class="d-flex align-items-center me-2">Membres</span> 
+                <span *ngIf="selectedCommunity">{{selectedCommunity.cups_number}}</span>
               </div>
 
               <div class="col-6 d-flex justify-content-center">

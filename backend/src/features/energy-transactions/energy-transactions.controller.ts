@@ -36,14 +36,22 @@ export class EnergyTransactionsController {
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {
-    const data = await this.prisma.energyTransactions.findUnique({
+   /* const data = await this.prisma.energyTransactions.findUnique({
       where: {
         id: parseInt(id),
       },
-    });
+    });*/
+    const data: any[] = await this.prisma.$queryRaw`
+      SELECT et.*, cups
+      FROM
+        energy_transactions et
+        LEFT JOIN cups ON cups_id = cups.id
+      WHERE et.id = ${id}
+    `;
+
     return HttpResponse.success(
       "energy_transactions fetched successfully"
-    ).withData(this.mapData(data));
+    ).withData(this.mapData(data[0]));
   }
 
   @Post()
@@ -102,14 +110,14 @@ export class EnergyTransactionsController {
   mapData(data: any) {
     const mappedData: any = {};
     mappedData.id = data.id;
-    mappedData.cupsId = data.cupsId;
-    mappedData.infoDt = data.infoDt;
-    mappedData.kwhIn = data.kwhIn;
-    mappedData.kwhOut = data.kwhOut;
-    mappedData.kwhSurplus = data.kwhSurplus;
-    mappedData.blockId = data.blockId;
-    mappedData.createdAt = data.createdAt;
-    mappedData.updatedAt = data.updatedAt;
+    mappedData.cupsId = data.cupsId || data.cups_id;
+    mappedData.infoDt = data.infoDt || data.info_dt;
+    mappedData.kwhIn = data.kwhIn || data.kwh_in;
+    mappedData.kwhOut = data.kwhOut || data.kwh_out;
+    mappedData.kwhSurplus = data.kwhSurplus || data.kwh_surplus;
+    mappedData.blockId = data.blockId || data.block_id;
+    mappedData.createdAt = data.createdAt || data.created_at;
+    mappedData.updatedAt = data.updatedAt || data.updated_at;
     return mappedData;
   }
 }

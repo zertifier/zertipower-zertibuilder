@@ -51,7 +51,6 @@ export class EnergyBlocksFormComponent {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
-      console.log(data, "DATA")
       this.form.controls.id.setValue(data.id);
       this.form.controls.reference.setValue(data.reference);
       this.form.controls.expirationDt.setValue(moment.utc(data.expirationDt).format('YYYY-MM-DDTHH:mm'));

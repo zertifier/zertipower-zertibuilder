@@ -37,8 +37,10 @@ export class EnergyBlocksApiService {
   }
 
   getById(id: number): Observable<EnergyBlocksApiInterface> {
-    return this.httpClient.get<HttpResponse<EnergyBlocksApiDTO>>(`${environment.api_url}/energy-blocks/${id}`)
-      .pipe(map(response => mapToApiInterface(response.data)));
+    /*return this.httpClient.get<HttpResponse<EnergyBlocksApiDTO>>(`${environment.api_url}/energy-blocks/${id}`)
+      .pipe(map(response => mapToApiInterface(response.data)));*/
+    return this.httpClient.get<HttpResponse<any>>(`${environment.api_url}/energy-blocks/${id}`)
+      .pipe(map(response => response.data));
   }
 
   save(data: EnergyBlocksApiInterface): Observable<EnergyBlocksApiInterface> {

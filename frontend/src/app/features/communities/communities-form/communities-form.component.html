@@ -41,7 +41,7 @@
 
       <div class="row row-cols-2 row-cols-md-1">
         <div class="col my-3">
-          <label class="form-label" for="cups-select">Community cups</label>
+          <label class="form-label" for="cups-select">Cups de comunitat</label>
           <ng-select id="cups-select" [items]="customers" [multiple]="true"
                      [(ngModel)]="communityCups" (change)="changeCommunityCups(communityCups)" bindLabel="id">
             <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">

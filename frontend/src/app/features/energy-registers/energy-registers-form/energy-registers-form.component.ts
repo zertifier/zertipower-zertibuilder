@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { Observable } from 'rxjs';
 import { EnergyRegistersApiService } from '../energy-registers.service';
 import moment from 'moment';
+import {CupsApiService} from "../../cups/cups.service";
 
 @Component({
   selector: 'energy-registers-form',
@@ -41,9 +42,15 @@ export class EnergyRegistersFormComponent {
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
   });
+
+  availableCups: any;
+  selectedCupId: number = 0
+
+
   constructor(
     private formBuilder: FormBuilder,
     private apiService: EnergyRegistersApiService,
+    private cupsApiService: CupsApiService,
     private activeModal: NgbActiveModal,
   ) {}
 
@@ -52,17 +59,23 @@ export class EnergyRegistersFormComponent {
     if (!this.id) {
       return;
     }
-    this.apiService.getById(id).subscribe((data) => {
-      this.form.controls.id.setValue(data.id);
-      this.form.controls.infoDt.setValue(moment.utc(data.infoDt).format('YYYY-MM-DDTHH:mm'));
-      this.form.controls.cupsId.setValue(data.cupsId);
-      this.form.controls.import.setValue(data.import);
-      this.form.controls.consumption.setValue(data.consumption);
-      this.form.controls.export.setValue(data.export);
-      this.form.controls.generation.setValue(data.generation);
-      this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
-      this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
-    });
+    this.cupsApiService.get().subscribe((cups) => {
+      this.availableCups = cups
+      this.apiService.getById(id).subscribe((data) => {
+        console.log(data, "DATA")
+        this.form.controls.id.setValue(data.id);
+        this.form.controls.infoDt.setValue(moment.utc(data.infoDt).format('YYYY-MM-DDTHH:mm'));
+        this.form.controls.cupsId.setValue(data.cupsId);
+        this.selectedCupId = data.cupsId
+        this.form.controls.import.setValue(data.import);
+        this.form.controls.consumption.setValue(data.consumption);
+        this.form.controls.export.setValue(data.export);
+        this.form.controls.generation.setValue(data.generation);
+        this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
+        this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
+      });
+    })
+
   }
 
   save() {

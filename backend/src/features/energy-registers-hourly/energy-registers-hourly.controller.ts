@@ -244,8 +244,8 @@ export class EnergyRegistersHourlyController {
 
   mapData(data: any) {
     const mappedData: any = {};
-    mappedData.cupsId = data.cupsId;
-    mappedData.infoDatetime = data.infoDatetime;
+    mappedData.cupsId = data.cupsId | data.cups_id;
+    mappedData.infoDatetime = data.infoDatetime | data.info_datetime;
     mappedData.import = data.import;
     mappedData.consumption = data.consumption;
     mappedData.export = data.export;

@@ -13,6 +13,25 @@ import {capitalCase} from 'change-case';
 export class NavbarComponent {
 	firstname = computed(() => this.authStore.user()?.firstname);
 	navbarCollapsed = true;
+  isShrunk = false
+
+
+  pages = [
+    {
+      text: 'Estadístiques',
+      dbName: 'dashboard',
+      iconClass: 'fa-solid fa-chart-line',
+      url: '/dashboard',
+      status: true
+    },
+    {
+      text: 'Mapa',
+      dbName: 'search',
+      iconClass: 'fa-solid fa-map',
+      url: '/search',
+      status: true
+    }
+  ]
 
 	constructor(
 		private authStore: AuthStoreService,
@@ -59,4 +78,9 @@ export class NavbarComponent {
   getThemeName() {
     return capitalCase(this.themeStoreService.theme().toString());
   }
+
+  changeShrinkState(){
+    this.isShrunk = !this.isShrunk
+  }
+
 }

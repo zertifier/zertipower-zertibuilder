@@ -32,7 +32,7 @@ export class CommunitiesController {
   @Get()
   async get() {
 
-      let url = `SELECT * FROM communities`;
+      let url = `SELECT communities.*, count(cups.id) as cups_number FROM communities LEFT join cups ON community_id = communities.id GROUP BY communities.id`;
     const [ROWS]:any[] = await this.conn.query(url);
 
     //console.log("commmunities:",data);
@@ -98,8 +98,11 @@ export class CommunitiesController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,name,test,energy_price,lat,lng,location_id,created_at,updated_at
-                  FROM communities`
+      `SELECT com.id,name,test,energy_price,com.lat,com.lng,com.location_id,com.created_at,com.updated_at, loc.municipality, COUNT(cups.id) qty_cups
+                  FROM communities com
+                  LEFT JOIN locations loc ON loc.id = com.location_id
+                  LEFT JOIN cups ON com.id = community_id
+                  GROUP BY com.id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data

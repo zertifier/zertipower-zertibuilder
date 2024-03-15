@@ -99,11 +99,11 @@ export class EnergyBlocksController {
     const mappedData: any = {};
     mappedData.id = data.id;
     mappedData.reference = data.reference;
-    mappedData.expirationDt = data.expirationDt;
-    mappedData.activeInit = data.activeInit;
-    mappedData.activeEnd = data.activeEnd;
-    mappedData.consumptionPrice = data.consumptionPrice;
-    mappedData.generationPrice = data.generationPrice;
+    mappedData.expirationDt = data.expirationDt ||data.expiration_dt;
+    mappedData.activeInit = data.activeInit || data.active_init;
+    mappedData.activeEnd = data.activeEnd  || data.active_end;
+    mappedData.consumptionPrice = data.consumptionPrice || data.consumption_price ;
+    mappedData.generationPrice = data.generationPrice || data.generation_price;
     return mappedData;
   }
 }

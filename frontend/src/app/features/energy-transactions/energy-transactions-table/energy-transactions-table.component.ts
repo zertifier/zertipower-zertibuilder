@@ -36,7 +36,7 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
     {
       title: 'Id',
       data: 'id',
-      width: '100px',
+      width: '60px',
     },
     {
       title: 'CupsId',
@@ -71,11 +71,6 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
     {
       title: 'CreatedAt',
       data: 'created_at',
-      width: '100px',
-    },
-    {
-      title: 'UpdatedAt',
-      data: 'updated_at',
       width: '100px',
     },
     {
@@ -150,14 +145,6 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
         defaultData: 0,
         options: [],
       },
-      {
-        title: 'updated_at',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
   ];
 
   columnDefs:any[] = [
@@ -167,22 +154,31 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
     {
       targets: 2,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+      }
+    },
+    {
+      targets: 3,
+      render: (data: any, type: any, row: any) => {
+        if (row.tx_kwh_in){
+          return `<span>${data}<a href="https://gnosisscan.io/tx/${row.tx_kwh_in}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square ms-2"></i></a></span>`
+        }
+        return `<span>${data}</span>`
+      }
+    },
+    {
+      targets: 4,
+      render: (data: any, type: any, row: any) => {
+        if (row.tx_kwh_out){
+          return `<span>${data}<a href="https://gnosisscan.io/tx/${row.tx_kwh_out}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square ms-2"></i></a></span>`
+        }
+        return `<span>${data}</span>`
       }
     },
     {
       targets: 7,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
-      }
-    },
-    {
-      targets: 8,
-      render: (data: any, type: any, row: any) => {
-        if (data){
-          return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
-        } else { return null }
-        
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     {

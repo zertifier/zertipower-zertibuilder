@@ -3,11 +3,14 @@ import {
   ChangeDetectorRef,
   Component, ElementRef,
   Input,
+  NgZone,
   OnInit, ViewChild,
 } from "@angular/core";
 import {GoogleMap} from '@angular/google-maps';
 import { Output, EventEmitter } from '@angular/core';
 import { log } from "console";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: 'app-map',
@@ -47,16 +50,31 @@ export class AppMapComponent implements AfterViewInit {
 
   lat = 41.505;
   lng = 1.509;
-  
-  polygonT = [{lat:this.lat,lng:this.lng},{lat:this.lat+0.001,lng:this.lng+0.001}]
-
+  //catalonia coordinates
   coordinates = new google.maps.LatLng(this.lat, this.lng);
+
+  @Input() zoomControl: boolean = false;
+  @Input() mapTypeControl: boolean = false;
+  @Input() scaleControl: boolean = false;
+  @Input() streetViewControl: boolean = false;
+  @Input() rotateControl: boolean = false;
+  @Input() fullscreenControl: boolean = false;
+
+  @Input() address: string = ''; 
+
+  polygonT = [{lat:this.lat,lng:this.lng},{lat:this.lat+0.001,lng:this.lng+0.001}]
   
   mapOptions: google.maps.MapOptions = {
     center: this.coordinates,
     zoom: 8,
     mapTypeId:'satellite',
-    mapId: '4ad7272795cc4f73'
+    mapId: '4ad7272795cc4f73',
+    zoomControl:this.zoomControl,
+    mapTypeControl:this.mapTypeControl,
+    scaleControl:this.scaleControl,
+    streetViewControl:this.streetViewControl,
+    rotateControl:this.rotateControl,
+    fullscreenControl:this.fullscreenControl
   };
 
   markers: google.maps.Marker[] = [];
@@ -70,14 +88,17 @@ export class AppMapComponent implements AfterViewInit {
   @Output() selectedAreaM2 = new EventEmitter<number>();
 
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private cdr: ChangeDetectorRef, private ngZone:NgZone) {}
 
   ngAfterViewInit() {
     this.mapInitializer();
   }
 
   mapInitializer() {
-    this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
+    this.ngZone.run(()=>{
+      this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
+    })
+    
 
     this.map.data.setStyle(this.originalStyle)
 
@@ -157,6 +178,9 @@ export class AppMapComponent implements AfterViewInit {
   }
 
   addMarker(lat:any,lng:any) {
+
+    console.log("add marker")
+
       let coordinates = new google.maps.LatLng(lat,lng);
       
       const marker = new google.maps.Marker({
@@ -261,6 +285,51 @@ export class AppMapComponent implements AfterViewInit {
           console.log('La geometría no es un polígono.');
       }
     }
+  }
+
+  addControl(control:any, position:string = 'top-left'){
+    switch(position){
+      case 'top-center':
+        this.map.controls[google.maps.ControlPosition.TOP_CENTER].push(control);
+        break;
+      case 'top-right':
+        this.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(control);
+        break;
+      case 'top-left':   
+      this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(control);
+      break;
+      default:
+        break;
+    }
+    
+  }
+
+  centerToAddress(address:string){
+    this.geocodeAddress(address).then((coordinates: google.maps.LatLng | null) => {
+      if (coordinates) {
+        this.map.setCenter(coordinates);
+        this.map.setZoom(14)
+      } else {
+        console.error('No se pudo encontrar las coordenadas para la dirección proporcionada:', address);
+      }
+    }).catch(error => {
+      console.error('Error al geocodificar la dirección:', error, address);
+    });
+  }
+
+  geocodeAddress(address: string): Promise<google.maps.LatLng | null> {
+    return new Promise((resolve, reject) => {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ 'address': address }, (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK) {
+          const location = results![0].geometry.location;
+          const coordinates = new google.maps.LatLng(location.lat(), location.lng());
+          resolve(coordinates);
+        } else {
+          reject(status);
+        }
+      });
+    });
   }
 
 }

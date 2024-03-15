@@ -6,8 +6,9 @@ import { EnergyTransactionsTableComponent } from "./energy-transactions-table/en
 import { EnergyTransactionsFormComponent } from "./energy-transactions-form/energy-transactions-form.component";
 import {SharedComponentsModule} from "../../shared/infrastructure/components/shared-components.module";
 import {CoreComponentsModule} from "../../core/core-components/core-components.module";
-import { ReactiveFormsModule } from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { EditorComponent } from '@tinymce/tinymce-angular';
+import {NgSelectModule} from "@ng-select/ng-select";
 
 
 @NgModule({
@@ -18,7 +19,9 @@ import { EditorComponent } from '@tinymce/tinymce-angular';
     SharedComponentsModule,
     CoreComponentsModule,
     ReactiveFormsModule,
-    EditorComponent
+    EditorComponent,
+    NgSelectModule,
+    FormsModule
   ]
 })
 export class EnergyTransactionsModule { }

@@ -1,7 +1,10 @@
 export interface dtColumns {
-	title: string; //ex: 'Last name'
-	data: string; //ex: 'last_name'
-	width: string; //ex: '0px'
+	title?: string; //ex: 'Last name'
+	data: string | null; //ex: 'last_name'
+	width?: string; //ex: '0px'
+  className?:string;
+  orderable?:boolean;
+  defaultContent?:string;
 }
 
 /*

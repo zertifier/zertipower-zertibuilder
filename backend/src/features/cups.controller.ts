@@ -39,6 +39,9 @@ export class CupsController {
         id: parseInt(id),
       },
     });
+
+    console.log(data,this.mapData(data))
+
     return HttpResponse.success("cups fetched successfully").withData(
       this.mapData(data)
     );
@@ -80,8 +83,12 @@ export class CupsController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,cups,provider_id,community_id,location_id,customer_id,created_at,updated_at
-                  FROM cups`
+      `SELECT cups.id as id,cups,providers.provider as provider,communities.name as community,locations.municipality as municipality,customers.name as customer,cups.created_at as created_at,cups.updated_at as updated_at
+                  FROM cups 
+                  LEFT JOIN customers ON customer_id=customers.id 
+                  LEFT JOIN locations on location_id=locations.id
+                  LEFT JOIN providers on provider_id=providers.id
+                  LEFT JOIN communities on community_id=communities.id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data
@@ -90,15 +97,33 @@ export class CupsController {
 
   mapData(data: any) {
     const mappedData: any = {};
-    mappedData.id = data.id;
-    mappedData.cups = data.cups;
-    mappedData.providerId = data.providerId;
-    mappedData.communityId = data.communityId;
-    mappedData.ubication = data.ubication;
-    mappedData.geolocalization = data.geolocalization;
-    mappedData.customerId = data.customerId;
-    mappedData.createdAt = data.createdAt;
-    mappedData.updatedAt = data.updatedAt;
+    
+    mappedData.id=data.id
+    mappedData.cups=data.cups
+    mappedData.providerId=data.provider_id
+    mappedData.communityId=data.community_id
+    mappedData.surplusDistribution=data.surplus_distribution
+    mappedData.locationId=data.location_id
+    mappedData.address=data.address
+    mappedData.customerId=data.customer_id
+    mappedData.lng=data.lng
+    mappedData.lat=data.lat
+    mappedData.type=data.type
+    mappedData.datadisActive=data.datadis_active
+    mappedData.datadisUser=data.datadis_user
+    mappedData.datadisPassword=data.datadis_password
+    mappedData.smartMeterActive=data.smart_meter_active
+    mappedData.smartMeterModel=data.smart_meter_model
+    mappedData.smartMeterApiKey=data.smart_meter_api_key
+    mappedData.inverterActive=data.inverter_active
+    mappedData.inverterModel=data.inverter_model
+    mappedData.inverterApiKey=data.inverter_api_key
+    mappedData.sensorActive=data.sensor_active
+    mappedData.sensorModel=data.sensor_model
+    mappedData.sensorApiKey=data.sensor_api_key
+    mappedData.createdAt=data.created_at
+    mappedData.updatedAt=data.updated_at
+
     return mappedData;
   }
 }

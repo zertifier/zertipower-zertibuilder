@@ -1,0 +1,13 @@
+<div class="d-flex justify-content-center align-items-center w-100 h-100">
+
+    <div style="max-width: 500px;">
+        <label for="location" class="my-2">Selecciona un municipi</label>
+        <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
+          <option></option>
+          <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
+        </select>
+    </div>
+    
+
+</div>
+

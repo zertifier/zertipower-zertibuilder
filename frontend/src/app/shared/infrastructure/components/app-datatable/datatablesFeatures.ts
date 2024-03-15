@@ -31,6 +31,10 @@ export class DatatablesFeatures {
 		this.elementRef = elementRef;
 	}
 
+	async getTable(): Promise<DataTables.Api> {
+		return await this.datatableElement.dtInstance;
+	  }
+
 	/** modifies the datatables data response following filterParams default translations criteria
 	 *  to set more understandable columns data
 	 * @param filterParams
@@ -61,200 +65,244 @@ export class DatatablesFeatures {
 		});
 	}
 
-	async initialize() {
-		this.dtInstance = await this.datatableElement.dtInstance;
-		// filtering button creation:
-		let generalSearchInput = document.getElementsByClassName("dataTables_filter").item(0);
-		let input = generalSearchInput!.getElementsByTagName("input").item(0);
-		input!.setAttribute(
-			"style",
-			"height:30px; min-height:30px; max-height:30px; padding:0px!important; margin:0px 0px 0px 10px!important",
-		);
-		this.renderer.setStyle(generalSearchInput, "transform", "translate(-60px, 0px)");
-		this.renderer.setStyle(generalSearchInput, "height", "30px!important");
-		let generalSearchInputParent = this.renderer.parentNode(generalSearchInput);
-		this.renderer.setStyle(generalSearchInputParent, "display", "flex");
-		this.renderer.setStyle(generalSearchInputParent, "justify-content", "end");
+  async initialize() {
+    this.dtInstance = await this.datatableElement.dtInstance;
 
-		//button div
-		this.buttonDiv = document.getElementById("datatables-button-header");
-		if (this.buttonDiv == null) {
-			this.buttonDiv = this.renderer.createElement("div");
-			this.renderer.addClass(this.buttonDiv, "d-flex");
-			this.renderer.setProperty(this.buttonDiv, "id", "datatables-button-header");
-			this.renderer.appendChild(generalSearchInputParent, this.buttonDiv);
-		}
-	}
+    const currentTableElement = document.getElementById(this.dtInstance.tables().nodes()[0].id + '_filter')
 
-	async createFilters(filterParams: filterParams[]) {
-		//infraestructure creation of filter
-		let activateFiltersButton = this.renderer.createElement("button");
-		//let filterText= this.renderer.createText("Column filtering")
-		this.renderer.addClass(activateFiltersButton, "ms-2");
-		this.renderer.addClass(activateFiltersButton, "datatables-button");
-		let icon = this.renderer.createElement("i");
-		this.renderer.addClass(icon, "fa-solid");
-		this.renderer.addClass(icon, "fa-filter");
-		this.renderer.appendChild(activateFiltersButton, icon);
-		//this.renderer.appendChild(activateFiltersButton,filterText);
-		this.renderer.addClass(activateFiltersButton, "btn");
-		this.renderer.addClass(activateFiltersButton, "btn-outline-primary");
-		this.renderer.addClass(activateFiltersButton, "activate-filters-button");
-		this.renderer.appendChild(this.buttonDiv, activateFiltersButton);
-		this.renderer.listen(activateFiltersButton, "click", () => {
-			if (this.isFilteringActive) {
-				this.isFilteringActive = false;
-				let thead = document.getElementById("filter-thead");
-				thead!.remove();
-			} else {
-				//filtering inputs creation:
-				this.isFilteringActive = true;
-				//creating new thead to store the inputs
-				let thead = this.renderer.createElement("thead");
-				this.renderer.addClass(thead, "filter-thead");
-				this.renderer.setProperty(thead, "id", "filter-thead");
-				let datatablesHead = this.elementRef.nativeElement.querySelector("thead");
-				let tr = this.renderer.createElement("tr");
-				let datatablesHeadParent = this.renderer.parentNode(datatablesHead);
-				let that = this;
-				this.dtInstance.columns().every(function (columnNumber: number) {
-					let filterType;
-					if (filterParams[columnNumber]) {
-						switch (filterParams[columnNumber].type) {
-							case 0: // text input
-								let input = that.renderer.createElement("input");
-								that.renderer.addClass(input, "filter-input");
-								that.renderer.setProperty(
-									input,
-									"placeholder",
-									`Search ${this.header().innerText}`,
-								);
-								that.renderer.listen(input, "keyup", () => {
-									let searchValue = input.value;
-									that.dtInstance.column(columnNumber).search(searchValue).draw();
-								});
-								filterType = input;
-								break;
-							case 1: // number input
-								let inputNumber = that.renderer.createElement("input");
-								that.renderer.addClass(inputNumber, "filter-input");
-								that.renderer.setProperty(inputNumber, "type", "number");
-								that.renderer.listen(inputNumber, "keyup", () => {
-									let searchValue = inputNumber.value;
-									that.dtInstance.column(columnNumber).search(searchValue).draw();
-								});
-								that.renderer.listen(inputNumber, "change", (e) => {
-									that.dtInstance.column(columnNumber).search(e.target.value).draw();
-								});
-								filterType = inputNumber;
-								break;
-							case 2: //selector
-								let selector = that.renderer.createElement("select");
-								that.renderer.addClass(selector, "filter-selector");
-								filterParams[columnNumber].options.forEach((filterOption: any) => {
-									let option = that.renderer.createElement("option");
-									that.renderer.setProperty(option, "id", filterOption.value);
-									that.renderer.setProperty(option, "value", filterOption.value);
-									let optionText = that.renderer.createText(filterOption.name);
-									that.renderer.appendChild(option, optionText);
-									that.renderer.appendChild(selector, option);
-								});
-								that.renderer.listen(selector, "change", (e) => {
-									that.dtInstance.column(columnNumber).search(e.target.value).draw();
-								});
-								filterType = selector;
-								break;
-							default:
-								break;
-						}
-					}
-					let th = that.renderer.createElement("th");
-					if (filterType) {
-						that.renderer.appendChild(th, filterType);
-					}
-					that.renderer.appendChild(tr, th);
-				});
-				this.renderer.appendChild(thead, tr);
-				this.renderer.insertBefore(datatablesHeadParent, thead, datatablesHead);
-			}
-		});
-	}
+    this.renderer.setStyle(currentTableElement, "width", "100%");
+    this.renderer.setStyle(currentTableElement, "height", "31px!important");
+    let generalSearchInputParent = this.renderer.parentNode(currentTableElement);
 
-	createAddRowButton(
-		document: Document,
-		renderer: Renderer2,
-		editRequest: EventEmitter<number>,
-	): Element {
-		let generalSearchInput = document.getElementsByClassName("dataTables_filter").item(0);
-		let generalSearchInputParent = renderer.parentNode(generalSearchInput);
-		//button div
-		let buttonDiv = document.getElementById("datatables-button-header");
-		if (buttonDiv == null) {
-			buttonDiv = renderer.createElement("div");
-			renderer.addClass(buttonDiv, "inline-flex");
-			renderer.setProperty(buttonDiv, "id", "datatables-button-header");
-			renderer.appendChild(generalSearchInputParent, buttonDiv);
-		}
-		//infraestructure creation of data editor opener
-		let editorOpenerButton = renderer.createElement("button");
-		renderer.addClass(editorOpenerButton, "datatables-button");
-		renderer.addClass(editorOpenerButton, "ms-2");
-		let editorOpenerIcon = renderer.createElement("i");
-		renderer.addClass(editorOpenerIcon, "fa-solid");
-		renderer.addClass(editorOpenerIcon, "fa-plus");
-		renderer.appendChild(editorOpenerButton, editorOpenerIcon);
-		renderer.addClass(editorOpenerButton, "btn");
-		renderer.addClass(editorOpenerButton, "btn-outline-primary");
-		renderer.addClass(editorOpenerButton, "editor-opener-button");
-		renderer.appendChild(buttonDiv, editorOpenerButton);
-		this.renderer.listen(editorOpenerButton, "click", () => {
-			editRequest.emit(undefined);
-		});
-		return editorOpenerButton;
-	}
+    const tableButtonsElement = document.getElementById(this.dtInstance.tables().nodes()[0].id + '_wrapper')
+    let tableButtons = tableButtonsElement!.getElementsByClassName("table-filters").item(0);
 
-	async createRefreshRowsButton() {
-		//infraestructure creation of filter
-		let refreshButton = this.renderer.createElement("button");
-		//let filterText= this.renderer.createText("Column filtering")
-		this.renderer.addClass(refreshButton, "ms-2");
-		this.renderer.addClass(refreshButton, "datatables-button");
-		let refreshIcon = this.renderer.createElement("i");
-		this.renderer.addClass(refreshIcon, "fa-solid");
-		this.renderer.addClass(refreshIcon, "fa-refresh");
+    this.buttonDiv = tableButtons as HTMLElement;
+    if (!this.buttonDiv) {
+      this.buttonDiv = this.renderer.createElement("div");
+      this.renderer.setProperty(this.buttonDiv, "id", "datatables-button-header");
+      this.renderer.appendChild(generalSearchInputParent, this.buttonDiv);
+    }
+  }
 
-		this.renderer.appendChild(refreshButton, refreshIcon);
-		//this.renderer.appendChild(activateFiltersButton,filterText);
-		this.renderer.addClass(refreshButton, "btn");
-		this.renderer.addClass(refreshButton, "btn-outline-primary");
-		this.renderer.addClass(refreshButton, "activate-filters-button");
-		this.renderer.appendChild(this.buttonDiv, refreshButton);
-		let that = this;
-		this.renderer.listen(refreshButton, "click", () => {
-			this.dtInstance.columns().every(function (columnNumber: number) {
-				that.renderer.addClass(refreshIcon, "fa-spin");
-				that.dtInstance.column(0).search("").draw();
-				setTimeout(() => {
-					that.updateRefreshButton(refreshIcon);
-				}, 1000);
-			});
-		});
-	}
+  async createFilters(filterParams: filterParams[]) {
+    //infraestructure creation of filter
 
-	updateRefreshButton(refreshIcon: any) {
-		this.renderer.removeClass(refreshIcon, "fa-spin");
-	}
 
-	showOrHideButtons(show: boolean) {
-		let columnButtons = this.document.getElementsByClassName("btn-column");
-		if (show) {
-			for (let i = 0; i < columnButtons.length; i++) {
-				columnButtons.item(i)!.classList.remove("d-none");
-			}
-		} else {
-			for (let i = 0; i < columnButtons.length; i++) {
-				columnButtons.item(i)!.classList.add("d-none");
-			}
-		}
-	}
+    let icon = this.renderer.createElement("i");
+    this.renderer.addClass(icon, "fa-solid");
+    this.renderer.addClass(icon, "fa-filter");
+
+    let activateFiltersButton = this.renderer.createElement("button");
+    this.renderer.addClass(activateFiltersButton, "btn");
+    this.renderer.addClass(activateFiltersButton, "btn-primary");
+    this.renderer.addClass(activateFiltersButton, "activate-filters-button");
+    this.renderer.appendChild(activateFiltersButton, icon);
+
+
+    let filterDiv = this.renderer.createElement("div");
+    this.renderer.addClass(filterDiv, "ms-auto");
+    this.renderer.addClass(filterDiv, "col-auto");
+    this.renderer.addClass(filterDiv, "order-md-2");
+    this.renderer.addClass(filterDiv, "d-none");
+    this.renderer.addClass(filterDiv, "d-md-block");
+    this.renderer.appendChild(filterDiv, activateFiltersButton);
+
+    this.renderer.appendChild(this.buttonDiv, filterDiv);
+
+    this.renderer.listen(activateFiltersButton, "click", () => {
+      if (this.isFilteringActive) {
+        this.isFilteringActive = false;
+        let thead = document.getElementById("filter-thead");
+        console.log(thead)
+        thead!.remove();
+      } else {
+        //filtering inputs creation:
+        this.isFilteringActive = true;
+        //creating new thead to store the inputs
+        let thead = this.renderer.createElement("thead");
+        this.renderer.addClass(thead, "filter-thead");
+        this.renderer.setProperty(thead, "id", "filter-thead");
+        let datatablesHead = this.elementRef.nativeElement.querySelector("thead");
+        let tr = this.renderer.createElement("tr");
+        let datatablesHeadParent = this.renderer.parentNode(datatablesHead);
+        let that = this;
+        this.dtInstance.columns().every(function (columnNumber: number) {
+          let filterType;
+          if (filterParams[columnNumber]) {
+            switch (filterParams[columnNumber].type) {
+              case 0: // text input
+                let input = that.renderer.createElement("input");
+                that.renderer.addClass(input, "filter-input");
+                that.renderer.addClass(input, "form-control");
+                that.renderer.addClass(input, "form-control-sm");
+                that.renderer.setProperty(
+                  input,
+                  "placeholder",
+                  `Buscar ${this.header().innerText}`,
+                );
+                that.renderer.listen(input, "keyup", () => {
+                  let searchValue = input.value;
+                  that.dtInstance.column(columnNumber).search(searchValue).draw();
+                });
+                filterType = input;
+                break;
+              case 1: // number input
+                let inputNumber = that.renderer.createElement("input");
+                that.renderer.addClass(inputNumber, "filter-input");
+
+                that.renderer.addClass(inputNumber, "form-control");
+                that.renderer.addClass(inputNumber, "form-control-sm");
+                that.renderer.setProperty(inputNumber, "type", "number");
+                that.renderer.setProperty(
+                  inputNumber,
+                  "placeholder",
+                  `${this.header().innerText}`,
+                );
+                that.renderer.listen(inputNumber, "keyup", () => {
+                  let searchValue = inputNumber.value;
+                  that.dtInstance.column(columnNumber).search(searchValue).draw();
+                });
+                that.renderer.listen(inputNumber, "change", (e) => {
+                  that.dtInstance.column(columnNumber).search(e.target.value).draw();
+                });
+                filterType = inputNumber;
+                break;
+              case 2: //selector
+                let selector = that.renderer.createElement("select");
+                that.renderer.addClass(selector, "filter-selector");
+
+                that.renderer.addClass(selector, "form-control");
+                that.renderer.addClass(selector, "form-control-sm");
+                let option = that.renderer.createElement("option");
+                that.renderer.setProperty(option, "value", "");
+                let optionText = that.renderer.createText('Seleccionar');
+                that.renderer.appendChild(option, optionText);
+                that.renderer.appendChild(selector, option);
+                filterParams[columnNumber].options.forEach((filterOption: any) => {
+                  let option = that.renderer.createElement("option");
+                  that.renderer.setProperty(option, "id", filterOption.value);
+                  that.renderer.setProperty(option, "value", filterOption.value);
+                  let optionText = that.renderer.createText(filterOption.name);
+                  that.renderer.appendChild(option, optionText);
+                  that.renderer.appendChild(selector, option);
+                });
+                that.renderer.listen(selector, "change", (e) => {
+                  that.dtInstance.column(columnNumber).search(e.target.value).draw();
+                });
+                filterType = selector;
+                break;
+              default:
+                break;
+            }
+          }
+          let th = that.renderer.createElement("th");
+          if (filterType) {
+            that.renderer.appendChild(th, filterType);
+          }
+          that.renderer.appendChild(tr, th);
+        });
+        this.renderer.appendChild(thead, tr);
+        this.renderer.insertBefore(datatablesHeadParent, thead, datatablesHead);
+      }
+    });
+  }
+
+  createAddRowButton(
+    document: Document,
+    renderer: Renderer2,
+    editRequest: EventEmitter<number>,
+    addButtonText: string
+  ): Element {
+    let currentTableElement = document.getElementById(this.dtInstance.tables().nodes()[0].id + '_filter');
+    let generalSearchInputParent = renderer.parentNode(currentTableElement);
+
+    const tableButtonsElement = document.getElementById(this.dtInstance.tables().nodes()[0].id + '_wrapper')
+    let tableButtons = tableButtonsElement!.getElementsByClassName("table-filters").item(0);
+
+    let buttonDiv = tableButtons as HTMLElement;
+
+    if (buttonDiv == null) {
+      buttonDiv = renderer.createElement("div");
+      renderer.addClass(buttonDiv, "inline-flex");
+      renderer.setProperty(buttonDiv, "id", "datatables-button-header");
+      renderer.appendChild(generalSearchInputParent, buttonDiv);
+    }
+
+    let addBtnDiv = this.renderer.createElement("div");
+    this.renderer.addClass(addBtnDiv, "order-md-5");
+    this.renderer.addClass(addBtnDiv, "order-1");
+    this.renderer.addClass(addBtnDiv, "col-md-auto");
+    this.renderer.addClass(addBtnDiv, "col-12");
+    //infraestructure creation of data editor opener
+    let editorOpenerButton = renderer.createElement("button");
+    renderer.addClass(editorOpenerButton, "btn");
+    renderer.addClass(editorOpenerButton, "btn-primary");
+    renderer.addClass(editorOpenerButton, "w-100");
+    renderer.addClass(editorOpenerButton, "w-md-auto");
+    renderer.addClass(editorOpenerButton, "editor-opener-button");
+
+
+    // let locationText = document.getElementById('location-title')!.textContent
+
+    let buttonText = this.renderer.createText(`Afegir ${addButtonText.toLowerCase()}`);
+    renderer.appendChild(editorOpenerButton, buttonText);
+
+    renderer.appendChild(addBtnDiv, editorOpenerButton);
+    renderer.appendChild(buttonDiv, addBtnDiv);
+    this.renderer.listen(editorOpenerButton, "click", () => {
+      editRequest.emit(undefined);
+    });
+    return editorOpenerButton;
+  }
+
+  async createRefreshRowsButton() {
+
+
+    let refreshDiv = this.renderer.createElement("div");
+    this.renderer.addClass(refreshDiv, "order-md-4");
+    this.renderer.addClass(refreshDiv, "col-auto");
+    this.renderer.addClass(refreshDiv, "d-none");
+    this.renderer.addClass(refreshDiv, "d-md-block");
+    //infraestructure creation of filter
+    let refreshButton = this.renderer.createElement("button");
+    let refreshIcon = this.renderer.createElement("i");
+    this.renderer.addClass(refreshIcon, "fa-solid");
+    this.renderer.addClass(refreshIcon, "fa-refresh");
+
+    this.renderer.appendChild(refreshButton, refreshIcon);
+    this.renderer.addClass(refreshButton, "btn");
+    this.renderer.addClass(refreshButton, "btn-primary");
+    this.renderer.addClass(refreshButton, "activate-filters-button");
+    this.renderer.appendChild(refreshDiv, refreshButton);
+    this.renderer.appendChild(this.buttonDiv, refreshDiv);
+    let that = this;
+    this.renderer.listen(refreshButton, "click", () => {
+      this.dtInstance.columns().every(function (columnNumber: number) {
+        that.renderer.addClass(refreshIcon, "fa-spin");
+        that.dtInstance.column(0).search("").draw();
+        setTimeout(() => {
+          that.updateRefreshButton(refreshIcon);
+        }, 1000);
+      });
+    });
+  }
+
+  updateRefreshButton(refreshIcon: any) {
+    this.renderer.removeClass(refreshIcon, "fa-spin");
+  }
+
+  showOrHideButtons(show: boolean) {
+    let columnButtons = this.document.getElementsByClassName("btn-column");
+    if (show) {
+      for (let i = 0; i < columnButtons.length; i++) {
+        columnButtons.item(i)!.classList.remove("d-none");
+      }
+    } else {
+      for (let i = 0; i < columnButtons.length; i++) {
+        columnButtons.item(i)!.classList.add("d-none");
+      }
+    }
+  }
 }
+

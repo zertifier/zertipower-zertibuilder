@@ -3,45 +3,50 @@
 </div>
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
-    <div>
+    <!--<div>
       <label for="id-input">id</label>
       <input id="id-input" type="number" formControlName="id" class="form-control">
+    </div>-->
+    <div class="my-3" *ngIf="availableCups">
+      <label class="form-label">Cups</label>
+<!--      <input id="cups-id-input" type="number" formControlName="cupsId" class="form-control">-->
+      <ng-select [clearable]="false" [(ngModel)]="selectedCupId" name="cupsId" formControlName="cupsId">
+        <ng-option *ngFor="let cups of availableCups" [value]="cups.id">
+          <span class="text-capitalize">{{ cups.cups }}</span>
+        </ng-option>
+      </ng-select>
     </div>
-    <div>
-      <label for="cups-id-input">cups_id</label>
-      <input id="cups-id-input" type="number" formControlName="cupsId" class="form-control">
-    </div>
-    <div>
-      <label for="info-dt-input">info_dt</label>
+    <div class="my-3">
+      <label class="form-label" for="info-dt-input">Data info</label>
       <input id="info-dt-input" type="datetime-local" formControlName="infoDt" class="form-control">
     </div>
-    <div>
-      <label for="kwh-in-input">kwh_in</label>
+    <div class="my-3">
+      <label class="form-label" for="kwh-in-input">KWH Entrada</label>
       <input id="kwh-in-input" type="number" formControlName="kwhIn" class="form-control">
     </div>
-    <div>
-      <label for="kwh-out-input">kwh_out</label>
+    <div class="my-3">
+      <label class="form-label" for="kwh-out-input">KWH Surtida</label>
       <input id="kwh-out-input" type="number" formControlName="kwhOut" class="form-control">
     </div>
-    <div>
-      <label for="kwh-surplus-input">kwh_surplus</label>
+    <div class="my-3">
+      <label class="form-label" for="kwh-surplus-input">KWH Excedent</label>
       <input id="kwh-surplus-input" type="number" formControlName="kwhSurplus" class="form-control">
     </div>
-    <div>
-      <label for="block-id-input">block_id</label>
+    <div class="my-3">
+      <label class="form-label" for="block-id-input">ID Block</label>
       <input id="block-id-input" type="number" formControlName="blockId" class="form-control">
     </div>
-    <div>
+<!--    <div class="my-3">
       <label for="created-at-input">created_at</label>
       <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
     </div>
-    <div>
+    <div class="my-3">
       <label for="updated-at-input">updated_at</label>
       <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
-    </div>
+    </div>-->
   </form>
 </div>
 <div class="modal-footer">
-  <button type="submit" class="btn btn-primary" form="form">Save</button>
-  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+  <button type="submit" class="btn btn-primary" form="form">Guardar</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Tancar</button>
 </div>

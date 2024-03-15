@@ -3,42 +3,47 @@
 </div>
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
-    <div>
+    <!--<div>
       <label for="id-input">id</label>
       <input id="id-input" type="number" formControlName="id" class="form-control">
-    </div>
-    <div>
-      <label for="info-dt-input">info_dt</label>
+    </div>-->
+    <div class="my-3">
+      <label class="form-label" for="info-dt-input">Data Info</label>
       <input id="info-dt-input" type="datetime-local" formControlName="infoDt" class="form-control">
     </div>
-    <div>
-      <label for="cups-id-input">cups_id</label>
-      <input id="cups-id-input" type="number" formControlName="cupsId" class="form-control">
+    <div class="my-3">
+      <label class="form-label">Cups</label>
+<!--      <input id="cups-id-input" type="number" formControlName="cupsId" class="form-control">-->
+      <ng-select [clearable]="false" [(ngModel)]="selectedCupId" name="cupsId" formControlName="cupsId">
+        <ng-option *ngFor="let cups of availableCups" [value]="cups.id">
+          <span class="text-capitalize">{{ cups.cups }}</span>
+        </ng-option>
+      </ng-select>
     </div>
-    <div>
-      <label for="import-input">import</label>
+    <div class="my-3">
+      <label class="form-label" for="import-input">Import</label>
       <input id="import-input" type="number" formControlName="import" class="form-control">
     </div>
-    <div>
-      <label for="consumption-input">consumption</label>
+    <div class="my-3">
+      <label class="form-label" for="consumption-input">Consum</label>
       <input id="consumption-input" type="number" formControlName="consumption" class="form-control">
     </div>
-    <div>
-      <label for="export-input">export</label>
+    <div class="my-3">
+      <label class="form-label" for="export-input">Export</label>
       <input id="export-input" type="number" formControlName="export" class="form-control">
     </div>
-    <div>
-      <label for="generation-input">generation</label>
+    <div class="my-3">
+      <label class="form-label" for="generation-input">Generació</label>
       <input id="generation-input" type="number" formControlName="generation" class="form-control">
     </div>
-    <div>
+    <!--<div class="my-3">
       <label for="created-at-input">created_at</label>
       <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
     </div>
-    <div>
+    <div class="my-3">
       <label for="updated-at-input">updated_at</label>
       <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
-    </div>
+    </div>-->
   </form>
 </div>
 <div class="modal-footer">

@@ -1,0 +1,175 @@
+/*
+.select {
+    width: 196px;
+    height: 30px;
+    margin-bottom: 10px;
+  }
+
+  select {
+    width: 90%;
+    min-width: 90%;
+    height: 30px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+
+  input {
+    width: 90%;
+    min-width: 90%;
+    height: 30px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  input[type=text]{
+    width: 90%;
+    min-width: 90%;
+    height: 30px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  input[type=number]{
+    width: 90%;
+    min-width: 90%;
+    height: 30px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  input[type=date]{
+    width: 90%;
+    min-width: 90%;
+    height: 30px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  -----------------------------------------------------------------------------------*/
+
+/* Default styles */
+:root {
+  --text-color: black;
+  --background-color-header: #E8E8E8;
+  --background-color-table-even: #E8E8E8;
+  --background-color-table-odd: #F4F6F7;
+  --color-pagination-active: #34393E;
+  --color-pagination: #9C9C9C;
+  --color-active-text: #E9E9E9;
+}
+
+/* Dark theme */
+[data-bs-theme="dark"] {
+  --text-color: white;
+  --background-color-header: #525252;
+  --background-color-table-even: #525252;
+  --background-color-table-odd: #2C3034;
+  --color-pagination-active: #9C9C9C;
+  --color-pagination: #E9E9E9;
+  --color-active-text: #E9E9E9;
+}
+
+tr{
+  border-bottom: 1px solid black;
+}
+
+.dataTables_scrollHead{
+  background-color: var(--background-color-header);
+}
+
+.dataTables_scrollHead, td{
+  padding: 15px !important;
+  border-bottom: 1px solid #525252;
+
+  /*padding-right: 0px !important;*/
+}
+
+.even{
+  background-color: var(--background-color-table-even) !important;
+}
+
+.odd{
+  background-color: var(--background-color-table-odd) !important;
+}
+
+.dt-body-nowrap {
+  white-space: nowrap;
+}
+
+table.dataTable.table-striped > tbody > tr:nth-of-type(2n+1) > * {
+  box-shadow: none ;
+}
+
+/*Pagination PREVIOUS button*/
+.page-item:first-child .page-link {
+  border: none;
+  margin-right: 50px;
+  background-color: transparent;
+}
+/*Pagination NEXT button*/
+.page-item:last-child .page-link {
+  border: none;
+  margin-left: 50px;
+  background-color: transparent;
+}
+
+.page-link.active, .active > .page-link {
+  background-color: transparent !important;
+  border: none !important;
+  color: var(--color-pagination-active) !important;
+}
+
+div.dataTables_wrapper div.dataTables_paginate ul.pagination{
+  justify-content: center !important;
+}
+
+
+div.dataTables_wrapper div.dataTables_filter input{
+  font-size: 1rem;
+  padding:  0.375rem 0.75rem 0.375rem 30px;
+}
+
+.dataTables_filter .fa-search{
+  padding-top: 5px;
+}
+
+
+
+.active-button, .active-button:hover, .active-button:active{
+  font-size: 16px !important;
+  border-radius: 25px !important;
+  background-color: #198754 !important;
+  color: white !important;
+  cursor: auto !important;
+  box-shadow: none !important;
+  border: none !important;
+
+}
+
+.no-active-button, .no-active-button:hover, .no-active-button:active{
+  font-size: 15px !important;
+  border-radius: 25px !important;
+  background-color: #DC3545  !important;
+  color: white !important;
+  cursor: auto !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+
+.pending-button, .pending-button:hover, .pending-button:active{
+  font-size: 16px !important;
+  border-radius: 25px !important;
+  background-color: #FFC107 !important;
+  color: white !important;
+  cursor: auto !important;
+  box-shadow: none !important;
+  border: none !important;
+
+}
+
+
+/*table.dataTable thead > tr > th.sorting, table.dataTable thead > tr > th.sorting_asc{
+  padding-right: 0 !important;
+}*/
+

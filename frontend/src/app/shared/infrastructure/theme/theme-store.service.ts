@@ -29,13 +29,12 @@ export class ThemeStoreService {
     effect(() => {
       const theme = this.theme();
       let darkMode = theme === Theme.Dark;
-
       if (theme === Theme.Auto) {
         darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
       }
 
       this.setDarkMode(darkMode);
-    });
+    },  { allowSignalWrites: true } );
 
     window.matchMedia('(prefers-color-scheme: dark)')
       .addEventListener('change', (event) => {
@@ -53,11 +52,32 @@ export class ThemeStoreService {
   }
 
   setDarkMode(darkMode: boolean) {
-    const htmlElement = document.querySelector('html')!;
+    /*const htmlElement = document.querySelector('html')!;
     if (darkMode) {
       htmlElement.setAttribute('data-bs-theme', 'dark');
     } else {
       htmlElement.removeAttribute('data-bs-theme');
+    }*/
+
+    const htmlElement = document.querySelector('html')!;
+    if (darkMode) {
+      htmlElement.setAttribute('data-bs-theme', 'dark');
+      this.theme.set(Theme.Dark)
+    } else {
+      htmlElement.setAttribute('data-bs-theme', 'light');
+      this.theme.set(Theme.Light)
+      // htmlElement.removeAttribute('data-bs-theme');
     }
+  }
+
+  getTheme(){
+    return this.theme().toString()
+  }
+
+  getCurrentThemeHTML(){
+    const htmlElement = document.querySelector('html')!;
+
+    return htmlElement.getAttribute('data-bs-theme')
+
   }
 }

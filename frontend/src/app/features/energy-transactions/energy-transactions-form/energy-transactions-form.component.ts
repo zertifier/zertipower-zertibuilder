@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { Observable } from 'rxjs';
 import { EnergyTransactionsApiService } from '../energy-transactions.service';
 import moment from 'moment';
+import {CupsApiService, CupsInterface} from "../../cups/cups.service";
 
 @Component({
   selector: 'energy-transactions-form',
@@ -41,9 +42,13 @@ export class EnergyTransactionsFormComponent {
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
   });
+
+  availableCups: any;
+  selectedCupId: number = 0
   constructor(
     private formBuilder: FormBuilder,
     private apiService: EnergyTransactionsApiService,
+    private cupsApiService: CupsApiService,
     private activeModal: NgbActiveModal,
   ) {}
 
@@ -52,17 +57,23 @@ export class EnergyTransactionsFormComponent {
     if (!this.id) {
       return;
     }
-    this.apiService.getById(id).subscribe((data) => {
-      this.form.controls.id.setValue(data.id);
-      this.form.controls.cupsId.setValue(data.cupsId);
-      this.form.controls.infoDt.setValue(moment.utc(data.infoDt).format('YYYY-MM-DDTHH:mm'));
-      this.form.controls.kwhIn.setValue(data.kwhIn);
-      this.form.controls.kwhOut.setValue(data.kwhOut);
-      this.form.controls.kwhSurplus.setValue(data.kwhSurplus);
-      this.form.controls.blockId.setValue(data.blockId);
-      this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
-      this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
-    });
+    this.cupsApiService.get().subscribe((cups) => {
+      this.availableCups = cups
+      this.apiService.getById(id).subscribe((data) => {
+        this.form.controls.id.setValue(data.id);
+        // this.form.controls.cupsId.setValue(data.cupsId);
+        this.form.controls.cupsId.setValue(data.cupsId);
+        this.selectedCupId = data.cupsId
+        this.form.controls.infoDt.setValue(moment.utc(data.infoDt).format('YYYY-MM-DDTHH:mm'));
+        this.form.controls.kwhIn.setValue(data.kwhIn);
+        this.form.controls.kwhOut.setValue(data.kwhOut);
+        this.form.controls.kwhSurplus.setValue(data.kwhSurplus);
+        this.form.controls.blockId.setValue(data.blockId);
+        this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
+        this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
+      });
+    })
+
   }
 
   save() {

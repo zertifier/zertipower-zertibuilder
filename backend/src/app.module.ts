@@ -25,6 +25,7 @@ import { EnergyRegistersHourlyController } from "./features/energy-registers-hou
 import { EnergyAreasController } from "./features/energy-areas.controller";
 import { LocationsController } from "./features/locations.controller";
 import { LogsController } from "./features/logs.controller";
+import { DatadisEnergyController } from "./features/datadis-energy.controller";
 
 @Module({
   imports: [
@@ -56,7 +57,8 @@ import { LogsController } from "./features/logs.controller";
     SmartContractsController,
     EnergyAreasController,
     LocationsController,
-    LogsController
+    LogsController,
+    DatadisEnergyController
   ],
 })
 export class AppModule implements NestModule {

@@ -33,9 +33,14 @@ export class CupsTableComponent implements OnDestroy {
   filterColumns: boolean = true;
   url: string = `${environment.api_url}/cups/datatable`;
   columns: dtColumns[] = [
+    // {
+    //   title: 'Id',
+    //   data: 'id',
+    //   width: '100px',
+    // },
     {
-      title: 'Id',
-      data: 'id',
+      title: 'Nom',
+      data: 'customer',
       width: '100px',
     },
     {
@@ -44,33 +49,24 @@ export class CupsTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'Provider id',
-      data: 'provider_id',
+      title: 'Proveïdor',
+      data: 'provider',
       width: '100px',
     },
     {
-      title: 'Community id',
-      data: 'community_id',
+      title: 'Comunitat',
+      data: 'community',
       width: '100px',
     },
     {
-      title: 'Location id',
-      data: 'location_id',
+      title: 'Municipi',
+      data: 'municipality',
       width: '100px',
     },
+
     {
-      title: 'Customer id',
-      data: 'customer_id',
-      width: '100px',
-    },
-    {
-      title: 'Created at',
+      title: 'Data creació',
       data: 'created_at',
-      width: '100px',
-    },
-    {
-      title: 'Updated at',
-      data: 'updated_at',
       width: '100px',
     },
     {
@@ -81,8 +77,16 @@ export class CupsTableComponent implements OnDestroy {
   ];
 
   filterParams: filterParams[] = [
+      // {
+      //   title: 'id',
+      //   description: '',
+      //   value: '',
+      //   type: 1,
+      //   defaultData: 0,
+      //   options: [],
+      // },
       {
-        title: 'id',
+        title: 'Customer',
         description: '',
         value: '',
         type: 1,
@@ -90,7 +94,7 @@ export class CupsTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'cups',
+        title: 'Cups',
         description: '',
         value: '',
         type: 0,
@@ -98,7 +102,7 @@ export class CupsTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'provider_id',
+        title: 'Provider',
         description: '',
         value: '',
         type: 1,
@@ -106,7 +110,7 @@ export class CupsTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'community_id',
+        title: 'Community',
         description: '',
         value: '',
         type: 1,
@@ -114,21 +118,14 @@ export class CupsTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'location',
+        title: 'Municipality',
         description: '',
         value: '',
         type: 0,
         defaultData: 0,
         options: [],
       },
-      {
-        title: 'customer_id',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
+
       {
         title: 'created_at',
         description: '',
@@ -137,14 +134,6 @@ export class CupsTableComponent implements OnDestroy {
         defaultData: 0,
         options: [],
       },
-      {
-        title: 'updated_at',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      }
   ];
 
   columnDefs:any[] = [
@@ -152,20 +141,14 @@ export class CupsTableComponent implements OnDestroy {
       orderable: false, targets: [this.filterParams.length],
     },
     {
-      targets: 6,
+      targets: 5,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
-      }
-    },
-    {
-      targets: 7,
-      render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     {
       targets: this.filterParams.length,
-      title: 'eee',
+      title: '',
       render: (data: any, type: any, row: any) => {
         return `
          <div class="d-flex justify-content-end">

@@ -32,8 +32,6 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
   @Input() datasets: any[] | undefined = undefined;
   @Input() data: any[] = [];
   @Input() backgroundColor: string[] = [];
-
-  @Input() update: boolean = false;
   @Input() updateSubject!: Observable<any>;
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -74,9 +72,15 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
     }
   }
 
+  beforePrintHandler () {
+    for (let id in Chart.instances) {
+        Chart.instances[id].resize();
+    }
+  }
+
   updateChart() {
 
-    console.log("update chart", this.labels)
+    console.log("update chart","labels",this.labels,"datasets",this.datasets,"data:",this.data,this.backgroundColor)
 
     if (!this.chart) {
       this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []}})
@@ -90,7 +94,7 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
       }],
       options:{
         responsive:true,
-        mantainAspectRatio:true
+        mantainAspectRatio:false
       }
     }
     this.chart.update();

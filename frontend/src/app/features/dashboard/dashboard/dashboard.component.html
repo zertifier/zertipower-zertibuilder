@@ -1,62 +1,90 @@
-<app-navbar/>
+<!--<app-navbar/>-->
 
-<div class="row m-0">
-  <div class="col-md-3 bg-secondary text-light p-4 config-bar col-12">
-    <div class="row">
-      <div class="mb-2 col-12" id="customers">
-        <label for="customerSelector">Select a prosumer:</label>
-        <select id="customerSelector" class="form-select">
-          @for (customer of customers;track customer) {
-          <option value={{customer.id}}>
-          {{customer.name}} {{customer.cups}}
-          </option>
-          }
-        </select>
-      </div>
-
-      <div class="mb-2 col-12" id="date">
-        <label for="daySelector">Select a date:</label>
-        <input id="daySelector" class="form-control" type="date" [ngModel] ="unformattedDate | date:'yyyy-MM-dd'">
-      </div>
-
-    </div>
+<div class="row m-0 bg-secondary text-light p-4 config-bar">
+  
+  <div class="col-4 mb-2" id="customers">
+    <label for="customerSelector">Usuari</label>
+    <select id="customerSelector" class="form-select" [(ngModel)]="selectedCupsCustomer">
+      <option></option>
+      <option  *ngFor="let customer of customers" [ngValue]="customer">
+      {{customer.name}} {{customer.cups}}
+      </option>
+    </select>
   </div>
 
-  <div class="col-12 col-md-9 p-0">
-    <div class="row m-0">
+  <div class="mb-2 col-4" id="date">
+    <label for="daySelector">Data</label>
+    <input id="daySelector" class="form-control" type="date" [ngModel] ="unformattedDate | date:'yyyy-MM-dd'">
+  </div>
+
+  <div class="mb-2 col-4">
+    <label for="originDataTypeSelector">Origen</label>
+    <select id="originDataTypeSelector" [(ngModel)]="selectedCupsOriginDataType" class="form-select px-2">
+      <option></option>
+      <option *ngFor="let originDataType of originDataTypes" [ngValue]="originDataType">{{originDataType}}</option>
+    </select>
+  </div>
+    
+</div>
+
+<div class="row m-0 p-0">
+
+    <div class="col-12 p-0">
       <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2"><b
-        class="text-center" id="yearTitle">Year {{year}}</b></div>
-      <div class="col-12 col-md-6 m-auto d-flex align-items-center justify-content-center m-auto"
-           style="height: 300px">
-        <canvas class="m-2" id="yearly-chart"></canvas>
-      </div>
-      <div class="col-6 d-flex align-items-center justify-content-center m-auto">
-        <div class="col-md-6 col-12">
-          <canvas class="m-2" id="doughnut-yearly-chart"></canvas>
-        </div>
+        class="text-center" id="yearTitle">Any {{year}}</b>
       </div>
     </div>
-    <div class="row m-0">
-      <div class="col-12 col-md-6 m-0 p-0">
-        <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
-
-          <b> Week </b>
-          &nbsp;
-          @if (week) {
-          <b> {{week}}</b>
-          }
-          @if (simpleWeekDateInit && simpleWeekDateEnd) {
-          <b>: from {{simpleWeekDateInit}} to {{simpleWeekDateEnd}}</b>
-          }
-
-        </div>
-        <canvas class="m-2" id="weekly-chart"></canvas>
+    
+    <div class="col-12 col-md-6 m-0 p-0" style="height: 350px; max-height: 350px">
+      <div class="d-flex align-items-center justify-content-center p-2 h-100">
+          <app-chart [chartId]="'monthChart'" [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
+          [updateSubject]="updateMonthChartSubject.asObservable()" style="width: 600px; max-height: 300px;"></app-chart>
       </div>
-      <div class="col-12 col-md-6 m-0 p-0">
-        <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
-          <b>Day &nbsp;{{date}}</b><b id="dayTitle"></b>
-        </div>
-        <canvas class="m-2" id="hourly-chart"></canvas>
+    </div>
+
+    <div class="col-12 col-md-6 m-0 p-0" style="height: 350px; max-height: 350px">
+      <div class="d-flex align-items-center justify-content-center p-2 h-100">
+          <app-chart [chartId]="'yearChart'" [chartType]="yearChartType" [datasets]="yearChartDatasets" [labels]="yearChartLabels"
+          [updateSubject]="updateYearChartSubject.asObservable()" style="width:300px;  height:300px; max-height: 300px;"></app-chart>
       </div>
+    </div>
+
+</div>
+
+  <div class="row m-0 p-0">
+
+    <div class="col-12 col-md-6 m-0 p-0">
+      <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
+
+        <b> Setmana </b>
+        &nbsp;
+        @if (week) {
+        <b> {{week}}</b>
+        }
+        @if (simpleWeekDateInit && simpleWeekDateEnd) {
+        <b> : {{simpleWeekDateInit}} - {{simpleWeekDateEnd}}</b>
+        }
+
+      </div>
+
+      <div class="d-flex align-items-center justify-content-center p-2 h-100">
+         <app-chart [chartType]="weekChartType" [labels]="weekChartLabels" [datasets]="weekChartDatasets" [chartId]="'weekChart'"
+          [updateSubject]="updateWeekChartSubject.asObservable()" style="width: 600px; max-height: 300px;"></app-chart>
+      </div>
+
+    </div>
+
+    <div class="col-12 col-md-6 m-0 p-0">
+
+      <div class="d-flex align-items-center justify-content-center p-2" style="background-color: #d2d2d2 ">
+        <b>Dia &nbsp;{{date}}</b><b id="dayTitle"></b>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-center p-2 h-100">
+        <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets" [chartId]="'dayChart'"
+        [updateSubject]="updateDayChartSubject.asObservable()" style="width: 600px; max-height: 300px;"></app-chart>
+      </div>
+      
     </div>
   </div>
+

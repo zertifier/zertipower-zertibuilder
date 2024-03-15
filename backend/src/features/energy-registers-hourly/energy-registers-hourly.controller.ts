@@ -9,9 +9,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
-import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
 import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
-import { SaveEnergyRegistersHourlyDto } from "./save-energy-registers-hourly-dto";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import { ErrorCode } from "../../shared/domain/error";
@@ -27,7 +25,6 @@ export class EnergyRegistersHourlyController {
 
 
   constructor(
-    private prisma: PrismaService,
     private datatable: Datatable,
     private mysql: MysqlService
   ) {
@@ -97,13 +94,25 @@ export class EnergyRegistersHourlyController {
     }
   }
 
-  @Get("/weekly/:week")
+  @Get("/weekly/:date")
   @Auth(RESOURCE_NAME)
-  async getWeekly(@Param("week") week: string, @Query() queryParams: any) {
+  async getWeekly(@Param("date") date: string, @Query() queryParams: any) {
+    
     try {
-      let registers: any;
+
       let query: string = "";
       const { cups, year, wallet, community } = queryParams;
+
+      await this.conn.query(`SET @@lc_time_names = 'ca_ES'`);
+
+      const [firstDayRow]:any = await this.conn.execute('SELECT DATE_SUB(?, INTERVAL WEEKDAY(?) DAY) AS first_day', [date, date]);
+      const firstDay = firstDayRow[0].first_day;
+
+      const [lastDayRow]:any = await this.conn.execute('SELECT DATE_ADD(?, INTERVAL 6 DAY) AS last_day', [firstDay]);
+      const lastDay = lastDayRow[0].last_day;
+
+      console.log(firstDay,lastDay)
+
       if (community) {
         // Si se pasa la comunidad, obtenemos todos los cups asociados a esa comunidad.
         query = `
@@ -116,9 +125,8 @@ export class EnergyRegistersHourlyController {
           FROM energy_registers_original_hourly eh
                  LEFT JOIN cups c ON eh.cups_id = c.id
           WHERE c.community_id = ?
-            AND WEEK(eh.info_datetime) = ?
-            AND YEAR(eh.info_datetime) = ?
-          GROUP BY WEEKDAY(eh.info_datetime)
+          AND eh.info_datetime BETWEEN ? AND ?
+          GROUP BY DAYNAME(eh.info_datetime)
           ORDER BY eh.info_datetime`;
       } else if (cups) {
         // Si se pasa un cups, buscamos la energía gastada por ese cups.
@@ -131,9 +139,8 @@ export class EnergyRegistersHourlyController {
                  SUM(eh.consumption)       AS consumption
           FROM energy_registers_original_hourly eh
           WHERE eh.cups_id = ?
-            AND WEEK(eh.info_datetime) = ?
-            AND YEAR(eh.info_datetime) = ?
-          GROUP BY WEEKDAY(eh.info_datetime)
+          AND eh.info_datetime BETWEEN ? AND ?
+          GROUP BY DAYNAME(eh.info_datetime)
           ORDER BY eh.info_datetime`;
       } else if (wallet) {
         // Si se pasa una wallet, obtenemos todos los cups asociados a ese customer y sumamos sus gastos y generaciones.
@@ -148,19 +155,19 @@ export class EnergyRegistersHourlyController {
                  LEFT JOIN cups c ON eh.cups_id = c.id
                  LEFT JOIN customers cu ON c.customer_id = cu.id
           WHERE cu.wallet_address = ?
-            AND WEEK(eh.info_datetime) = ?
-            AND YEAR(eh.info_datetime) = ?
-          GROUP BY WEEKDAY(eh.info_datetime)
+          AND eh.info_datetime BETWEEN ? AND ?
+          GROUP BY DAYNAME(eh.info_datetime)
           ORDER BY eh.info_datetime`;
       }
       const [rows] = await this.conn.query(query, [
         community || cups || wallet,
-        week,
-        year,
+        firstDay,lastDay
       ]);
-      registers = rows;
+
+      console.log(rows)
+
       return HttpResponse.success("customers fetched successfully").withData(
-        registers
+        rows
       );
     } catch (e) {
       console.log("error getting energy",e);
@@ -172,65 +179,35 @@ export class EnergyRegistersHourlyController {
   async getMonthly(@Param("year") year: string, @Query() queryParams: any) {
     try {
       const { cups, wallet, community } = queryParams;
-
       let query: string = "";
-      let registers: any;
-      const monthsName: string[] = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ];
-      const yearlyRegisters = [];
-      const defaultMonth = { month: "", import: 0, generation: 0 };
+      await this.conn.query(`SET @@lc_time_names = 'ca_ES'`);
 
       if (cups) {
-        query = `SELECT month, import, export, consumption, generation
+        query = `SELECT 
+                    MONTHNAME(STR_TO_DATE(month, '%m')) AS month_name,
+                    month AS month_number, 
+                    SUM(import) AS import, 
+                    SUM(export) AS export, 
+                    SUM(consumption) AS consumption, 
+                    SUM(generation) AS generation
                  FROM energy_registers_original_monthly
                  WHERE cups_id = ?
                    AND year = ?
-                 order by month`;
+                   group by month_number
+                 order by month_number`;
       } else if (community) {
-        query = `SELECT month, import, generation
-                 FROM energy_registers_original_monthly
-                        LEFT JOIN cups c ON cups_id = c.id
-                 WHERE c.community_id = ?
-                   AND year = ?
-                 ORDER BY month`;
+        //TODO:
       } else if (wallet) {
-        //todo
+        //TODO:
       }
 
       const [ROWS] = await this.conn.query(query, [
         community || cups || wallet,
         year,
       ]);
-      registers = ROWS;
-
-      for (let i = 0; i < monthsName.length; i++) {
-        const monthData = registers.find(
-          (register: any) =>
-            monthsName.indexOf(monthsName[i]) + 1 === register.month
-        );
-        if (monthData) {
-          monthData.month = monthsName[i];
-          yearlyRegisters.push(monthData);
-        } else {
-          defaultMonth.month = monthsName[i];
-          yearlyRegisters.push({ ...defaultMonth });
-        }
-      }
 
       return HttpResponse.success("customers fetched successfully").withData(
-        yearlyRegisters
+        ROWS
       );
     } catch (e) {
       console.log("error getting energy",e);
@@ -248,8 +225,10 @@ export class EnergyRegistersHourlyController {
                 import,
                 consumption,
                 export,
-                generation
-         FROM energy_registers_original_hourly`
+                generation,
+                cups
+         FROM energy_registers_original_hourly erh
+                LEFT JOIN cups ON cups.id = cups_id`
       );
       return HttpResponse.success("Datatables fetched successfully").withData(
         data
@@ -265,8 +244,8 @@ export class EnergyRegistersHourlyController {
 
   mapData(data: any) {
     const mappedData: any = {};
-    mappedData.cupsId = data.cupsId;
-    mappedData.infoDatetime = data.infoDatetime;
+    mappedData.cupsId = data.cupsId | data.cups_id;
+    mappedData.infoDatetime = data.infoDatetime | data.info_datetime;
     mappedData.import = data.import;
     mappedData.consumption = data.consumption;
     mappedData.export = data.export;

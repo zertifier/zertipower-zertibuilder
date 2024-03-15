@@ -198,15 +198,15 @@ h2, h3, h4, h5, h6{
 
 @include color-mode(light) {
   .nav-link{
-    color: $navbar-link-dark;
+    color: $navbar-link-light;
   }
   hr{
-    border-color: $hr-dark;
+    border-color: $hr-light;
   }
 
   #div-shrink {
     &:hover {
-      background: rgb(244,246,246);
+      background: #08192c;
     }
   }
 

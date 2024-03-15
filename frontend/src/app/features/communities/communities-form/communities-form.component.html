@@ -1,8 +1,8 @@
 
 <div class="modal-header">
   <h2>community {{community.name}}</h2>
-  <button *ngIf="!isEdit" class="btn btn-primary" (click)="isEdit=true; isEditChange()">Edit</button>
-  <button *ngIf="isEdit && communityId" (click)="isEdit=false; isEditChange()" class="btn btn-primary">View</button>
+  <button *ngIf="!isEdit" class="btn btn-warning ms-auto" (click)="isEdit=true; isEditChange()">Edit</button>
+  <button *ngIf="isEdit && communityId" (click)="isEdit=false; isEditChange()" class="btn btn-warning ms-auto">View</button>
 </div>
 
 <div *ngIf="isEdit" class="modal-body">

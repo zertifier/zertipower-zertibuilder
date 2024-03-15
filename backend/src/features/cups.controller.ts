@@ -28,7 +28,7 @@ export class CupsController {
   async get() {
     const data = await this.prisma.cups.findMany();
     const mappedData = data.map(this.mapData);
-    return HttpResponse.success("cups fetched successfully").withData(data);
+    return HttpResponse.success("cups fetched successfully").withData(mappedData);
   }
 
   @Get(":id")
@@ -40,7 +40,6 @@ export class CupsController {
       },
     });
 
-    console.log(data,this.mapData(data))
 
     return HttpResponse.success("cups fetched successfully").withData(
       this.mapData(data)

@@ -22,8 +22,8 @@ export class ProvidersApiService {
   constructor(private httpClient: HttpClient) {}
 
   get(): Observable<ProvidersApiInterface> {
-    return this.httpClient.get<HttpResponse<ProvidersApiDTO>>(`${environment.api_url}/providers`)
-      .pipe(map(response => mapToApiInterface(response.data)));
+    return this.httpClient.get<HttpResponse<any>>(`${environment.api_url}/providers`)
+      .pipe(map(response => response.data));
   }
 
   getById(id: number): Observable<ProvidersApiInterface> {

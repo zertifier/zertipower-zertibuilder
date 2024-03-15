@@ -4,50 +4,70 @@
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
     <!-- <div *ngIf="form.controls.id.value">
-      <label for="id-input">id </label>
+      <label class="form-label" for="id-input">id </label>
     </div> -->
     <div class="my-3">
-      <label for="cups-input">Nom</label>
+      <label class="form-label" for="cups-input">Nom</label>
       <input id="cups-input" type="string" formControlName="cups" class="form-control">
     </div>
     <div class="row my-3">
       <div class="col-12 col-md-6">
-        <label for="customer-id-input">customer id</label>
-        <input id="customer-id-input" type="number" formControlName="customerId" class="form-control">
+        <label class="form-label"> Cliente </label>
+<!--        <input id="customer-id-input" type="number" formControlName="customerId" class="form-control">-->
+        <ng-select [clearable]="false" [(ngModel)]="selectedCustomerId" name="customer-id-input" formControlName="customerId">
+          <ng-option *ngFor="let customer of availableCustomers" [value]="customer.id">
+            <span class="text-capitalize">{{ customer.name }}</span>
+          </ng-option>
+        </ng-select>
       </div>
       <div class="col-12 col-md-6">
-        <label for="provider-id-input">provider id</label>
-        <input id="provider-id-input" type="number" formControlName="providerId" class="form-control">
+        <label class="form-label">Proveïdor</label>
+<!--        <input id="provider-id-input" type="number" formControlName="providerId" class="form-control">-->
+        <ng-select [clearable]="false" [(ngModel)]="selectedProviderId" name="provider-id-input" formControlName="providerId">
+          <ng-option *ngFor="let provider of availableProviders" [value]="provider.id">
+            <span class="text-capitalize">{{ provider.provider }}</span>
+          </ng-option>
+        </ng-select>
       </div>
     </div>
 
     <div class="row my-3">
       <div class="col-12 col-md-6">
-        <label for="community-id-input">community id</label>
-        <input id="community-id-input" type="number" formControlName="communityId" class="form-control">
+        <label class="form-label">Comunitat</label>
+<!--        <input id="community-id-input" type="number" formControlName="communityId" class="form-control">-->
+        <ng-select [clearable]="false" [(ngModel)]="selectedCommunityId" name="community-id-input" formControlName="communityId">
+          <ng-option *ngFor="let community of availableCommunities" [value]="community.id">
+            <span class="text-capitalize">{{ community.name }}</span>
+          </ng-option>
+        </ng-select>
       </div>
       <div class="col-12 col-md-6">
-        <label for="location-id-input">location id</label>
-        <input id="location-id-input" type="number" formControlName="locationId" class="form-control">
+        <label class="form-label">Ubicació</label>
+<!--        <input id="location-id-input" type="number" formControlName="locationId" class="form-control">-->
+        <ng-select [clearable]="false" [(ngModel)]="selectedLocationId" name="location-id-input" formControlName="locationId">
+          <ng-option *ngFor="let location of availableLocations" [value]="location.id">
+            <span class="text-capitalize">{{ location.municipality }}</span>
+          </ng-option>
+        </ng-select>
       </div>
     </div>
 
     <div class="my-3">
-      <label for="address-input">Adreça</label>
+      <label class="form-label" for="address-input">Adreça</label>
       <input id="address-input" type="text" formControlName="address" class="form-control">
     </div>
     <div class="row d-flex justify-content-beetween my-3">
       <div class="col">
-        <label for="lat-input">Latitud</label>
+        <label class="form-label" for="lat-input">Latitud</label>
         <input id="lat-input" type="number" formControlName="lat" class="form-control">
       </div>
       <div class="col">
-        <label for="lng-input">Longitud</label>
+        <label class="form-label" for="lng-input">Longitud</label>
         <input id="lng-input" type="number" formControlName="lng" class="form-control">
       </div>
     </div>
 
-    <label for="lng-input">Tipus de cups</label>
+    <label class="form-label" for="lng-input">Tipus de cups</label>
     <select class="px-2 form-select my-3" formControlName="type">
     <option></option>
     <option *ngFor="let element of cupsTypes" [ngValue]="element">{{element}}</option>
@@ -55,7 +75,7 @@
 
     <div class="form-check">
       <input class="form-check-input" type="checkbox"  formControlName="datadis" id="flexCheckDatadis">
-      <label class="form-check-label" for="flexCheckDatadis">
+      <label class="form-label" class="form-check-label" for="flexCheckDatadis">
         Datadis
       </label>
     </div>
@@ -63,11 +83,11 @@
     <div *ngIf="form.controls.datadis.value" class="row d-flex justify-content-beetween mt-1">
       <div class="mb-3 mt-2">
         <div class="col">
-          <label for="datadis-username-input">Datadis username</label>
+          <label class="form-label" for="datadis-username-input">Datadis username</label>
           <input id="datadis-username-input" type="text" formControlName="datadisUser" class="form-control">
         </div>
         <div class="col">
-          <label for="datadis-password-input">Datadis password</label>
+          <label class="form-label" for="datadis-password-input">Datadis password</label>
           <input id="datadis-password-input" type="text" formControlName="datadisPwd" class="form-control">
         </div>
       </div>
@@ -76,7 +96,7 @@
 
     <div class="form-check mt-1">
       <input class="form-check-input" type="checkbox" formControlName="smartMeter" id="flexCheckSmartMeter">
-      <label class="form-check-label" for="flexCheckSmartMeter">
+      <label class="form-label" class="form-check-label" for="flexCheckSmartMeter">
         Smart meter
       </label>
     </div>
@@ -84,7 +104,7 @@
     <div *ngIf="form.controls.smartMeter.value" class="row d-flex justify-content-beetween">
       <div class="mb-3 mt-2">
         <div class="col">
-          <label for="smart-meter-model-selector">Smart meter model</label>
+          <label class="form-label" for="smart-meter-model-selector">Smart meter model</label>
           <select id="smart-meter-model-selector" class="form-select" formControlName="smartMeterModel">
             <option></option>
             <option *ngFor="let smartMeterModel of smartMeterModels">{{ smartMeterModel }}</option>
@@ -92,7 +112,7 @@
           <!-- <input id="smart-meter-model-input" type="text" formControlName="smartMeterModel" class="form-control"> -->
         </div>
         <div class="col">
-          <label for="smart-meter-api-key-input">Smart meter api key</label>
+          <label class="form-label" for="smart-meter-api-key-input">Smart meter api key</label>
           <input id="smart-meter-api-key-input" type="text" formControlName="smartMeterApiKey" class="form-control">
         </div>
       </div>
@@ -100,7 +120,7 @@
 
     <div class="form-check mt-1">
       <input class="form-check-input" type="checkbox" formControlName="inverter" id="flexCheckInverter">
-      <label class="form-check-label" for="flexCheckInverter">
+      <label class="form-label" class="form-check-label" for="flexCheckInverter">
         Inverter
       </label>
     </div>
@@ -108,14 +128,14 @@
     <div *ngIf="form.controls.inverter.value" class="row d-flex justify-content-beetween">
       <div class="mb-3 mt-2">
         <div class="col">
-          <label for="inverter-model-selector">Inverter model</label>
+          <label class="form-label" for="inverter-model-selector">Inverter model</label>
           <select id="inverter-model-selector" class="form-select" formControlName="inverterModel">
             <option></option>
             <option *ngFor="let inverterModel of inverterModels">{{ inverterModel }}</option>
           </select>
         </div>
         <div class="col">
-          <label for="inverter-api-key-input">Inverter api key</label>
+          <label class="form-label" for="inverter-api-key-input">Inverter api key</label>
           <input id="inverter-api-key-input" type="text" formControlName="inverterApiKey" class="form-control">
         </div>
       </div>
@@ -123,7 +143,7 @@
 
     <div class="form-check mt-1">
       <input class="form-check-input" type="checkbox" formControlName="sensor" id="flexCheckSensor">
-      <label class="form-check-label" for="flexCheckInverter">
+      <label class="form-label" class="form-check-label" for="flexCheckInverter">
         Sensor
       </label>
     </div>
@@ -131,14 +151,14 @@
     <div *ngIf="form.controls.sensor.value" class="row d-flex justify-content-beetween">
       <div class="mb-3 mt-2">
         <div class="col">
-          <label for="sensor-model-selector">Sensor model</label>
+          <label class="form-label" for="sensor-model-selector">Sensor model</label>
           <select id="sensor-model-selector" class="form-select" formControlName="sensorModel">
             <option></option>
             <option *ngFor="let sensorModel of sensorModels">{{ sensorModel }}</option>
           </select>
         </div>
         <div class="col">
-          <label for="sensor-api-key-input">Sensor api key</label>
+          <label class="form-label" for="sensor-api-key-input">Sensor api key</label>
           <input id="sensor-api-key-input" type="text" formControlName="sensorApiKey" class="form-control">
         </div>
       </div>
@@ -148,11 +168,11 @@
 
 <!--    <div class="row d-flex justify-content-beetween">
       <div class="col">
-      <label for="created-at-input">creation date</label>
+      <label class="form-label" for="created-at-input">creation date</label>
       <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control-plaintext"  readonly>
     </div>
     <div class="col">
-      <label for="updated-at-input">update date</label>
+      <label class="form-label" for="updated-at-input">update date</label>
       <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control-plaintext" readonly>
     </div>
     </div>-->

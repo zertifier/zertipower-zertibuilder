@@ -5,6 +5,10 @@ import Swal from 'sweetalert2';
 import { Observable } from 'rxjs';
 import { CupsApiService } from '../cups.service';
 import moment from 'moment';
+import {CustomersApiService} from "../../customers/customers.service";
+import {ProvidersApiService} from "../../providers/providers.service";
+import {CommunitiesApiService} from "../../communities/communities.service";
+import {LocationService} from "../../../core/core-services/location.service";
 
 @Component({
   selector: 'cups-form',
@@ -49,10 +53,23 @@ export class CupsFormComponent {
   inverterModels=['Turbo Energy 5000W 48V','Soiis S6-GR1P5K Monofásico 2MPPT 5000W','Huawei SUN2000-6KTL-L1 6kW']
   sensorModels=['iEM2000','PowerLogic PM5000']
 
+  availableCustomers: any;
+  availableProviders: any;
+  availableCommunities: any;
+  availableLocations: any;
+  selectedCustomerId: number = 0
+  selectedProviderId: number = 0
+  selectedCommunityId: number = 0
+  selectedLocationId: number = 0
+
   constructor(
     private formBuilder: FormBuilder,
     private apiService: CupsApiService,
     private activeModal: NgbActiveModal,
+    private customerApiService: CustomersApiService,
+    private providerApiService: ProvidersApiService,
+    private communitiesApiService: CommunitiesApiService,
+    private locationsApiService: LocationService,
   ) {}
 
   setEditingId(id: number) {
@@ -60,34 +77,47 @@ export class CupsFormComponent {
     if (!this.id) {
       return;
     }
-    this.apiService.getById(id).subscribe((data) => {
 
-      console.log(data)
+    this.providerApiService.get().subscribe((providers) => {
+      this.availableProviders = providers
+    })
+    this.communitiesApiService.get().subscribe((communities: any) => {
+      this.availableCommunities = communities.data
+    })
+    this.locationsApiService.getLocations().subscribe((locations: any) => {
+      this.availableLocations = locations.data
+    })
+    this.customerApiService.get().subscribe((customers) => {
+      this.availableCustomers = customers
+      this.apiService.getById(id).subscribe((data) => {
+        console.log(data, "data")
+        this.form.controls.id.setValue(data.id);
+        this.form.controls.cups.setValue(data.cups);
+        this.form.controls.type.setValue(data.type);
+        this.form.controls.providerId.setValue(data.providerId);
+        this.form.controls.communityId.setValue(data.communityId);
+        this.form.controls.locationId.setValue(data.locationId);
+        this.form.controls.address.setValue(data.address);
+        this.form.controls.lat.setValue(data.lat);
+        this.form.controls.lng.setValue(data.lng);
+        this.form.controls.datadis.setValue(data.datadisActive);
+        this.form.controls.smartMeter.setValue(data.smartMeterActive);
+        this.form.controls.inverter.setValue(data.inverterActive);
+        this.form.controls.datadisUser.setValue(data.datadisUser);
+        this.form.controls.datadisPwd.setValue(data.datadisPassword);
+        this.form.controls.smartMeterModel.setValue(data.smartMeterModel);
+        this.form.controls.smartMeterApiKey.setValue(data.smartMeterApiKey);
+        this.form.controls.inverterModel.setValue(data.inverterModel);
+        this.form.controls.inverterApiKey.setValue(data.inverterApiKey);
+        this.form.controls.sensorModel.setValue(data.sensorModel);
+        this.form.controls.sensorApiKey.setValue(data.sensorApiKey);
+        this.form.controls.customerId.setValue(data.customerId);
+        this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
+        this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
 
-      this.form.controls.id.setValue(data.id);
-      this.form.controls.cups.setValue(data.cups);
-      this.form.controls.type.setValue(data.type);
-      this.form.controls.providerId.setValue(data.providerId);
-      this.form.controls.communityId.setValue(data.communityId);
-      this.form.controls.locationId.setValue(data.locationId);
-      this.form.controls.address.setValue(data.address);
-      this.form.controls.lat.setValue(data.lat);
-      this.form.controls.lng.setValue(data.lng);
-      this.form.controls.datadis.setValue(data.datadisActive);
-      this.form.controls.smartMeter.setValue(data.smartMeterActive);
-      this.form.controls.inverter.setValue(data.inverterActive);
-      this.form.controls.datadisUser.setValue(data.datadisUser);
-      this.form.controls.datadisPwd.setValue(data.datadisPassword);
-      this.form.controls.smartMeterModel.setValue(data.smartMeterModel);
-      this.form.controls.smartMeterApiKey.setValue(data.smartMeterApiKey);
-      this.form.controls.inverterModel.setValue(data.inverterModel);
-      this.form.controls.inverterApiKey.setValue(data.inverterApiKey);
-      this.form.controls.sensorModel.setValue(data.sensorModel);
-      this.form.controls.sensorApiKey.setValue(data.sensorApiKey);
-      this.form.controls.customerId.setValue(data.customerId);
-      this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
-      this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
-    });
+      });
+    })
+
   }
 
   save() {

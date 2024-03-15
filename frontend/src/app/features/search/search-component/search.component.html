@@ -49,13 +49,13 @@
                 <span *ngIf="selectedCommunity">{{selectedCommunity.cups_number}}</span>
               </div>
               <div class="col-3 d-flex justify-content-center">
-                <span class="d-flex align-items-center me-2">Agregats</span> 
+                <span class="d-flex align-items-center me-2">Agregats {{added}}</span> 
               </div>
             </div>
 
             <div class="row mt-2">
               <div class="col ms-2">
-                <span class="d-flex align-items-center me-2">Sumatori de la comunitat</span> 
+                <span class="d-flex align-items-center me-2 fs-5">Sumatori de la comunitat</span> 
                 <span class="fs-6 d-flex align-items-center me-2">Les dades expressades són una estimació aproximada</span> 
               </div>
             </div>
@@ -73,7 +73,9 @@
 
             <span class="fs-5 my-2">Potencial producció instal·lació fotovoltaica</span>
 
-            <span class="fs-6 bolder my-1">Consum mensual</span>
+            <div>
+              <span class="fs-6 bolder my-1">Consum mensual</span>
+            </div>
 
             <div class="row p-0 m-0">
               <div class="col-4 d-flex justify-content-center p-0 m-0">

@@ -7,6 +7,7 @@ import * as turf from '@turf/turf'
 import { LocationService } from 'src/app/core/core-services/location.service';
 import { BehaviorSubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import moment from 'moment';
 
 
 @Component({
@@ -48,6 +49,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   locationId:number|undefined;
 
   cupsNumber:number=0;
+  added:number=0;
  
   @ViewChild(AppMapComponent) map!:AppMapComponent;
 
@@ -151,7 +153,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
       
         //this.renderSelectedCommunities();
         //this.renderLocation();
-  
+        let date=moment().format('YYYY-MM-DD')
+        this.communitiesService.getEnergy(this.selectedCommunity.id,date).subscribe(res=>{
+          console.log("DATA COMUNITAT: ", res)
+        })
+        break;
+
       default: 
         break;
     }

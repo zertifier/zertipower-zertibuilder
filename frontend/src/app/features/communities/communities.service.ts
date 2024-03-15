@@ -54,6 +54,10 @@ export class CommunitiesApiService {
     return this.httpClient.delete<HttpResponse<void>>(`${environment.api_url}/communities/${id}`)
       .pipe(map(response => response.data));
   }
+
+  getEnergy(id:number,date:string){
+    return this.httpClient.get(`${environment.api_url}/communities/energy/${id}/${date}`);
+  }
 }
 
 function mapToApiInterface(dto: CommunitiesApiDTO): CommunitiesApiInterface {

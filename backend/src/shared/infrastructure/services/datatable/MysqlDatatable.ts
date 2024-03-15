@@ -46,15 +46,19 @@ export class MysqlDatatable implements Datatable {
       for (const column of searchableColumns) {
         filterParams.push(column.data);
 
-        // There are two ways to search
+        // There are three ways to search
         // 1. Using regex
-        // 2. Using a like operator
+        // 2. Using smart to manage dates
+        // 3. Using a like operator
         let operator;
         // If a regex is provided then create an operator for regex search
         if (params.search.regex) {
           filterParams.push(params.search.value);
           operator = " REGEXP ? ";
-        } else {
+        } else if (params.search.smart){
+          filterParams.push(params.search.value);
+          operator = "BEETWEEN ?"
+        }else{  
           // If not create an operator for like.
           // Surrounding this with %% allows as to implement a functionality
           // like 'contains'

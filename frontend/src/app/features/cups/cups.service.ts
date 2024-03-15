@@ -5,53 +5,58 @@ import { environment } from 'src/environments/environment';
 import { HttpResponse } from 'src/app/shared/infrastructure/http/HttpResponse';
 import moment from 'moment';
 
-export interface CupsApiInterface {
+export interface CupsInterface {
   id: number;
   cups: string;
+  type:string;
   providerId: number;
   communityId: number;
-  locationId: string;
+  locationId:number;
+  address:string;
+  lat:number;
+  lng:number;
+  datadisActive:number
+  smartMeterActive:number;
+  inverterActive:number;
+  datadisUser:string;
+  datadisPassword:string;
+  smartMeterModel:string;
+  smartMeterApiKey:string;
+  inverterModel:string;
+  inverterApiKey:string;
+  sensorModel:string;
+  sensorApiKey:string;
   customerId: number;
   createdAt?: Date;
   updatedAt?: Date;
-}
-
-export interface CupsApiDTO {
-  id: number;
-  cups: string;
-  providerId: number;
-  communityId: number;
-  locationId: string;
-  customerId: number;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 @Injectable({
   providedIn: "root",
 })
 export class CupsApiService {
+
   constructor(private httpClient: HttpClient) {}
 
-  get(): Observable<CupsApiInterface> {
-    return this.httpClient.get<HttpResponse<CupsApiDTO>>(`${environment.api_url}/cups`)
-      .pipe(map(response => mapToApiInterface(response.data)));
+  get(): Observable<CupsInterface> {
+    return this.httpClient.get<HttpResponse<CupsInterface>>(`${environment.api_url}/cups`)
+      .pipe(map(response => (response.data)));
   }
 
-  getById(id: number): Observable<CupsApiInterface> {
-    return this.httpClient.get<HttpResponse<CupsApiDTO>>(`${environment.api_url}/cups/${id}`)
-      .pipe(map(response => mapToApiInterface(response.data)));
+  getById(id: number): Observable<CupsInterface> {
+    return this.httpClient.get<HttpResponse<any>>(`${environment.api_url}/cups/${id}`)
+      .pipe(map(response => (response.data)));
   }
 
-  save(data: CupsApiInterface): Observable<CupsApiInterface> {
-    return this.httpClient.post<HttpResponse<CupsApiDTO>>(`${environment.api_url}/cups`, mapToDTO(data))
-      .pipe(map(response => mapToApiInterface(response.data)));
+  save(data: CupsInterface): Observable<CupsInterface> {
+    return this.httpClient.post<HttpResponse<CupsInterface>>(`${environment.api_url}/cups`, data)
+      .pipe(map(response => (response.data)));
   }
 
-  update(id: number, data: CupsApiInterface): Observable<CupsApiInterface> {
+  update(id: number, data: CupsInterface): Observable<CupsInterface> {
     console.log("body data", data)
-    return this.httpClient.put<HttpResponse<CupsApiDTO>>(`${environment.api_url}/cups/${id}`, mapToDTO(data))
-      .pipe(map(response => mapToApiInterface(response.data)));
+    return this.httpClient.put<HttpResponse<CupsInterface>>(`${environment.api_url}/cups/${id}`, data)
+      .pipe(map(response => (response.data)));
   }
 
   remove(id: number): Observable<void> {
@@ -60,28 +65,3 @@ export class CupsApiService {
   }
 }
 
-function mapToApiInterface(dto: CupsApiDTO): CupsApiInterface {
-  return {
-    id: dto.id,
-    cups: dto.cups,
-    providerId: dto.providerId,
-    communityId: dto.communityId,
-    locationId: dto.locationId,
-    customerId: dto.customerId,
-    createdAt: moment(dto.createdAt, "YYYY-MM-DD HH:mm").toDate(),
-    updatedAt: moment(dto.updatedAt, "YYYY-MM-DD HH:mm").toDate(),
-  }
-}
-
-function mapToDTO(dto: CupsApiInterface): CupsApiDTO {
-  return {
-    id: dto.id,
-    cups: dto.cups,
-    providerId: dto.providerId,
-    communityId: dto.communityId,
-    locationId: dto.locationId,
-    customerId: dto.customerId,
-    //createdAt: moment.utc(dto.createdAt).format("YYYY-MM-DD HH:mm"),
-    //updatedAt: moment.utc(dto.updatedAt).format("YYYY-MM-DD HH:mm"),
-  }
-}

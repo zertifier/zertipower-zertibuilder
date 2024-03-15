@@ -1,8 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
-/* Importing Bootstrap SCSS file. */
-@import 'bootstrap/scss/bootstrap';
-@import "@ng-select/ng-select/themes/default.theme.css";
+
 
 /*html, body {
   height: 100%;
@@ -21,9 +19,121 @@ app-root {
 //  height: 100%;
 //}
 
+html, body { height: 100%; width: 100%; margin: 0; }
+
 /*Datatable settings*/
 
+// Colors
+$primary: #0e2b4c;
+$secondary: #5f7187;
+$text-primary: #101828;
+$text-secondary: #34393E;
+$text-titles: #667085;
+$success: #198754;
+$danger: #DC3545;
+$bg-page-light-color: #f4f6f6;
+$navbar-link-light: #E9E9E9;
+$navbar-link-dark: #525252;
+$hr-light: #E9E9E9;
+$hr-dark: #525252;
 
+
+// Icons
+$icon-standard: (
+  small: 16px,
+  big: 30px
+);
+
+$icon-arrow: (
+  height: 12px,
+  width: 14px
+);
+
+$icon-home: (
+  height: 36px,
+  width: 32px
+);
+
+// Texts
+$text-navbar: (
+  open: 12px,
+  closed: 12px
+);
+
+$text-location: 25px;
+$text-page-title: 20px;
+$text-form: 18px;
+
+// Buttons
+$button-active-text: (
+  modal: 12px,
+  standard: 16px
+);
+
+$button-no-active-text: (
+  modal: 11px,
+  standard: 15px
+);
+
+$button-status-radius: (
+  modal: 15px,
+  standard: 25px
+);
+
+$button-status-radius: (
+  modal: 15px,
+  standard: 25px
+);
+
+$button-action-radius: 10px;
+$button-add-text: 20px;
+
+/* Importing Bootstrap SCSS file. */
+//@import "@ng-select/ng-select/themes/default.theme.css";
+@import 'bootstrap/scss/bootstrap';
+@import "bootstrap-icons/font/bootstrap-icons";
+
+
+$theme-colors: (
+  "primary":    $primary,
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark
+);
+
+$nav-pills-link-active-bg: $primary;
+$primary-rgb: $primary;
+$body-bg: $bg-page-light-color;
+$btn-bg: $primary;
+
+
+.bg-primary{
+  background-color: $primary !important;
+}
+
+.btn-primary{
+  color: #e8e8e8;
+}
+
+.nav-link{
+  color: $secondary;
+}
+
+.nav-link:hover, .nav-link:hover i {
+  color: #aaaaaa;
+}
+
+
+.nav-link.active:hover i{
+  color: white;
+}
+
+
+//-----------------------------------------------------------------
 
 $table-border-width: 0;
 
@@ -37,9 +147,9 @@ $table-border-width: 0;
 }
 
 .filter-input{
-  max-width: 90px;
-  min-width: 90px;
-  margin-bottom: 10px;
+  // max-width: 90px;
+  // min-width: 90px;
+  //margin-bottom: 10px;
 }
 
 .dataTables_filter .fa-search {
@@ -54,6 +164,3 @@ $table-border-width: 0;
   color: #aaa;
 }
 
-/* Importing Bootstrap SCSS file. */
-@import 'bootstrap/scss/bootstrap';
-@import "bootstrap-icons/font/bootstrap-icons";

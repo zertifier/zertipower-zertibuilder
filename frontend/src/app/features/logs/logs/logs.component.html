@@ -1,10 +1,9 @@
 <!--<app-navbar/>-->
 <div class="container-fluid">
->>>>>>> origin/alex-style
   <div class="card">
     <div class="card-body">
       <app-datatable
-        [title]=title
+        [title]="'Logs'"
         [columns]="columns"
         [columnDefs]="columnDefs"
         [url]="url"
@@ -17,5 +16,5 @@
         (deleteRequest)="deleteRequest($event)"
       />
     </div>
-  
+  </div>
 </div>

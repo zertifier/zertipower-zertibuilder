@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
+<nav class="navbar navbar-expand-lg bg-body-tertiary d-none">
   <div class="container-fluid mx-4">
     <a [routerLink]="['/']" class="navbar-brand">ZERTIPOWER</a>
     <button
@@ -18,8 +18,8 @@
           <a [routerLinkActive]="'active'" [routerLink]="['/search']" class="nav-link">Mapa</a>
         </li>
 
-        <div class="w-50" ngbDropdown>
-          <button class="btn btn-light w-100" ngbDropdownToggle> Energia </button>
+        <div class="mx-3" ngbDropdown>
+          <button class="btn btn-primary w-100 " ngbDropdownToggle> Energia</button>
           <div class="dropdown-menu-end" ngbDropdownMenu>
             <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/energy-blocks']" class="nav-link">Trams d'energia</a>
@@ -33,13 +33,14 @@
                 Registres</a>
             </button>
             <button ngbDropdownItem>
-              <a [routerLinkActive]="'active'" [routerLink]="['/energy-registers-hourly']" class="nav-link">Registres per hora</a>
+              <a [routerLinkActive]="'active'" [routerLink]="['/energy-registers-hourly']" class="nav-link">Registres
+                per hora</a>
             </button>
           </div>
         </div>
 
-        <div class="w-50" ngbDropdown>
-          <button class="btn btn-light w-100" ngbDropdownToggle> Participants </button>
+        <div class="me-3" ngbDropdown>
+          <button class="btn btn-primary w-100" ngbDropdownToggle> Participants</button>
           <div class="dropdown-menu-end" ngbDropdownMenu>
             <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/communities']" class="nav-link">Communitats</a>
@@ -59,14 +60,17 @@
           </div>
         </div>
 
-        <div class="w-50" ngbDropdown>
-          <button class="btn btn-light w-100" ngbDropdownToggle> més info </button>
+        <div class="me-3" ngbDropdown>
+          <button class="btn btn-primary w-100" ngbDropdownToggle> Més info</button>
           <div class="dropdown-menu-end" ngbDropdownMenu>
             <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/smart-contracts']" class="nav-link">Smart contracts</a>
             </button>
             <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/reports']" class="nav-link">Reports</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/logs']" class="nav-link">Logs</a>
             </button>
           </div>
         </div>
@@ -77,7 +81,7 @@
         <!-- <div class="w-50" ngbDropdown >
           <button class="btn btn-dark w-100" ngbDropdownToggle><i class="bi" [classList]="getThemeIcon()"></i> </button>
           <div class="dropdown-menu-start" ngbDropdownMenu styles="min-width: 55px !important">
-            <button ngbDropdownItem (click)="changeTheme('light')"><i class="bi bi-brightness-high-fill"></i> 
+            <button ngbDropdownItem (click)="changeTheme('light')"><i class="bi bi-brightness-high-fill"></i>
             </button>
             <button ngbDropdownItem (click)="changeTheme('dark')"><i class="bi bi-moon-stars-fill"></i> </button>
             <button ngbDropdownItem (click)="changeTheme('auto')"><i class="bi bi-circle-half"></i> </button>
@@ -87,14 +91,135 @@
         <!--Navbar profile dropdown-->
         <div class="w-50" ngbDropdown>
           <button class="btn btn-dark w-100" ngbDropdownToggle style="width: 60px !important;">
-             <i class="fa-solid fa-user me-2"></i> <!--{{firstname()}} -->
+            <i class="fa-solid fa-user me-2"></i> <!--{{firstname()}} -->
           </button>
-            <div class="dropdown-menu-start" ngbDropdownMenu>
-              <button (click)="logout()" ngbDropdownItem>Logout</button>
-            </div>
+          <div class="dropdown-menu-start" ngbDropdownMenu>
+            <button (click)="logout()" ngbDropdownItem>Logout</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </nav>
 
+
+<nav class="d-flex flex-shrink-0 text-bg-dark d-none d-md-block bg-primary" style="height: 100vh"
+     [ngStyle]="{'width': isShrunk ? '8rem' : '265px'}">
+  <div class="text-center py-3 d-flex flex-column h-100">
+
+    <a [routerLink]="['/']" class="navbar-brand">ZERTIPOWER</a>
+
+    <hr class="mb-0">
+
+
+    <div class="d-flex flex-fill">
+      <ul class="nav nav-pills flex-column mb-auto py-3 w-100">
+        <div class="mx-3">
+          <li *ngFor="let page of pages" class="nav-item fs-5">
+            <a *ngIf="page.status"  [routerLinkActive]="'active'" [routerLink]="[page.url]" class="nav-link text-capitalize my-2"
+               [ngClass]="isShrunk ? 'text-center' : 'text-start'">
+              <i class="{{page.iconClass}}" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
+                 placement="end" [ngbTooltip]="isShrunk ? page.text[0].toUpperCase() + page.text.slice(1) : ''">
+              </i>
+              <span *ngIf="!isShrunk" class="ms-2">{{ page.text }}</span>
+            </a>
+          </li>
+        </div>
+
+        <div class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+          <button class="nav-link navbar-dropdown text-start fs-5 w-100" ngbDropdownToggle>
+            <i class="fa-solid fa-leaf" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
+               placement="end" [ngbTooltip]="isShrunk ? 'Energia'.toUpperCase() + 'Energia'.slice(1) : ''"></i>
+            <span *ngIf="!isShrunk" class="ms-2">Energia</span>
+          </button>
+          <div class="dropdown-menu-end" ngbDropdownMenu>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/energy-blocks']" class="nav-link">Trams d'energia</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/energy-transactions']"
+                 class="nav-link">Transaccions</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/energy-registers']" class="nav-link">
+                Registres</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/energy-registers-hourly']" class="nav-link">Registres
+                per hora</a>
+            </button>
+          </div>
+        </div>
+
+        <div class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+          <button class="nav-link navbar-dropdown text-start fs-5 w-100" ngbDropdownToggle>
+            <i class="fa-solid fa-users" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
+               placement="end" [ngbTooltip]="isShrunk ? 'Participants'.toUpperCase() + 'Participants'.slice(1) : ''"></i>
+            <span *ngIf="!isShrunk" class="ms-2">Participants</span>
+          </button>
+          <div class="dropdown-menu-end" ngbDropdownMenu>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/communities']" class="nav-link">Communitats</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/cups']" class="nav-link">Cups</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/customers']" class="nav-link">Clients</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/providers']" class="nav-link">Proveïdors</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/users']" class="nav-link">Usuaris</a>
+            </button>
+          </div>
+        </div>
+
+        <div class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+          <button class="nav-link text-start fs-5 w-100" ngbDropdownToggle>
+            <i class="fa-solid fa-circle-info" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
+               placement="end" [ngbTooltip]="isShrunk ? 'Més info'.toUpperCase() + 'Més info'.slice(1) : ''"></i>
+            <span *ngIf="!isShrunk" class="ms-2">Més info</span>
+          </button>
+          <div class="dropdown-menu-end" ngbDropdownMenu>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/smart-contracts']" class="nav-link">Smart contracts</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/reports']" class="nav-link">Reports</a>
+            </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/logs']" class="nav-link">Logs</a>
+            </button>
+          </div>
+        </div>
+
+      </ul>
+
+      <div id="div-shrink" class="d-flex align-content-center ms-auto">
+        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none text-light" (click)="changeShrinkState()">
+<!--        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none"-->
+<!--                [ngClass]="getThemeName() == 'Dark' ? 'text-light' : 'text-dark'" (click)="changeShrinkState()">-->
+          <i *ngIf="isShrunk" class="fa-solid fa-caret-right fs-5"></i>
+          <i *ngIf="!isShrunk" class="fa-solid fa-caret-left fs-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <hr class="mt-0">
+
+    <div >
+
+      <!--Navbar profile dropdown-->
+      <div class="my-3" ngbDropdown>
+        <button class="btn btn-primary bg-transparent w-100" ngbDropdownToggle style="width: 60px !important;">
+          <i class="fa-solid fa-user me-2"></i> <!--{{firstname()}} -->
+        </button>
+        <div class="dropdown-menu-start" ngbDropdownMenu>
+          <button (click)="logout()" ngbDropdownItem>Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

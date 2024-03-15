@@ -23,7 +23,7 @@ export class CupsFormComponent {
     cups: new FormControl<string | null>(null),
     providerId: new FormControl<number | null>(null),
     communityId: new FormControl<number | null>(null),
-    locationId: new FormControl<string | null>(null),
+    locationId: new FormControl<number | null>(null),
     address: new FormControl<string | null>(null),
     lat: new FormControl<number | null>(null),
     lng: new FormControl<number | null>(null),
@@ -31,10 +31,23 @@ export class CupsFormComponent {
     customerId: new FormControl<number | null>(null),
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
-    datadis:new FormControl<boolean>(false),
-    smartMeter:new FormControl<boolean>(false),
-    inverter:new FormControl<boolean>(false)
+    datadis:new FormControl<number>(0),
+    datadisUser: new FormControl<string | null>(null),
+    datadisPwd: new FormControl<string | null>(null),
+    smartMeter:new FormControl<number>(0),
+    smartMeterModel:new FormControl<string|null>(null),
+    smartMeterApiKey:new FormControl<string|null>(null),
+    inverter:new FormControl<number>(0),
+    inverterModel:new FormControl<string|null>(null),
+    inverterApiKey:new FormControl<string|null>(null),
+    sensor:new FormControl<number>(0),
+    sensorModel:new FormControl<string|null>(null),
+    sensorApiKey:new FormControl<string|null>(null),
   });
+
+  smartMeterModels=['Fronius 63A-3','Fronius TS 100A-1','SMETS 1','SMETS 2']
+  inverterModels=['Turbo Energy 5000W 48V','Soiis S6-GR1P5K Monofásico 2MPPT 5000W','Huawei SUN2000-6KTL-L1 6kW']
+  sensorModels=['iEM2000','PowerLogic PM5000']
 
   constructor(
     private formBuilder: FormBuilder,
@@ -48,11 +61,29 @@ export class CupsFormComponent {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
+
+      console.log(data)
+
       this.form.controls.id.setValue(data.id);
       this.form.controls.cups.setValue(data.cups);
+      this.form.controls.type.setValue(data.type);
       this.form.controls.providerId.setValue(data.providerId);
       this.form.controls.communityId.setValue(data.communityId);
       this.form.controls.locationId.setValue(data.locationId);
+      this.form.controls.address.setValue(data.address);
+      this.form.controls.lat.setValue(data.lat);
+      this.form.controls.lng.setValue(data.lng);
+      this.form.controls.datadis.setValue(data.datadisActive);
+      this.form.controls.smartMeter.setValue(data.smartMeterActive);
+      this.form.controls.inverter.setValue(data.inverterActive);
+      this.form.controls.datadisUser.setValue(data.datadisUser);
+      this.form.controls.datadisPwd.setValue(data.datadisPassword);
+      this.form.controls.smartMeterModel.setValue(data.smartMeterModel);
+      this.form.controls.smartMeterApiKey.setValue(data.smartMeterApiKey);
+      this.form.controls.inverterModel.setValue(data.inverterModel);
+      this.form.controls.inverterApiKey.setValue(data.inverterApiKey);
+      this.form.controls.sensorModel.setValue(data.sensorModel);
+      this.form.controls.sensorApiKey.setValue(data.sensorApiKey);
       this.form.controls.customerId.setValue(data.customerId);
       this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
       this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));

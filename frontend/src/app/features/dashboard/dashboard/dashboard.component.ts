@@ -6,6 +6,8 @@ import {CustomersService} from "../../../core/core-services/customers.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import moment from "moment";
 import { log } from "console";
+import { DatadisEnergyService } from "src/app/core/core-services/datadis-energy.service";
+import { BehaviorSubject } from "rxjs";
 
 @Component({
   selector: 'dashboard',
@@ -14,25 +16,9 @@ import { log } from "console";
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
 
-  @ViewChild('yearChart') yearChart: any;
-
-  yearlyChartCanvas: any;
-  monthlyChartCanvas: any;
-  weeklyChartCanvas: any;
-  hourlyChartCanvas: any;
-
-  yearlyChartCanvasContent: any;
-  monthlyChartCanvasContent: any;
-  weeklyChartCanvasContent: any;
-  hourlyChartCanvasContent: any;
-
-  yearlyChart: any;
-  monthlyChart: any;
-  weeklyChart: any;
-  hourlyChart: any;
-
   customers: any;
   customersSelectorListener: any;
+  selectedCupsCustomer:any;
   dateSelectorListener: any;
   year!: number;
   date!: string;
@@ -43,18 +29,45 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   simpleWeekDateInit: string = '';
   simpleWeekDateEnd: string = '';
 
-  constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder) {}
+  originDataTypes:string[]=['Datadis','Inverter','Smart meter','Other']
+  selectedCupsOriginDataType:string='';
+
+  // Year chart variables
+  yearChartType: string = 'pie';
+  yearChartLabels: string[] =  [];
+  yearChartDatasets: any[] | undefined = undefined;
+  yearChartData: any[] = [];
+  yearChartBackgroundColor: string [] = [];
+  updateYearChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  // Month chart variables
+  monthChartType: string = 'bar';
+  monthChartLabels: string[] =  ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  monthChartDatasets: any[] | undefined = undefined;
+  monthChartData: any[] = [];
+  monthChartBackgroundColor: string [] = [];
+  updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  // Week chart variables:
+  weekChartType: string = 'bar';
+  weekChartLabels: string[] =  [];
+  weekChartDatasets: any[] | undefined = undefined;
+  weekChartData: any[] = [];
+  weekChartBackgroundColor: string [] = [];
+  updateWeekChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  //day chart variables:
+  dayChartType: string = 'bar';
+  dayChartLabels: string[] =  [];
+  dayChartDatasets: any[] | undefined = undefined;
+  dayChartData: any[] = [];
+  dayChartBackgroundColor: string [] = [];
+  updateDayChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+
+  constructor(private energyService: EnergyService, private customersService: CustomersService, private fb: FormBuilder, private datadisEnergyService:DatadisEnergyService) {}
 
   ngOnInit() {
-    this.yearlyChartCanvas = document.getElementById('doughnut-yearly-chart');
-    this.monthlyChartCanvas = document.getElementById('yearly-chart');
-    this.weeklyChartCanvas = document.getElementById('weekly-chart');
-    this.hourlyChartCanvas = document.getElementById('hourly-chart');
-
-    this.yearlyChartCanvasContent = this.yearlyChartCanvas.getContext('2d');
-    this.monthlyChartCanvasContent = this.monthlyChartCanvas.getContext('2d');
-    this.weeklyChartCanvasContent = this.weeklyChartCanvas.getContext('2d');
-    this.hourlyChartCanvasContent = this.hourlyChartCanvas.getContext('2d');
 
     //get date, week and year:
     let newDate = new Date();
@@ -73,6 +86,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
       this.customers = res.data;
+
+      console.log(this.customers)
+
       //set default value to selected cups:
       this.cupsId = this.customers[0].id
       //get chart info:
@@ -83,7 +99,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     //customer selector listener
     this.customersSelectorListener = document.getElementById('customerSelector')!.addEventListener('change', async (event: any) => {
-      this.cupsId = event.target.value;
+      
+      this.cupsId = this.selectedCupsCustomer.id;
+      this.getOriginData();
 
       //get chart info:
       let {yearEnergy,weekEnergy,dayEnergy} = await this.getChartInfo(this.cupsId, this.year, this.week, this.date)
@@ -112,12 +130,27 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   }
 
+
+  getOriginData(){
+    console.log(this.selectedCupsCustomer)
+    if(this.selectedCupsCustomer.datadis_active){
+      this.selectedCupsOriginDataType='Datadis';
+    } else if(this.selectedCupsCustomer.inverter_active) {
+      this.selectedCupsOriginDataType='Inverter';
+    } else if(this.selectedCupsCustomer.smart_meter_active) {
+      this.selectedCupsOriginDataType='Smart meter';
+    } else {
+      this.selectedCupsOriginDataType='Other';
+    }
+    console.log(this.selectedCupsOriginDataType)
+  } 
+
   async updateCharts(yearEnergy:any,weekEnergy:any,dayEnergy:any) {
 
     if (weekEnergy.weekDateLimits) {
       this.updateWeekDateLimits(this.week, weekEnergy.weekDateLimits) //todo error
     }
-    this.updateYearChart(yearEnergy)
+    this.updateYearChartF(yearEnergy)
     this.updateMonthlyChart(yearEnergy)
     this.updateWeekChart(weekEnergy)
     this.updateHourlyChart(dayEnergy)
@@ -154,229 +187,230 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   getYearEnergy(year: number, cups?: number, community?: number): Promise<any> {
     return new Promise((resolve, reject) => {
       //if(cups){
-      this.energyService.getYearByCups(year, cups!).subscribe((res: any) => {
-        console.log(res)
-        console.log(res.data)
-        let monthlyCupsData = res.data;
-        let months: string[] = monthlyCupsData.map((entry: any) => entry.month);
-        let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
-        let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
-        let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
-        let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.consumption);
-        let yearEnergy = {months, kwhImport, kwhGeneration,kwhConsumption,kwhExport}
-        resolve(yearEnergy)
-      })
-      //}else if (community){
-      //todo
-      //}
 
+      if(this.selectedCupsOriginDataType=='Datadis'){
+        this.datadisEnergyService.getYearByCups(year, cups!).subscribe((res: any) => {
+          let monthlyCupsData = res.data;
+          let months: string[] = monthlyCupsData.map((entry: any) => entry.month_name);
+          let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
+          let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
+          let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
+          let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.consumption);
+          let yearEnergy = {months, kwhImport, kwhGeneration,kwhConsumption,kwhExport}
+          resolve(yearEnergy)
+        })
+      } else {
+        this.energyService.getYearByCups(year, cups!).subscribe((res: any) => {
+          let monthlyCupsData = res.data;
+          let months: string[] = monthlyCupsData.map((entry: any) => entry.month_name);
+          let kwhImport: number[] = monthlyCupsData.map((entry: any) => entry.import);
+          let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.generation);
+          let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.export);
+          let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.consumption);
+          let yearEnergy = {months, kwhImport, kwhGeneration,kwhConsumption,kwhExport}
+          resolve(yearEnergy)
+        })
+      }
     })
   }
 
   getEnergyByWeek(week: number, year: number, cups?: number, community?: number): Promise<any> {
+
+    let date = moment(this.date,'D/M/YYYY').format('YYYY-MM-DD')
+
     return new Promise((resolve, reject) => {
-      //if(cups){
-      this.energyService.getWeekByCups(year, cups!, week).subscribe((res: any) => {
-        let weekDateLimits: any;
-        let weekCupsData = res.data;
-        let weekDays = weekCupsData.map((entry: any) => entry.week_day);
-        let weekImport = weekCupsData.map((entry: any) => entry.import);
-        let weekGeneration = weekCupsData.map((entry: any) => entry.generation);
-        let weekConsumption = weekCupsData.map((entry: any) => entry.consumption);
-        let weekExport = weekCupsData.map((entry: any) => entry.export);
-        console.log("week cups data", weekCupsData)
+      
+      if(this.selectedCupsOriginDataType=='Datadis'){
 
-        if (weekCupsData[0] && weekCupsData[1]) {
-          weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
-        }
+        this.datadisEnergyService.getWeekByCups(date, cups!).subscribe((res: any) => {
+          let weekDateLimits: any;
+          let weekCupsData = res.data;
+          let weekDays = weekCupsData.map((entry: any) => entry.week_day);
+          let weekImport = weekCupsData.map((entry: any) => entry.import);
+          let weekGeneration = weekCupsData.map((entry: any) => entry.generation);
+          let weekConsumption = weekCupsData.map((entry: any) => entry.consumption);
+          let weekExport = weekCupsData.map((entry: any) => entry.export);
+          console.log("week cups data", weekCupsData)
 
-        let weekEnergy = {weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits}
-        resolve(weekEnergy)
-      })
-      //}else if(community){{
-      //todo
-      //}
+          if (weekCupsData[0] && weekCupsData[1]) {
+            weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
+          }
+
+          let weekEnergy = {weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits}
+          resolve(weekEnergy)
+        })
+
+      }else{
+      
+        this.energyService.getWeekByCups(date, cups!).subscribe((res: any) => {
+          let weekDateLimits: any;
+          let weekCupsData = res.data;
+          let weekDays = weekCupsData.map((entry: any) => entry.week_day);
+          let weekImport = weekCupsData.map((entry: any) => entry.import);
+          let weekGeneration = weekCupsData.map((entry: any) => entry.generation);
+          let weekConsumption = weekCupsData.map((entry: any) => entry.consumption);
+          let weekExport = weekCupsData.map((entry: any) => entry.export);
+          console.log("week cups data", weekCupsData)
+
+          if (weekCupsData[0] && weekCupsData[1]) {
+            weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
+          }
+
+          let weekEnergy = {weekDays, weekImport, weekGeneration,weekConsumption,weekExport, weekDateLimits}
+          resolve(weekEnergy)
+        })
+      }
     })
   }
 
   getEnergyByDay(cups: number, date: string): Promise<any> {
     date = moment(date,'DD/MM/yyyy').format('YYYY-MM-DD')
     return new Promise((resolve, reject) => {
-        this.energyService.getHoursByCups(cups, date).subscribe((res: any) => {
 
+      if(this.selectedCupsOriginDataType=='Datadis'){
+        this.datadisEnergyService.getHoursByCups(cups, date).subscribe((res: any) => {
           let hourlyData = res.data
+          console.log("hourly data", hourlyData)
+
+          hourlyData.map((hd:any)=>{if(!hd.info_datetime){hd.info_datetime=hd.info_dt} })
+
           const getHour = (datetimeString: any) => {
             return parseInt(datetimeString.slice(11, 13));
           };
 
-          // Ordenar hourlyData por la hora
           hourlyData = hourlyData.sort((a: any, b: any) => getHour(a.info_datetime) - getHour(b.info_datetime));
-
-        /*  console.log("hourly data: ",hourlyData)*/
-
-        /*  let hours: any = hourlyData
-            .filter((entry: any) => {
-              entry
-            })
-            .map((entry: any) => {
-              if (entry.info_datetime) {
-                return moment.utc(entry.info_datetime).format('HH');
-              } else return undefined
-            });*/
-
           let hours = hourlyData.map((entry: any) => moment.utc(entry.info_datetime).format('HH'));
           let dayImport = hourlyData.map((entry: any) => entry.import);
           let dayGeneration = hourlyData.map((entry: any) => entry.generation);
           let dayConsumption = hourlyData.map((entry: any) => entry.consumption);
           let dayExport = hourlyData.map((entry: any) => entry.export);
-
           let dayEnergy = {hours, dayImport, dayGeneration, dayConsumption, dayExport}
-
-          //console.log( "day result : ",hours,dayImport,dayGeneration,dayConsumption,dayExport)
           resolve(dayEnergy)
         })
+      }else{
+        this.energyService.getHoursByCups(cups, date).subscribe((res: any) => {
+          let hourlyData = res.data
+          const getHour = (datetimeString: any) => {
+            return parseInt(datetimeString.slice(11, 13));
+          };
+          hourlyData = hourlyData.sort((a: any, b: any) => getHour(a.info_datetime) - getHour(b.info_datetime));
+          let hours = hourlyData.map((entry: any) => moment.utc(entry.info_datetime).format('HH'));
+          let dayImport = hourlyData.map((entry: any) => entry.import);
+          let dayGeneration = hourlyData.map((entry: any) => entry.generation);
+          let dayConsumption = hourlyData.map((entry: any) => entry.consumption);
+          let dayExport = hourlyData.map((entry: any) => entry.export);
+          let dayEnergy = {hours, dayImport, dayGeneration, dayConsumption, dayExport}
+          resolve(dayEnergy)
+        })
+      }
       }
     )
   }
 
-  updateYearChart(yearEnergy:any) {
+  updateYearChartF(yearEnergy:any) {
 
-    const sumImport = yearEnergy.kwhImport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
-    const sumGeneration = yearEnergy.kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
-    const sumConsumption = yearEnergy.kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
-    const sumExport = yearEnergy.kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+    const sumImport = yearEnergy.kwhImport.length > 0 ? yearEnergy.kwhImport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0) : 0;
+    const sumGeneration = yearEnergy.kwhGeneration.length > 0 ? yearEnergy.kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0)  : 0;
+    const sumConsumption = yearEnergy.kwhConsumption.length > 0 ? yearEnergy.kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0)  : 0;
+    const sumExport = yearEnergy.kwhExport.length > 0 ? yearEnergy.kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0)  : 0;
 
-    if (!this.yearlyChart) {
-      this.yearlyChart = new Chart(this.yearlyChartCanvasContent, {type: 'pie', data: {labels: [], datasets: []}})
-    }
+    this.yearChartLabels = ['Import (Kwh)','Consumption (Kwh)','Generation (Kwh)','Export (Kwh)']
 
-    this.yearlyChart.data = {
-      labels: [`Import: ${sumImport} Kwh`, `Generation: ${sumGeneration} Kwh`,`Consumption: ${sumConsumption} Kwh`,`Surplus: ${sumExport} Kwh`],
-      datasets: [{
-        data: [sumImport, sumGeneration,sumConsumption,sumExport],
-        backgroundColor: [
-          'rgb(255, 99, 132)',
-          'rgb(54, 162, 235)',
-          'rgba(240, 190, 48, 1)',
-          'rgba(33, 217, 92, 0.71)'
-        ]
-      }]
-    }
+    this.yearChartDatasets = [{
+          data: [sumImport,sumConsumption,sumGeneration,sumExport],
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgba(240, 190, 48, 1)',
+            'rgba(33, 217, 92, 0.71)',
+            'rgb(54, 162, 235)',
+          ]
+        }]
 
-    this.yearlyChart.update();
+    this.updateYearChartSubject.next(true);
 
   }
 
   updateMonthlyChart(yearEnergy:any) {
 
-    if (!this.monthlyChart) {
-      this.monthlyChart = new Chart(this.monthlyChartCanvasContent, {type: 'bar', data: {labels: [], datasets: []}})
-    }
+    this.monthChartLabels=yearEnergy.months
 
-    this.monthlyChart.data = {
-      labels: yearEnergy.months,
-      datasets: [{
-        label: 'Import (Kwh)',
+    this.monthChartDatasets = [
+      {
+        label: 'Importació (Kwh)',
         data: yearEnergy.kwhImport,
-        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
-        borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
-        borderWidth: 1
-      }, {
-        label: 'Generation (Kwh)',
-        data: yearEnergy.kwhGeneration,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
-        borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
-        borderWidth: 1
-      }, {
-        label: 'Consumption (Kwh)',
+        backgroundColor: 'rgb(255, 99, 132)'
+      },
+      {
+        label: 'Consum (Kwh)',
         data: yearEnergy.kwhConsumption,
-        backgroundColor: 'rgba(240, 190, 48, 1)', // Color para importación
-        borderColor: 'rgba(240, 190, 48, 1)', // Borde del color de importación
-        borderWidth: 1
-      }, {
-        label: 'Surplus (Kwh)',
+        backgroundColor: 'rgba(240, 190, 48, 1)'
+      },
+      {
+        label: 'Generació (Kwh)',
+        data: yearEnergy.kwhGeneration,
+        backgroundColor: 'rgba(33, 217, 92, 0.71)'
+      },
+      {
+        label: 'Exportació (Kwh)',
         data: yearEnergy.kwhExport,
-        backgroundColor: 'rgba(33, 217, 92, 0.71)', // Color para importación
-        borderColor: 'rgba(33, 217, 92, 0.71)', // Borde del color de importación
-        borderWidth: 1
-      }]
-    }
-    this.monthlyChart.update();
+        backgroundColor: 'rgb(54, 162, 235)'
+      },
+    ]
+
+    this.updateMonthChartSubject.next(true);
   }
 
   updateWeekChart(weekEnergy:any) {
 
-    //console.log("week result: , weekDays, totalImport, totalGeneration)
+    this.weekChartLabels = weekEnergy.weekDays;
+    this.weekChartDatasets = [{
+      label: 'Importació (Kwh)',
+      data: weekEnergy.weekImport,
+      backgroundColor: 'rgb(255, 99, 132)'
+    }, {
+      label: 'Consum (Kwh)',
+      data: weekEnergy.weekConsumption,
+      backgroundColor: 'rgba(240, 190, 48, 1)'
+    }, {
+      label: 'Generació (Kwh)',
+      data: weekEnergy.weekGeneration,
+      backgroundColor: 'rgba(33, 217, 92, 0.71)'
+    },{
+      label: 'Exportació (Kwh)',
+      data: weekEnergy.weekExport,
+      backgroundColor: 'rgb(54, 162, 235)'
+    }]
 
-    if (!this.weeklyChart) {
-      this.weeklyChart = new Chart(this.weeklyChartCanvasContent, {type: 'bar', data: {labels: [], datasets: []}})
-    }
-
-    this.weeklyChart.data = {
-      labels: weekEnergy.weekDays,
-      datasets: [{
-        label: 'Import (Kwh)',
-        data: weekEnergy.weekImport,
-        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
-        borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
-        borderWidth: 1
-      }, {
-        label: 'Generation (Kwh)',
-        data: weekEnergy.weekGeneration,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
-        borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
-        borderWidth: 1
-      }, {
-        label: 'Consumption (Kwh)',
-        data: weekEnergy.weekConsumption,
-        backgroundColor: 'rgba(240, 190, 48, 1)', // Color para importación
-        borderColor: 'rgba(240, 190, 48, 1)', // Borde del color de importación
-        borderWidth: 1
-      }, {
-        label: 'Surplus (Kwh)',
-        data: weekEnergy.weekExport,
-        backgroundColor: 'rgba(33, 217, 92, 0.71)', // Color para importación
-        borderColor: 'rgba(33, 217, 92, 0.71)', // Borde del color de importación
-        borderWidth: 1
-      }]
-    }
-
-    this.weeklyChart.update();
+    this.updateWeekChartSubject.next(true);
 
   }
 
   updateHourlyChart(dayEnergy:any){
 
-    if (!this.hourlyChart) {
-      this.hourlyChart = new Chart(this.hourlyChartCanvasContent, {type: 'bar', data: {labels: [], datasets: []}})
-    }
-
-    this.hourlyChart.data = {
-      labels: dayEnergy.hours,
-      datasets: [{
-        label: 'Import (Kwh)',
-        data: dayEnergy.dayImport,
-        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color para generación
-        borderColor: 'rgba(255, 99, 132, 1)', // Borde del color de generación
-        borderWidth: 1
+    this.dayChartLabels = dayEnergy.hours
+    this.dayChartDatasets = [{
+      label: 'Importació (Kwh)',
+      data: dayEnergy.dayImport,
+      backgroundColor: 'rgb(255, 99, 132)'
       }, {
-        label: 'Generation (Kwh)',
-        data: dayEnergy.dayGeneration,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color para importación
-        borderColor: 'rgba(75, 192, 192, 1)', // Borde del color de importación
-        borderWidth: 1
-      },
-       {
-        label: 'Surplus (Kwh)',
-        data: dayEnergy.dayExport,
-        backgroundColor: 'rgba(33, 217, 92, 0.71)', // Color para importación
-        borderColor: 'rgba(33, 217, 92, 0.71)', // Borde del color de importación
-        borderWidth: 1
-       }
-    ]
-    }
+        label: 'Consum (Kwh)',
+        data: dayEnergy.weekConsumption,
+        backgroundColor: 'rgba(240, 190, 48, 1)'
+      }, 
+     {
+      label: 'Generació (Kwh)',
+      data: dayEnergy.dayGeneration,
+      backgroundColor: 'rgba(33, 217, 92, 0.71)'
+    },
+     {
+      label: 'Exportació (Kwh)',
+      data: dayEnergy.dayExport,
+      backgroundColor: 'rgb(54, 162, 235)'
+     }
+  ]
 
-    this.hourlyChart.update();
+  this.updateDayChartSubject.next(true);
+
   }
 
   updateWeekDateLimits(week:number, weekDateLimits:any) {

@@ -20,8 +20,7 @@ import { dataTablesResponse } from "./interfaces/datatablesResponse.interface";
 @Component({
 	selector: "app-datatable",
 	templateUrl: "./app-datatable.component.html",
-	styleUrls: ["./app-datatable.component.css"],
-	encapsulation: ViewEncapsulation.None,
+	styleUrls: ["./app-datatable.component.css"]
 })
 export class AppDatatableComponent implements OnInit {
 	//inputs:
@@ -64,12 +63,18 @@ export class AppDatatableComponent implements OnInit {
 			serverSide: true,
 			destroy: true,
 			ajax: (dataTablesParameters: any, callback: any) => {
-        console.log(dataTablesParameters)
-				//        dataTablesParameters.length = this.rowLength;
+        		//console.log(dataTablesParameters)
+				//dataTablesParameters.length = this.rowLength;
+
+				const filteredColumns = dataTablesParameters.columns.filter(
+					(column: any) => column.data !== null
+				);
+				dataTablesParameters.columns = filteredColumns;
+
 				this.http
 					.post<dataTablesResponse>(this.url, dataTablesParameters, {})
 					.subscribe((resp: any) => {
-						console.log("resp: ",resp)
+						console.log("datatables",resp)
 						this.dataResponse = resp.data.data;
 						DatatablesFeatures.modifyDefaultValues(this.filterParams, this.dataResponse);
 						callback({
@@ -83,6 +88,7 @@ export class AppDatatableComponent implements OnInit {
 			columns: this.columns,
 			columnDefs: this.columnDefs,
 			scrollX: true,
+			order:[[0,'desc']]
 		};
 	}
 
@@ -116,6 +122,7 @@ export class AppDatatableComponent implements OnInit {
 	}
 
 	async ngAfterViewInit() {
+
 		this.datatablesFeatures = new DatatablesFeatures(
 			document,
 			this.renderer,

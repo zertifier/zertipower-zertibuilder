@@ -50,12 +50,23 @@ export class LogsController {
     async datatables(@Body() body: any) {
       const data = await this.datatable.getData(
         body,
-        `SELECT *
-                    FROM logs`
+        `SELECT * FROM logs`
       );
       return HttpResponse.success("Datatables fetched successfully").withData(
         data
       );
+    }
+
+    @Get(":id")
+    @Auth(RESOURCE_NAME)
+    async getById(@Param("id") id: string) {
+      const data = await this.prisma.logs.findUnique({
+        where: {
+          id: parseInt(id),
+        },
+      });
+      return HttpResponse.success("cups fetched successfully").withData(data)
+      
     }
 
 }

@@ -13,6 +13,8 @@ export enum filterType {
 	text,
 	number,
 	selection,
+  datetime,
+  nothing
 }
 
 export interface option {

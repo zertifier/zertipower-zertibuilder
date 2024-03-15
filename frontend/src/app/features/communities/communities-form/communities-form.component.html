@@ -99,7 +99,7 @@
         <div class="d-flex justify-content-center">
           <div class="custom-chart">
             <app-chart [chartType]="yearChartType" [labels]="yearChartLabels" [data]="yearChartData"
-                       [backgroundColor]="yearChartBackgroundColor" [update]="updateYearChart"
+                       [backgroundColor]="yearChartBackgroundColor"
                        [updateSubject]="updateYearChartSubject.asObservable()"></app-chart>
           </div>
         </div>
@@ -112,7 +112,7 @@
         <div class="d-flex justify-content-center">
           <div class="custom-chart">
             <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
-                       [update]="updateMonthChart" [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
+                        [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
           </div>
         </div>
       </div>
@@ -124,7 +124,7 @@
         <div class="d-flex justify-content-center">
           <div class="custom-chart">
             <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
-                       [backgroundColor]="dayChartBackgroundColor" [update]="updateDayChart"
+                       [backgroundColor]="dayChartBackgroundColor" 
                        [updateSubject]="updateDayChartSubject.asObservable()"></app-chart>
           </div>
         </div>
@@ -145,7 +145,7 @@
       <div class="d-flex justify-content-center">
         <div class="custom-chart">
           <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
-                     [update]="updateMonthChart" [updateSubject]="updateMonthChartSubject.asObservable()"
+                      [updateSubject]="updateMonthChartSubject.asObservable()"
                      chartId="month-chart"></app-chart>
         </div>
 
@@ -156,7 +156,7 @@
       <div class="d-flex justify-content-center">
         <div class="custom-chart">
           <app-chart [chartType]="yearChartType" [labels]="yearChartLabels" [data]="yearChartData"
-                     [backgroundColor]="yearChartBackgroundColor" [update]="updateYearChart"
+                     [backgroundColor]="yearChartBackgroundColor"
                      [updateSubject]="updateYearChartSubject.asObservable()" chartId="year-chart"></app-chart>
         </div>
       </div>
@@ -170,7 +170,7 @@
       <div class="d-flex justify-content-center">
         <div class="custom-chart">
           <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
-                     [backgroundColor]="dayChartBackgroundColor" [update]="updateDayChart"
+                     [backgroundColor]="dayChartBackgroundColor" 
                      [updateSubject]="updateDayChartSubject.asObservable()" chartId="day-chart"></app-chart>
         </div>
       </div>

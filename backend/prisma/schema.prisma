@@ -134,13 +134,16 @@ model cups {
   type                 cups_type?
   datadis_active       Int?       @default(0) @db.TinyInt
   datadis_user         String?    @db.VarChar(50)
-  datadis_password     String?    @db.VarChar(50)
+  datadis_password     String?    @db.VarChar(100)
   smart_meter_active   Int?       @default(0) @db.TinyInt
   smart_meter_model    String     @default("") @db.VarChar(100)
   smart_meter_api_key  String?    @db.VarChar(50)
   inverter_active      Int        @default(0) @db.TinyInt
   inverter_model       String?    @db.VarChar(100)
   inverter_api_key     String?    @db.VarChar(50)
+  sensor_active      Int        @default(0) @db.TinyInt
+  sensor_model       String?    @db.VarChar(100)
+  sensor_api_key     String?    @db.VarChar(50)
   created_at           DateTime?  @default(now()) @db.DateTime(0)
   updated_at           DateTime?  @db.DateTime(0)
 }
@@ -246,30 +249,54 @@ model smartContracts {
   @@map("smart_contracts")
 }
 
-/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-// view energy_registers_original_monthly {
-//   cups_id     Int?
-//   year        Int?
-//   month       Int?
-//   import      Float?
-//   consumption Float?
-//   export      Float?
-//   generation  Float?
-//
-//   @@ignore
-// }
+model datadis_energy_registers {
+  id             Int       @id @default(autoincrement())
+  info_dt        DateTime? @db.DateTime(0)
+  cups_id        Int?
+  transaction_id Int?
+  import         Float?
+  export         Float?
+  created_at     DateTime? @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @db.DateTime(0)
 
-/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-// view energy_registers_original_hourly {
-//   cups_id       Int?
-//   info_datetime DateTime? @db.DateTime(0)
-//   import        Float?
-//   consumption   Float?
-//   export        Float?
-//   generation    Float?
-//
-//   @@ignore
-// }
+  @@index([cups_id], map: "cups_id")
+  @@index([info_dt], map: "info_dt")
+}
+
+model energy_registers_logs {
+  id          Int       @id @default(autoincrement())
+  cups        String?   @db.VarChar(100)
+  n_registers Int?
+  creation_dt DateTime? @default(dbgenerated("(curdate())")) @db.Timestamp(0)
+}
+
+model inverter_energy_registers {
+  id             Int       @id @default(autoincrement())
+  info_dt        DateTime? @db.DateTime(0)
+  cups_id        Int?
+  import         Float?
+  consumption    Float?
+  export         Float?
+  generation     Float?
+  transaction_id Float?
+  created_at     DateTime? @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @db.DateTime(0)
+
+  @@index([cups_id], map: "cups_id")
+  @@index([info_dt], map: "info_dt")
+}
+
+model logs {
+  id                   Int          @id @default(autoincrement())
+  cups                 String?      @db.VarChar(100)
+  cups_id              Int?
+  status               logs_status?
+  operation            String?      @db.VarChar(200)
+  n_affected_registers Int?
+  log                  String       @db.LongText
+  error_message        String       @db.LongText
+  creation_dt          DateTime?    @default(now()) @db.DateTime(0)
+}
 
 enum cups_type {
   consumer
@@ -277,8 +304,8 @@ enum cups_type {
   prosumer
 }
 
-enum read_data_log_status {
-  ERROR
-  SUCCESS
-  WARNING
+enum logs_status {
+  error
+  success
+  warning
 }

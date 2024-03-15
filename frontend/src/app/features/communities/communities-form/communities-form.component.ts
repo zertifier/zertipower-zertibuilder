@@ -8,7 +8,7 @@ import moment from 'moment';
 import {CustomersService} from "../../../core/core-services/customers.service";
 import {EnergyService} from "../../../core/core-services/energy.service";
 import Chart from "chart.js/auto";
-import {CupsApiInterface, CupsApiService} from "../../cups/cups.service";
+import {CupsInterface, CupsApiService} from "../../cups/cups.service";
 
 @Component({
   selector: 'communities-form',
@@ -447,11 +447,11 @@ export class CommunitiesFormComponent implements OnInit {
     request.subscribe((res) => {
 
       //res id is community id
-      this.communityCups.map((cups: CupsApiInterface) => {
+      this.communityCups.map((cups: CupsInterface) => {
 
         cups.communityId = res.id | this.communityId;
 
-        let cupsToUpdate: CupsApiInterface = {
+        let cupsToUpdate: any = {
           id: cups.id,
           cups: cups.cups,
           providerId: cups.providerId,
@@ -477,7 +477,7 @@ export class CommunitiesFormComponent implements OnInit {
 
           if (!found) {
 
-            let cupsToUpdate: CupsApiInterface = {
+            let cupsToUpdate: any = {
               id: cups.id,
               cups: cups.cups,
               providerId: cups.providerId,

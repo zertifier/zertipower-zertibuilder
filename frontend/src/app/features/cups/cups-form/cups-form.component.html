@@ -1,14 +1,14 @@
-<div class="modal-header">
-  <h2>cups form</h2>
+<div class="modal-header d-flex justify-content-center">
+  <h2>cups {{form.controls.id.value}}</h2>
 </div>
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
-    <div *ngIf="form.controls.id.value">
-      <label for="id-input">id {{form.controls.id.value}}</label>
-    </div>
+    <!-- <div *ngIf="form.controls.id.value">
+      <label for="id-input">id </label>
+    </div> -->
     <div>
       <label for="cups-input">cups</label>
-      <input id="cups" type="number" formControlName="cups" class="form-control">
+      <input id="cups" type="string" formControlName="cups" class="form-control">
     </div>
     <div>
       <label for="customer-id-input">customer id</label>
@@ -26,6 +26,10 @@
       <label for="location-id-input">location id</label>
       <input id="location-id-input" type="number" formControlName="locationId" class="form-control">
     </div>
+    <div>
+      <label for="address-input">address</label>
+      <input id="address-input" type="text" formControlName="address" class="form-control">
+    </div>
     <div class="row d-flex justify-content-beetween">
       <div class="col">
         <label for="lat-input">lat</label>
@@ -38,7 +42,7 @@
     </div>
 
     <label for="lng-input">Cups type</label>
-    <select class="px-2 form-select">
+    <select class="px-2 form-select" formControlName="type">
     <option></option>
     <option *ngFor="let element of cupsTypes" [ngValue]="element">{{element}}</option>
     </select>
@@ -52,12 +56,12 @@
 
     <div *ngIf="form.controls.datadis.value" class="row d-flex justify-content-beetween">
       <div class="col">
-        <label for="lat-input">Datadis username</label>
-        <input id="lat-input" type="text" formControlName="lat" class="form-control">
+        <label for="datadis-username-input">Datadis username</label>
+        <input id="datadis-username-input" type="text" formControlName="datadisUser" class="form-control">
       </div>
       <div class="col">
-        <label for="lng-input">Datadis password</label>
-        <input id="lng-input" type="text" formControlName="lng" class="form-control">
+        <label for="datadis-password-input">Datadis password</label>
+        <input id="datadis-password-input" type="text" formControlName="datadisPwd" class="form-control">
       </div>
     </div>
 
@@ -70,12 +74,16 @@
 
     <div *ngIf="form.controls.smartMeter.value" class="row d-flex justify-content-beetween">
       <div class="col">
-        <label for="lat-input">Smart meter model</label>
-        <input id="lat-input" type="text" formControlName="lat" class="form-control">
+        <label for="smart-meter-model-selector">Smart meter model</label>
+        <select id="smart-meter-model-selector" class="form-select" formControlName="smartMeterModel">
+          <option></option>
+          <option *ngFor="let smartMeterModel of smartMeterModels">{{smartMeterModel}}</option>
+        </select>
+        <!-- <input id="smart-meter-model-input" type="text" formControlName="smartMeterModel" class="form-control"> -->
       </div>
       <div class="col">
-        <label for="lng-input">Smart meter api key</label>
-        <input id="lng-input" type="text" formControlName="lng" class="form-control">
+        <label for="smart-meter-api-key-input">Smart meter api key</label>
+        <input id="smart-meter-api-key-input" type="text" formControlName="smartMeterApiKey" class="form-control">
       </div>
     </div>
 
@@ -88,12 +96,36 @@
 
     <div *ngIf="form.controls.inverter.value" class="row d-flex justify-content-beetween">
       <div class="col">
-        <label for="lat-input">Inverter model</label>
-        <input id="lat-input" type="text" formControlName="lat" class="form-control">
+        <label for="inverter-model-selector">Inverter model</label>
+        <select id="inverter-model-selector" class="form-select" formControlName="inverterModel">
+          <option></option>
+          <option *ngFor="let inverterModel of inverterModels">{{inverterModel}}</option>
+        </select>
       </div>
       <div class="col">
-        <label for="lng-input">Inverter api key</label>
-        <input id="lng-input" type="text" formControlName="lng" class="form-control">
+        <label for="inverter-api-key-input">Inverter api key</label>
+        <input id="inverter-api-key-input" type="text" formControlName="inverterApiKey" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-check mt-1">
+      <input class="form-check-input" type="checkbox" formControlName="sensor" id="flexCheckSensor">
+      <label class="form-check-label" for="flexCheckInverter">
+        Sensor
+      </label>
+    </div>
+
+    <div *ngIf="form.controls.sensor.value" class="row d-flex justify-content-beetween">
+      <div class="col">
+        <label for="sensor-model-selector">Sensor model</label>
+        <select id="sensor-model-selector" class="form-select" formControlName="sensorModel">
+          <option></option>
+          <option *ngFor="let sensorModel of sensorModels">{{sensorModel}}</option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="sensor-api-key-input">Sensor api key</label>
+        <input id="sensor-api-key-input" type="text" formControlName="sensorApiKey" class="form-control">
       </div>
     </div>
     
@@ -102,11 +134,11 @@
     <div class="row d-flex justify-content-beetween">
       <div class="col">
       <label for="created-at-input">creation date</label>
-      <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
+      <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control-plaintext"  readonly>
     </div>
     <div class="col">
       <label for="updated-at-input">update date</label>
-      <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
+      <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control-plaintext" readonly>
     </div>
     </div>
 

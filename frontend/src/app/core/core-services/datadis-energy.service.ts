@@ -7,10 +7,15 @@ import {environment} from "../../../environments/environment";
 @Injectable({
   providedIn: CoreServicesModule,
 })
-export class EnergyService {
+export class DatadisEnergyService {
 
-  baseUrl = `${environment.api_url}/energy-registers-hourly`;
-  constructor(private http:HttpClient) {}
+    baseUrl = `${environment.api_url}/datadisEnergy`;
+
+    constructor(private http:HttpClient) {
+      console.log(this.baseUrl)
+    }
+
+//datadis
 
   getYearByCups(year:number,cups:number){
     let url = `${this.baseUrl}/monthly/${year}?cups=${cups}`;
@@ -18,6 +23,7 @@ export class EnergyService {
   }
 
   getWeekByCups(date:string,cups:number){
+    console.log(date)
     let url = `${this.baseUrl}/weekly/${date}?cups=${cups}`;
     return this.http.get(url);
   }
@@ -26,17 +32,5 @@ export class EnergyService {
     let url = `${this.baseUrl}/hourly/${date}?cups=${cups}`;
     return this.http.get(url);
   }
-
-  //TODO:
-  getYearByCommunity(year:number,communityId:number){
-    let url = ''//`${this.baseUrl}/hourly/${date}?cups=${cups}`;
-    return this.http.get(url);
-  }
-
-
-
-
-
-
 
 }

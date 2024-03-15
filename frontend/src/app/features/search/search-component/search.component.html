@@ -1,20 +1,95 @@
-<app-navbar></app-navbar>
-<div class="row px-4 container-fluid justify-content-center">
+<app-map (selectedAreaM2)="setSelectedAreaM2($event)" class="position-absolute top-0 start-0 p-0 m-0" style="width:100%;height:100%"></app-map>
 
-  <div class="col-12 col-md-6 p-2 ps-4">
-    
-    <app-map (selectedAreaM2)="setSelectedAreaM2($event)"></app-map>
+<div class="position-relative h-100" style=" z-index:2">
+
+  <div class="row p-0 m-0 h-100">
+
+    <div class="col col-auto p-0 h-100">
+
+      <nav class="d-flex flex-shrink-0 text-bg-dark d-none d-md-block bg-primary h-100" [ngStyle]="{'width': isShrunk ? '8rem' : '265px'}">
+
+        <div class="text-center py-3 d-flex flex-column h-100">
+        
+          <a [routerLink]="['/']" class="navbar-brand">ZERTIPOWER</a>
+          
+          <hr class="mb-0">
+          
+          <div class="d-flex flex-fill">
+            <!-- <ul class="nav nav-pills flex-column mb-auto py-3 w-100">
+              <div class="mx-3">
+                <li *ngFor="let page of pages" class="nav-item fs-5">
+                  <a *ngIf="page.status"  [routerLinkActive]="'active'" [routerLink]="[page.url]" class="nav-link text-capitalize my-2"
+                      [ngClass]="isShrunk ? 'text-center' : 'text-start'">
+                    <i class="{{page.iconClass}}" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
+                        placement="end" [ngbTooltip]="isShrunk ? page.text[0].toUpperCase() + page.text.slice(1) : ''">
+                    </i><span *ngIf="!isShrunk" class="ms-2">{{ page.text }}</span>
+                  </a>
+                </li>
+              </div> -->
+          </div>
+        </div>
+        <div id="div-shrink" class="d-flex align-content-center ms-auto">
+          <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none text-light" (click)="changeShrinkState()">
+  <!--        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none"-->
+  <!--                [ngClass]="getThemeName() == 'Dark' ? 'text-light' : 'text-dark'" (click)="changeShrinkState()">-->
+            <i *ngIf="isShrunk" class="fa-solid fa-caret-right fs-5"></i>
+            <i *ngIf="!isShrunk" class="fa-solid fa-caret-left fs-5"></i>
+          </button>
+        </div>
+      </nav>
+
+    </div> 
+
+    <div class="col p-0">
+      <div class="d-flex justify-content-center">
+
+        <div class="card mt-2" style="z-index:2; width: 500px;">
+      
+          <div class="row">
+      
+          <div class="col col-1 d-flex align-items-center justify-content-center p-0">
+            <button class="btn ms-2" type="button">
+              <i class="fa-solid fa-arrow-left"></i> 
+            </button>
+          </div>
+            
+          <div class="col col-11 col-md-3 d-flex align-items-center justify-content-center">
+            {{selectedLocation.municipality}}
+          </div>
+      
+          <div class="col col-12 col-md-8">
+          <select id="location-comunnity" [(ngModel)]="selectedCommunity"  class="form-select px-2" (change)="OnSelectorChange(selectedCommunity,'community')"
+          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Tooltip on bottom">
+            <option>Nova comunitat</option>
+            <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
+          </select>
+          </div>
+      
+        </div>
+      
+        </div>
+      
+      </div>      
+    </div> 
+
+  </div>
+
+</div>
+
+<div class="row px-4 pt-2 d-none">
+
+  <!-- <div class="col-12 col-md-6 p-2 ps-4"> -->
 
     <!-- <div *ngIf="map">
       <button (click)="multipleSelection()"  data-toggle="button" type="button" [ngClass]="map.multipleSelection ? 'btn btn-dark mt-2 active' : 'btn btn-dark mt-2'" >Selecció múltiple</button>
       
     </div> -->
     
-    <button class="btn mt-2 btn-dark" (click)="folder = 0" ><i class="bi bi-search"></i> Cerca comunitats</button>
+  <!-- </div> -->
 
-  </div>
+  <div class="col-12 col-md-4 p-2"  style="z-index:2">
 
-  <div class="col-12 col-md-6 p-2">
+    <button class="btn mb-2 btn-dark" style="z-index: 4" (click)="folder = 0" ><i class="bi bi-search"></i> Cerca comunitats</button>
 
     <!-- <div class="mb-2">
       <label for="cups">cups</label>
@@ -26,14 +101,22 @@
       <input id="consum" placeholder="consum" type="number" class="form-control">
     </div> -->
 
-    <div class="mb-2">
+    <div class="card p-2 mb-2">
 
-       <div class="row gx-2 gy-2 flex-wrap">
-        <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 1 ? 'folder-selected' : 'btn-folder'" (click)="folder = 1" >Model predictiu</button>
-        <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 2 ? 'folder-selected' : 'btn-folder'" (click)="folder = 2">Model real</button>
-        <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 3 ? 'folder-selected' : 'btn-folder'"(click)="folder = 3">Dades consum</button>
-        <button class="btn col-12 col-sm-6 col-md-6 col-lg-3" [ngClass]="folder == 4 ? 'folder-selected' : 'btn-folder'"(click)="folder = 4">Resum</button>
-      </div> 
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="folder == 1 ? 'active' : ''" (click)="folder = 1">Model predictiu</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="folder == 2 ? 'active' : ''" (click)="folder = 2">Model real</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="folder == 3 ? 'active' : ''" (click)="folder = 3">Dades consum</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="folder == 4 ? 'active' : ''" (click)="folder = 4">Resum</a>
+        </li>
+      </ul>
 
       <div *ngIf="folder == 0" class="mx-1 pt-4">
         
@@ -59,11 +142,11 @@
           <div class="my-2">Producció mensual</div>
           <!-- <input id="" placeholder="produccio mensual" type="text" class="form-control" disabled readonly value="{{kwhMonth}}"> -->
           <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
-          [update]="updateMonthChart" [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
+          [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
         </div>
 
 
-        <div *ngIf="energyArea">
+        <!-- <div *ngIf="energyArea">
 
           <div class="my-2">Referència cadastral</div>
           <input id="" placeholder="referència cadastral" type="text" class="form-control" value="{{energyArea.cadastral_reference}}">
@@ -74,7 +157,7 @@
           <div class="my-2">Cups</div>
           <input id="" placeholder="m2" type="text" class="form-control" value="{{energyArea.m2 || 0}}">
   
-        </div>
+        </div> -->
 
       </div>
 
@@ -84,21 +167,21 @@
 
         <div class="col">
           <div class="my-2">M2 teulada</div>
-          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+          <input id="" placeholder="" type="text" disabled class="form-control" value="{{selectedAreaM2}}">
         </div>
         
         <div class="col">
           <div class="my-2">M2 plaques</div>
-          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+          <input id="" placeholder="" type="text" disabled class="form-control" value="1.7">
         </div>
 
         <div class="col">
           <div class="my-2">N. plaques</div>
-          <input id="" placeholder="" type="text" disabled class="form-control" value="">
+          <input id="" placeholder="" type="text" disabled class="form-control" value="{{nPlaquesCalc}}">
         </div>
 
         <div class="col">
-          <div class="my-2">Kwh Producció</div>
+          <div class="my-2">Kwh Prod.</div>
           <input id="" placeholder="" type="text" disabled class="form-control" value="">
         </div>
   
@@ -151,7 +234,7 @@
         </div>
 
         <div class="col">
-          <div class="my-2">Kwh Producció</div>
+          <div class="my-2">Kwh Prod.</div>
           <input id="" placeholder="" type="text" disabled class="form-control" value="">
         </div>
   
@@ -173,7 +256,7 @@
 <!-- TODO: month chart  -->
 
       <div class="d-flex justify-content-center mt-5">
-        <button type="button" class="btn btn-dark"> Guarda la informació </button>
+        <button type="button" class="btn btn-dark" disabled> Guarda la informació </button>
       </div>
 
       </div>
@@ -198,12 +281,12 @@
           </div>
   
           <div class="col">
-            <div class="my-2">Preu excedent</div>
+            <div class="my-2">Preu ex.</div>
             <input id="" placeholder="" type="text"  class="form-control" value="">
           </div>
     
           <div class="col">
-            <div class="my-2">Preu intercanvi CEC</div>
+            <div class="my-2">Preu CEC</div>
             <input id="" placeholder="0.15" type="text" disabled class="form-control" value="">
           </div>
   
@@ -258,7 +341,7 @@
       <!-- TODO: month chart  -->
 
       <div class="d-flex justify-content-center mt-5">
-        <button type="button" class="btn btn-dark"> Guarda la informació </button>
+        <button type="button" class="btn btn-dark" disabled> Guarda la informació </button>
       </div>
 
       </div>
@@ -320,7 +403,7 @@
         <!-- TODO: month chart  -->
 
         <div class="d-flex justify-content-center mt-5">
-          <button type="button" class="btn btn-dark"> Guarda la informació </button>
+          <button type="button" class="btn btn-dark" disabled> Guarda la informació </button>
         </div>
 
       </div>

@@ -31,6 +31,10 @@ export class DatatablesFeatures {
 		this.elementRef = elementRef;
 	}
 
+	async getTable(): Promise<DataTables.Api> {
+		return await this.datatableElement.dtInstance;
+	  }
+
 	/** modifies the datatables data response following filterParams default translations criteria
 	 *  to set more understandable columns data
 	 * @param filterParams
@@ -163,6 +167,20 @@ export class DatatablesFeatures {
 									that.dtInstance.column(columnNumber).search(e.target.value).draw();
 								});
 								filterType = selector;
+								break;
+							case 3: //date
+								let date = that.renderer.createElement("input")
+								that.renderer.setProperty(date, "type", "date");
+								that.renderer.listen(date, "keyup", () => {
+									let searchValue = date.value;
+									console.log(searchValue)
+									that.dtInstance.column(columnNumber).search(searchValue,false,true).draw();
+								});
+								that.renderer.listen(date, "change", (e) => {
+									console.log(e.target.value)
+									that.dtInstance.column(columnNumber).search(e.target.value,false,true).draw();
+								});
+								filterType = date;
 								break;
 							default:
 								break;

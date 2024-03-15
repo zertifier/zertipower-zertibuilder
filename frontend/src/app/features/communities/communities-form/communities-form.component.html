@@ -1,11 +1,11 @@
 
 <div class="modal-header">
   <h2>community {{community.name}}</h2>
-  <button *ngIf="isEdit" class="btn btn-primary" (click)="isEdit=false; isEditChange()">Edit</button>
-  <button *ngIf="!isEdit && communityId" (click)="isEdit=true; isEditChange()" class="btn btn-primary">View</button>
+  <button *ngIf="!isEdit" class="btn btn-primary" (click)="isEdit=true; isEditChange()">Edit</button>
+  <button *ngIf="isEdit && communityId" (click)="isEdit=false; isEditChange()" class="btn btn-primary">View</button>
 </div>
 
-<div *ngIf="!isEdit" class="modal-body">
+<div *ngIf="isEdit" class="modal-body">
   <div class="row p-2">
     <div class="col-12 col-md-6">
       <form id="form" [formGroup]="form" (ngSubmit)="save()">
@@ -134,7 +134,7 @@
   </div>
 </div>
 
-<div *ngIf="isEdit" class="modal-body">
+<div *ngIf="!isEdit" class="modal-body">
 
   <div class="row row-cols-1 row-cols-md-2 g-2">
     <div class="col">

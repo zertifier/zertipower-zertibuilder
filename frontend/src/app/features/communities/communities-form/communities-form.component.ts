@@ -126,10 +126,8 @@ export class CommunitiesFormComponent implements OnInit {
 
   ngOnInit() {
     if (!this.id) {
-      this.isEdit = false;
-      this.getInfo();
-    }else{
       this.isEdit = true;
+      this.getInfo();
     }
   }
 

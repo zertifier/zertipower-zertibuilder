@@ -86,6 +86,7 @@ export class AppMapComponent implements AfterViewInit {
   multipleSelection = false;
 
   @Output() selectedAreaM2 = new EventEmitter<number>();
+  @Output() selectedFeature = new EventEmitter<any>();
 
 
   constructor(private cdr: ChangeDetectorRef, private ngZone:NgZone) {}
@@ -95,86 +96,39 @@ export class AppMapComponent implements AfterViewInit {
   }
 
   mapInitializer() {
+
     this.ngZone.run(()=>{
       this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
     })
     
-
     this.map.data.setStyle(this.originalStyle)
 
     this.map.data.addListener('click', (event:any) => {
 
       if (event.feature.getProperty('selected')) {
+
         console.log("unselect")
         event.feature.setProperty('selected',false);
         this.map.data.overrideStyle(event.feature,this.originalStyle); 
+        this.selectedFeature.emit({selected:false,feature:event.feature});
       }else{
+
         console.log("select")
         if(!this.multipleSelection && this.previousFeature){
           this.previousFeature.setProperty('selected',false);
           this.map.data.overrideStyle(this.previousFeature,this.originalStyle); 
+          this.emitFetureArea(event.feature)
+          this.selectedFeature.emit({selected:true,feature:event.feature});
         }
         event.feature.setProperty('selected',true);
         this.map.data.overrideStyle(event.feature, { fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white' });
+
       }
       
       this.previousFeature=event.feature;
 
-      this.emitFetureArea(event.feature)
-      
-
-  
-/*
-      // Restaurar el estilo de la feature anterior
-      if (this.previousFeature && !this.multipleSelection) {
-        this.map.data.overrideStyle(this.previousFeature,this.originalStyle);
-      }
-
-      if(this.previousFeature==event.feature){ //deseleccionar feature (devolver al estilo original)
-        this.previousFeature= null
-        this.map.data.overrideStyle(this.previousFeature,this.originalStyle);
-        //todo: enviar info que se ha deselecionado
-        return;
-      }
-
-      // Resaltar la característica clicada
-      this.map.data.overrideStyle(event.feature, { fillColor: 'blue', fillOpacity: 0.5, strokeColor: 'blue' });
-
-      if (this.infoWindow) {
-        this.infoWindow.close();
-        this.infoWindow = null;
-      } 
-
-      // Obtener la propiedad del polígono clicado
-      let m2 = `${event.feature.getProperty('value')} m2`;
-    
-      // Crear una ventana de información (info window) con el nombre del polígono
-      //this.infoWindow = new google.maps.InfoWindow({
-      //  content: m2
-      //});
-
-      // Abrir la ventana de información en la posición del clic
-      const latLng = event.latLng;
-      //this.infoWindow.setPosition(latLng);
-      //this.infoWindow.open(this.map);
-    
-      this.previousFeature=event.feature
-      */
    });
 
-    //this.map.data.loadGeoJson('../assets/datos_olot_transformados.geojson');
-    
-    // const marker = new google.maps.Marker({
-    //   position: this.coordinates,
-    //   map: this.map,
-    //   clickable: true
-    // });
-    // const polygon = new google.maps.Polygon({
-    //   paths: this.polygonT,
-    //   map: this.map,
-    //   clickable: true
-    // });
-    //this.addPolygon(this.polygonT,'red')
   }
 
   addMarker(lat:any,lng:any) {

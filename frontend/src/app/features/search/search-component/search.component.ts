@@ -55,6 +55,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   isShrunk:boolean=false;
 
+  selectedFeature:any;
+
   constructor(
     private customersService: CustomersService, 
     private communitiesService: CommunitiesApiService,
@@ -317,6 +319,15 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   setSelectedAreaM2(areaM2:any){
     this.selectedAreaM2=Math.floor(areaM2)
+  }
+
+  featureSelected(selectedFeature:any){
+    if(selectedFeature.selected){
+      this.selectedFeature=selectedFeature.feature
+    }else{
+      this.selectedFeature=undefined;
+    }
+    
   }
 
   changeShrinkState(){

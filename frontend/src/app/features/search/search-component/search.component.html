@@ -1,4 +1,4 @@
-<app-map (selectedAreaM2)="setSelectedAreaM2($event)" class="" style="width:100%;height:100%"></app-map> 
+<app-map (selectedAreaM2)="setSelectedAreaM2($event)" (selectedFeature)=featureSelected($event) class="" style="width:100%;height:100%"></app-map> 
 <!-- position-absolute top-0 start-0 p-0 m-0 -->
 
 <div class="card mt-2 bg-primary text-bg-dark position-absolute top-0" style="z-index:3; width: 500px;height: 40px;" [ngClass]=" isShrunk ? 'location-bar-closed' : 'location-bar-open'">
@@ -25,9 +25,9 @@
 </div> 
 </div>
 
-<div class="position-absolute top-0 start-0" style=" z-index:2;">
+<div *ngIf="selectedCommunity" class="position-absolute top-0 start-0 h-100" style=" z-index:2;">
 
-  <div class="d-flex">
+  <div class="d-flex h-100">
 
       <nav class="d-flex flex-shrink-0 text-bg-dark d-md-block bg-primary h-100" >
 
@@ -43,17 +43,21 @@
           
             <span class="fs-5 my-2">Consum de la comunitat</span>
 
-            <div class="row">
-
-              <div class="col-6 d-flex justify-content-center">
+            <div class="row mt-2">
+              <div class="col-3 d-flex justify-content-center">
                 <span class="d-flex align-items-center me-2">Membres</span> 
                 <span *ngIf="selectedCommunity">{{selectedCommunity.cups_number}}</span>
               </div>
-
-              <div class="col-6 d-flex justify-content-center">
+              <div class="col-3 d-flex justify-content-center">
                 <span class="d-flex align-items-center me-2">Agregats</span> 
               </div>
+            </div>
 
+            <div class="row mt-2">
+              <div class="col ms-2">
+                <span class="d-flex align-items-center me-2">Sumatori de la comunitat</span> 
+                <span class="fs-6 d-flex align-items-center me-2">Les dades expressades són una estimació aproximada</span> 
+              </div>
             </div>
             
             <div class="d-flex justify-content-center">
@@ -64,6 +68,8 @@
             </div>
             
             <hr class="mb-0">
+
+            <div *ngIf="selectedFeature">
 
             <span class="fs-5 my-2">Potencial producció instal·lació fotovoltaica</span>
 
@@ -150,6 +156,7 @@
                 </li>
               </div> -->
          
+            </div>
         </div>
       
       </nav>

@@ -90,7 +90,6 @@ export class CupsFormComponent {
     this.customerApiService.get().subscribe((customers) => {
       this.availableCustomers = customers
       this.apiService.getById(id).subscribe((data) => {
-        console.log(data, "data")
         this.form.controls.id.setValue(data.id);
         this.form.controls.cups.setValue(data.cups);
         this.form.controls.type.setValue(data.type);

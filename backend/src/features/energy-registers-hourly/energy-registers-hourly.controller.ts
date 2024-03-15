@@ -100,6 +100,8 @@ export class EnergyRegistersHourlyController {
     
     try {
 
+      console.log(date)
+
       let query: string = "";
       const { cups, year, wallet, community } = queryParams;
 

@@ -56,6 +56,30 @@ export class CommunitiesController {
     );
   }
 
+  @Get("/energy/:id/:date")
+  @Auth(RESOURCE_NAME)
+  async getByIdEnergy(@Param("id") id: number,@Param("date") date: string) {
+    
+    let url = `SELECT MONTHNAME(info_dt),
+    SUM(import)      AS import,                 
+    SUM(export)      AS export
+    FROM communities 
+    LEFT join cups ON community_id = communities.id 
+    LEFT join datadis_energy_registers ON cups_id = cups.id
+    WHERE cups.community_id = ?
+    AND YEAR(info_dt) =  ?
+    GROUP BY MONTH(info_dt)
+    `;
+
+    let year = moment(date,'YYYY-MM-DD').format('YYYY').toString()
+
+    const [ROWS]:any[] = await this.conn.query(url,[id,year]);
+    
+    
+    return HttpResponse.success("communities fetched successfully").withData(ROWS)
+    
+  }
+
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCommunitiesDTO) {

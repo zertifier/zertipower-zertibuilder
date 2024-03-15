@@ -26,7 +26,7 @@ export class ProvidersController {
   @Get()
   @Auth(RESOURCE_NAME)
   async get() {
-    const data = await this.prisma.providers.findMany();
+    const data = await this.prisma.provider.findMany();
     const mappedData = data.map(this.mapData);
     return HttpResponse.success("providers fetched successfully").withData(
       data
@@ -36,7 +36,7 @@ export class ProvidersController {
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {
-    const data = await this.prisma.providers.findUnique({
+    const data = await this.prisma.provider.findUnique({
       where: {
         id: parseInt(id),
       },
@@ -49,14 +49,14 @@ export class ProvidersController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveProvidersDTO) {
-    const data = await this.prisma.providers.create({ data: body });
+    const data = await this.prisma.provider.create({ data: body });
     return HttpResponse.success("providers saved successfully").withData(data);
   }
 
   @Put(":id")
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: SaveProvidersDTO) {
-    const data = await this.prisma.providers.updateMany({
+    const data = await this.prisma.provider.updateMany({
       where: {
         id: parseInt(id),
       },
@@ -70,7 +70,7 @@ export class ProvidersController {
   @Delete(":id")
   @Auth(RESOURCE_NAME)
   async remove(@Param("id") id: string) {
-    const data = await this.prisma.providers.delete({
+    const data = await this.prisma.provider.delete({
       where: {
         id: parseInt(id),
       },

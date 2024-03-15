@@ -37,14 +37,14 @@ import { MysqlService } from "../shared/infrastructure/services";
     @Get()
     @Auth(RESOURCE_NAME)
     async get() {
-      const data = await this.prisma.datadis_energy_registers.findMany();
+      const data = await this.prisma.datadisEnergyRegister.findMany();
       return HttpResponse.success("cups fetched successfully").withData(data);
     }
 
     @Get(":id")
     @Auth(RESOURCE_NAME)
     async getById(@Param("id") id: string) {
-      const data = await this.prisma.datadis_energy_registers.findUnique({
+      const data = await this.prisma.datadisEnergyRegister.findUnique({
         where: {
           id: parseInt(id),
         },
@@ -55,14 +55,14 @@ import { MysqlService } from "../shared/infrastructure/services";
     @Post()
     @Auth(RESOURCE_NAME)
     async create(@Body() body: any) {
-      const data = await this.prisma.datadis_energy_registers.create({ data: body });
+      const data = await this.prisma.datadisEnergyRegister.create({ data: body });
       return HttpResponse.success("datadis energy register saved successfully").withData(data);
     }
   
     @Put(":id")
     @Auth(RESOURCE_NAME)
     async update(@Param("id") id: string, @Body() body: any) {
-      const data = await this.prisma.datadis_energy_registers.updateMany({
+      const data = await this.prisma.datadisEnergyRegister.updateMany({
         where: {
           id: parseInt(id),
         },
@@ -74,7 +74,7 @@ import { MysqlService } from "../shared/infrastructure/services";
     @Delete(":id")
     @Auth(RESOURCE_NAME)
     async remove(@Param("id") id: string) {
-      const data = await this.prisma.datadis_energy_registers.delete({
+      const data = await this.prisma.datadisEnergyRegister.delete({
         where: {
           id: parseInt(id),
         },

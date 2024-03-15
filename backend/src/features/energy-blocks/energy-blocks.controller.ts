@@ -26,7 +26,7 @@ export class EnergyBlocksController {
   @Get()
   @Auth(RESOURCE_NAME)
   async get() {
-    const data = await this.prisma.energyBlocks.findMany();
+    const data = await this.prisma.energyBlock.findMany();
     const mappedData = data.map(this.mapData);
     return HttpResponse.success("energy_blocks fetched successfully").withData(
       data
@@ -36,7 +36,7 @@ export class EnergyBlocksController {
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {
-    const data = await this.prisma.energyBlocks.findUnique({
+    const data = await this.prisma.energyBlock.findUnique({
       where: {
         id: parseInt(id),
       },
@@ -50,7 +50,7 @@ export class EnergyBlocksController {
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyBlocksDTO) {
     console.log(body, "BODY")
-    const data = await this.prisma.energyBlocks.create({ data: body });
+    const data = await this.prisma.energyBlock.create({ data: body });
     return HttpResponse.success("energy_blocks saved successfully").withData(
       data
     );
@@ -59,7 +59,7 @@ export class EnergyBlocksController {
   @Put(":id")
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: SaveEnergyBlocksDTO) {
-    const data = await this.prisma.energyBlocks.updateMany({
+    const data = await this.prisma.energyBlock.updateMany({
       where: {
         id: parseInt(id),
       },
@@ -73,7 +73,7 @@ export class EnergyBlocksController {
   @Delete(":id")
   @Auth(RESOURCE_NAME)
   async remove(@Param("id") id: string) {
-    const data = await this.prisma.energyBlocks.delete({
+    const data = await this.prisma.energyBlock.delete({
       where: {
         id: parseInt(id),
       },

@@ -1,5 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -10,11 +10,11 @@ datasource db {
 
 model User {
   id                    Int         @id @default(autoincrement())
-  username              String     @db.VarChar(255)
-  firstname             String     @db.VarChar(255)
-  lastname              String     @db.VarChar(255)
-  password              String     @db.VarChar(255)
-  email                 String     @db.VarChar(255)
+  username              String      @db.VarChar(255)
+  firstname             String      @db.VarChar(255)
+  lastname              String      @db.VarChar(255)
+  password              String      @db.VarChar(255)
+  email                 String      @db.VarChar(255)
   wallet_address        String?     @db.VarChar(255)
   created_at            DateTime    @default(now())
   updated_at            DateTime    @default(now()) @updatedAt
@@ -91,220 +91,220 @@ model Report {
   @@map("reports")
 }
 
-model blockchains {
-  blockchain_id     Int     @id
-  blockchain_name   String? @db.VarChar(50)
-  rpc_url           String? @db.VarChar(50)
-  blockchain_tx_url String? @db.VarChar(50)
+model Blockchains {
+  blockchainId    Int     @id @map("blockchain_id")
+  blockchainName  String? @map("blockchain_name") @db.VarChar(50)
+  rpcUrl          String? @map("rpc_url") @db.VarChar(50)
+  blockchainTxUrl String? @map("blockchain_tx_url") @db.VarChar(50)
 }
 
-model calendar {
-  day          DateTime  @unique(map: "day") @db.Date
-  weekday      String?   @db.VarChar(50)
-  day_type     String?   @db.VarChar(50)
-  festive_type String?   @db.VarChar(50)
-  festivity    String?   @db.VarChar(50)
-  updated_at   DateTime? @default(now()) @db.DateTime(0)
-  created_at   DateTime? @default(now()) @db.DateTime(0)
+model Calendar {
+  day         DateTime  @unique(map: "day") @db.Date
+  weekday     String?   @db.VarChar(50)
+  dayType     String?   @map("day_type") @db.VarChar(50)
+  festiveType String?   @map("festive_type") @db.VarChar(50)
+  festivity   String?   @db.VarChar(50)
+  updatedAt   DateTime? @default(now()) @map("updated_at") @db.DateTime(0)
+  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
 }
 
-model communities {
-  id           Int       @id @default(autoincrement())
-  name         String?   @db.VarChar(50)
-  test         Int?      @default(dbgenerated("(current_timestamp())")) @db.TinyInt
-  energy_price Float?
-  lat          Float?
-  lng          Float?
-  location_id  Int?
-  created_at   DateTime? @default(now()) @db.DateTime(0)
-  updated_at   DateTime? @db.DateTime(0)
+model Communities {
+  id          Int       @id @default(autoincrement())
+  name        String?   @db.VarChar(50)
+  test        Int?      @default(dbgenerated("(current_timestamp())")) @db.TinyInt
+  energyPrice Float?    @map("energy_price")
+  lat         Float?
+  lng         Float?
+  locationId  Int?      @map("location_id")
+  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt   DateTime? @map("updated_at") @db.DateTime(0)
 }
 
-model cups {
-  id                   Int        @id @default(autoincrement())
-  cups                 String     @default("") @db.VarChar(50)
-  provider_id          Int        @default(0)
-  community_id         Int        @default(0)
-  surplus_distribution String?    @db.LongText
-  location_id          String     @default("") @db.VarChar(50)
-  address              String     @default("") @db.VarChar(50)
-  customer_id          Int?
+model Cups {
+  id                   Int       @id @default(autoincrement())
+  cups                 String    @default("") @db.VarChar(50)
+  providerId           Int       @default(0) @map("provider_id")
+  communityId          Int       @default(0) @map("community_id")
+  surplus_distribution String?   @db.LongText
+  locationId           String    @default("") @map("location_id") @db.VarChar(50)
+  address              String    @default("") @db.VarChar(50)
+  customerId           Int?      @map("customer_id")
   lng                  Float?
   lat                  Float?
-  type                 cups_type?
-  datadis_active       Int?       @default(0) @db.TinyInt
-  datadis_user         String?    @db.VarChar(50)
-  datadis_password     String?    @db.VarChar(100)
-  smart_meter_active   Int?       @default(0) @db.TinyInt
-  smart_meter_model    String     @default("") @db.VarChar(100)
-  smart_meter_api_key  String?    @db.VarChar(50)
-  inverter_active      Int        @default(0) @db.TinyInt
-  inverter_model       String?    @db.VarChar(100)
-  inverter_api_key     String?    @db.VarChar(50)
-  sensor_active      Int        @default(0) @db.TinyInt
-  sensor_model       String?    @db.VarChar(100)
-  sensor_api_key     String?    @db.VarChar(50)
-  created_at           DateTime?  @default(now()) @db.DateTime(0)
-  updated_at           DateTime?  @db.DateTime(0)
+  type                 CupsType?
+  datadisActive        Int?      @default(0) @map("datadis_active") @db.TinyInt
+  datadisUser          String?   @map("datadis_user") @db.VarChar(50)
+  datadisPassword      String?   @map("datadis_password") @db.VarChar(100)
+  smartMeterActive     Int?      @default(0) @map("smart_meter_active") @db.TinyInt
+  smartMeterModel      String    @default("") @map("smart_meter_model") @db.VarChar(100)
+  smartMeterApiKey     String?   @map("smart_meter_api_key") @db.VarChar(50)
+  inverterActive       Int       @default(0) @map("inverter_active") @db.TinyInt
+  inverterModel        String?   @map("inverter_model") @db.VarChar(100)
+  inverterApiKey       String?   @map("inverter_api_key") @db.VarChar(50)
+  sensorActive         Int       @default(0) @map("sensor_active") @db.TinyInt
+  sensorModel          String?   @map("sensor_model") @db.VarChar(100)
+  sensorApiKey         String?   @map("sensor_api_key") @db.VarChar(50)
+  createdAt            DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt            DateTime? @map("updated_at") @db.DateTime(0)
 }
 
-model customers {
-  id             Int       @id @default(autoincrement())
-  name           String?   @db.VarChar(50)
-  created_at     DateTime? @default(now()) @db.DateTime(0)
-  updated_at     DateTime? @db.DateTime(0)
-  wallet_address String?   @db.VarChar(200)
+model Customers {
+  id            Int       @id @default(autoincrement())
+  name          String?   @db.VarChar(50)
+  createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt     DateTime? @map("updated_at") @db.DateTime(0)
+  walletAddress String?   @map("wallet_address") @db.VarChar(200)
 }
 
-model energy_area_coordinates {
-  id             Int     @id @default(autoincrement())
-  energy_area_id Int     @default(0)
-  lat            Decimal @default(0.000000) @db.Decimal(20, 6)
-  lng            Decimal @default(0.000000) @db.Decimal(20, 6)
+model energyAreaCoordinates {
+  id           Int     @id @default(autoincrement())
+  energyAreaId Int     @default(0) @map("energy_area_id")
+  lat          Decimal @default(0.000000) @db.Decimal(20, 6)
+  lng          Decimal @default(0.000000) @db.Decimal(20, 6)
 }
 
-model energy_areas {
-  id                  Int       @id @default(autoincrement())
-  reference           String?   @db.VarChar(50)
-  inclination         Float?
-  kWh_p               Float?
-  kWh_inversor        Float?
-  n_plaques           Int?
-  creation_dt         DateTime? @default(dbgenerated("(curdate())")) @db.DateTime(0)
-  update_dt           DateTime? @db.Timestamp(0)
-  type                String?   @db.VarChar(50)
-  origin              String?   @default("CatastRo") @db.VarChar(50)
-  m2                  Int?
-  cadastral_reference String?   @db.VarChar(50)
-  geojson_feature     String?   @db.LongText
-  location_id         Int?
+model EnergyArea {
+  id                 Int       @id @default(autoincrement())
+  reference          String?   @map("reference") @db.VarChar(50)
+  inclination        Float?
+  kWhP               Float?    @map("kWh_p")
+  kWhInversor        Float?    @map("kWh_inversor")
+  nPlaques           Int?      @map("n_plaques")
+  creationDt         DateTime? @default(dbgenerated("(curdate())")) @map("creation_dt") @db.DateTime(0)
+  updateDt           DateTime? @map("update_dt") @db.Timestamp(0)
+  type               String?   @map("type") @db.VarChar(50)
+  origin             String?   @default("CatastRo") @map("origin") @db.VarChar(50)
+  m2                 Int?      @map("m2")
+  cadastralReference String?   @map("cadastral_reference") @db.VarChar(50)
+  geojsonFeature     String?   @map("geojson_feature") @db.LongText
+  locationId         Int?      @map("location_id")
 }
 
-model energyBlocks {
-  id                Int       @id @default(autoincrement())
-  reference         String    @default("0") @db.VarChar(50)
-  expiration_dt     DateTime? @db.DateTime(0)
-  active_init       DateTime  @default(dbgenerated("('00:00:00')")) @db.Time(0)
-  active_end        DateTime  @default(dbgenerated("('00:00:00')")) @db.Time(0)
-  consumption_price Float?
-  generation_price  Float?
-  provider_id       Int       @default(0)
-  created_at        DateTime  @default(dbgenerated("(curdate())")) @db.DateTime(0)
-  updated_at        DateTime? @default(now()) @db.DateTime(0)
+model EnergyBlock {
+  id               Int       @id @default(autoincrement())
+  reference        String    @default("0") @map("reference") @db.VarChar(50)
+  expirationDt     DateTime? @map("expiration_dt") @db.DateTime(0)
+  activeInit       DateTime  @default(dbgenerated("('00:00:00')")) @map("active_init") @db.Time(0)
+  activeEnd        DateTime  @default(dbgenerated("('00:00:00')")) @map("active_end") @db.Time(0)
+  consumptionPrice Float?    @map("consumption_price")
+  generationPrice  Float?    @map("generation_price")
+  providerId       Int       @default(0) @map("provider_id")
+  createdAt        DateTime  @default(dbgenerated("(curdate())")) @map("created_at") @db.DateTime(0)
+  updatedAt        DateTime? @default(now()) @map("updated_at") @db.DateTime(0)
 
   @@map("energy_blocks")
 }
 
-model energyRegisters {
+model EnergyRegister {
   id          Int       @id @default(autoincrement())
-  info_dt     DateTime? @db.DateTime(0)
-  cups_id     Int?
+  infoDt      DateTime? @map("info_dt") @db.DateTime(0)
+  cupsId      Int?      @map("cups_id")
   import      Float?
   consumption Float?
   export      Float?
   generation  Float?
-  created_at  DateTime? @default(now()) @db.DateTime(0)
-  updated_at  DateTime? @db.DateTime(0)
+  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt   DateTime? @map("updated_at") @db.DateTime(0)
 
-  @@index([cups_id], map: "cups_id")
-  @@index([info_dt], map: "info_dt")
+  @@index([cupsId], map: "cups_id")
+  @@index([infoDt], map: "info_dt")
   @@map("energy_registers")
 }
 
-model energyTransactions {
-  id            Int       @id @default(autoincrement())
-  cups_id       Int?
-  info_dt       DateTime? @db.DateTime(0)
-  kwh_in        Float?
-  kwh_out       Float?
-  kwh_surplus   Float?
-  kwh_in_price  Float?
-  kwh_out_price Float?
-  tx_kwh_in     String?   @db.VarChar(100)
-  tx_kwh_out    String?   @db.VarChar(100)
-  block_id      Int?
-  created_at    DateTime? @default(now()) @db.DateTime(0)
-  updated_at    DateTime? @db.DateTime(0)
+model EnergyTransaction {
+  id          Int       @id @default(autoincrement())
+  cupsId      Int?      @map("cups_id")
+  infoDt      DateTime? @map("info_dt") @db.DateTime(0)
+  kwhIn       Float?    @map("kwh_in")
+  kwhOut      Float?    @map("kwh_out")
+  kwhSurplus  Float?    @map("kwh_surplus")
+  kwhInPrice  Float?    @map("kwh_in_price")
+  kwhOutPrice Float?    @map("kwh_out_price")
+  txKwhIn     String?   @map("tx_kwh_in") @db.VarChar(100)
+  txKwhOut    String?   @map("tx_kwh_out") @db.VarChar(100)
+  blockId     Int?      @map("block_id")
+  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt   DateTime? @map("updated_at") @db.DateTime(0)
 
   @@map("energy_transactions")
 }
 
-model locations {
+model Location {
   id           Int     @id @default(autoincrement())
-  municipality String? @db.VarChar(50)
-  province     String? @db.VarChar(50)
+  municipality String? @map("municipality") @db.VarChar(50)
+  province     String? @map("province") @db.VarChar(50)
 }
 
-model providers {
+model Provider {
   id       Int     @id @default(autoincrement())
-  provider String? @db.VarChar(50)
+  provider String? @map("provider") @db.VarChar(50)
 }
 
-model smartContracts {
-  id               Int     @id @default(autoincrement())
-  name             String  @default("0") @db.VarChar(50)
-  contract_address String? @db.VarChar(100)
-  blockchain_id    Int?
+model SmartContract {
+  id              Int     @id @default(autoincrement())
+  name            String  @default("0") @map("name") @db.VarChar(50)
+  contractAddress String? @map("contract_address") @db.VarChar(100)
+  blockchainId    Int?    @map("blockchain_id")
 
   @@map("smart_contracts")
 }
 
-model datadis_energy_registers {
-  id             Int       @id @default(autoincrement())
-  info_dt        DateTime? @db.DateTime(0)
-  cups_id        Int?
-  transaction_id Int?
-  import         Float?
-  export         Float?
-  created_at     DateTime? @default(now()) @db.DateTime(0)
-  updated_at     DateTime? @db.DateTime(0)
+model DatadisEnergyRegister {
+  id            Int       @id @default(autoincrement())
+  infoDt        DateTime? @map("info_dt") @db.DateTime(0)
+  cupsId        Int?      @map("cups_id")
+  transactionId Int?      @map("transaction_id")
+  import        Float?
+  export        Float?
+  createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt     DateTime? @map("updated_at") @db.DateTime(0)
 
-  @@index([cups_id], map: "cups_id")
-  @@index([info_dt], map: "info_dt")
+  @@index([cupsId], map: "cups_id")
+  @@index([infoDt], map: "info_dt")
 }
 
-model energy_registers_logs {
-  id          Int       @id @default(autoincrement())
-  cups        String?   @db.VarChar(100)
-  n_registers Int?
-  creation_dt DateTime? @default(dbgenerated("(curdate())")) @db.Timestamp(0)
+model EnergyRegistersLog {
+  id         Int       @id @default(autoincrement())
+  cups       String?   @map("cups") @db.VarChar(100)
+  nRegisters Int?      @map("n_registers")
+  creationDt DateTime? @default(dbgenerated("(curdate())")) @map("creation_dt") @db.Timestamp(0)
 }
 
-model inverter_energy_registers {
-  id             Int       @id @default(autoincrement())
-  info_dt        DateTime? @db.DateTime(0)
-  cups_id        Int?
-  import         Float?
-  consumption    Float?
-  export         Float?
-  generation     Float?
-  transaction_id Float?
-  created_at     DateTime? @default(now()) @db.DateTime(0)
-  updated_at     DateTime? @db.DateTime(0)
+model InverterEnergyRegister {
+  id            Int       @id @default(autoincrement())
+  infoDt        DateTime? @map("info_dt") @db.DateTime(0)
+  cupsId        Int?      @map("cups_id")
+  import        Float?
+  consumption   Float?
+  export        Float?
+  generation    Float?
+  transactionId Float?    @map("transaction_id")
+  createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt     DateTime? @map("updated_at") @db.DateTime(0)
 
-  @@index([cups_id], map: "cups_id")
-  @@index([info_dt], map: "info_dt")
+  @@index([cupsId], map: "cups_id")
+  @@index([infoDt], map: "info_dt")
 }
 
-model logs {
-  id                   Int          @id @default(autoincrement())
-  cups                 String?      @db.VarChar(100)
-  cups_id              Int?
-  status               logs_status?
-  operation            String?      @db.VarChar(200)
-  n_affected_registers Int?
-  log                  String       @db.LongText
-  error_message        String       @db.LongText
-  creation_dt          DateTime?    @default(now()) @db.DateTime(0)
+model Log {
+  id                 Int         @id @default(autoincrement())
+  cups               String?     @map("cups") @db.VarChar(100)
+  cupsId             Int?        @map("cups_id")
+  status             LogsStatus? @map("status")
+  operation          String?     @map("operation") @db.VarChar(200)
+  nAffectedRegisters Int?        @map("n_affected_registers")
+  log                String      @map("log") @db.LongText
+  errorMessage       String      @map("error_message") @db.LongText
+  creationDt         DateTime?   @default(now()) @map("creation_dt") @db.DateTime(0)
 }
 
-enum cups_type {
+enum CupsType {
   consumer
   producer
   prosumer
 }
 
-enum logs_status {
+enum LogsStatus {
   error
   success
   warning

@@ -26,7 +26,7 @@ export class EnergyRegistersController {
   @Get()
   @Auth(RESOURCE_NAME)
   async get() {
-    const data = await this.prisma.energyRegisters.findMany();
+    const data = await this.prisma.energyRegister.findMany();
     const mappedData = data.map(this.mapData);
     return HttpResponse.success(
       "energy_registers fetched successfully"
@@ -36,7 +36,7 @@ export class EnergyRegistersController {
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {
-    const data = await this.prisma.energyRegisters.findUnique({
+    const data = await this.prisma.energyRegister.findUnique({
       where: {
         id: parseInt(id),
       },
@@ -49,7 +49,7 @@ export class EnergyRegistersController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyRegistersDTO) {
-    const data = await this.prisma.energyRegisters.create({ data: body });
+    const data = await this.prisma.energyRegister.create({ data: body });
     return HttpResponse.success("energy_registers saved successfully").withData(
       data
     );
@@ -58,7 +58,7 @@ export class EnergyRegistersController {
   @Put(":id")
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: SaveEnergyRegistersDTO) {
-    const data = await this.prisma.energyRegisters.updateMany({
+    const data = await this.prisma.energyRegister.updateMany({
       where: {
         id: parseInt(id),
       },
@@ -72,7 +72,7 @@ export class EnergyRegistersController {
   @Delete(":id")
   @Auth(RESOURCE_NAME)
   async remove(@Param("id") id: string) {
-    const data = await this.prisma.energyRegisters.delete({
+    const data = await this.prisma.energyRegister.delete({
       where: {
         id: parseInt(id),
       },

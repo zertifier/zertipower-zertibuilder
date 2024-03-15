@@ -60,7 +60,7 @@ export class LogsController {
     @Get(":id")
     @Auth(RESOURCE_NAME)
     async getById(@Param("id") id: string) {
-      const data = await this.prisma.logs.findUnique({
+      const data = await this.prisma.log.findUnique({
         where: {
           id: parseInt(id),
         },

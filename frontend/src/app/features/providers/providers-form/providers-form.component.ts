@@ -46,6 +46,7 @@ export class ProvidersFormComponent {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
+      console.log(data, "DATA")
       this.form.controls.id.setValue(data.id);
       this.form.controls.provider.setValue(data.provider);
     });

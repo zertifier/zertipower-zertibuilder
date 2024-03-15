@@ -92,7 +92,7 @@ export class EnergyBlocksFormComponent {
   getValues(): any {
     const values: any = {};
 
-    values.id = this.form.value.id;
+    // values.id = this.form.value.id;
     values.reference = this.form.value.reference;
     values.expirationDt = this.form.value.expirationDt;
     values.activeInit = this.form.value.activeInit;

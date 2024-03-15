@@ -49,6 +49,7 @@ export class EnergyBlocksController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyBlocksDTO) {
+    console.log(body, "BODY")
     const data = await this.prisma.energyBlocks.create({ data: body });
     return HttpResponse.success("energy_blocks saved successfully").withData(
       data

@@ -3,8 +3,8 @@ import { IsOptional, IsDefined } from "class-validator";
 import * as moment from "moment";
 
 export class SaveEnergyBlocksDTO {
-  @IsOptional()
-  id: number;
+/*  @IsOptional()
+  id: number;*/
   @IsOptional()
   reference: string;
   @Transform((value) =>

@@ -201,13 +201,17 @@ h2, h3, h4, h5, h6{
     color: $navbar-link-light;
   }
   hr{
-    border-color: $hr-light;
+    border-color: $hr-dark;
   }
 
   #div-shrink {
     &:hover {
       background: #08192c;
     }
+  }
+
+  .navbar-dropdown a {
+    color:$hr-dark;
   }
 
   .ng-select-container, .ng-option{

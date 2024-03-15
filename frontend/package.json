@@ -47,6 +47,7 @@
     "ng-toggle-button": "1.5.2",
     "ng2-datepicker": "12.0.0",
     "ngx-toggle-switch": "2.0.5",
+    "popper": "1.0.1",
     "qrcode": "1.5.3",
     "r-script": "0.0.4",
     "rxjs": "~7.8.0",

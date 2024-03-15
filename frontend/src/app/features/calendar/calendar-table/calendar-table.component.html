@@ -1,7 +1,6 @@
 <!--<app-navbar/>-->
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-body">
+
       <app-datatable
         [title]="'calendar'"
         [columns]="columns"
@@ -15,6 +14,5 @@
         (editRequest)="editRequest($event)"
         (deleteRequest)="deleteRequest($event)"
       />
-    </div>
-  </div>
+
 </div>

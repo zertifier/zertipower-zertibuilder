@@ -1,38 +1,38 @@
 
 <div class="modal-header">
   <h2>community {{community.name}}</h2>
-  <button *ngIf="!isEdit" class="btn btn-primary" (click)="isEdit=true; isEditChange()">Edit</button>
-  <button *ngIf="isEdit && communityId" (click)="isEdit=false; isEditChange()" class="btn btn-primary">View</button>
+  <button *ngIf="isEdit" class="btn btn-primary" (click)="isEdit=false; isEditChange()">Edit</button>
+  <button *ngIf="!isEdit && communityId" (click)="isEdit=true; isEditChange()" class="btn btn-primary">View</button>
 </div>
 
-<div *ngIf="isEdit" class="modal-body">
+<div *ngIf="!isEdit" class="modal-body">
   <div class="row p-2">
     <div class="col-12 col-md-6">
       <form id="form" [formGroup]="form" (ngSubmit)="save()">
         <div class="row row-cols-2 row-cols-md-1">
-          <div class="col" *ngIf="id">
+          <div class="col my-3" *ngIf="id">
             <label for="id-input">id</label>
             <input id="id-input" type="number" formControlName="id" class="form-control" [readonly]="true">
           </div>
-          <div class="col">
-            <label for="name-input">name</label>
+          <div class="col my-3">
+            <label class="form-label" for="name-input"> Nom </label>
             <input id="name-input" type="string" formControlName="name" class="form-control">
           </div>
-          <div class="col">
-            <label for="test-select">test</label>
+          <div class="col my-3">
+            <label class="form-label" for="test-select">Test</label>
             <select name="test" id="test-select" class="form-select" formControlName="test">
               <option value="1">yes</option>
               <option value="0">no</option>
             </select>
           </div>
 
-          <div class="col" *ngIf="form.get('createdAt')!.value!">
-            <label for="created-at-input">created at</label>
+          <div class="col my-3" *ngIf="form.get('createdAt')!.value!">
+            <label class="form-label" for="created-at-input">created at</label>
             <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control disabled"
                    [readonly]="true">
           </div>
-          <div class="col" *ngIf="form.get('updatedAt')!.value!">
-            <label for="updated-at-input">updated at</label>
+          <div class="col my-3" *ngIf="form.get('updatedAt')!.value!">
+            <label class="form-label" for="updated-at-input">updated at</label>
             <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control disabled"
                    [readonly]="true">
           </div>
@@ -40,9 +40,9 @@
       </form>
 
       <div class="row row-cols-2 row-cols-md-1">
-        <div class="col">
-          <label for="cups-select">community cups</label>
-          <ng-select id="cups-select" placeholder="Select cups" [items]="customers" [multiple]="true"
+        <div class="col my-3">
+          <label class="form-label" for="cups-select">Cups de comunitat</label>
+          <ng-select id="cups-select" [items]="customers" [multiple]="true"
                      [(ngModel)]="communityCups" (change)="changeCommunityCups(communityCups)" bindLabel="id">
             <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
               <input id="item-{{index}}" type="checkbox"
@@ -50,8 +50,8 @@
             </ng-template>
           </ng-select>
         </div>
-        <div class="col">
-          <label for="cups-select">Simulate generation</label>
+        <div class="col my-3">
+          <label class="form-label" for="cups-select">Simulate generation</label>
           <select class=" px-2 form-select" placeholder="Select cups" (change)="changeSelectedCups(selectedCups)"
                   [(ngModel)]="selectedCups"> <!---->
             <option></option>
@@ -124,7 +124,7 @@
         <div class="d-flex justify-content-center">
           <div class="custom-chart">
             <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
-                       [backgroundColor]="dayChartBackgroundColor" 
+                       [backgroundColor]="dayChartBackgroundColor"
                        [updateSubject]="updateDayChartSubject.asObservable()"></app-chart>
           </div>
         </div>
@@ -134,7 +134,7 @@
   </div>
 </div>
 
-<div *ngIf="!isEdit" class="modal-body">
+<div *ngIf="isEdit" class="modal-body">
 
   <div class="row row-cols-1 row-cols-md-2 g-2">
     <div class="col">
@@ -170,7 +170,7 @@
       <div class="d-flex justify-content-center">
         <div class="custom-chart">
           <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
-                     [backgroundColor]="dayChartBackgroundColor" 
+                     [backgroundColor]="dayChartBackgroundColor"
                      [updateSubject]="updateDayChartSubject.asObservable()" chartId="day-chart"></app-chart>
         </div>
       </div>

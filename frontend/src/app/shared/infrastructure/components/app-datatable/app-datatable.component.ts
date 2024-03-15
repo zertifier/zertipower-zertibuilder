@@ -88,7 +88,8 @@ export class AppDatatableComponent implements OnInit {
 			columns: this.columns,
 			columnDefs: this.columnDefs,
 			scrollX: true,
-			order:[[0,'desc']]
+			order:[[0,'desc']],
+      dom: '<<"row mb-3 table-filters g-3"<"col-12 col-md-6 order-2 order-md-1"f>>><"table-responsive"t><"row mt-3"<"col-md-12"p>>',
 		};
 	}
 
@@ -143,6 +144,7 @@ export class AppDatatableComponent implements OnInit {
 				document,
 				this.renderer,
 				this.editRequest,
+        ''
 			);
 		}
 

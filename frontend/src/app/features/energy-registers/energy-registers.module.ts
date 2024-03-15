@@ -7,17 +7,19 @@ import {SharedComponentsModule} from "../../shared/infrastructure/components/sha
 import {CoreComponentsModule} from "../../core/core-components/core-components.module";
 import { ReactiveFormsModule } from "@angular/forms";
 import { EditorComponent } from '@tinymce/tinymce-angular';
+import {NgSelectModule} from "@ng-select/ng-select";
 
 
 @NgModule({
   declarations: [EnergyRegistersTableComponent, EnergyRegistersFormComponent],
-  imports: [
-    CommonModule,
-    EnergyRegistersRoutingModule,
-    SharedComponentsModule,
-    CoreComponentsModule,
-    ReactiveFormsModule,
-    EditorComponent
-  ]
+    imports: [
+        CommonModule,
+        EnergyRegistersRoutingModule,
+        SharedComponentsModule,
+        CoreComponentsModule,
+        ReactiveFormsModule,
+        EditorComponent,
+        NgSelectModule
+    ]
 })
 export class EnergyRegistersModule { }

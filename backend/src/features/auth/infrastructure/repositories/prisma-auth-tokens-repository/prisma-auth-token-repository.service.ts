@@ -28,7 +28,7 @@ export class PrismaAuthTokenRepository implements AuthTokenRepository {
         take: criteria.limit.value || undefined,
         skip: criteria.offset.value || undefined,
       });
-      return tokens.map((token) => token.token);
+      return tokens.map((token: any) => token.token);
     } catch (err) {
       throw new InfrastructureError("Error finding errors").withMetadata(err);
     }

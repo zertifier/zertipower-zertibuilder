@@ -133,6 +133,93 @@ $btn-bg: $primary;
 }
 
 
+.nav-link i {
+  min-width: 20px;
+  text-align: center;
+}
+
+table.dataTable thead th, table.dataTable thead td, table.dataTable tfoot th, table.dataTable tfoot td {
+  padding: 15px !important;
+}
+
+.ng-input input{
+  color: black !important;
+}
+
+h2, h3, h4, h5, h6{
+  color: $text-titles;
+}
+
+// Icons:
+.icon {
+  &--small {
+    font-size: map-get($icon-standard, small);
+  }
+
+  &--big {
+    font-size: map-get($icon-standard, big);
+  }
+}
+
+.arrow-icon {
+  height: map-get($icon-arrow, height);
+  width: map-get($icon-arrow, width);
+}
+
+.home-icon {
+  height: map-get($icon-home, height);
+  width: map-get($icon-home, width);
+}
+
+
+@include color-mode(dark) {
+  .nav-link{
+    color: $navbar-link-light;
+  }
+  hr{
+    border-color: $hr-light;
+  }
+  #div-shrink {
+    &:hover {
+      background-color: #0d2846;
+    }
+  }
+
+  .ng-select-container, .ng-option{
+    background-color: $body-bg-dark !important;
+    border: 1px solid #495057 !important;
+    color: $navbar-link-light !important;
+  }
+
+  .ng-dropdown-panel.ng-select-bottom{
+    border: 0 !important;
+  }
+}
+
+@include color-mode(light) {
+  .nav-link{
+    color: $navbar-link-dark;
+  }
+  hr{
+    border-color: $hr-dark;
+  }
+
+  #div-shrink {
+    &:hover {
+      background: rgb(244,246,246);
+    }
+  }
+
+  .ng-select-container, .ng-option{
+    background-color: $bg-page-light-color;
+    border: 1px solid $border-color;
+    color: $navbar-link-dark;
+  }
+  .ng-dropdown-panel.ng-select-bottom{
+    border: 0 !important;
+  }
+}
+
 //-----------------------------------------------------------------
 
 $table-border-width: 0;

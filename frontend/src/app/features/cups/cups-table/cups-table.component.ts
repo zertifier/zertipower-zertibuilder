@@ -63,15 +63,10 @@ export class CupsTableComponent implements OnDestroy {
       data: 'municipality',
       width: '100px',
     },
-    
+
     {
       title: 'Data creació',
       data: 'created_at',
-      width: '100px',
-    },
-    {
-      title: 'Data actualització',
-      data: 'updated_at',
       width: '100px',
     },
     {
@@ -130,7 +125,7 @@ export class CupsTableComponent implements OnDestroy {
         defaultData: 0,
         options: [],
       },
-      
+
       {
         title: 'created_at',
         description: '',
@@ -139,14 +134,6 @@ export class CupsTableComponent implements OnDestroy {
         defaultData: 0,
         options: [],
       },
-      {
-        title: 'updated_at',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      }
   ];
 
   columnDefs:any[] = [
@@ -156,13 +143,7 @@ export class CupsTableComponent implements OnDestroy {
     {
       targets: 5,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
-      }
-    },
-    {
-      targets: 6,
-      render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     {

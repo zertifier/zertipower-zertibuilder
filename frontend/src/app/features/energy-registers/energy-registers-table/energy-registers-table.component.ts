@@ -44,8 +44,8 @@ export class EnergyRegistersTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'CupsId',
-      data: 'cups_id',
+      title: 'Cups',
+      data: 'cups',
       width: '100px',
     },
     {
@@ -103,7 +103,7 @@ export class EnergyRegistersTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'cups_id',
+        title: 'cups',
         description: '',
         value: '',
         type: 1,
@@ -167,7 +167,7 @@ export class EnergyRegistersTableComponent implements OnDestroy {
     {
       targets: 1,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     // {

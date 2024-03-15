@@ -87,8 +87,9 @@ export class EnergyRegistersController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,info_dt,cups_id,import,consumption,export,generation,created_at,updated_at
-                  FROM energy_registers`
+      `SELECT er.id,info_dt,cups_id,import,consumption,export,generation,er.created_at,er.updated_at, cups
+                  FROM energy_registers er
+                  LEFT JOIN cups ON cups.id = cups_id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data
@@ -98,14 +99,14 @@ export class EnergyRegistersController {
   mapData(data: any) {
     const mappedData: any = {};
     mappedData.id = data.id;
-    mappedData.infoDt = data.infoDt;
-    mappedData.cupsId = data.cupsId;
+    mappedData.infoDt = data.infoDt | data.info_dt;
+    mappedData.cupsId = data.cupsId | data.cups_id;
     mappedData.import = data.import;
     mappedData.consumption = data.consumption;
     mappedData.export = data.export;
     mappedData.generation = data.generation;
-    mappedData.createdAt = data.createdAt;
-    mappedData.updatedAt = data.updatedAt;
+    mappedData.createdAt = data.createdAt | data.created_at;
+    mappedData.updatedAt = data.updatedAt | data.updated_at;
     return mappedData;
   }
 }

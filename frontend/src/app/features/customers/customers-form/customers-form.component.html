@@ -4,22 +4,16 @@
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
     <div>
-      <label for="id-input">id</label>
+      <label for="id-input">ID</label>
       <input id="id-input" type="number" formControlName="id" class="form-control">
     </div>
     <div>
-      <label for="name-input">name</label>
-      <editor
-          [init]="tinymceConfig"
-          formControlName="name"
-          id="description"></editor>
+      <label for="name-input">Name</label>
+      <input formControlName="name" id="name-input" class="form-control">
     </div>
     <div>
-      <label for="wallet-address-input">wallet_address</label>
-      <editor
-          [init]="tinymceConfig"
-          formControlName="walletAddress"
-          id="description"></editor>
+      <label for="wallet-address-input">Wallet Address</label>
+      <input formControlName="walletAddress" id="wallet-address-input" class="form-control">
     </div>
     <div>
       <label for="created-at-input">created_at</label>

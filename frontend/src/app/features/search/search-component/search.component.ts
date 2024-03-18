@@ -9,6 +9,16 @@ import { BehaviorSubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import moment from 'moment';
 
+interface cadastre {
+  valle?: number,
+  llano?:number,
+  punta?:number,
+  n_plaques?:number,
+  inversion?:number,
+  savings?:number,
+  amortization_years?:number,
+}
+
 
 @Component({
   selector: 'app-search',
@@ -48,6 +58,64 @@ export class SearchComponent implements OnInit, AfterViewInit {
   paramsSub:any;
   locationId:number|undefined;
 
+  communityValoration:number=1;
+  communityEnergyData:any;
+  communityMonthChartLabels:any=[];
+  communityMonthChartDatasets:any=[];
+  communityMonthChartType='bar';
+  communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  communityMonthChartOptions=
+  {
+    indexAxis: 'y',
+    // Elements options apply to all of the options unless overridden in a dataset
+    // In this case, we are setting the border of each horizontal bar to be 2px wide
+    elements: {
+      bar: {
+        borderWidth: 2,
+      }
+    },
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          usePointStyle:true,
+          pointStyle:'circle'
+        }
+      }
+    }
+  }
+
+
+  cadastreValoration:number=0;
+  selectedCadastreEnergyData:any;
+  selectedCadastreMonthChartLabels:any=[];
+  selectedCadastreMonthChartDatasets:any=[];
+  selectedCadastreMonthChartType='bar';
+  selectedCadastreMonthChartOptions=
+  {
+    indexAxis: 'y',
+    // Elements options apply to all of the options unless overridden in a dataset
+    // In this case, we are setting the border of each horizontal bar to be 2px wide
+    elements: {
+      bar: {
+        borderWidth: 2,
+      }
+    },
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          usePointStyle:true,
+          pointStyle:'circle'
+        }
+      }
+    }
+  }
+
+  selectedCadastre: cadastre = {valle:0,llano:0,punta:0};
+  
   cupsNumber:number=0;
   added:number=0;
  
@@ -131,7 +199,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.map.addControl(centerControlDiv)
   }
 
-
+  checkCadastreValue(){
+    console.log(this.selectedCadastre.valle,this.selectedCadastre.llano,this.selectedCadastre.punta)
+  }
 
   OnSelectorChange(element: any, attribute: string) {
     switch(attribute){
@@ -154,8 +224,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
         //this.renderSelectedCommunities();
         //this.renderLocation();
         let date=moment().format('YYYY-MM-DD')
-        this.communitiesService.getEnergy(this.selectedCommunity.id,date).subscribe(res=>{
+        this.communitiesService.getEnergy(this.selectedCommunity.id,date).subscribe((res:any)=>{
           console.log("DATA COMUNITAT: ", res)
+          this.communityEnergyData= res.data;
+          this.updateCommunityChart();
         })
         break;
 
@@ -163,6 +235,42 @@ export class SearchComponent implements OnInit, AfterViewInit {
         break;
     }
     
+  }
+
+  updateCommunityChart(){
+    //this.monthChartLabels=this.communityEnergyData.
+    
+    this.communityMonthChartLabels;
+    this.communityMonthChartDatasets=[];
+    this.communityMonthChartType='bar';
+    this.communityUpdateMonthChartSubject.next(true);
+
+    let imports: any[] = [];
+    let exports:any[] = [];
+
+    this.communityEnergyData.forEach((item:any) => {
+      this.communityMonthChartLabels.push(item.month);
+      //numeros_mes.push(item.month_number);
+      imports.push(item.import);
+      exports.push(item.export);
+    });
+
+    this.communityMonthChartDatasets = [
+      {
+        label: 'Importació (Kwh)',
+        data: imports,
+        backgroundColor: 'rgb(211, 84, 0)',
+        borderColor: 'rgb(255,255,255)'
+      },
+      {
+        label: 'Excedent (Kwh)',
+        data: exports,
+        backgroundColor: 'rgb(52, 152, 219)',
+        borderColor: 'rgb(255,255,255)'
+      }
+    ]
+
+
   }
 
   renderLocation(){
@@ -325,6 +433,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   setSelectedAreaM2(areaM2:any){
+    console.log("selected area m2", areaM2)
     this.selectedAreaM2=Math.floor(areaM2)
   }
 

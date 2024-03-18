@@ -33,6 +33,10 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
   @Input() data: any[] = [];
   @Input() backgroundColor: string[] = [];
   @Input() updateSubject!: Observable<any>;
+  @Input() options:any = {
+    responsive:true,
+    mantainAspectRatio:false
+  };
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -80,10 +84,10 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
 
   updateChart() {
 
-    console.log("update chart","labels",this.labels,"datasets",this.datasets,"data:",this.data,this.backgroundColor)
+    console.log("update chart","labels",this.labels,"datasets",this.datasets,"data:",this.data,this.backgroundColor, "options" ,this.options)
 
     if (!this.chart) {
-      this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []}})
+      this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []},options:this.options})
     }
 
     this.chart.data = {
@@ -92,11 +96,9 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
         data: this.data,
         backgroundColor: this.backgroundColor
       }],
-      options:{
-        responsive:true,
-        mantainAspectRatio:false
-      }
+      options:this.options
     }
+
     this.chart.update();
     this.cdr.detectChanges();
   }

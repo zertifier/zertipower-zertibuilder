@@ -106,23 +106,20 @@ export class AppMapComponent implements AfterViewInit {
     this.map.data.addListener('click', (event:any) => {
 
       if (event.feature.getProperty('selected')) {
-
         console.log("unselect")
         event.feature.setProperty('selected',false);
         this.map.data.overrideStyle(event.feature,this.originalStyle); 
         this.selectedFeature.emit({selected:false,feature:event.feature});
       }else{
-
         console.log("select")
         if(!this.multipleSelection && this.previousFeature){
           this.previousFeature.setProperty('selected',false);
           this.map.data.overrideStyle(this.previousFeature,this.originalStyle); 
-          this.emitFetureArea(event.feature)
-          this.selectedFeature.emit({selected:true,feature:event.feature});
         }
         event.feature.setProperty('selected',true);
         this.map.data.overrideStyle(event.feature, { fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white' });
-
+        this.emitFetureArea(event.feature)
+        this.selectedFeature.emit({selected:true,feature:event.feature});
       }
       
       this.previousFeature=event.feature;

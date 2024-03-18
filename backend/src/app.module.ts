@@ -1,12 +1,12 @@
-import { SmartContractsController } from "src/features/smart-contracts/smart-contracts.controller";
+import { SmartContractsController } from "src/features/smart-contracts.controller";
 import { ProvidersController } from "src/features/providers/providers.controller";
 import { EnergyRegistersController } from "src/features/energy-registers/energy-registers.controller";
 import { EnergyTransactionsController } from "src/features/energy-transactions/energy-transactions.controller";
 import { EnergyBlocksController } from "src/features/energy-blocks/energy-blocks.controller";
 import { CustomersController } from "src/features/customers/customers.controller";
 import { CupsController } from "src/features/cups.controller";
-import { CommunitiesController } from "src/features/communities/communities.controller";
-import { CalendarController } from "src/features/calendar/calendar.controller";
+import { CommunitiesController } from "src/features/communities.controller";
+import { CalendarController } from "src/features/calendar.controller";
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { UserModule } from "./features/users/user.module";
 import { AuthModule } from "./features/auth/auth.module";

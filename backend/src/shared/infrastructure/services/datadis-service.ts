@@ -191,8 +191,12 @@ export class DatadisService {
                 console.log('error logging in', e)
                 reject(e);
             });
-            this.supplies=response.data;
-            resolve(this.supplies);
+            if(response.data){
+                this.supplies=response.data
+                resolve(this.supplies);
+            } else {
+                reject('error getting supplies')
+            }
         })
     }
 

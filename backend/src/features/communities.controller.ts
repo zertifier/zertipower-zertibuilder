@@ -11,7 +11,6 @@ import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
 import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
 import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
 import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
-import { SaveCommunitiesDTO } from "./save-communities-dto";
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
@@ -52,7 +51,7 @@ export class CommunitiesController {
       },
     });
     return HttpResponse.success("communities fetched successfully").withData(
-      this.mapData(data)
+      data
     );
   }
 
@@ -60,7 +59,8 @@ export class CommunitiesController {
   @Auth(RESOURCE_NAME)
   async getByIdEnergy(@Param("id") id: number,@Param("date") date: string) {
     
-    let url = `SELECT MONTHNAME(info_dt),
+    let url = `SELECT MONTHNAME(info_dt) as month,
+    MONTH(info_dt) as month_number,
     SUM(import)      AS import,                 
     SUM(export)      AS export
     FROM communities 
@@ -82,7 +82,7 @@ export class CommunitiesController {
 
   @Post()
   @Auth(RESOURCE_NAME)
-  async create(@Body() body: SaveCommunitiesDTO) {
+  async create(@Body() body: any) {
     console.log("post community", body);
     const data = await this.prisma.communities.create({ data: body });
     return HttpResponse.success("communities saved successfully").withData(
@@ -92,7 +92,7 @@ export class CommunitiesController {
 
   @Put(":id")
   @Auth(RESOURCE_NAME)
-  async update(@Param("id") id: string, @Body() body: SaveCommunitiesDTO) {
+  async update(@Param("id") id: string, @Body() body: any) {
     const data = await this.prisma.communities.updateMany({
       where: {
         id: parseInt(id),
@@ -133,15 +133,4 @@ export class CommunitiesController {
     );
   }
 
-  mapData(data: any) {
-    const mappedData: any = {};
-    mappedData.id = data.id;
-    mappedData.name = data.name;
-    mappedData.test = data.test;
-    mappedData.geolocation=data.geolocation;
-    mappedData.energyPrice=data.energyPrice;
-    mappedData.createdAt = data.createdAt;
-    mappedData.updatedAt = data.updatedAt;
-    return mappedData;
-  }
 }

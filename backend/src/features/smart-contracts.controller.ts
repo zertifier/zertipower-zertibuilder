@@ -11,7 +11,6 @@ import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
 import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
 import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
 import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
-import { SaveSmartContractsDTO } from "./save-smart-contracts-dto";
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
@@ -27,7 +26,7 @@ export class SmartContractsController {
   @Auth(RESOURCE_NAME)
   async get() {
     const data = await this.prisma.smartContracts.findMany();
-    const mappedData = data.map(this.mapData);
+    const mappedData = data;
     return HttpResponse.success(
       "smart_contracts fetched successfully"
     ).withData(data);
@@ -43,12 +42,12 @@ export class SmartContractsController {
     });
     return HttpResponse.success(
       "smart_contracts fetched successfully"
-    ).withData(this.mapData(data));
+    ).withData(data);
   }
 
   @Post()
   @Auth(RESOURCE_NAME)
-  async create(@Body() body: SaveSmartContractsDTO) {
+  async create(@Body() body: any) {
     const data = await this.prisma.smartContracts.create({ data: body });
     return HttpResponse.success("smart_contracts saved successfully").withData(
       data
@@ -57,7 +56,7 @@ export class SmartContractsController {
 
   @Put(":id")
   @Auth(RESOURCE_NAME)
-  async update(@Param("id") id: string, @Body() body: SaveSmartContractsDTO) {
+  async update(@Param("id") id: string, @Body() body: any) {
     const data = await this.prisma.smartContracts.updateMany({
       where: {
         id: parseInt(id),
@@ -82,11 +81,4 @@ export class SmartContractsController {
     ).withData(data);
   }
 
-  mapData(data: any) {
-    const mappedData: any = {};
-    mappedData.id = data.id;
-    mappedData.contractAddress = data.contractAddress;
-    mappedData.blockchainId = data.blockchainId;
-    return mappedData;
-  }
 }

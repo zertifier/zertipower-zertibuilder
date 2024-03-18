@@ -11,7 +11,6 @@ import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
 import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
 import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
 import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
-import { SaveCalendarDTO } from "./save-calendar-dto";
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
@@ -27,7 +26,6 @@ export class CalendarController {
   @Auth(RESOURCE_NAME)
   async get() {
     const data = await this.prisma.calendar.findMany();
-    const mappedData = data.map(this.mapData);
     return HttpResponse.success("calendar fetched successfully").withData(data);
   }
 
@@ -40,20 +38,20 @@ export class CalendarController {
       },
     });
     return HttpResponse.success("calendar fetched successfully").withData(
-      this.mapData(data)
+      data
     );
   }
 
   @Post()
   @Auth(RESOURCE_NAME)
-  async create(@Body() body: SaveCalendarDTO) {
+  async create(@Body() body: any) {
     const data = await this.prisma.calendar.create({ data: body });
     return HttpResponse.success("calendar saved successfully").withData(data);
   }
 
   @Put(":day")
   @Auth(RESOURCE_NAME)
-  async update(@Param("day") day: string, @Body() body: SaveCalendarDTO) {
+  async update(@Param("day") day: string, @Body() body: any) {
     const data = await this.prisma.calendar.updateMany({
       where: {
         day: day,
@@ -87,13 +85,4 @@ export class CalendarController {
     );
   }
 
-  mapData(data: any) {
-    const mappedData: any = {};
-    mappedData.day = data.day;
-    mappedData.weekday = data.weekday;
-    mappedData.dayType = data.dayType;
-    mappedData.festiveType = data.festiveType;
-    mappedData.festivity = data.festivity;
-    return mappedData;
-  }
 }

@@ -96,6 +96,8 @@ model Blockchains {
   blockchainName  String? @map("blockchain_name") @db.VarChar(50)
   rpcUrl          String? @map("rpc_url") @db.VarChar(50)
   blockchainTxUrl String? @map("blockchain_tx_url") @db.VarChar(50)
+
+  @@map("blockchains")
 }
 
 model Calendar {
@@ -106,6 +108,8 @@ model Calendar {
   festivity   String?   @db.VarChar(50)
   updatedAt   DateTime? @default(now()) @map("updated_at") @db.DateTime(0)
   createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@map("calendar")
 }
 
 model Communities {
@@ -118,6 +122,8 @@ model Communities {
   locationId  Int?      @map("location_id")
   createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt   DateTime? @map("updated_at") @db.DateTime(0)
+
+  @@map("cummunities")
 }
 
 model Cups {
@@ -126,7 +132,7 @@ model Cups {
   providerId           Int       @default(0) @map("provider_id")
   communityId          Int       @default(0) @map("community_id")
   surplus_distribution String?   @db.LongText
-  locationId           String    @default("") @map("location_id") @db.VarChar(50)
+  locationId           Int       @default(0) @map("location_id")
   address              String    @default("") @db.VarChar(50)
   customerId           Int?      @map("customer_id")
   lng                  Float?
@@ -146,6 +152,8 @@ model Cups {
   sensorApiKey         String?   @map("sensor_api_key") @db.VarChar(50)
   createdAt            DateTime? @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt            DateTime? @map("updated_at") @db.DateTime(0)
+
+  @@map("cups")
 }
 
 model Customers {
@@ -154,13 +162,17 @@ model Customers {
   createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt     DateTime? @map("updated_at") @db.DateTime(0)
   walletAddress String?   @map("wallet_address") @db.VarChar(200)
+
+  @@map("customers")
 }
 
-model energyAreaCoordinates {
+model EnergyAreaCoordinates {
   id           Int     @id @default(autoincrement())
   energyAreaId Int     @default(0) @map("energy_area_id")
   lat          Decimal @default(0.000000) @db.Decimal(20, 6)
   lng          Decimal @default(0.000000) @db.Decimal(20, 6)
+
+  @@map("energy_area_coordinates")
 }
 
 model EnergyArea {
@@ -178,6 +190,8 @@ model EnergyArea {
   cadastralReference String?   @map("cadastral_reference") @db.VarChar(50)
   geojsonFeature     String?   @map("geojson_feature") @db.LongText
   locationId         Int?      @map("location_id")
+
+  @@map("energy_areas")
 }
 
 model EnergyBlock {
@@ -233,11 +247,15 @@ model Location {
   id           Int     @id @default(autoincrement())
   municipality String? @map("municipality") @db.VarChar(50)
   province     String? @map("province") @db.VarChar(50)
+
+  @@map("locations")
 }
 
 model Provider {
   id       Int     @id @default(autoincrement())
   provider String? @map("provider") @db.VarChar(50)
+
+  @@map("providers")
 }
 
 model SmartContract {
@@ -261,6 +279,7 @@ model DatadisEnergyRegister {
 
   @@index([cupsId], map: "cups_id")
   @@index([infoDt], map: "info_dt")
+  @@map("datadis_energy_registers")
 }
 
 model EnergyRegistersLog {
@@ -268,6 +287,8 @@ model EnergyRegistersLog {
   cups       String?   @map("cups") @db.VarChar(100)
   nRegisters Int?      @map("n_registers")
   creationDt DateTime? @default(dbgenerated("(curdate())")) @map("creation_dt") @db.Timestamp(0)
+
+  @@map("energy_registers_logs")
 }
 
 model InverterEnergyRegister {
@@ -284,6 +305,7 @@ model InverterEnergyRegister {
 
   @@index([cupsId], map: "cups_id")
   @@index([infoDt], map: "info_dt")
+  @@map("inverter_energy_registers")
 }
 
 model Log {
@@ -296,6 +318,8 @@ model Log {
   log                String      @map("log") @db.LongText
   errorMessage       String      @map("error_message") @db.LongText
   creationDt         DateTime?   @default(now()) @map("creation_dt") @db.DateTime(0)
+
+  @@map("logs")
 }
 
 enum CupsType {

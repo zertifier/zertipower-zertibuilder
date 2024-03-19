@@ -15,6 +15,7 @@ import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import { DatadisService } from "src/shared/infrastructure/services";
+import {SaveCupsDto} from "./save-cups-dto";
 
 export const RESOURCE_NAME = "cups";
 
@@ -42,13 +43,14 @@ export class CupsController {
 
 
     return HttpResponse.success("cups fetched successfully").withData(
-      this.mapData(data)
+      // this.mapData(data)
+      data
     );
   }
 
   @Post()
   @Auth(RESOURCE_NAME)
-  async create(@Body() body: any) {
+  async create(@Body() body: SaveCupsDto) {
     const data = await this.prisma.cups.create({ data: body });
     return HttpResponse.success("cups saved successfully").withData(data);
   }

@@ -24,6 +24,7 @@ export interface CupsInterface {
   smartMeterApiKey:string;
   inverterModel:string;
   inverterApiKey:string;
+  sensorActive:number;
   sensorModel:string;
   sensorApiKey:string;
   customerId: number;

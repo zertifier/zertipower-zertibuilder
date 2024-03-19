@@ -68,19 +68,19 @@
     </div>
 
     <label class="form-label" for="lng-input">Tipus de cups</label>
-    <select class="px-2 form-select my-3" formControlName="type">
+    <select class="px-2 form-select" formControlName="type">
     <option></option>
     <option *ngFor="let element of cupsTypes" [ngValue]="element">{{element}}</option>
     </select>
 
     <div class="form-check">
-      <input class="form-check-input" type="checkbox"  formControlName="datadis" id="flexCheckDatadis">
+      <input class="form-check-input" type="checkbox"  formControlName="datadisActive" id="flexCheckDatadis">
       <label class="form-label" class="form-check-label" for="flexCheckDatadis">
         Datadis
       </label>
     </div>
 
-    <div *ngIf="form.controls.datadis.value" class="row d-flex justify-content-beetween mt-1">
+    <div *ngIf="form.controls.datadisActive.value" class="row d-flex justify-content-beetween mt-1">
       <div class="mb-3 mt-2">
         <div class="col">
           <label class="form-label" for="datadis-username-input">Datadis username</label>
@@ -95,13 +95,13 @@
     </div>
 
     <div class="form-check mt-1">
-      <input class="form-check-input" type="checkbox" formControlName="smartMeter" id="flexCheckSmartMeter">
+      <input class="form-check-input" type="checkbox" formControlName="smartMeterActive" id="flexCheckSmartMeter">
       <label class="form-label" class="form-check-label" for="flexCheckSmartMeter">
         Smart meter
       </label>
     </div>
 
-    <div *ngIf="form.controls.smartMeter.value" class="row d-flex justify-content-beetween">
+    <div *ngIf="form.controls.smartMeterActive.value" class="row d-flex justify-content-beetween">
       <div class="mb-3 mt-2">
         <div class="col">
           <label class="form-label" for="smart-meter-model-selector">Smart meter model</label>
@@ -119,13 +119,13 @@
     </div>
 
     <div class="form-check mt-1">
-      <input class="form-check-input" type="checkbox" formControlName="inverter" id="flexCheckInverter">
+      <input class="form-check-input" type="checkbox" formControlName="inverterActive" id="flexCheckInverter">
       <label class="form-label" class="form-check-label" for="flexCheckInverter">
         Inverter
       </label>
     </div>
 
-    <div *ngIf="form.controls.inverter.value" class="row d-flex justify-content-beetween">
+    <div *ngIf="form.controls.inverterActive.value" class="row d-flex justify-content-beetween">
       <div class="mb-3 mt-2">
         <div class="col">
           <label class="form-label" for="inverter-model-selector">Inverter model</label>
@@ -142,13 +142,13 @@
     </div>
 
     <div class="form-check mt-1">
-      <input class="form-check-input" type="checkbox" formControlName="sensor" id="flexCheckSensor">
+      <input class="form-check-input" type="checkbox" formControlName="sensorActive" id="flexCheckSensor">
       <label class="form-label" class="form-check-label" for="flexCheckInverter">
         Sensor
       </label>
     </div>
 
-    <div *ngIf="form.controls.sensor.value" class="row d-flex justify-content-beetween">
+    <div *ngIf="form.controls.sensorActive.value" class="row d-flex justify-content-beetween">
       <div class="mb-3 mt-2">
         <div class="col">
           <label class="form-label" for="sensor-model-selector">Sensor model</label>

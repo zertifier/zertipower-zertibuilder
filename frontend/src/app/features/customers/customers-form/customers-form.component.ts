@@ -88,11 +88,11 @@ export class CustomersFormComponent {
   getValues(): any {
     const values: any = {};
 
-    values.id = this.form.value.id;
+    // values.id = this.form.value.id;
     values.name = this.form.value.name;
     values.walletAddress = this.form.value.walletAddress;
-    values.createdAt = this.form.value.createdAt;
-    values.updatedAt = this.form.value.updatedAt;
+    // values.createdAt = this.form.value.createdAt;
+    // values.updatedAt = this.form.value.updatedAt;
 
     return values;
   }

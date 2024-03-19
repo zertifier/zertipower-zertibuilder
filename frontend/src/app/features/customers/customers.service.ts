@@ -38,12 +38,12 @@ export class CustomersApiService {
   }
 
   save(data: CustomersApiInterface): Observable<CustomersApiInterface> {
-    return this.httpClient.post<HttpResponse<CustomersApiDTO>>(`${environment.api_url}/customers`, mapToDTO(data))
+    return this.httpClient.post<HttpResponse<CustomersApiDTO>>(`${environment.api_url}/customers`, data)
       .pipe(map(response => mapToApiInterface(response.data)));
   }
 
   update(id: number, data: CustomersApiInterface): Observable<CustomersApiInterface> {
-    return this.httpClient.put<HttpResponse<CustomersApiDTO>>(`${environment.api_url}/customers/${id}`, mapToDTO(data))
+    return this.httpClient.put<HttpResponse<CustomersApiDTO>>(`${environment.api_url}/customers/${id}`, data)
       .pipe(map(response => mapToApiInterface(response.data)));
   }
 

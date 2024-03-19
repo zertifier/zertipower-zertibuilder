@@ -167,7 +167,8 @@ export class DatadisService {
   }
 
   async login(){
-    let config = {method:'post', url: 'https://datadis.es/nikola-auth/tokens/login', headers: { 'Content-Type': 'application/x-www-form-urlencoded'}, data:this.loginData}
+    let config = {method:'post', url: 'https://datadis.es/nikola-auth/tokens/login', headers: { 'Content-Type': 'application/x-www-form-urlencoded'},
+      data:this.loginData}
     return new Promise(async (resolve,reject)=>{
       let response:any = await axios.request(config).catch((e:any)=>{
         console.log('error logging in', e)
@@ -191,8 +192,12 @@ export class DatadisService {
         console.log('error logging in', e)
         reject(e);
       });
-      this.supplies=response.data;
-      resolve(this.supplies);
+      if(response.data){
+        this.supplies=response.data
+        resolve(this.supplies);
+      } else {
+        reject('error getting supplies')
+      }
     })
   }
 

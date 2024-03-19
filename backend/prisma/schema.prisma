@@ -138,16 +138,16 @@ model Cups {
   lng                  Float?
   lat                  Float?
   type                 CupsType?
-  datadisActive        Int?      @default(0) @map("datadis_active") @db.TinyInt
+  datadisActive        Boolean?  @default(false) @map("datadis_active") @db.TinyInt
   datadisUser          String?   @map("datadis_user") @db.VarChar(50)
   datadisPassword      String?   @map("datadis_password") @db.VarChar(100)
-  smartMeterActive     Int?      @default(0) @map("smart_meter_active") @db.TinyInt
+  smartMeterActive     Boolean?  @default(false) @map("smart_meter_active") @db.TinyInt
   smartMeterModel      String    @default("") @map("smart_meter_model") @db.VarChar(100)
   smartMeterApiKey     String?   @map("smart_meter_api_key") @db.VarChar(50)
-  inverterActive       Int       @default(0) @map("inverter_active") @db.TinyInt
+  inverterActive       Boolean   @default(false) @map("inverter_active") @db.TinyInt
   inverterModel        String?   @map("inverter_model") @db.VarChar(100)
   inverterApiKey       String?   @map("inverter_api_key") @db.VarChar(50)
-  sensorActive         Int       @default(0) @map("sensor_active") @db.TinyInt
+  sensorActive         Boolean   @default(false) @map("sensor_active") @db.TinyInt
   sensorModel          String?   @map("sensor_model") @db.VarChar(100)
   sensorApiKey         String?   @map("sensor_api_key") @db.VarChar(50)
   createdAt            DateTime? @default(now()) @map("created_at") @db.DateTime(0)

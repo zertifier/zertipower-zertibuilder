@@ -35,16 +35,16 @@ export class CupsFormComponent {
     customerId: new FormControl<number | null>(null),
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
-    datadisActive:new FormControl<number>(0),
+    datadisActive:new FormControl<boolean>(false),
     datadisUser: new FormControl<string | null>(null),
     datadisPwd: new FormControl<string | null>(null),
-    smartMeterActive:new FormControl<number>(0),
+    smartMeterActive:new FormControl<boolean>(false),
     smartMeterModel:new FormControl<string|null>(null),
     smartMeterApiKey:new FormControl<string|null>(null),
-    inverterActive:new FormControl<number>(0),
+    inverterActive:new FormControl<boolean>(false),
     inverterModel:new FormControl<string|null>(null),
     inverterApiKey:new FormControl<string|null>(null),
-    sensorActive:new FormControl<number>(0),
+    sensorActive:new FormControl<boolean>(false),
     sensorModel:new FormControl<string|null>(null),
     sensorApiKey:new FormControl<string|null>(null),
   });
@@ -82,7 +82,6 @@ export class CupsFormComponent {
     }
 
     this.apiService.getById(id).subscribe((data) => {
-      console.log("AAA")
       console.log(data, "DATA")
       this.form.controls.id.setValue(data.id);
       this.form.controls.cups.setValue(data.cups);
@@ -97,7 +96,7 @@ export class CupsFormComponent {
       this.form.controls.smartMeterActive.setValue(data.smartMeterActive);
       this.form.controls.inverterActive.setValue(data.inverterActive);
       this.form.controls.datadisUser.setValue(data.datadisUser);
-      this.form.controls.datadisPwd.setValue(data.datadisPassword);
+      // this.form.controls.datadisPwd.setValue(data.datadisPassword);
       this.form.controls.smartMeterModel.setValue(data.smartMeterModel);
       this.form.controls.smartMeterApiKey.setValue(data.smartMeterApiKey);
       this.form.controls.inverterModel.setValue(data.inverterModel);

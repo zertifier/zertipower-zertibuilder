@@ -121,7 +121,7 @@ export class CustomersController {
     const mappedData: any = {};
     mappedData.id = data.id;
     mappedData.name = data.name;
-    mappedData.walletAddress = data.walletAddress.toString();
+    mappedData.walletAddress = data.walletAddress ? data.walletAddress.toString() : '';
     mappedData.createdAt = data.createdAt | data.created_at;
     mappedData.updatedAt = data.updatedAt | data.updated_at;
 

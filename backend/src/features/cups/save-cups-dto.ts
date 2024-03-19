@@ -33,7 +33,7 @@ export class SaveCupsDto {
   type: CupsType | null;
 
   @IsOptional()
-  datadisActive?: number | null;
+  datadisActive?: boolean | null;
 
   @IsOptional()
   datadisUser?: string | null;
@@ -42,7 +42,7 @@ export class SaveCupsDto {
   datadisPassword?: string | null;
 
   @IsOptional()
-  smartMeterActive: number;
+  smartMeterActive: boolean;
 
   @IsOptional()
   smartMeterModel: string;
@@ -51,7 +51,7 @@ export class SaveCupsDto {
   smartMeterApiKey?: string | null;
 
   @IsOptional()
-  inverterActive: number;
+  inverterActive: boolean;
 
   @IsOptional()
   inverterModel?: string | null;
@@ -60,7 +60,7 @@ export class SaveCupsDto {
   inverterApiKey?: string | null;
 
   @IsOptional()
-  sensorActive: number;
+  sensorActive: boolean;
 
   @IsOptional()
   sensorModel?: string | null;

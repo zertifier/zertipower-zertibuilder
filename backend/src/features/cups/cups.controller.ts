@@ -16,6 +16,7 @@ import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import { DatadisService } from "src/shared/infrastructure/services";
 import {SaveCupsDto} from "./save-cups-dto";
+import {PasswordUtils} from "../users/domain/Password/PasswordUtils";
 
 export const RESOURCE_NAME = "cups";
 
@@ -41,7 +42,7 @@ export class CupsController {
       },
     });
 
-
+    if (data && data.datadisPassword) data.datadisPassword = PasswordUtils.decryptData(data.datadisPassword, process.env.JWT_SECRET!)
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
       data
@@ -51,7 +52,9 @@ export class CupsController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCupsDto) {
+    if (body.datadisPassword) body.datadisPassword = PasswordUtils.encryptData(body.datadisPassword, process.env.JWT_SECRET!)
     const data = await this.prisma.cups.create({ data: body });
+    if (data.datadisPassword) data.datadisPassword = PasswordUtils.decryptData(data.datadisPassword, process.env.JWT_SECRET!)
     return HttpResponse.success("cups saved successfully").withData(data);
   }
 
@@ -59,12 +62,14 @@ export class CupsController {
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: any) {
     console.log("bodycups : ", body);
+    if (body.datadisPassword) body.datadisPassword = PasswordUtils.encryptData(body.datadisPassword, process.env.JWT_SECRET!)
     const data = await this.prisma.cups.updateMany({
       where: {
         id: parseInt(id),
       },
       data: body,
     });
+
     return HttpResponse.success("cups updated successfully").withData(data);
   }
 

@@ -288,10 +288,10 @@ export class CommunitiesFormComponent implements OnInit {
     //console.log("community id: ",this.communityId)
 
     if (this.sumYearImport == 0 && this.sumYearGeneration == 0 && this.sumYearConsumption == 0 && this.sumYearExport == 0 && this.communityId) {
-      Swal.fire({
+      /*Swal.fire({
         icon: 'warning',
         title: 'no year data'
-      });
+      });*/
     }
 
     this.updateYearChartValues();
@@ -350,10 +350,10 @@ export class CommunitiesFormComponent implements OnInit {
      */
 
     if (this.sumMonthImport.every(e => e == 0) && this.sumMonthExport.every(e => e == 0) && this.sumMonthGeneration.every(e => e == 0) && this.sumMonthConsumption.every(e => e == 0) && this.communityId) {
-      Swal.fire({
+     /* Swal.fire({
         icon: 'warning',
         title: 'no months data'
-      });
+      });*/
     }
 
     this.updateMonthChartValues();
@@ -400,10 +400,10 @@ export class CommunitiesFormComponent implements OnInit {
     await Promise.all(getAllEnergy)
 
     if (this.sumDayImport.every(e => e == 0) && this.sumDayExport.every(e => e == 0) && this.sumDayGeneration.every(e => e == 0) && this.sumDayConsumption.every(e => e == 0) && this.communityId) {
-      Swal.fire({
+      /*Swal.fire({
         icon: 'warning',
         title: 'no day data'
-      });
+      });*/
     }
 
     this.updateDayChartValues();

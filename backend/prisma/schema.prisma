@@ -123,7 +123,7 @@ model Communities {
   createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt   DateTime? @map("updated_at") @db.DateTime(0)
 
-  @@map("cummunities")
+  @@map("communities")
 }
 
 model Cups {

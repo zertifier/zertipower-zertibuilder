@@ -46,7 +46,6 @@ export class ProvidersFormComponent {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
-      console.log(data, "DATA")
       this.form.controls.id.setValue(data.id);
       this.form.controls.provider.setValue(data.provider);
     });
@@ -83,7 +82,7 @@ export class ProvidersFormComponent {
   getValues(): any {
     const values: any = {};
 
-    values.id = this.form.value.id;
+    // values.id = this.form.value.id;
     values.provider = this.form.value.provider;
 
     return values;

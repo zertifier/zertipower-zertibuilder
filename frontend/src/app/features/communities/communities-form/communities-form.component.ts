@@ -156,14 +156,10 @@ export class CommunitiesFormComponent implements OnInit {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
 
       this.allCups = res.data;
-      console.log(this.allCups, "CUPS")
-
       //get the cups that doesnt own to other communities
       this.customers = this.allCups.filter((cups: any) =>
         cups.community_id == this.id || cups.community_id == null || cups.community_id == 0
       )
-
-      console.log(this.customers, "this.customers")
 
       if (!this.communityId) {
         return;
@@ -173,8 +169,6 @@ export class CommunitiesFormComponent implements OnInit {
       this.communityCups = this.customers.filter((cups: any) =>
         cups.community_id == this.id
       )
-
-      console.log(this.communityCups, "this.communityCups")
 
       this.updateData();
 
@@ -464,14 +458,11 @@ export class CommunitiesFormComponent implements OnInit {
           customerId: cups.customerId
         }
 
-        console.log(cupsToUpdate, "cupsToUpdate")
         this.cupsApiService.update(cups.id, cupsToUpdate).subscribe((res) => {
           console.log("change community id from cups: ", res)
         })
       })
 
-      console.log(this.communityCups, "this.customers")
-      console.log(this.communityId, "this.communityId")
       //delete community id from cups that dont pertain to community anymore:
       if (this.communityCups.length){
         this.allCups.map((cups: any) => {

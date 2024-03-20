@@ -38,7 +38,9 @@ interface dbCups {
     address : string,
     lng: number,
     lat: number,
+    type:string,
     community_id: number,
+    customer_id:number,
     datadis_active: number,
     datadis_user:string,
     datadis_password:string,
@@ -52,11 +54,13 @@ interface dbCups {
 @Injectable()
 export class DatadisService {
 
-
     loginData = {username:'g67684878',password:'acEM2020!'}
     token:any=undefined;
     supplies:supply[];
     dbCups:dbCups[]=[];
+    dbCustomers:any[]=[];
+    dbCommunities:any[]=[];
+    communityCups:any[]=[];
     energyHourData:energyHourData[]=[];
 
     private conn: mysql.Pool;
@@ -88,11 +92,26 @@ export class DatadisService {
         let operation = 'insert datadis data';
 
         this.dbCups = await this.getCups()
-
+        this.dbCustomers = await this.getCustomers();
+        this.dbCommunities = await this.getCommunities();
+        
         for (let cups of this.dbCups) {
 
             if(!cups.datadis_active || !cups.datadis_user || !cups.datadis_password){
                 continue;
+            }
+
+            this.communityCups = [];
+            
+            if(cups.type == 'community'){
+                 this.dbCups.map((dbCupsElement)=>{
+                    if(dbCupsElement.community_id===cups.community_id){
+                        let customerFound = this.dbCustomers.find(dbCustomer=>dbCustomer.id===cups.customer_id)
+                        if(customerFound && customerFound.dni){
+                            this.communityCups.push({...customerFound,...dbCupsElement})
+                        }
+                    }
+                })
             }
 
             this.loginData.username=cups.datadis_user;
@@ -103,6 +122,11 @@ export class DatadisService {
 
             //get datadis cups
             await this.getSupplies();
+
+            //get authorized community datadis cups 
+            this.communityCups.map(async (communityCupsElement)=>{
+                await this.getAuthorizedSupplies(communityCupsElement);
+            })
 
             //check if all cups are in database already
             await this.checkCups();
@@ -116,7 +140,7 @@ export class DatadisService {
                 operation = 'register datadis energy data';
 
                 let cupsData:any = this.dbCups.find((registeredCups:any)=>registeredCups.cups===supply.cups)
-                
+
                 if(!cupsData){
                     console.log("Error cups data not found on db : " , supply.cups)
                     status = 'error';
@@ -129,7 +153,7 @@ export class DatadisService {
                 let getDatadisBegginningDate = moment().format("DD-MM-YYYY HH:mm:ss");
 
                 //obtain datadis hour energy:
-                let datadisCupsEnergyData:any = await this.getConsumptionData(supply.cups,supply.distributorCode,startDate,endDate,0,supply.pointType).catch(async (e)=>{
+                let datadisCupsEnergyData:any = await this.getConsumptionData(supply.cups,supply.distributorCode,startDate,endDate,0,supply.pointType,supply.authorizedNif).catch(async (e)=>{
                     let getDatadisEndingDate = moment().format("DD-MM-YYYY HH:mm:ss");
                     status='error';
                     errorType="datadis request error";
@@ -209,9 +233,45 @@ export class DatadisService {
                 console.error('Ocurrió un error:', error.message);
             }
             throw new Error('No se pudieron obtener los suministros');
-
         }
-            
+    }
+
+    async getAuthorizedSupplies(communityCupsElement:any){
+        let config = {
+            method:'get', 
+            maxBodyLength: Infinity, 
+            url: `https://datadis.es/api-private/api/get-supplies?authorizedNif=${communityCupsElement.dni}`, 
+            headers: {'Authorization': `Bearer ${this.token}`}
+        }
+        try{
+            let response:any = await axios.request(config)
+            //add authorized nif to supplies:
+            response.data.map((supplies:any)=>{
+                supplies.authorizedNif = communityCupsElement.dni
+            })
+            //add supplies:
+            this.supplies=this.supplies.concat(response.data)
+            return this.supplies;
+        }catch(error){
+            if (axios.isAxiosError(error)) {
+                const axiosError: any = error;
+             
+                if (axiosError.response) {
+                    console.error('Respuesta recibida con estado:', axiosError.response.status);
+                    console.error('Datos de respuesta:', axiosError.response.data);
+                } else if (axiosError.request) {
+                    // El error ocurrió durante la solicitud, pero no se recibió respuesta
+                    console.error('La solicitud no recibió respuesta:', axiosError.request);
+                } else {
+                    // Error al configurar la solicitud
+                    console.error('Error al configurar la solicitud:', axiosError.message);
+                }
+            } else {
+             
+                console.error('Ocurrió un error:', error.message);
+            }
+            throw new Error('No se pudieron obtener los suministros');
+        }
     }
 
     /**
@@ -223,14 +283,17 @@ export class DatadisService {
      * @param meeasurementType 
      * @param pointType 
      */
-    async getConsumptionData(cups:string,distributorCode:number,startDate:string,endDate:string,measurementType:number,pointType:number){
+    async getConsumptionData(cups:string,distributorCode:number,startDate:string,endDate:string,measurementType:number,pointType:number,authorizedNif?:string){
 
-        console.log("try to get datadis data: ",cups,distributorCode,startDate,endDate,0,pointType)
+        console.log("try to get datadis data: ",cups,distributorCode,startDate,endDate,0,pointType,authorizedNif)
 
         return new Promise(async (resolve,reject)=>{
 
             try {
-                const baseUrl = 'https://datadis.es/api-private/api/get-consumption-data?'
+
+                const baseUrl = authorizedNif ? 
+                `https://datadis.es/api-private/api/get-consumption-data?authorizedNif=${authorizedNif}&`
+                :'https://datadis.es/api-private/api/get-consumption-data?';
     
                 let config = {
                     method: 'get',
@@ -280,6 +343,33 @@ export class DatadisService {
             }
         })
     }
+
+    async getCustomers():Promise<any>{
+        return new Promise(async (resolve,reject)=>{
+            try{
+                const getCustomersQuery = `SELECT * FROM customers`;
+                let [ROWS]:any = await this.conn.query(getCustomersQuery);
+                resolve(ROWS);
+            }catch(e){
+                console.log("error getting customers", e);
+                reject(e)
+            }
+        })
+    }
+
+    async getCommunities():Promise<any>{
+        return new Promise(async (resolve,reject)=>{
+            try{
+                const getCommunitiesQuery = `SELECT * FROM communities`;
+                let [ROWS]:any = await this.conn.query(getCommunitiesQuery);
+                resolve(ROWS);
+            }catch(e){
+                console.log("error getting communities", e);
+                reject(e)
+            }
+        })
+    }
+
 
     async checkCups():Promise<any>{
         return new Promise(async (resolve,reject)=>{

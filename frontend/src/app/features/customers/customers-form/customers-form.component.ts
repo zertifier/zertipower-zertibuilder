@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, Validators } from "@angular/forms";
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, Validators} from "@angular/forms";
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2';
-import { Observable } from 'rxjs';
-import { CustomersApiService } from '../customers.service';
+import {Observable} from 'rxjs';
+import {CustomersApiService} from '../customers.service';
 import moment from 'moment';
 
 @Component({
@@ -37,11 +37,13 @@ export class CustomersFormComponent {
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
   });
+
   constructor(
     private formBuilder: FormBuilder,
     private apiService: CustomersApiService,
     private activeModal: NgbActiveModal,
-  ) {}
+  ) {
+  }
 
   setEditingId(id: number) {
     this.id = id;
@@ -58,10 +60,11 @@ export class CustomersFormComponent {
   }
 
   save() {
-    if (this.form.invalid) {
+    const validFormObj = this.checkFormValid()
+    if (!validFormObj.status) {
       Swal.fire({
         icon: 'error',
-        title: 'Form not valid'
+        title: validFormObj.message,
       });
       return;
     }
@@ -95,5 +98,11 @@ export class CustomersFormComponent {
     // values.updatedAt = this.form.value.updatedAt;
 
     return values;
+  }
+
+  checkFormValid() {
+    if (!this.form.value.name) return {status: false, message: "El nom del client no pot estar buit"}
+
+    return {status: true, message: ''}
   }
 }

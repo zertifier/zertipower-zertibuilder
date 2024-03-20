@@ -90,6 +90,27 @@ export class AppDatatableComponent implements OnInit {
 			scrollX: true,
 			order:[[0,'desc']],
       dom: '<<"row mb-3 table-filters g-3"<"col-12 col-md-6 order-2 order-md-1"f>>><"table-responsive"t><"row mt-3"<"col-md-12"p>>',
+      language: {
+        emptyTable: "No hi ha dades",
+        info: "",
+        infoEmpty: "Sense entrades",
+        infoFiltered: "(Filtrado de _MAX_ entries)",
+        lengthMenu: "Mostrar _MENU_",
+        loadingRecords: "Cargant informació...",
+        processing: "Processant...",
+        search: '<i class="fa fa-search" aria-hidden="true"></i>',
+        zeroRecords: "No hi ha  registres",
+        paginate: {
+          first: "Primera",
+          last: "Última",
+          next: "Següent",
+          previous: "Anterior",
+        },
+        aria: {
+          sortAscending: ": activar para ordenar la columna ascendiente",
+          sortDescending: ": activar para ordenar la columna descendiente",
+        },
+      },
 		};
 	}
 

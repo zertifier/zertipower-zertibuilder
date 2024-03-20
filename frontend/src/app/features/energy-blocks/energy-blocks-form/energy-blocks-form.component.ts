@@ -51,7 +51,7 @@ export class EnergyBlocksFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.form.get('generationPrice')?.valueChanges.subscribe(value => {
-      if (value && value >= 100) {
+      if (value && (value >= 100 || value == 0)) {
         this.form.get('generationPrice')?.setErrors({'exceedsLimit': true});
       } else {
         this.form.get('generationPrice')?.setErrors(null);
@@ -59,7 +59,7 @@ export class EnergyBlocksFormComponent implements OnInit {
     });
 
     this.form.get('consumptionPrice')?.valueChanges.subscribe(value => {
-      if (value && value >= 100) {
+      if (value && (value >= 100 || value == 0)) {
         this.form.get('consumptionPrice')?.setErrors({'exceedsLimit': true});
       } else {
         this.form.get('consumptionPrice')?.setErrors(null);
@@ -84,16 +84,11 @@ export class EnergyBlocksFormComponent implements OnInit {
   }
 
   save() {
-    if (this.form.invalid) {
-      let message = ''
-
-      if (this.form.get('generationPrice')?.errors) message = 'El preu de generació no pot excedir els 100€'
-
-      if (this.form.get('consumptionPrice')?.errors) message = 'El preu de consum no pot excedir els 100€'
-
+    const validFormObj = this.checkFormValid()
+    if (!validFormObj.status) {
       Swal.fire({
         icon: 'error',
-        title: message,
+        title: validFormObj.message,
       });
       return;
     }
@@ -116,6 +111,22 @@ export class EnergyBlocksFormComponent implements OnInit {
 
   cancel() {
     this.activeModal.dismiss();
+  }
+
+  checkFormValid(){
+    if (!this.form.value.reference) return {status: false, message: "La referència no pot estar buida"}
+
+    if (!this.form.value.expirationDt) return {status: false, message: "La data d'expiració no pot estar buida"}
+
+    if (!this.form.value.activeInit) return {status: false, message: "La data d'inici no pot estar buida"}
+
+    if (!this.form.value.activeEnd) return {status: false, message: "La data de fi no pot estar buida"}
+
+    if (this.form.get('consumptionPrice')?.errors) return {status: false, message: 'El preu de consum no pot excedir els 100€'}
+
+    if (this.form.get('generationPrice')?.errors) return  {status: false, message: 'El preu de generació no pot excedir els 100€'}
+
+    return {status: true, message: ''}
   }
 
   getValues(): any {

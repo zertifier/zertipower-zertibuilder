@@ -57,10 +57,10 @@ export class CupsFormComponent {
   availableProviders: any;
   availableCommunities: any;
   availableLocations: any;
-  selectedCustomerId: number = 0
-  selectedProviderId: number = 0
-  selectedCommunityId: number = 0
-  selectedLocationId: number = 0
+  selectedCustomerId!: number;
+  selectedProviderId!: number
+  selectedCommunityId!: number;
+  selectedLocationId!: number;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -112,10 +112,11 @@ export class CupsFormComponent {
   }
 
   save() {
-    if (this.form.invalid) {
+    const validFormObj = this.checkFormValid()
+    if (!validFormObj.status) {
       Swal.fire({
         icon: 'error',
-        title: 'Form not valid'
+        title: validFormObj.message,
       });
       return;
     }
@@ -185,5 +186,21 @@ export class CupsFormComponent {
       this.availableCustomers = customers
 
     })
+  }
+
+  checkFormValid(){
+    if (!this.form.value.cups) return {status: false, message: "El nom pot estar buit"}
+
+    if (!this.selectedCustomerId) return {status: false, message: "El client pot estar buit"}
+
+    if (!this.selectedProviderId) return {status: false, message: "El proveïdor pot estar buit"}
+
+    if (!this.selectedCommunityId) return {status: false, message: "La comunitat no pot estar buida"}
+
+    if (!this.selectedLocationId) return {status: false, message: "L'ubicació no pot estar buida"}
+
+    if (!this.form.value.address) return {status: false, message: "L'adreça no pot estar buida"}
+
+    return {status: true, message: ''}
   }
 }

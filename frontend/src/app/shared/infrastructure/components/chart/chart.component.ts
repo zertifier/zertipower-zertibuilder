@@ -37,12 +37,10 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngAfterViewInit() {
-    console.log(this.chartId)
     this.chartCanvas = document.getElementById(this.chartId);
     this.chartCanvasContent = this.chartCanvas.getContext('2d');
 
     this.updateSubject?.subscribe(async (update) => {
-      console.log("update",update)
       await this.delay(500);
       if (update) {
         this.updateChart();
@@ -80,7 +78,6 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
 
   updateChart() {
 
-    console.log("update chart","labels",this.labels,"datasets",this.datasets,"data:",this.data,this.backgroundColor)
 
     if (!this.chart) {
       this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []}})

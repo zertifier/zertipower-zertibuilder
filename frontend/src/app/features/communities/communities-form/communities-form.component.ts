@@ -156,11 +156,14 @@ export class CommunitiesFormComponent implements OnInit {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
 
       this.allCups = res.data;
+      console.log(this.allCups, "CUPS")
 
       //get the cups that doesnt own to other communities
       this.customers = this.allCups.filter((cups: any) =>
-        cups.communityId == this.id || cups.communityId == null || cups.communityId == 0
+        cups.community_id == this.id || cups.community_id == null || cups.community_id == 0
       )
+
+      console.log(this.customers, "this.customers")
 
       if (!this.communityId) {
         return;
@@ -168,9 +171,10 @@ export class CommunitiesFormComponent implements OnInit {
 
       //get the cups that own to the selected community
       this.communityCups = this.customers.filter((cups: any) =>
-        cups.communityId == this.id
+        cups.community_id == this.id
       )
 
+      console.log(this.communityCups, "this.communityCups")
 
       this.updateData();
 
@@ -460,40 +464,46 @@ export class CommunitiesFormComponent implements OnInit {
           customerId: cups.customerId
         }
 
+        console.log(cupsToUpdate, "cupsToUpdate")
         this.cupsApiService.update(cups.id, cupsToUpdate).subscribe((res) => {
           console.log("change community id from cups: ", res)
         })
       })
 
+      console.log(this.communityCups, "this.customers")
+      console.log(this.communityId, "this.communityId")
       //delete community id from cups that dont pertain to community anymore:
-      this.allCups.map((cups: any) => {
+      if (this.communityCups.length){
+        this.allCups.map((cups: any) => {
 
-        // if cups contains the community id but dont includes in community cups, delete it:
-        if (cups.communityId == this.communityId) {
+          // if cups contains the community id but dont includes in community cups, delete it:
+          if (cups.community_id == this.communityId) {
 
-          let found = this.communityCups.find(cc =>
-            cc.id == cups.id
-          )
+            let found = this.communityCups.find(cc =>
+              cc.id == cups.id
+            )
 
-          if (!found) {
+            if (!found) {
 
-            let cupsToUpdate: any = {
-              id: cups.id,
-              cups: cups.cups,
-              providerId: cups.providerId,
-              communityId: 0,
-              locationId: cups.locationId,
-              customerId: cups.customerId
+              let cupsToUpdate: any = {
+                id: cups.id,
+                cups: cups.cups,
+                providerId: cups.provider_id,
+                communityId: 0,
+                locationId: cups.location_id,
+                customerId: cups.customer_id
+              }
+
+              this.cupsApiService.update(cups.id, cupsToUpdate).subscribe((res) => {
+                console.log("change community id from cups: ", res)
+              })
             }
 
-            this.cupsApiService.update(cups.id, cupsToUpdate).subscribe((res) => {
-              console.log("change community id from cups: ", res)
-            })
           }
 
-        }
+        })
+      }
 
-      })
 
       Swal.fire({
         icon: 'success',

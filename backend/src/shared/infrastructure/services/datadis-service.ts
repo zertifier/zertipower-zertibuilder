@@ -186,18 +186,32 @@ export class DatadisService {
             url: 'https://datadis.es/api-private/api/get-supplies', 
             headers: {'Authorization': `Bearer ${this.token}`}
         }
-        return new Promise(async (resolve,reject)=>{
-            let response:any = await axios.request(config).catch((e:any)=>{
-                console.log('error logging in', e)
-                reject(e);
-            });
-            if(response.data){
-                this.supplies=response.data
-                resolve(this.supplies);
+        try{
+            let response:any = await axios.request(config)
+            this.supplies=response.data
+            return this.supplies;
+        }catch(error){
+            if (axios.isAxiosError(error)) {
+                const axiosError: any = error;
+             
+                if (axiosError.response) {
+                    console.error('Respuesta recibida con estado:', axiosError.response.status);
+                    console.error('Datos de respuesta:', axiosError.response.data);
+                } else if (axiosError.request) {
+                    // El error ocurrió durante la solicitud, pero no se recibió respuesta
+                    console.error('La solicitud no recibió respuesta:', axiosError.request);
+                } else {
+                    // Error al configurar la solicitud
+                    console.error('Error al configurar la solicitud:', axiosError.message);
+                }
             } else {
-                reject('error getting supplies')
+             
+                console.error('Ocurrió un error:', error.message);
             }
-        })
+            throw new Error('No se pudieron obtener los suministros');
+
+        }
+            
     }
 
     /**

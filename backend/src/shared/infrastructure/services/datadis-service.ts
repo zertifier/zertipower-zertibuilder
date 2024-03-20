@@ -20,6 +20,7 @@ interface supply {
     validDateTo : string
     pointType : number
     distributorCode : number
+    authorizedNif?: string
   } 
 
 interface energyHourData {

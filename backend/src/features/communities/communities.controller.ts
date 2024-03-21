@@ -35,9 +35,6 @@ export class CommunitiesController {
       let url = `SELECT communities.*, count(cups.id) as cups_number FROM communities LEFT join cups ON community_id = communities.id GROUP BY communities.id`;
     const [ROWS]:any[] = await this.conn.query(url);
 
-    //console.log("commmunities:",data);
-    //const mappedData = data.map(this.mapData);
-    //console.log("mappedData",mappedData);
     return HttpResponse.success("communities fetched successfully").withData(
       ROWS
     );
@@ -54,6 +51,31 @@ export class CommunitiesController {
     return HttpResponse.success("communities fetched successfully").withData(
       this.mapData(data)
     );
+  }
+
+  @Get("/energy/:id/:date")
+  @Auth(RESOURCE_NAME)
+  async getByIdEnergy(@Param("id") id: number,@Param("date") date: string) {
+    
+    let url = `SELECT MONTHNAME(info_dt) as month,
+    MONTH(info_dt) as month_number,
+    SUM(import)      AS import,                 
+    SUM(export)      AS export
+    FROM communities 
+    LEFT join cups ON community_id = communities.id 
+    LEFT join datadis_energy_registers ON cups_id = cups.id
+    WHERE cups.community_id = ?
+    AND YEAR(info_dt) =  ?
+    GROUP BY MONTH(info_dt)
+    `;
+
+    let year = moment(date,'YYYY-MM-DD').format('YYYY').toString()
+
+    const [ROWS]:any[] = await this.conn.query(url,[id,year]);
+    
+    
+    return HttpResponse.success("communities fetched successfully").withData(ROWS)
+    
   }
 
   @Post()

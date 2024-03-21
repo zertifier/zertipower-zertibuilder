@@ -201,10 +201,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.map.addControl(centerControlDiv)
   }
 
-  checkCadastreValue() {
-    console.log(this.selectedCadastre.valle, this.selectedCadastre.llano, this.selectedCadastre.punta)
-  }
-
   OnSelectorChange(element: any, attribute: string) {
     switch (attribute) {
 
@@ -282,9 +278,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
       })
     })
 
-    console.log("imports",imports)
-    console.log("exports",exports)
-
     this.communityMonthChartDatasets = [
       {
         label: 'Importació (Kwh)',
@@ -302,6 +295,24 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.communityUpdateMonthChartSubject.next(true);
 
+    this.updateCommunityValoration(exports,imports)
+
+  }
+
+  updateCommunityValoration(communityExports:any[],communityImports:any[]){
+    let totalImports:number=0;
+    let totalExports:number=0;
+    communityExports.map((communityExport:any,index:number)=>{
+      totalExports+=communityExport;
+    })
+    communityImports.map((communityImport:any,index:number)=>{
+      totalImports+=communityImport;
+    })
+    if(totalImports>totalExports){
+      this.communityValoration=3
+    }else{
+      this.communityValoration=1
+    } 
   }
 
   renderLocation() {
@@ -348,7 +359,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.selectedCadastre.m2 = Math.floor(areaM2);
         this.nPlaquesCalc = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7);
         
-        this.updateCadastreConsumption();
+        this.updateCadastreConsumptionM2();
         this.updateCadastreChart();
         this.updateSelectedCadastreValoration();
 
@@ -426,7 +437,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   }
 
-  updateCadastreConsumption(){
+  updateCadastreConsumptionM2(){
     //TODO: update algorythm
     let updatedConsumption = this.selectedCadastre.totalConsumption + this.selectedCadastre.m2!
     this.selectedCadastre.totalConsumption = updatedConsumption;
@@ -434,6 +445,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.selectedCadastre.valle = this.selectedCadastre.totalConsumption * 0.50;
     this.selectedCadastre.llano = this.selectedCadastre.totalConsumption * 0.26;
     this.selectedCadastre.punta = this.selectedCadastre.totalConsumption * 0.24;
+  }
+
+  updateCadastreConsumption(){
+    this.selectedCadastre.totalConsumption=this.selectedCadastre.valle+this.selectedCadastre.llano+this.selectedCadastre.punta
+    this.updateCadastreChart();
   }
 
   featureSelected(selectedFeature: any) {
@@ -461,7 +477,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   updateCadastreChart() {
 
-    let monthConsumption = this.selectedCadastre.valle + this.selectedCadastre.llano + this.selectedCadastre.punta;
+    let monthConsumption = this.selectedCadastre.totalConsumption;
     let monthConsumptionArray: any = [];
     let sumMonthGeneration: number = 0;
     let sumMonthConsumption: number = 0;
@@ -495,6 +511,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
     ]
 
     this.updateSelectedCadastreMonthChartSubject.next(true);
+
+    this.updateSelectedCadastreValoration()
 
   }
 

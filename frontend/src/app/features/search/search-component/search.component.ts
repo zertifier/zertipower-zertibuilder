@@ -1,8 +1,8 @@
-import {AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {CustomersService} from "../../../core/core-services/customers.service";
-import {AppMapComponent} from "../../../shared/infrastructure/components/map/map.component";
-import {CommunitiesApiService} from "../../communities/communities.service";
-import {EnergyAreasService} from "../../../core/core-services/energy-areas.service";
+import { AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { CustomersService } from "../../../core/core-services/customers.service";
+import { AppMapComponent } from "../../../shared/infrastructure/components/map/map.component";
+import { CommunitiesApiService } from "../../communities/communities.service";
+import { EnergyAreasService } from "../../../core/core-services/energy-areas.service";
 import * as turf from '@turf/turf'
 import { LocationService } from 'src/app/core/core-services/location.service';
 import { BehaviorSubject } from 'rxjs';
@@ -10,15 +10,21 @@ import { ActivatedRoute } from '@angular/router';
 import moment from 'moment';
 
 interface cadastre {
-  valle?: number,
-  llano?:number,
-  punta?:number,
-  n_plaques?:number,
-  inversion?:number,
-  savings?:number,
-  amortization_years?:number,
+  totalConsumption: number,
+  valle: number,
+  llano: number,
+  punta: number,
+  yearConsumption?:number,
+  yearGeneration?:number,
+  monthsConsumption?:number[],
+  monthsGeneration?:number[],
+  m2?: number,
+  n_plaques?: number,
+  inversion?: number,
+  savings?: number,
+  amortization_years?: number,
+  feature?:any
 }
-
 
 @Component({
   selector: 'app-search',
@@ -29,110 +35,115 @@ interface cadastre {
 
 export class SearchComponent implements OnInit, AfterViewInit {
 
-  customers:any=[];
-  communities:any=[];
-  locations:any=[];
-  selectedCommunity:any;
-  selectedCommunities:any;
-  selectedLocation:any= {municipality:''};
-  cadastresMap:any;
-  energyAreas:any;
-  energyArea={cadastral_reference:'',m2:0,cups:''};
-  selectedEnergyArea:any;
-  nPlaquesCalc:any;
-  kwhMonth:any;
-  wp:number = 460; //potencia pico (potencia nominal)
+  customers: any = [];
+  communities: any = [];
+  locations: any = [];
+  selectedCommunity: any;
+  selectedCommunities: any;
+  selectedLocation: any = { municipality: '' };
+  cadastresMap: any;
+  energyAreas: any;
+  energyArea = { cadastral_reference: '', m2: 0, cups: '' };
+  selectedEnergyArea: any;
+  nPlaquesCalc: any;
+  kwhMonth: any;
+  wp: number = 460; //potencia pico (potencia nominal)
 
   //chart variables
   monthChartType: string = 'bar';
-  monthChartLabels: string[] =  ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  monthChartLabels: string[] = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
   monthChartClientData: any[] = new Array(12).fill({ p1: 0, p2: 0, p3: 0, production: 0 });;
   monthChartDatasets: any[] | undefined = undefined;
   monthChartData: any[] = [];
-  monthChartBackgroundColor: string [] = [];
+  monthChartBackgroundColor: string[] = [];
   updateMonthChart: boolean = false;
   updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   sumMonthGeneration: number[] = [];
-  kwhMonth460wp = [20,25,35,45,55,65,75,75,60,45,35,25];
-  selectedAreaM2:number| undefined;
-  paramsSub:any;
-  locationId:number|undefined;
+  kwhMonth460wp = [20, 25, 35, 45, 55, 65, 75, 75, 60, 45, 35, 25];
+  selectedAreaM2: number | undefined;
+  paramsSub: any;
+  locationId: number | undefined;
 
-  communityValoration:number=1;
-  communityEnergyData:any;
-  communityMonthChartLabels:any=[];
-  communityMonthChartDatasets:any=[];
-  communityMonthChartType='bar';
+  communityValoration: number = 1;
+  communityEnergyData: any;
+  communityMonthChartLabels: any = [];
+  communityMonthChartDatasets: any = [];
+  communityMonthChartType = 'bar';
   communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  communityMonthChartOptions=
-  {
-    indexAxis: 'y',
-    // Elements options apply to all of the options unless overridden in a dataset
-    // In this case, we are setting the border of each horizontal bar to be 2px wide
-    elements: {
-      bar: {
-        borderWidth: 2,
-      }
-    },
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: {
-          usePointStyle:true,
-          pointStyle:'circle'
+  communityMonthChartOptions =
+    {
+      indexAxis: 'y',
+      // Elements options apply to all of the options unless overridden in a dataset
+      // In this case, we are setting the border of each horizontal bar to be 2px wide
+      elements: {
+        bar: {
+          borderWidth: 2,
+        }
+      },
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
         }
       }
     }
-  }
 
-
-  cadastreValoration:number=0;
-  selectedCadastreEnergyData:any;
-  selectedCadastreMonthChartLabels:any=[];
-  selectedCadastreMonthChartDatasets:any=[];
-  selectedCadastreMonthChartType='bar';
-  selectedCadastreMonthChartOptions=
-  {
-    indexAxis: 'y',
-    // Elements options apply to all of the options unless overridden in a dataset
-    // In this case, we are setting the border of each horizontal bar to be 2px wide
-    elements: {
-      bar: {
-        borderWidth: 2,
-      }
-    },
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: {
-          usePointStyle:true,
-          pointStyle:'circle'
+  cadastreValoration: number = 0;
+  selectedCadastreEnergyData: any;
+  selectedCadastreMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  selectedCadastreMonthChartDatasets: any = [];
+  selectedCadastreMonthChartType = 'bar';
+  updateSelectedCadastreMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  selectedCadastreMonthChartOptions =
+    {
+      indexAxis: 'y',
+      // Elements options apply to all of the options unless overridden in a dataset
+      // In this case, we are setting the border of each horizontal bar to be 2px wide
+      elements: {
+        bar: {
+          borderWidth: 2,
+        }
+      },
+      responsive: true,
+      mantainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
         }
       }
     }
-  }
 
-  selectedCadastre: cadastre = {valle:0,llano:0,punta:0};
-  
-  cupsNumber:number=0;
-  added:number=0;
- 
-  @ViewChild(AppMapComponent) map!:AppMapComponent;
+  selectedCadastre: cadastre = {
+    totalConsumption: 200,
+    valle: 98,
+    llano: 52,
+    punta: 48
+  };
 
-  folder:number=1;
+  cupsNumber: number = 0;
+  addedAreas: cadastre[] = [];
 
-  isShrunk:boolean=false;
+  @ViewChild(AppMapComponent) map!: AppMapComponent;
 
-  selectedFeature:any;
+  folder: number = 1;
+
+  isShrunk: boolean = false;
+
+  selectedFeature: any;
 
   constructor(
-    private customersService: CustomersService, 
     private communitiesService: CommunitiesApiService,
-    private energyAreasService:EnergyAreasService,
-    private locationService:LocationService,
-    private activatedRoute: ActivatedRoute){}
+    private energyAreasService: EnergyAreasService,
+    private locationService: LocationService,
+    private activatedRoute: ActivatedRoute) { }
 
   async ngOnInit() {
     this.paramsSub = this.activatedRoute.params.subscribe(
@@ -142,48 +153,37 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   async ngAfterViewInit() {
 
-    this.locations = await new Promise((resolve:any,reject:any)=>{
-      this.locationService.getLocations().subscribe(async (res:any)=>{
-        this.selectedLocation = res.data.find((location:any)=>location.id=this.locationId)
+    this.locations = await new Promise((resolve: any, reject: any) => {
+      this.locationService.getLocations().subscribe(async (res: any) => {
+        this.selectedLocation = res.data.find((location: any) => location.id = this.locationId)
         //this.createLocationControl(res.data);
         this.map.centerToAddress(`${this.selectedLocation.municipality}, España`)
         resolve(res.data)
-      },(error:any)=>{
+      }, (error: any) => {
         console.log("error getting locations")
         reject("error")
       })
     })
-    
-    this.communities =  await new Promise((resolve:any,reject:any)=>{
-      this.communitiesService.get().subscribe((res:any)=>{
+
+    this.communities = await new Promise((resolve: any, reject: any) => {
+      this.communitiesService.get().subscribe((res: any) => {
         console.log(res.data)
         resolve(res.data)
-      },(error:any)=>{
+      }, (error: any) => {
         console.log("error getting locations")
         reject("error")
       })
     })
 
-    this.OnSelectorChange(this.selectedLocation,'location')
-
-    // this.customersService.getCustomersCups().subscribe(async (res: any) => {
-    //   console.log("res",res)
-    //   this.customers = res.data;
-    //   this.customers.map((customer:any)=>{
-    //     //console.log("customer",customer)
-    //     if(customer.geolocalization){
-    //       //this.map.addMarker(customer.geolocalization.y,customer.geolocalization.x)
-    //     }
-    //   })
-    // })
+    this.OnSelectorChange(this.selectedLocation, 'location')
 
   }
 
-  createLocationControl(locations:any[]){
+  createLocationControl(locations: any[]) {
     const locationSelector = document.createElement('select');
     locationSelector.classList.add("form-select")
-    locationSelector.addEventListener("change",()=>{this.OnSelectorChange(locationSelector.value,'location')})
-    
+    locationSelector.addEventListener("change", () => { this.OnSelectorChange(locationSelector.value, 'location') })
+
     for (var i = 0; i < locations.length; i++) {
       var option = document.createElement("option");
       option.value = locations[i];
@@ -195,60 +195,58 @@ export class SearchComponent implements OnInit, AfterViewInit {
     centerControlDiv.classList.add("p-4")
     centerControlDiv.appendChild(locationSelector)
 
-    
+
     this.map.addControl(centerControlDiv)
   }
 
-  checkCadastreValue(){
-    console.log(this.selectedCadastre.valle,this.selectedCadastre.llano,this.selectedCadastre.punta)
+  checkCadastreValue() {
+    console.log(this.selectedCadastre.valle, this.selectedCadastre.llano, this.selectedCadastre.punta)
   }
 
   OnSelectorChange(element: any, attribute: string) {
-    switch(attribute){
-  
+    switch (attribute) {
+
       case 'location':
 
         //this.selectedLocation=element;
-        this.selectedCommunities = this.communities.map((community:any)=>{
-          if(community.location_id==this.selectedLocation.id){
+        this.selectedCommunities = this.communities.map((community: any) => {
+          if (community.location_id == this.selectedLocation.id) {
             return community;
-          }  
-        }) .filter((element: any) => element);
-      
+          }
+        }).filter((element: any) => element);
+
         this.renderSelectedCommunities();
         this.renderLocation();
         break;
-  
+
       case 'community':
-      
+
         //this.renderSelectedCommunities();
         //this.renderLocation();
-        let date=moment().format('YYYY-MM-DD')
-        this.communitiesService.getEnergy(this.selectedCommunity.id,date).subscribe((res:any)=>{
+        let date = moment().format('YYYY-MM-DD')
+        this.communitiesService.getEnergy(this.selectedCommunity.id, date).subscribe((res: any) => {
           console.log("DATA COMUNITAT: ", res)
-          this.communityEnergyData= res.data;
+          this.communityEnergyData = res.data;
           this.updateCommunityChart();
         })
         break;
 
-      default: 
+      default:
         break;
     }
-    
+
   }
 
-  updateCommunityChart(){
-    //this.monthChartLabels=this.communityEnergyData.
-    
+  updateCommunityChart() {
+
     this.communityMonthChartLabels;
-    this.communityMonthChartDatasets=[];
-    this.communityMonthChartType='bar';
-    this.communityUpdateMonthChartSubject.next(true);
+    this.communityMonthChartDatasets = [];
+    this.communityMonthChartType = 'bar';
 
     let imports: any[] = [];
-    let exports:any[] = [];
+    let exports: any[] = [];
 
-    this.communityEnergyData.forEach((item:any) => {
+    this.communityEnergyData.forEach((item: any) => {
       this.communityMonthChartLabels.push(item.month);
       //numeros_mes.push(item.month_number);
       imports.push(item.import);
@@ -270,126 +268,108 @@ export class SearchComponent implements OnInit, AfterViewInit {
       }
     ]
 
+    this.communityUpdateMonthChartSubject.next(true);
 
   }
 
-  renderLocation(){
-    
-    let geoJson:any = {
+  renderLocation() {
+
+    console.log("render location")
+
+    let geoJson: any = {
       "type": "FeatureCollection",
       "features": []
     }
 
-    this.energyAreasService.getByLocation(this.selectedLocation.id).subscribe((res:any)=>{
+    this.energyAreasService.getByLocation(this.selectedLocation.id).subscribe((res: any) => {
+
       this.energyAreas = res.data;
-      this.energyAreas.map((energyArea:any)=>{
+
+      this.energyAreas.map((energyArea: any) => {
         let geoJsonFeature = energyArea.geojson_feature;
-        geoJsonFeature=JSON.parse(geoJsonFeature)
+        geoJsonFeature = JSON.parse(geoJsonFeature)
         geoJsonFeature.properties.energyAreaId = energyArea.id;
         geoJson.features.push(geoJsonFeature)
       })
-      //console.log(geoJson.features[0])
+
       this.cadastresMap = this.map.addGeoJson(geoJson);
 
       const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
-        // Aquí puedes manejar el evento de clic en la feature
+
+        this.resetCadastre();
+
         const feature = event.feature;
-        //console.log('Clic en la feature:', feature.getProperty('localId'));
-        //console.log(feature)
-        //console.log(feature.getProperty('energyAreaId'))
+        this.selectedCadastre.feature=feature;
+
         let energyAreaId = feature.getProperty('energyAreaId')
 
-        
-        if(this.selectedEnergyArea && this.selectedEnergyArea.id == energyAreaId){ //click unselect
-          console.log("unselect energy area")
-          this.selectedEnergyArea= null;
+        if (this.selectedEnergyArea && this.selectedEnergyArea.id == energyAreaId) { //click unselect
+          this.selectedEnergyArea = null;
           return;
         }
 
-        this.selectedEnergyArea = this.energyAreas.find((energyArea:any)=>
+        this.selectedEnergyArea = this.energyAreas.find((energyArea: any) =>
           energyArea.id === energyAreaId
         )
 
-        console.log("selected",this.selectedAreaM2)
-
-        //console.log(`foo = `, this.selectedEnergyArea.m2, this.selectedEnergyArea.m2*0.2,(this.selectedEnergyArea.m2*0.2)/2,Math.floor((this.selectedEnergyArea.m2*0.2)/2))
-        this.nPlaquesCalc = Math.floor((this.selectedAreaM2! * 0.2) / 1.7)
-        //console.log(`selected energy area = `, this.selectedEnergyArea)
-        //console.log("nplaquescalc", this.nPlaquesCalc)
-        this.updatekWhPerMonth(this.nPlaquesCalc)
+        let areaM2:any = feature.getProperty('areaM2');
+        this.selectedCadastre.m2 = Math.floor(areaM2);
+        this.nPlaquesCalc = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7);
+        
+        this.updateCadastreConsumption();
+        this.updateCadastreChart();
+        this.updateSelectedCadastreValoration();
 
       });
-      
+
     })
-    
+
   }
 
-  renderSelectedCommunities(){
-    
+  renderSelectedCommunities() {
+
     this.map.deleteMarkers();
 
-    //console.log("selected communities",this.selectedCommunities)
+    this.selectedCommunities.map((community: any) => {
 
-    this.selectedCommunities.map((community:any)=>{
+      if (community.lat && community.lng) {
 
-      //console.log("selected",community)
-      if(community.lat && community.lng){
+        let marker = this.map.addMarker(community.lat, community.lng)
 
-        let marker = this.map.addMarker(community.lat,community.lng)
-        
-        marker.addListener('click',()=>{
-
-          this.selectedCommunity=community;
-
-          /*this.map.addCircle(community.lat,community.lng,200);
-
-          this.energyAreasService.getByArea(community.lat,community.lng,100).subscribe((res:any)=>{
-              
-              const energyPolygons = this.groupArrayByAttribute(res.data, 'energy_area_id');
-
-              energyPolygons.map(energyPolygon=>{
-
-                let polygon = energyPolygon.map((energyCoords:any)=>{
-
-                  return {lat:parseFloat(energyCoords.lat),lng:parseFloat(energyCoords.lng)};
-
-                })
-
-              polygon = this.orderCoords(polygon);
-
-              this.map.addPolygon(polygon,'red')
-
-            })
-          })*/
+        marker.addListener('click', () => {
+          this.selectedCommunity = community;
         })
+
       }
+
     })
+
   }
 
-  groupArrayByAttribute(array:[], attribute:string) {
-      const groupedArrays: [][] = [];
+  groupArrayByAttribute(array: [], attribute: string) {
+    const groupedArrays: [][] = [];
 
-      // Creamos un mapa para almacenar los arrays agrupados temporalmente
-      const tempMap = new Map<number | string, []>();
+    // Creamos un mapa para almacenar los arrays agrupados temporalmente
+    const tempMap = new Map<number | string, []>();
 
-      // Iteramos sobre el array para agrupar los elementos según el atributo especificado
-      array.forEach(item => {
-        const value = item[attribute];
-        if (!tempMap.has(value)) {
-          tempMap.set(value, []);
-        }
-        tempMap.get(value)?.push(item);
-      });
+    // Iteramos sobre el array para agrupar los elementos según el atributo especificado
+    array.forEach(item => {
+      const value = item[attribute];
+      if (!tempMap.has(value)) {
+        tempMap.set(value, []);
+      }
+      tempMap.get(value)?.push(item);
+    });
 
-      // Convertimos el mapa en un array de arrays y lo devolvemos
-      tempMap.forEach(value => groupedArrays.push(value));
+    // Convertimos el mapa en un array de arrays y lo devolvemos
+    tempMap.forEach(value => groupedArrays.push(value));
 
-      return groupedArrays;
-    }
+    return groupedArrays;
+  }
 
-  orderCoords(coords:any) {
-    let orderedCoords:any = [];
-    let simpleCords = coords.map((obj:any) => [obj.lat, obj.lng]);
+  orderCoords(coords: any) {
+    let orderedCoords: any = [];
+    let simpleCords = coords.map((obj: any) => [obj.lat, obj.lng]);
     // Calcular la envoltura convexa de los puntos
     const convexHull = turf.convex(turf.points(simpleCords));
     // Obtener las coordenadas del polígono convexo
@@ -397,57 +377,119 @@ export class SearchComponent implements OnInit, AfterViewInit {
     return orderedCoords;
   }
 
-  deleteMarkers(){
+  deleteMarkers() {
 
   }
 
-  multipleSelection(){
-    if(this.map.multipleSelection){
-      this.map.multipleSelection=false;
+  multipleSelection() {
+    if (this.map.multipleSelection) {
+      this.map.multipleSelection = false;
       this.map.unselect();
-    }else{
-      this.map.multipleSelection=true;
+    } else {
+      this.map.multipleSelection = true;
     }
-    
+
   }
 
-  updatekWhPerMonth(panelNumber:number) {
+  updateCadastreConsumption(){
+    //TODO: update algorythm
+    let updatedConsumption = this.selectedCadastre.totalConsumption + this.selectedCadastre.m2!
+    this.selectedCadastre.totalConsumption = updatedConsumption;
 
-    this.sumMonthGeneration = Array.apply(null, Array(12)).map((element,index)=>{
-      let monthGeneration =  this.kwhMonth460wp[index]*panelNumber
+    this.selectedCadastre.valle = this.selectedCadastre.totalConsumption * 0.50;
+    this.selectedCadastre.llano = this.selectedCadastre.totalConsumption * 0.26;
+    this.selectedCadastre.punta = this.selectedCadastre.totalConsumption * 0.24;
+  }
+
+  featureSelected(selectedFeature: any) {
+    if (selectedFeature.selected) {
+      this.selectedFeature = selectedFeature.feature;
+    } else {
+      this.selectedFeature = undefined;
+    }
+  }
+
+  updateSelectedCadastreValoration() {
+
+    let consumption = this.selectedCadastre.yearConsumption!;
+    let production = this.selectedCadastre.yearGeneration!;
+
+     if (consumption > production) {
+      this.cadastreValoration = 3;
+    } else if (production > consumption) {
+      this.cadastreValoration = 1;
+    } else {
+      this.cadastreValoration = 2;
+    }
+
+  }
+
+  updateCadastreChart() {
+
+    let monthConsumption = this.selectedCadastre.valle + this.selectedCadastre.llano + this.selectedCadastre.punta;
+    let monthConsumptionArray: any = [];
+    let sumMonthGeneration: number = 0;
+    let sumMonthConsumption: number = 0;
+
+    let monthGenerationArray = Array.apply(null, Array(12)).map((element, index) => {
+      let monthGeneration = this.kwhMonth460wp[index] * this.nPlaquesCalc;
+      monthConsumptionArray.push(monthConsumption);
+      sumMonthGeneration += monthGeneration;
+      sumMonthConsumption += monthConsumption;
       return monthGeneration;
     });
 
-    console.log(this.monthChartData)
+    this.selectedCadastre.yearConsumption=sumMonthConsumption;
+    this.selectedCadastre.yearGeneration=sumMonthGeneration;
+    this.selectedCadastre.monthsConsumption=monthConsumptionArray;
+    this.selectedCadastre.monthsGeneration=monthGenerationArray;
 
-    this.monthChartData = [ this.sumMonthGeneration ]
-    this.monthChartDatasets = [
+    this.selectedCadastreMonthChartDatasets = [
       {
-        label: 'Generation (Kwh)',
-        data: this.monthChartData[0],
-        backgroundColor: 'rgb(54, 162, 235)'
+        label: 'Consum (Kwh)',
+        data: monthConsumptionArray,
+        backgroundColor: 'rgb(211, 84, 0)',
+        borderColor: 'rgb(255,255,255)'
+      },
+      {
+        label: 'Generació',
+        data: monthGenerationArray,
+        backgroundColor: 'rgb(52, 152, 219)',
+        borderColor: 'rgb(255,255,255)'
       }
     ]
 
-    this.updateMonthChartSubject.next(true);
+    this.updateSelectedCadastreMonthChartSubject.next(true);
+
   }
 
-  setSelectedAreaM2(areaM2:any){
-    console.log("selected area m2", areaM2)
-    this.selectedAreaM2=Math.floor(areaM2)
+  changeShrinkState() {
+    this.isShrunk = !this.isShrunk;
   }
 
-  featureSelected(selectedFeature:any){
-    if(selectedFeature.selected){
-      this.selectedFeature=selectedFeature.feature
-    }else{
-      this.selectedFeature=undefined;
+  resetCadastre(){
+    this.selectedCadastre={
+      totalConsumption: 200,
+      valle: 98,
+      llano: 52,
+      punta: 48
     }
-    
   }
 
-  changeShrinkState(){
-    this.isShrunk = !this.isShrunk
+  addArea(){
+
+    let found = this.addedAreas.find((addedArea)=>addedArea.feature==this.selectedCadastre.feature)
+    if(found){
+      //todo: show already added
+    }else{
+      this.addedAreas.push(this.selectedCadastre)
+      //TODO: update community
+    }
+  }
+
+  deleteArea(){
+    //TODO: delete from addedAreas if its added.
+    this.selectedFeature=undefined;
   }
 
 }

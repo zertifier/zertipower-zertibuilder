@@ -85,9 +85,7 @@ export class AppMapComponent implements AfterViewInit {
   originalStyle: any = {fillColor:"red",fillOpacity:0.0,strokeColor:"white",strokeWeight:1.0,strokeDashArray: '10000, 10000'}
   multipleSelection = false;
 
-  @Output() selectedAreaM2 = new EventEmitter<number>();
   @Output() selectedFeature = new EventEmitter<any>();
-
 
   constructor(private cdr: ChangeDetectorRef, private ngZone:NgZone) {}
 
@@ -105,6 +103,8 @@ export class AppMapComponent implements AfterViewInit {
 
     this.map.data.addListener('click', (event:any) => {
 
+      this.setFeatureArea(event.feature)
+
       if (event.feature.getProperty('selected')) {
         console.log("unselect")
         event.feature.setProperty('selected',false);
@@ -118,7 +118,6 @@ export class AppMapComponent implements AfterViewInit {
         }
         event.feature.setProperty('selected',true);
         this.map.data.overrideStyle(event.feature, { fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white' });
-        this.emitFetureArea(event.feature)
         this.selectedFeature.emit({selected:true,feature:event.feature});
       }
       
@@ -157,7 +156,7 @@ export class AppMapComponent implements AfterViewInit {
   }
 
   addCircle(lat:number,lng:number,radius:number){
-    console.log("CIRCLE")
+    
     const cityCircle = new google.maps.Circle({
       strokeColor: "#FF0000",
       strokeOpacity: 0.5,
@@ -168,7 +167,7 @@ export class AppMapComponent implements AfterViewInit {
       center:{lat:lat,lng:lng},
       radius: radius,
     });
-    console.log("CIRCULO",cityCircle)
+    
     return cityCircle;
   }
 
@@ -207,8 +206,7 @@ export class AppMapComponent implements AfterViewInit {
     })
   }
 
-  emitFetureArea(feature:any){
-
+  setFeatureArea(feature:any){
     let geometry = feature.getGeometry().getArray()
 
     for (var i = 0; i < geometry.length; i++) {
@@ -229,8 +227,7 @@ export class AppMapComponent implements AfterViewInit {
         // Calcular el área del polígono
         const areaM2 = google.maps.geometry.spherical.computeArea(path);
 
-        console.log('Área del polígono en metros cuadrados:', areaM2);
-        this.selectedAreaM2.emit(areaM2);
+        feature.setProperty('areaM2',areaM2);
 
       } else {
           console.log('La geometría no es un polígono.');

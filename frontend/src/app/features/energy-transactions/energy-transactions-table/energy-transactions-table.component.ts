@@ -39,8 +39,8 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
       width: '60px',
     },
     {
-      title: 'CupsId',
-      data: 'cups_id',
+      title: 'Cups',
+      data: 'cups',
       width: '100px',
     },
     {
@@ -49,12 +49,12 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'KwhIn',
+      title: 'Kwh entrada',
       data: 'kwh_in',
       width: '100px',
     },
     {
-      title: 'KwhOut',
+      title: 'Kwh sortida',
       data: 'kwh_out',
       width: '100px',
     },
@@ -64,20 +64,20 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'BlockId',
-      data: 'block_id',
+      title: 'Tram',
+      data: 'reference',
       width: '100px',
     },
-    {
-      title: 'CreatedAt',
-      data: 'created_at',
-      width: '100px',
-    },/*
-    {
-      title: '',
-      data: 'id',
-      width: '100px'
-    }*/
+    /* {
+       title: 'CreatedAt',
+       data: 'created_at',
+       width: '100px',
+     },
+     {
+       title: '',
+       data: 'id',
+       width: '100px'
+     }*/
   ];
 
   filterParams: filterParams[] = [
@@ -137,14 +137,14 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
         defaultData: 0,
         options: [],
       },
-      {
+      /*{
         title: 'created_at',
         description: '',
         value: '',
         type: 0,
         defaultData: 0,
         options: [],
-      },
+      },*/
   ];
 
   columnDefs:any[] = [
@@ -175,12 +175,12 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
         return `<span>${data}</span>`
       }
     },
-    {
+    /*{
       targets: 7,
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
-    }/*,
+    },
     {
       targets: this.filterParams.length,
       title: '',

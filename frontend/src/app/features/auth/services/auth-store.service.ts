@@ -83,8 +83,6 @@ export class AuthStoreService {
 	}
 
 	setTokens(accessToken: string, refreshToken: string) {
-    console.log("AAAAAAA")
-
 		this.accessToken.set(accessToken);
 		this.refreshToken.set(refreshToken);
 

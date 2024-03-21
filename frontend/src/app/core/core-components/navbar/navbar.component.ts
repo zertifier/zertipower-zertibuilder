@@ -49,7 +49,7 @@ export class NavbarComponent {
       const user = authStore.user();
       if (user) {
         const permissions = this.permissionsStoreService.permissions()[user.role]
-        // if (user.role == 'ADMIN') this.pages[0].status = true
+        if (user.role == 'ADMIN') this.pages[0].status = true
         if (user.role == 'ADMIN') this.pages[1].status = true
 
         this.setPermmittedPages(permissions)
@@ -104,9 +104,8 @@ export class NavbarComponent {
   }
 
   setPermmittedPages(permissions: any){
-    const user = this.authStore.user();
+    // const user = this.authStore.user();
 
-    console.log(user, "USER")
     Object.keys(permissions)
       .map(page => {
         if (permissions[page]['pageAccess']){

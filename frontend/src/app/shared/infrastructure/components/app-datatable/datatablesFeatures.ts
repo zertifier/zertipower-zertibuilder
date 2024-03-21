@@ -257,8 +257,6 @@ export class DatatablesFeatures {
   }
 
   async createRefreshRowsButton() {
-
-
     let refreshDiv = this.renderer.createElement("div");
     this.renderer.addClass(refreshDiv, "order-md-4");
     this.renderer.addClass(refreshDiv, "col-auto");

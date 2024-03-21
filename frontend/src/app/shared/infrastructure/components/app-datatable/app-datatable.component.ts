@@ -20,7 +20,8 @@ import { dataTablesResponse } from "./interfaces/datatablesResponse.interface";
 @Component({
 	selector: "app-datatable",
 	templateUrl: "./app-datatable.component.html",
-	styleUrls: ["./app-datatable.component.css"]
+	styleUrls: ["./app-datatable.component.css"],
+  // encapsulation: ViewEncapsulation.None,
 })
 export class AppDatatableComponent implements OnInit {
 	//inputs:

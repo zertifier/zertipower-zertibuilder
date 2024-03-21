@@ -63,6 +63,11 @@ export class CupsTableComponent implements OnDestroy {
       data: 'municipality',
       width: '100px',
     },
+    {
+      title: 'Distribució comunitaria',
+      data: 'surplus_distribution',
+      width: '100px',
+    },
 /*
     {
       title: 'Data creació',
@@ -119,6 +124,14 @@ export class CupsTableComponent implements OnDestroy {
       },
       {
         title: 'Municipality',
+        description: '',
+        value: '',
+        type: 0,
+        defaultData: 0,
+        options: [],
+      },
+      {
+        title: 'surplus',
         description: '',
         value: '',
         type: 0,

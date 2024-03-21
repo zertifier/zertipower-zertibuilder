@@ -88,8 +88,9 @@ export class EnergyBlocksController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,reference,expiration_dt,active_init,active_end,consumption_price,generation_price
-                  FROM energy_blocks`
+      `SELECT eb.id,reference,expiration_dt,active_init,active_end,consumption_price,generation_price, pr.provider
+                  FROM energy_blocks eb
+                  LEFT JOIN providers pr ON pr.id = eb.provider_id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data

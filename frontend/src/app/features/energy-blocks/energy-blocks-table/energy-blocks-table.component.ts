@@ -44,6 +44,11 @@ export class EnergyBlocksTableComponent implements OnDestroy {
       width: '100px',
     },
     {
+      title: 'Proveïdor',
+      data: 'provider',
+      width: '100px',
+    },
+    {
       title: `Data d'expiració`,
       data: 'expiration_dt',
       width: '100px',
@@ -86,6 +91,14 @@ export class EnergyBlocksTableComponent implements OnDestroy {
       },
       {
         title: 'reference',
+        description: '',
+        value: '',
+        type: 0,
+        defaultData: 0,
+        options: [],
+      },
+      {
+        title: 'provider',
         description: '',
         value: '',
         type: 0,
@@ -139,7 +152,7 @@ export class EnergyBlocksTableComponent implements OnDestroy {
       orderable: false, targets: [this.filterParams.length],
     },
     {
-      targets: 2,
+      targets: 3,
       render: (data: any, type: any, row: any) => {
         // return `<i class="fa-solid fa-clock"></i> ${data}`
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
@@ -147,13 +160,13 @@ export class EnergyBlocksTableComponent implements OnDestroy {
       }
     },
     {
-      targets: 3,
+      targets: 4,
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-clock"></i> ${data}`
       }
     },
     {
-      targets: 4,
+      targets: 5,
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-clock"></i> ${data}`
       }

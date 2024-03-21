@@ -89,12 +89,20 @@ export class CupsController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT cups.id as id,cups,providers.provider as provider,communities.name as community,locations.municipality as municipality,customers.name as customer,cups.created_at as created_at,cups.updated_at as updated_at
-                  FROM cups 
-                  LEFT JOIN customers ON customer_id=customers.id 
-                  LEFT JOIN locations on location_id=locations.id
-                  LEFT JOIN providers on provider_id=providers.id
-                  LEFT JOIN communities on community_id=communities.id`
+      `SELECT cups.id as id,
+              cups,
+              providers.provider as     provider,
+              cups.surplus_distribution,
+              communities.name as       community,
+              locations.municipality as municipality,
+              customers.name         as customer,
+              cups.created_at        as created_at,
+              cups.updated_at        as updated_at
+       FROM cups
+              LEFT JOIN customers ON customer_id = customers.id
+              LEFT JOIN locations on location_id = locations.id
+              LEFT JOIN providers on provider_id = providers.id
+              LEFT JOIN communities on community_id = communities.id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data

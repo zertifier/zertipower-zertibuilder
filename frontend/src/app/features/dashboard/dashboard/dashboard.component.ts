@@ -29,7 +29,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   simpleWeekDateInit: string = '';
   simpleWeekDateEnd: string = '';
 
-  originDataTypes:string[]=['Datadis','Inverter','Smart meter','Other']
+  originDataTypes:string[]=['Datadis','Inverter','Smart meter', 'Sensor','Other']
   selectedCupsOriginDataType:string='';
 
   // Year chart variables
@@ -99,7 +99,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     //customer selector listener
     this.customersSelectorListener = document.getElementById('customerSelector')!.addEventListener('change', async (event: any) => {
-      
+
       this.cupsId = this.selectedCupsCustomer.id;
       this.getOriginData();
 
@@ -143,7 +143,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.selectedCupsOriginDataType='Other';
     }
     console.log(this.selectedCupsOriginDataType)
-  } 
+  }
 
   async updateCharts(yearEnergy:any,weekEnergy:any,dayEnergy:any) {
 
@@ -219,7 +219,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     let date = moment(this.date,'D/M/YYYY').format('YYYY-MM-DD')
 
     return new Promise((resolve, reject) => {
-      
+
       if(this.selectedCupsOriginDataType=='Datadis'){
 
         this.datadisEnergyService.getWeekByCups(date, cups!).subscribe((res: any) => {
@@ -241,7 +241,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         })
 
       }else{
-      
+
         this.energyService.getWeekByCups(date, cups!).subscribe((res: any) => {
           let weekDateLimits: any;
           let weekCupsData = res.data;
@@ -396,7 +396,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         label: 'Consum (Kwh)',
         data: dayEnergy.weekConsumption,
         backgroundColor: 'rgba(240, 190, 48, 1)'
-      }, 
+      },
      {
       label: 'Generació (Kwh)',
       data: dayEnergy.dayGeneration,

@@ -102,19 +102,6 @@ export class DatadisService {
                 continue;
             }
 
-            this.communityCups = [];
-            
-            if(cups.type == 'community'){
-                 this.dbCups.map((dbCupsElement)=>{
-                    if(dbCupsElement.community_id===cups.community_id){
-                        let customerFound = this.dbCustomers.find(dbCustomer=>dbCustomer.id===cups.customer_id)
-                        if(customerFound && customerFound.dni){
-                            this.communityCups.push({...customerFound,...dbCupsElement})
-                        }
-                    }
-                })
-            }
-
             this.loginData.username=cups.datadis_user;
             this.loginData.password= PasswordUtils.decryptData(cups.datadis_password,process.env.JWT_SECRET!);
 
@@ -122,16 +109,52 @@ export class DatadisService {
             await this.login();
 
             //get datadis cups
-            await this.getSupplies();
+            await this.getSupplies().catch(async e=>{
+                status = 'error';
+                errorType = 'Error getting supplies';
+                operation = 'Get supplies'
+                await this.postLogs(cups.cups,cups.id,operation,0,startDate,endDate,null,null,status,errorType,errorMessage);
+            });
 
-            //get authorized community datadis cups 
-            this.communityCups.map(async (communityCupsElement)=>{
-                await this.getAuthorizedSupplies(communityCupsElement);
-            })
+            if(!this.supplies){
+                continue;
+            }
+
+            console.log("supplies",this.supplies)
 
             //check if all cups are in database already
             await this.checkCups();
 
+            //get community authorized cups
+            this.communityCups = [];
+            if(cups.type == 'community'){
+                
+                 this.dbCups.map((dbCupsElement)=>{
+                    //if dbCups has the same communty of cups but it isn't the same
+                    if(dbCupsElement.community_id===cups.community_id && dbCupsElement.id!=cups.id){
+                        
+                        //get customer that own the cups
+                        let customerFound = this.dbCustomers.find(dbCustomer=>dbCustomer.id===dbCupsElement.customer_id)
+                        
+                        //if the customer has a dni
+                        if(customerFound && customerFound.dni){
+                            this.communityCups.push({...customerFound,...dbCupsElement})
+                        }
+                    }
+                })
+            }
+            
+            //get authorized community datadis cups 
+            const authorizedSuppliesPromises = this.communityCups.map(communityCupsElement=> this.getAuthorizedSupplies(communityCupsElement));
+            try{
+                await Promise.all(authorizedSuppliesPromises);
+            }catch(e){
+                status = 'error';
+                errorType = 'Error getting authorized supplies';
+                operation = 'Get authorized supplies'
+                await this.postLogs(cups.cups,cups.id,operation,0,startDate,endDate,null,null,status,errorType,errorMessage);
+            }
+            
             //go across cups:
             for (const supply of this.supplies){
 
@@ -198,7 +221,7 @@ export class DatadisService {
                 console.log('error logging in', e)
                 reject(e);
             });
-            console.log("login success, token obtained")
+            console.log("login success, token obtained", this.loginData)
             this.token = response.data;
             resolve(this.token);
         })
@@ -209,7 +232,8 @@ export class DatadisService {
             method:'get', 
             maxBodyLength: Infinity, 
             url: 'https://datadis.es/api-private/api/get-supplies', 
-            headers: {'Authorization': `Bearer ${this.token}`}
+            headers: {'Authorization': `Bearer ${this.token}`},
+            timeout: 10000
         }
         try{
             let response:any = await axios.request(config)
@@ -224,7 +248,7 @@ export class DatadisService {
                     console.error('Datos de respuesta:', axiosError.response.data);
                 } else if (axiosError.request) {
                     // El error ocurrió durante la solicitud, pero no se recibió respuesta
-                    console.error('La solicitud no recibió respuesta:', axiosError.request);
+                    console.error('La solicitud no recibió respuesta');
                 } else {
                     // Error al configurar la solicitud
                     console.error('Error al configurar la solicitud:', axiosError.message);
@@ -242,7 +266,8 @@ export class DatadisService {
             method:'get', 
             maxBodyLength: Infinity, 
             url: `https://datadis.es/api-private/api/get-supplies?authorizedNif=${communityCupsElement.dni}`, 
-            headers: {'Authorization': `Bearer ${this.token}`}
+            headers: {'Authorization': `Bearer ${this.token}`},
+            timeout: 10000
         }
         try{
             let response:any = await axios.request(config)
@@ -250,13 +275,14 @@ export class DatadisService {
             response.data.map((supplies:any)=>{
                 supplies.authorizedNif = communityCupsElement.dni
             })
+            console.log("auhorized supply",response.data)
             //add supplies:
             this.supplies=this.supplies.concat(response.data)
+            console.log("update supplies",this.supplies)
             return this.supplies;
         }catch(error){
             if (axios.isAxiosError(error)) {
                 const axiosError: any = error;
-             
                 if (axiosError.response) {
                     console.error('Respuesta recibida con estado:', axiosError.response.status);
                     console.error('Datos de respuesta:', axiosError.response.data);
@@ -268,9 +294,9 @@ export class DatadisService {
                     console.error('Error al configurar la solicitud:', axiosError.message);
                 }
             } else {
-             
                 console.error('Ocurrió un error:', error.message);
             }
+            console.log("error obteniendo suministros autorizados")
             throw new Error('No se pudieron obtener los suministros');
         }
     }
@@ -307,7 +333,7 @@ export class DatadisService {
                     }
                 };
     
-                let response = await axios.request(config);
+                let response = await axios.request(config); 
                 
                 if (!response) {
                     console.log("Get consumption data unknown error. Undefined response.");
@@ -517,10 +543,10 @@ export class DatadisService {
             getDatadisEndingDate
         };
 
-        const insertLogQuery = `INSERT INTO logs (log,cups,cups_id,status,operation,n_affected_registers,error_message) VALUES (?,?,?,?,?,?,?)`
+        const insertLogQuery = `INSERT INTO logs (origin,log,cups,cups_id,status,operation,n_affected_registers,error_message) VALUES (?,?,?,?,?,?,?)`
         return new Promise(async (resolve,reject)=>{
             try{
-                let [ROWS] = await this.conn.query(insertLogQuery, [JSON.stringify(log),cups,cupsId,status,operation,n_registers,errorMessage]);
+                let [ROWS] = await this.conn.query(insertLogQuery, ['datadis',JSON.stringify(log),cups,cupsId,status,operation,n_registers,errorMessage]);
                 resolve(ROWS);
             } catch (e:any) {
                 console.log("error inserting logs energy data", e);

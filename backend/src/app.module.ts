@@ -1,4 +1,4 @@
-import { SmartContractsController } from "src/features/smart-contracts.controller";
+import { SmartContractsController } from "src/features/smart-contracts/smart-contracts.controller";
 import { ProvidersController } from "src/features/providers/providers.controller";
 import { EnergyRegistersController } from "src/features/energy-registers/energy-registers.controller";
 import { EnergyTransactionsController } from "src/features/energy-transactions/energy-transactions.controller";

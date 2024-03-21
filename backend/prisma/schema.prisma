@@ -310,6 +310,7 @@ model InverterEnergyRegister {
 
 model Log {
   id                 Int         @id @default(autoincrement())
+  origin             String?     @map("origin") @db.VarChar(100)
   cups               String?     @map("cups") @db.VarChar(100)
   cupsId             Int?        @map("cups_id")
   status             LogsStatus? @map("status")

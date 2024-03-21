@@ -63,7 +63,7 @@ model RolePermission {
 
 model Token {
   id              Int      @id @default(autoincrement())
-  token           String   @db.VarChar(300)
+  token           String   @db.VarChar(500)
   expiration_time DateTime
   user_id         Int
 

@@ -15,8 +15,11 @@ import {LoginActionService} from "../../services/login-action.service";
 export class Web2LoginFormComponent {
 	formGroup = this.formBuilder.group({
 		user: new FormControl<string | null>(null, Validators.required),
-		password: new FormControl<string | null>(null),
+		// password: new FormControl<string | null>(null),
+    password: [null, [Validators.required, Validators.pattern(/\S/)]]
 	});
+
+  loading = false
 
 	constructor(
 		private formBuilder: FormBuilder,
@@ -26,13 +29,25 @@ export class Web2LoginFormComponent {
 	) {}
 
 	async login() {
+    this.loading = true
 		if (this.formGroup.invalid) {
+      this.loading = false
 			throw new Error("Invalid form");
 		}
 
 		const { user, password } = this.formGroup.value;
 
-		await this.loginAction.run(user!, password || "");
+    try {
+      await this.loginAction.run(user!, password || "");
+
+    }catch (e) {
+      Swal.fire({
+        icon: "error",
+        title: "Aquest usuari no existeix",
+      });
+      this.loading = false
+    }
+
 	}
 
 	async requestResetPassword() {
@@ -58,4 +73,6 @@ export class Web2LoginFormComponent {
 			title: "Email sent successfully",
 		});
 	}
+
+
 }

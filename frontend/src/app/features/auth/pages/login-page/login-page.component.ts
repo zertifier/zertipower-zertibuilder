@@ -74,7 +74,7 @@ export class LoginPageComponent implements OnDestroy {
       const code = params['code'];
       if (code) {
         Swal.fire({
-          title: 'Logging in',
+          title: 'Iniciant sessió...',
           allowOutsideClick: false,
           showConfirmButton: false,
           didOpen: function () {
@@ -88,18 +88,16 @@ export class LoginPageComponent implements OnDestroy {
 
         this.getPrivateKey(code).subscribe({
           next: (res: PrivateKeyHttpResponse) => {
-            console.log(res, "RESSSS")
             localStorage.removeItem('baseCodeChallenge');
             const privateKey = res.data.privateKey;
             const wallet = new ethers.Wallet(privateKey); //THIS IS YOUR WALLET
-            console.log(wallet, "WALLET")
+            // console.log(wallet, "WALLET")
 
             this.authApiService.webWalletLogin({
               wallet_address: wallet.address,
               private_key: privateKey,
               email: res.data.email
             }).subscribe((response: any) => {
-              console.log(response, "RESPONSE webWalletLogin")
               const access_token = response.access_token;
               const refresh_token = response.refresh_token;
               this.authStore.setTokens(access_token, refresh_token);

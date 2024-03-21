@@ -83,11 +83,14 @@ export class AuthStoreService {
 	}
 
 	setTokens(accessToken: string, refreshToken: string) {
+    console.log("AAAAAAA")
+
 		this.accessToken.set(accessToken);
 		this.refreshToken.set(refreshToken);
 
 		localStorage.setItem("accessToken", accessToken);
 		localStorage.setItem("refreshToken", refreshToken);
+
 
 		const decodedToken = jwtDecode<UserInterface>(accessToken);
 		this.user.set(decodedToken);
@@ -137,7 +140,7 @@ export class AuthStoreService {
 		this.logout()
 		const url = this.authApiService.getCode('google');
 		//await this.loadWalletFromPopup(url)
-	
+
 		// window.location.href = this.authApiService.getCode('google');
 	  }
 	  async loginWithTwitter(){
@@ -146,7 +149,7 @@ export class AuthStoreService {
 		// const url = 'http://localhost:4200/dumb'
 		//await this.loadWalletFromPopup(url)
 	  }
-	
+
 	  async loginWithGithub(){
 		this.logout()
 		const url = this.authApiService.getCode('github');

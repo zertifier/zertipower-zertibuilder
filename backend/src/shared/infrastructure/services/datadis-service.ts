@@ -24,12 +24,12 @@ interface supply {
   } 
 
 interface energyHourData {
-    cups : string
-    date : string
-    time : string
-    consumptionKWh : number
-    obtainMethod : string
-    surplusEnergyKWh : number
+  cups : string
+  date : string
+  time : string
+  consumptionKWh : number
+  obtainMethod : string
+  surplusEnergyKWh : number
 }
 
 interface dbCups {
@@ -64,9 +64,9 @@ export class DatadisService {
     communityCups:any[]=[];
     energyHourData:energyHourData[]=[];
 
-    private conn: mysql.Pool;
+  private conn: mysql.Pool;
 
-    constructor(private mysql: MysqlService){
+  constructor(private mysql: MysqlService){
 
         this.conn = this.mysql.pool; 
         
@@ -75,20 +75,20 @@ export class DatadisService {
         
         this.run(startDate,endDate)
 
-        setInterval(()=>{
-            startDate= moment().subtract(1, 'months').format('YYYY/MM');
-            endDate= moment().format('YYYY/MM');
-            this.run(startDate,endDate)
-        },86400000) //24 h => ms
+    setInterval(()=>{
+      startDate= moment().subtract(1, 'months').format('YYYY/MM');
+      endDate= moment().format('YYYY/MM');
+      this.run(startDate,endDate)
+    },86400000) //24 h => ms
 
-    }
+  }
 
-    async run(startDate:any,endDate:any){
+  async run(startDate:any,endDate:any){
 
-        let status = 'success';
-        let errorType = '';
-        let errorMessage = '';
-        let operation = 'insert datadis data';
+    let status = 'success';
+    let errorType = '';
+    let errorMessage = '';
+    let operation = 'insert datadis data';
 
         this.dbCups = await this.getCups()
         this.dbCustomers = await this.getCustomers();
@@ -96,15 +96,15 @@ export class DatadisService {
         
         for (let cups of this.dbCups) {
 
-            if(!cups.datadis_active || !cups.datadis_user || !cups.datadis_password){
-                continue;
-            }
+      if(!cups.datadis_active || !cups.datadis_user || !cups.datadis_password){
+        continue;
+      }
 
-            this.loginData.username=cups.datadis_user;
-            this.loginData.password= PasswordUtils.decryptData(cups.datadis_password,process.env.JWT_SECRET!);
+      this.loginData.username=cups.datadis_user;
+      this.loginData.password= PasswordUtils.decryptData(cups.datadis_password,process.env.JWT_SECRET!);
 
-            //get auth token
-            await this.login();
+      //get auth token
+      await this.login();
 
             //get datadis cups
             await this.getSupplies().catch(async e=>{
@@ -154,10 +154,10 @@ export class DatadisService {
             //go across cups:
             for (const supply of this.supplies){
 
-                status = 'success';
-                errorType = '';
-                errorMessage = '';
-                operation = 'register datadis energy data';
+        status = 'success';
+        errorType = '';
+        errorMessage = '';
+        operation = 'register datadis energy data';
 
                 let cupsData:any = this.dbCups.find((registeredCups:any)=>registeredCups.cups===supply.cups)
 
@@ -170,7 +170,7 @@ export class DatadisService {
                     continue;
                 }
 
-                let getDatadisBegginningDate = moment().format("DD-MM-YYYY HH:mm:ss");
+        let getDatadisBegginningDate = moment().format("DD-MM-YYYY HH:mm:ss");
 
                 //obtain datadis hour energy:
                 let datadisCupsEnergyData:any = await this.getConsumptionData(supply.cups,supply.distributorCode,startDate,endDate,0,supply.pointType,supply.authorizedNif).catch(async (e)=>{
@@ -183,32 +183,32 @@ export class DatadisService {
                     return null;
                 })
 
-                if(!datadisCupsEnergyData){
-                    console.log("no datadisCupsEnergyData ",datadisCupsEnergyData, ". Continue")
-                    status = 'error';
-                    errorType = 'no datadis cups energy data';
-                    operation = 'Get energy data from datadis (https://datadis.es/api-private/api/get-consumption-data)'
-                    await this.postLogs(supply.cups,cupsData.id,operation,0,startDate,endDate,null,null,status,errorType,errorMessage)
-                    continue;
-                }
-
-                let getDatadisEndingDate = moment().format("DD-MM-YYYY HH:mm:ss");
-
-                //get cups energy hours db registers 
-                let insertedEnergyDataNumber:number = await this.postCupsEnergyData(cupsData,datadisCupsEnergyData,startDate,endDate).catch(e=>{
-                    status='error';
-                    errorType="post datadis data error";
-                    errorMessage=e.toString().substring(0,200);
-                    operation="post datadis hourly energy registers data into database";
-                    return 0;
-                })
-
-                //insert readed cups energy hours 
-                await this.postLogs(supply.cups,cupsData.id,operation,insertedEnergyDataNumber,startDate,endDate,getDatadisBegginningDate,getDatadisEndingDate,status,errorType,errorMessage)
-
-            }
+        if(!datadisCupsEnergyData){
+          console.log("no datadisCupsEnergyData ",datadisCupsEnergyData, ". Continue")
+          status = 'error';
+          errorType = 'no datadis cups energy data';
+          operation = 'Get energy data from datadis (https://datadis.es/api-private/api/get-consumption-data)'
+          await this.postLogs(supply.cups,cupsData.id,operation,0,startDate,endDate,null,null,status,errorType,errorMessage)
+          continue;
         }
+
+        let getDatadisEndingDate = moment().format("DD-MM-YYYY HH:mm:ss");
+
+        //get cups energy hours db registers
+        let insertedEnergyDataNumber:number = await this.postCupsEnergyData(cupsData,datadisCupsEnergyData,startDate,endDate).catch(e=>{
+          status='error';
+          errorType="post datadis data error";
+          errorMessage=e.toString().substring(0,200);
+          operation="post datadis hourly energy registers data into database";
+          return 0;
+        })
+
+        //insert readed cups energy hours
+        await this.postLogs(supply.cups,cupsData.id,operation,insertedEnergyDataNumber,startDate,endDate,getDatadisBegginningDate,getDatadisEndingDate,status,errorType,errorMessage)
+
+      }
     }
+  }
 
     async login(){
         let config = {method:'post', url: 'https://datadis.es/nikola-auth/tokens/login', headers: { 'Content-Type': 'application/x-www-form-urlencoded'}, data:this.loginData}
@@ -308,7 +308,7 @@ export class DatadisService {
 
         //console.log("try to get datadis data: ",cups,distributorCode,startDate,endDate,0,pointType,authorizedNif)
 
-        return new Promise(async (resolve,reject)=>{
+    return new Promise(async (resolve,reject)=>{
 
             try {
 
@@ -420,78 +420,78 @@ export class DatadisService {
                         locationId = result.insertId;
                     }
 
-                    //let datadisEncriptedPassword = PasswordUtils.encryptData(this.loginData.password,process.env.JWT_SECRET!)
-                    
-                     try {
-                        //get cups geolocation
-                        let {lat,lng} = await LocationUtils.getCoordinates(cupsData.address,cupsData.municipality)
-                        coordinates = {lat,lng}
-                        //post cups with geolocation
-                        await this.conn.query(insertCupsQueryLatLng,[cupsData.cups,locationId,cupsData.address,coordinates.lat,coordinates.lng]); //this.loginData.username,datadisEncriptedPassword
-                     } catch(e){
-                        console.log("error getting geolocation", cupsData.address,cupsData.municipality, e)
-                        //post cups without geolocation
-                        await this.conn.query(insertCupsQuery,[cupsData.cups,locationId,cupsData.address]); //this.loginData.username,datadisEncriptedPassword
-                     }   
-                }
-            })
+            //let datadisEncriptedPassword = PasswordUtils.encryptData(this.loginData.password,process.env.JWT_SECRET!)
 
-            //update dbCups during dbCups iteration is  problem,
-            //we can push new values or wait to next iteration
-
-            //this.dbCups = await this.getCups()
-
-            resolve(this.dbCups);
-          } catch (e:any) {
-            console.log("error checking cups", e);
-            reject(e)
-           
+            try {
+              //get cups geolocation
+              let {lat,lng} = await LocationUtils.getCoordinates(cupsData.address,cupsData.municipality)
+              coordinates = {lat,lng}
+              //post cups with geolocation
+              await this.conn.query(insertCupsQueryLatLng,[cupsData.cups,locationId,cupsData.address,coordinates.lat,coordinates.lng]); //this.loginData.username,datadisEncriptedPassword
+            } catch(e){
+              console.log("error getting geolocation", cupsData.address,cupsData.municipality, e)
+              //post cups without geolocation
+              await this.conn.query(insertCupsQuery,[cupsData.cups,locationId,cupsData.address]); //this.loginData.username,datadisEncriptedPassword
+            }
           }
         })
+
+        //update dbCups during dbCups iteration is  problem,
+        //we can push new values or wait to next iteration
+
+        //this.dbCups = await this.getCups()
+
+        resolve(this.dbCups);
+      } catch (e:any) {
+        console.log("error checking cups", e);
+        reject(e)
+
+      }
+    })
+  }
+
+  async postCupsEnergyData(cupsData:any,datadisCupsEnergyData:any[],startDate:string,endDate:string): Promise<number>{
+
+    //create get not inserted energy per cups query
+
+    let dataToSearchQueryPart = ''
+    let values:any = []
+    let firstEnergyDate = datadisCupsEnergyData[0]
+    datadisCupsEnergyData = datadisCupsEnergyData.slice(1)
+
+    let day = moment(firstEnergyDate.date,'YYYY/MM/DD').format('YYYY-MM-DD')
+    let hour = moment(firstEnergyDate.time,'HH:mm').format('HH:mm:ss')
+    let infoDt = `${day} ${hour}`;
+    let consumption = firstEnergyDate.consumptionKWh;
+    let generation = firstEnergyDate.surplusEnergyKWh;
+
+    let startDateFormat=moment(startDate,'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
+    let endDateFormat=moment(endDate,'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
+
+    dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as import, ? as export, ? as cups_id`)
+
+    pushToValues(infoDt,consumption,generation,cupsData)
+
+    for (const energy of datadisCupsEnergyData) {
+
+      let day = moment(energy.date,'YYYY/MM/DD').format('YYYY-MM-DD')
+      let hour = moment(energy.time,'HH:mm').format('HH:mm:ss')
+
+      let datetime = `${day} ${hour}`;
+      let energyImport = energy.consumptionKWh;
+      let energyExport = energy.surplusEnergyKWh;
+
+      pushToValues(datetime,energyImport,energyExport,cupsData)
+
+      dataToSearchQueryPart = dataToSearchQueryPart.concat(` UNION ALL SELECT ?,?,?,? `)
+
     }
 
-    async postCupsEnergyData(cupsData:any,datadisCupsEnergyData:any[],startDate:string,endDate:string): Promise<number>{
-
-        //create get not inserted energy per cups query
-
-        let dataToSearchQueryPart = ''
-        let values:any = []
-        let firstEnergyDate = datadisCupsEnergyData[0]
-        datadisCupsEnergyData = datadisCupsEnergyData.slice(1)
-        
-        let day = moment(firstEnergyDate.date,'YYYY/MM/DD').format('YYYY-MM-DD')
-        let hour = moment(firstEnergyDate.time,'HH:mm').format('HH:mm:ss') 
-        let infoDt = `${day} ${hour}`;
-        let consumption = firstEnergyDate.consumptionKWh;
-        let generation = firstEnergyDate.surplusEnergyKWh;
-
-        let startDateFormat=moment(startDate,'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
-        let endDateFormat=moment(endDate,'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
-
-        dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as import, ? as export, ? as cups_id`)
-
-        pushToValues(infoDt,consumption,generation,cupsData)
-
-        for (const energy of datadisCupsEnergyData) {
-            
-            let day = moment(energy.date,'YYYY/MM/DD').format('YYYY-MM-DD')
-            let hour = moment(energy.time,'HH:mm').format('HH:mm:ss') 
-
-            let datetime = `${day} ${hour}`;
-            let energyImport = energy.consumptionKWh;
-            let energyExport = energy.surplusEnergyKWh;
-
-            pushToValues(datetime,energyImport,energyExport,cupsData)
-            
-            dataToSearchQueryPart = dataToSearchQueryPart.concat(` UNION ALL SELECT ?,?,?,? `)
-
-        }
-
-        let query = ` 
-        INSERT INTO datadis_energy_registers (info_dt,import,export,cups_id) 
-        SELECT info_dt, import, export, cups_id
-        FROM ( ${dataToSearchQueryPart} ) AS data_to_check 
-        WHERE data_to_check.info_dt
+    let query = `
+      INSERT INTO datadis_energy_registers (info_dt,import,export,cups_id)
+      SELECT info_dt, import, export, cups_id
+      FROM ( ${dataToSearchQueryPart} ) AS data_to_check
+      WHERE data_to_check.info_dt
         NOT IN (
         SELECT info_dt
         FROM datadis_energy_registers
@@ -499,42 +499,42 @@ export class DatadisService {
         BETWEEN ? AND ?  
         )
         AND cups_id = ?
-        ` 
+    `
 
-        values.push(startDateFormat); values.push(endDateFormat);values.push(cupsData.id);
+    values.push(startDateFormat); values.push(endDateFormat);values.push(cupsData.id);
 
-        return new Promise(async (resolve,reject)=>{
+    return new Promise(async (resolve,reject)=>{
 
-            try{
-                let [result] = await this.conn.execute<mysql.ResultSetHeader>(query, values);
-                const insertedRows = result.affectedRows;
-                resolve(insertedRows);
-            }catch(e:any){
-                console.log("error putting cups energy data", e);
-                reject(e)
-            }
+      try{
+        let [result] = await this.conn.execute<mysql.ResultSetHeader>(query, values);
+        const insertedRows = result.affectedRows;
+        resolve(insertedRows);
+      }catch(e:any){
+        console.log("error putting cups energy data", e);
+        reject(e)
+      }
 
-        })
+    })
 
-        function pushToValues(infoDt:string,consumption:number,generation:number,cupsData:any){
-            values.push(infoDt); values.push(consumption); values.push(generation);values.push(cupsData.id)
-        }
-
+    function pushToValues(infoDt:string,consumption:number,generation:number,cupsData:any){
+      values.push(infoDt); values.push(consumption); values.push(generation);values.push(cupsData.id)
     }
 
-    postLogs(cups:string,cupsId:number,operation:string,n_registers:number,startDate:any,endDate:any,getDatadisBegginningDate:any,getDatadisEndingDate:any,status:string,errorType:string,errorMessage:string){
+  }
 
-        const log = {
-            cups,
-            n_registers,
-            startDate,
-            endDate,
-            status:status,
-            errorType,
-            errorMessage,
-            getDatadisBegginningDate,
-            getDatadisEndingDate
-        };
+  postLogs(cups:string,cupsId:number,operation:string,n_registers:number,startDate:any,endDate:any,getDatadisBegginningDate:any,getDatadisEndingDate:any,status:string,errorType:string,errorMessage:string){
+
+    const log = {
+      cups,
+      n_registers,
+      startDate,
+      endDate,
+      status:status,
+      errorType,
+      errorMessage,
+      getDatadisBegginningDate,
+      getDatadisEndingDate
+    };
 
         const insertLogQuery = `INSERT INTO logs (origin,log,cups,cups_id,status,operation,n_affected_registers,error_message) VALUES (?,?,?,?,?,?,?,?)`
         return new Promise(async (resolve,reject)=>{

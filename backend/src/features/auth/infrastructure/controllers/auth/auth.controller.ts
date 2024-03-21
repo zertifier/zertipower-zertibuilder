@@ -98,7 +98,7 @@ export class AuthController {
 
   @Post("web-wallet-login")
   async webWalletLogin(@Body() body:any) {
-    const { wallet_address, private_key } = body;
+    const { wallet_address, private_key, email } = body;
     const getUserQuery = `SELECT * FROM users WHERE wallet_address = ?`;
     const insertUserQuery = `INSERT INTO users (wallet_address,password,role_id, username, firstname, lastname, email) VALUES (?,?,?,?,?,?,?)`
     let dbUser;
@@ -121,7 +121,7 @@ export class AuthController {
     if(!dbUser){
       try{
         let encryptedPassword = await PasswordUtils.encrypt(private_key);
-        await this.conn.query(insertUserQuery,[wallet_address,encryptedPassword,2,'','','','']);
+        await this.conn.query(insertUserQuery,[wallet_address,encryptedPassword,2,email,email,email,email]);
       }catch(e){
         console.log("error web wallet login",e);
         throw new UserNotFoundError();
@@ -129,7 +129,6 @@ export class AuthController {
     }
 
     try{
-      console.log("wallet",wallet_address)
       let fetchedUsers = await this.userRepository.find(
         new ByWalletAddress(wallet_address)
       );
@@ -312,8 +311,9 @@ export class AuthController {
     },
   })
   async loginWeb3(@Body() body: LoginWeb3DTO) {
-    const { wallet_address, signature } = body;
+    const { wallet_address, signature, email } = body;
 
+    console.log(body)
     const criteria = new ByWalletAddress(wallet_address);
     const users = await this.findUsersAction.run(criteria);
     const user = users[0];

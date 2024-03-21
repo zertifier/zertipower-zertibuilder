@@ -1,9 +1,12 @@
-import {Component, computed, OnInit} from "@angular/core";
+import {Component, computed, effect, OnInit} from "@angular/core";
 import { AuthStoreService } from "../../../features/auth/services/auth-store.service";
 import { AuthApiService } from "../../../features/auth/services/auth-api.service";
 import { Router } from "@angular/router";
 import {Theme, ThemeStoreService} from "../../../shared/infrastructure/theme/theme-store.service";
 import {capitalCase} from 'change-case';
+import {
+  PermissionsStoreService
+} from "../../../features/permissions/infrastructure/services/permissions-store/permissions-store.service";
 
 @Component({
 	selector: "app-navbar",
@@ -22,23 +25,40 @@ export class NavbarComponent {
       dbName: 'dashboard',
       iconClass: 'fa-solid fa-chart-line',
       url: '/dashboard',
-      status: true
+      status: false
     },
     {
       text: 'Mapa',
       dbName: 'search',
       iconClass: 'fa-solid fa-map',
       url: '/search',
-      status: true
+      status: false
     }
   ]
 
 	constructor(
-		private authStore: AuthStoreService,
+		protected authStore: AuthStoreService,
 		private authApi: AuthApiService,
 		private router: Router,
-    private themeStoreService: ThemeStoreService
-	) {}
+    private themeStoreService: ThemeStoreService,
+    private permissionsStoreService: PermissionsStoreService,
+	) {
+
+    effect(async () => {
+      await permissionsStoreService.fetchPermissions();
+      const user = authStore.user();
+      if (user) {
+        const permissions = this.permissionsStoreService.permissions()[user.role]
+        // if (user.role == 'ADMIN') this.pages[0].status = true
+        if (user.role == 'ADMIN') this.pages[1].status = true
+
+        this.setPermmittedPages(permissions)
+      }
+
+
+
+    });
+  }
 
   logout() {
 		this.authApi.logout(this.authStore.refreshToken()!).subscribe(() => {
@@ -81,6 +101,23 @@ export class NavbarComponent {
 
   changeShrinkState(){
     this.isShrunk = !this.isShrunk
+  }
+
+  setPermmittedPages(permissions: any){
+    const user = this.authStore.user();
+
+    console.log(user, "USER")
+    Object.keys(permissions)
+      .map(page => {
+        if (permissions[page]['pageAccess']){
+          for (const pageElement of this.pages) {
+            if (pageElement.dbName === page) {
+              pageElement.status = true;
+            }
+          }
+        }
+      });
+
   }
 
 }

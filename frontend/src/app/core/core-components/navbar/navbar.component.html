@@ -3,8 +3,8 @@
   <div class="text-center py-3 d-flex flex-column h-100">
 
     <a [routerLink]="['/']" class="navbar-brand">
-      <img *ngIf="!isShrunk" src="assets/img/navbar/zertipower-logo-blanc-horizontal.png" class="w-100  px-3" alt="zertipwoer-logo">
-      <img *ngIf="isShrunk" src="assets/img/navbar/zertipower-logo-blanc.png" class="w-100  px-3" alt="zertipwoer-logo">
+      <img *ngIf="!isShrunk" src="assets/img/navbar/zertipower-logo-blanc-horizontal.png" class="w-100  px-4" alt="zertipwoer-logo">
+      <img *ngIf="isShrunk" src="assets/img/navbar/zertipower-logo-blanc.png" class="w-100  px-4" alt="zertipwoer-logo">
     </a>
 
     <hr class="mb-0">
@@ -23,7 +23,8 @@
           </li>
         </div>
 
-        <div class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+        <div *ngIf="authStore.user()!.role == 'ADMIN'" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+<!--        <div  class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">-->
           <button class="nav-link navbar-dropdown text-start fs-5 w-100" ngbDropdownToggle>
             <i class="fa-solid fa-leaf" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
                placement="end" [ngbTooltip]="isShrunk ? 'Energia'.toUpperCase() + 'Energia'.slice(1) : ''"></i>
@@ -48,7 +49,7 @@
           </div>
         </div>
 
-        <div class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+        <div *ngIf="authStore.user()!.role == 'ADMIN'" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
           <button class="nav-link navbar-dropdown text-start fs-5 w-100" ngbDropdownToggle>
             <i class="fa-solid fa-users" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
                placement="end" [ngbTooltip]="isShrunk ? 'Participants'.toUpperCase() + 'Participants'.slice(1) : ''"></i>
@@ -73,7 +74,7 @@
           </div>
         </div>
 
-        <div class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+        <div *ngIf="authStore.user()!.role == 'ADMIN'" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
           <button class="nav-link text-start fs-5 w-100" ngbDropdownToggle>
             <i class="fa-solid fa-circle-info" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
                placement="end" [ngbTooltip]="isShrunk ? 'Més info'.toUpperCase() + 'Més info'.slice(1) : ''"></i>

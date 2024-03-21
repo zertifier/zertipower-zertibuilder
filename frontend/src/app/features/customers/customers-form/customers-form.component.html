@@ -3,26 +3,26 @@
 </div>
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
-    <div>
-      <label for="id-input">ID</label>
+    <!--<div class="my-3">
+      <label class="form-label" for="id-input">ID</label>
       <input id="id-input" type="number" formControlName="id" class="form-control">
-    </div>
-    <div>
-      <label for="name-input">Name</label>
+    </div>-->
+    <div class="my-3">
+      <label class="form-label" for="name-input">Nom</label>
       <input formControlName="name" id="name-input" class="form-control">
     </div>
-    <div>
-      <label for="wallet-address-input">Wallet Address</label>
+    <div class="my-3">
+      <label class="form-label" for="wallet-address-input">Wallet Address</label>
       <input formControlName="walletAddress" id="wallet-address-input" class="form-control">
     </div>
-    <div>
+    <!--<div>
       <label for="created-at-input">created_at</label>
       <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
     </div>
     <div>
       <label for="updated-at-input">updated_at</label>
       <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
-    </div>
+    </div>-->
   </form>
 </div>
 <div class="modal-footer">

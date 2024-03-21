@@ -29,7 +29,7 @@ export class EnergyRegistersHourlyTableComponent implements OnDestroy {
   readonly subscriptions: Array<Subscription> = []
 
   title: string = 'Energy registers hourly';
-  addRows: boolean = true;
+  addRows: boolean = false;
   editRows: boolean = true;
   refreshRows: boolean = true;
   filterColumns: boolean = true;

@@ -3,13 +3,13 @@ import { IsOptional, IsDefined } from "class-validator";
 import * as moment from "moment";
 
 export class SaveCustomersDTO {
-  @IsOptional()
-  id: number;
+/*  @IsOptional()
+  id: number;*/
   @IsOptional()
   name: string;
   @IsOptional()
   walletAddress: string;
-  @Transform((value) =>
+/*  @Transform((value) =>
     moment.utc((value as any).value, "YYYY-MM-DD HH:mm:ss").toDate()
   )
   @IsOptional()
@@ -18,5 +18,5 @@ export class SaveCustomersDTO {
     moment.utc((value as any).value, "YYYY-MM-DD HH:mm:ss").toDate()
   )
   @IsOptional()
-  updatedAt: Date;
+  updatedAt: Date;*/
 }

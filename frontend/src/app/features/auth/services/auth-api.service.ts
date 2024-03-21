@@ -48,7 +48,7 @@ export class AuthApiService {
             .pipe(map((response) => response.data));
     }
 
-    webWalletLogin(params:{wallet_address:string,private_key:string}){
+    webWalletLogin(params:{wallet_address:string,private_key:string, email?: string}){
         const headers = new HttpHeaders().append(InterceptorSkipHeader, "");
         return this.httpClient
             .post<
@@ -121,19 +121,19 @@ export class AuthApiService {
     getCode(platform: 'google' | 'twitter' | 'linkedin' | 'github') {
         const baseCode = this.generateRandomString(32)
         localStorage.setItem('baseCodeChallenge', baseCode);
-    
+
         const codeChallenge = SHA256(baseCode).toString();
-    
+
         const url =
           `${this.baseUrl}/zauth/oauth/${platform}?app-id=${this.appId}&redirect-url=${this.redirectUrl}/dumb&code-challenge=${codeChallenge}&code-challenge-method=S256`
-    
+
         return url
       }
 
       generateRandomString(length: number): string {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         const randomChars = Array.from({length}, () => characters.charAt(Math.floor(Math.random() * characters.length)));
-    
+
         return randomChars.join('');
         ;
       }

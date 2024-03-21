@@ -1,11 +1,11 @@
 
 <div class="modal-header">
-  <h2>community {{community.name}}</h2>
-  <button *ngIf="isEdit" class="btn btn-primary" (click)="isEdit=false; isEditChange()">Edit</button>
-  <button *ngIf="!isEdit && communityId" (click)="isEdit=true; isEditChange()" class="btn btn-primary">View</button>
+  <h2>Comunitat {{community.name}}</h2>
+  <button *ngIf="!isEdit" class="btn btn-warning ms-auto" (click)="isEdit=true; isEditChange()">Edit</button>
+  <button *ngIf="isEdit && communityId" (click)="isEdit=false; isEditChange()" class="btn btn-warning ms-auto">View</button>
 </div>
 
-<div *ngIf="!isEdit" class="modal-body">
+<div *ngIf="isEdit" class="modal-body">
   <div class="row p-2">
     <div class="col-12 col-md-6">
       <form id="form" [formGroup]="form" (ngSubmit)="save()">
@@ -21,8 +21,8 @@
           <div class="col my-3">
             <label class="form-label" for="test-select">Test</label>
             <select name="test" id="test-select" class="form-select" formControlName="test">
-              <option value="1">yes</option>
-              <option value="0">no</option>
+              <option value="1">Sí</option>
+              <option value="0">No</option>
             </select>
           </div>
 
@@ -43,10 +43,11 @@
         <div class="col my-3">
           <label class="form-label" for="cups-select">Cups de comunitat</label>
           <ng-select id="cups-select" [items]="customers" [multiple]="true"
-                     [(ngModel)]="communityCups" (change)="changeCommunityCups(communityCups)" bindLabel="id">
+                     [(ngModel)]="communityCups" (change)="changeCommunityCups(communityCups)" bindLabel="cups">
             <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
               <input id="item-{{index}}" type="checkbox"
-                     [ngModel]="item$.selected"/> {{item.name}} {{item.ubication}} {{item.cups}}
+                     [ngModel]="item$.selected"/>
+              {{item.name}} {{item.ubication}} {{item.cups}}
             </ng-template>
           </ng-select>
         </div>
@@ -134,7 +135,7 @@
   </div>
 </div>
 
-<div *ngIf="isEdit" class="modal-body">
+<div *ngIf="!isEdit" class="modal-body">
 
   <div class="row row-cols-1 row-cols-md-2 g-2">
     <div class="col">

@@ -3,16 +3,15 @@
 </div>
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
+
     <div>
-      <label for="id-input">id</label>
-      <input id="id-input" type="number" formControlName="id" class="form-control">
-    </div>
-    <div>
-      <label for="provider-input">provider</label>
-      <editor
+      <label class="form-label" for="provider-input">Proveïdor</label>
+   <!--   <editor
           [init]="tinymceConfig"
           formControlName="provider"
-          id="description"></editor>
+          id="description"></editor>-->
+      <input id="provider-input" type="text" formControlName="provider" class="form-control">
+
     </div>
   </form>
 </div>

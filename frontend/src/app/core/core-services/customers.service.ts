@@ -20,6 +20,7 @@ export class CustomersService {
 
   getCustomersCups(){
     let url = `${this.baseUrl}/cups`;
+    console.log(url, "URL")
     return this.http.get(url);
   }
 

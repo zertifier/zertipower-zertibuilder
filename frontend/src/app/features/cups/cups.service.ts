@@ -15,15 +15,16 @@ export interface CupsInterface {
   address:string;
   lat:number;
   lng:number;
-  datadisActive:number
-  smartMeterActive:number;
-  inverterActive:number;
+  datadisActive:boolean
+  smartMeterActive:boolean;
+  inverterActive:boolean;
   datadisUser:string;
   datadisPassword:string;
   smartMeterModel:string;
   smartMeterApiKey:string;
   inverterModel:string;
   inverterApiKey:string;
+  sensorActive:boolean;
   sensorModel:string;
   sensorApiKey:string;
   customerId: number;

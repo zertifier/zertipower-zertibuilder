@@ -9,7 +9,7 @@ export function pageAccess(page: string): () => Promise<boolean> {
   return async () => {
     const permissionsStore = inject(PermissionsStoreService);
     const authStore = inject(AuthStoreService);
-    
+
     const user = authStore.user();
     console.log(user)
     if (!user) {
@@ -20,6 +20,8 @@ export function pageAccess(page: string): () => Promise<boolean> {
     await permissionsStore.fetchPermissions();
     const permissions = permissionsStore.permissions();
 
+    if (user.role !== 'ADMIN' && !permissions[user.role][page]['pageAccess'])
+      window.location.href = '/select-location';
     return user.role === 'ADMIN' || permissions[user.role][page]['pageAccess'];
   }
 }

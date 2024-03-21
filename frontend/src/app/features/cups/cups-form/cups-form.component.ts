@@ -5,6 +5,10 @@ import Swal from 'sweetalert2';
 import { Observable } from 'rxjs';
 import { CupsApiService } from '../cups.service';
 import moment from 'moment';
+import {CustomersApiService} from "../../customers/customers.service";
+import {ProvidersApiService} from "../../providers/providers.service";
+import {CommunitiesApiService} from "../../communities/communities.service";
+import {LocationService} from "../../../core/core-services/location.service";
 
 @Component({
   selector: 'cups-form',
@@ -31,16 +35,16 @@ export class CupsFormComponent {
     customerId: new FormControl<number | null>(null),
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
-    datadis:new FormControl<number>(0),
+    datadisActive:new FormControl<boolean>(false),
     datadisUser: new FormControl<string | null>(null),
     datadisPwd: new FormControl<string | null>(null),
-    smartMeter:new FormControl<number>(0),
+    smartMeterActive:new FormControl<boolean>(false),
     smartMeterModel:new FormControl<string|null>(null),
     smartMeterApiKey:new FormControl<string|null>(null),
-    inverter:new FormControl<number>(0),
+    inverterActive:new FormControl<boolean>(false),
     inverterModel:new FormControl<string|null>(null),
     inverterApiKey:new FormControl<string|null>(null),
-    sensor:new FormControl<number>(0),
+    sensorActive:new FormControl<boolean>(false),
     sensorModel:new FormControl<string|null>(null),
     sensorApiKey:new FormControl<string|null>(null),
   });
@@ -49,21 +53,36 @@ export class CupsFormComponent {
   inverterModels=['Turbo Energy 5000W 48V','Soiis S6-GR1P5K Monofásico 2MPPT 5000W','Huawei SUN2000-6KTL-L1 6kW']
   sensorModels=['iEM2000','PowerLogic PM5000']
 
+  availableCustomers: any;
+  availableProviders: any;
+  availableCommunities: any;
+  availableLocations: any;
+  selectedCustomerId!: number;
+  selectedProviderId!: number
+  selectedCommunityId!: number;
+  selectedLocationId!: number;
+
   constructor(
     private formBuilder: FormBuilder,
     private apiService: CupsApiService,
     private activeModal: NgbActiveModal,
-  ) {}
+    private customerApiService: CustomersApiService,
+    private providerApiService: ProvidersApiService,
+    private communitiesApiService: CommunitiesApiService,
+    private locationsApiService: LocationService,
+  ) {
+    this.getAvailableDropdownData()
+
+  }
 
   setEditingId(id: number) {
     this.id = id;
     if (!this.id) {
       return;
     }
+
     this.apiService.getById(id).subscribe((data) => {
-
-      console.log(data)
-
+      console.log(data, "DATA")
       this.form.controls.id.setValue(data.id);
       this.form.controls.cups.setValue(data.cups);
       this.form.controls.type.setValue(data.type);
@@ -73,28 +92,31 @@ export class CupsFormComponent {
       this.form.controls.address.setValue(data.address);
       this.form.controls.lat.setValue(data.lat);
       this.form.controls.lng.setValue(data.lng);
-      this.form.controls.datadis.setValue(data.datadisActive);
-      this.form.controls.smartMeter.setValue(data.smartMeterActive);
-      this.form.controls.inverter.setValue(data.inverterActive);
+      this.form.controls.datadisActive.setValue(data.datadisActive);
+      this.form.controls.smartMeterActive.setValue(data.smartMeterActive);
+      this.form.controls.inverterActive.setValue(data.inverterActive);
       this.form.controls.datadisUser.setValue(data.datadisUser);
-      this.form.controls.datadisPwd.setValue(data.datadisPassword);
+      // this.form.controls.datadisPwd.setValue(data.datadisPassword);
       this.form.controls.smartMeterModel.setValue(data.smartMeterModel);
       this.form.controls.smartMeterApiKey.setValue(data.smartMeterApiKey);
       this.form.controls.inverterModel.setValue(data.inverterModel);
       this.form.controls.inverterApiKey.setValue(data.inverterApiKey);
+      this.form.controls.sensorActive.setValue(data.sensorActive);
       this.form.controls.sensorModel.setValue(data.sensorModel);
       this.form.controls.sensorApiKey.setValue(data.sensorApiKey);
       this.form.controls.customerId.setValue(data.customerId);
       this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
       this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
+
     });
   }
 
   save() {
-    if (this.form.invalid) {
+    const validFormObj = this.checkFormValid()
+    if (!validFormObj.status) {
       Swal.fire({
         icon: 'error',
-        title: 'Form not valid'
+        title: validFormObj.message,
       });
       return;
     }
@@ -121,15 +143,64 @@ export class CupsFormComponent {
   getValues(): any {
     const values: any = {};
 
-    values.id = this.form.value.id;
+    // values.id = this.form.value.id;
     values.cups = this.form.value.cups;
     values.providerId = this.form.value.providerId;
     values.communityId = this.form.value.communityId;
     values.locationId = this.form.value.locationId;
     values.customerId = this.form.value.customerId;
-    values.createdAt = this.form.value.createdAt;
-    values.updatedAt = this.form.value.updatedAt;
+    values.lat = this.form.value.lat;
+    values.lng = this.form.value.lng;
+    values.address = this.form.value.address;
+    values.type = this.form.value.type;
+    values.datadisActive = this.form.value.datadisActive
+    values.smartMeterActive = this.form.value.smartMeterActive
+    values.inverterActive = this.form.value.inverterActive
+    values.datadisUser = this.form.value.datadisUser
+    values.datadisPassword = this.form.value.datadisPwd
+    values.smartMeterModel = this.form.value.smartMeterModel || ''
+    values.smartMeterApiKey = this.form.value.smartMeterApiKey
+    values.inverterModel = this.form.value.inverterModel
+    values.inverterApiKey = this.form.value.inverterApiKey
+    values.sensorActive = this.form.value.sensorActive
+    values.sensorModel = this.form.value.sensorModel
+    values.sensorApiKey = this.form.value.sensorApiKey
+
+/*    values.createdAt = this.form.value.createdAt;
+    values.updatedAt = this.form.value.updatedAt;*/
 
     return values;
+  }
+
+  getAvailableDropdownData(){
+    this.providerApiService.get().subscribe((providers) => {
+      this.availableProviders = providers
+    })
+    this.communitiesApiService.get().subscribe((communities: any) => {
+      this.availableCommunities = communities.data
+    })
+    this.locationsApiService.getLocations().subscribe((locations: any) => {
+      this.availableLocations = locations.data
+    })
+    this.customerApiService.get().subscribe((customers) => {
+      this.availableCustomers = customers
+
+    })
+  }
+
+  checkFormValid(){
+    if (!this.form.value.cups) return {status: false, message: "El nom pot estar buit"}
+
+    if (!this.selectedCustomerId) return {status: false, message: "El client pot estar buit"}
+
+    if (!this.selectedProviderId) return {status: false, message: "El proveïdor pot estar buit"}
+
+    if (!this.selectedCommunityId) return {status: false, message: "La comunitat no pot estar buida"}
+
+    if (!this.selectedLocationId) return {status: false, message: "L'ubicació no pot estar buida"}
+
+    if (!this.form.value.address) return {status: false, message: "L'adreça no pot estar buida"}
+
+    return {status: true, message: ''}
   }
 }

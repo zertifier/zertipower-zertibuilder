@@ -4,9 +4,9 @@ import { EnergyRegistersController } from "src/features/energy-registers/energy-
 import { EnergyTransactionsController } from "src/features/energy-transactions/energy-transactions.controller";
 import { EnergyBlocksController } from "src/features/energy-blocks/energy-blocks.controller";
 import { CustomersController } from "src/features/customers/customers.controller";
-import { CupsController } from "src/features/cups.controller";
-import { CommunitiesController } from "src/features/communities.controller";
-import { CalendarController } from "src/features/calendar.controller";
+import { CupsController } from "src/features/cups/cups.controller";
+import { CommunitiesController } from "src/features/communities/communities.controller";
+import { CalendarController } from "src/features/calendar/calendar.controller";
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { UserModule } from "./features/users/user.module";
 import { AuthModule } from "./features/auth/auth.module";

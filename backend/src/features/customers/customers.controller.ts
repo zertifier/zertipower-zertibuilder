@@ -36,8 +36,9 @@ export class CustomersController {
   async get() {
     const data = await this.prisma.customers.findMany();
     const mappedData = data.map(this.mapData);
+
     return HttpResponse.success("customers fetched successfully").withData(
-      data
+      mappedData
     );
   }
 
@@ -120,9 +121,10 @@ export class CustomersController {
     const mappedData: any = {};
     mappedData.id = data.id;
     mappedData.name = data.name;
-    mappedData.walletAddress = data.walletAddress;
-    mappedData.createdAt = data.createdAt;
-    mappedData.updatedAt = data.updatedAt;
+    mappedData.walletAddress = data.walletAddress ? data.walletAddress.toString() : '';
+    mappedData.createdAt = data.createdAt | data.created_at;
+    mappedData.updatedAt = data.updatedAt | data.updated_at;
+
     return mappedData;
   }
 

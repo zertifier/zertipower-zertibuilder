@@ -126,10 +126,8 @@ export class CommunitiesFormComponent implements OnInit {
 
   ngOnInit() {
     if (!this.id) {
-      this.isEdit = false;
-      this.getInfo();
-    }else{
       this.isEdit = true;
+      this.getInfo();
     }
   }
 
@@ -158,10 +156,9 @@ export class CommunitiesFormComponent implements OnInit {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
 
       this.allCups = res.data;
-
       //get the cups that doesnt own to other communities
       this.customers = this.allCups.filter((cups: any) =>
-        cups.communityId == this.id || cups.communityId == null || cups.communityId == 0
+        cups.community_id == this.id || cups.community_id == null || cups.community_id == 0
       )
 
       if (!this.communityId) {
@@ -170,9 +167,8 @@ export class CommunitiesFormComponent implements OnInit {
 
       //get the cups that own to the selected community
       this.communityCups = this.customers.filter((cups: any) =>
-        cups.communityId == this.id
+        cups.community_id == this.id
       )
-
 
       this.updateData();
 
@@ -290,10 +286,10 @@ export class CommunitiesFormComponent implements OnInit {
     //console.log("community id: ",this.communityId)
 
     if (this.sumYearImport == 0 && this.sumYearGeneration == 0 && this.sumYearConsumption == 0 && this.sumYearExport == 0 && this.communityId) {
-      Swal.fire({
+      /*Swal.fire({
         icon: 'warning',
         title: 'no year data'
-      });
+      });*/
     }
 
     this.updateYearChartValues();
@@ -352,10 +348,10 @@ export class CommunitiesFormComponent implements OnInit {
      */
 
     if (this.sumMonthImport.every(e => e == 0) && this.sumMonthExport.every(e => e == 0) && this.sumMonthGeneration.every(e => e == 0) && this.sumMonthConsumption.every(e => e == 0) && this.communityId) {
-      Swal.fire({
+     /* Swal.fire({
         icon: 'warning',
         title: 'no months data'
-      });
+      });*/
     }
 
     this.updateMonthChartValues();
@@ -402,10 +398,10 @@ export class CommunitiesFormComponent implements OnInit {
     await Promise.all(getAllEnergy)
 
     if (this.sumDayImport.every(e => e == 0) && this.sumDayExport.every(e => e == 0) && this.sumDayGeneration.every(e => e == 0) && this.sumDayConsumption.every(e => e == 0) && this.communityId) {
-      Swal.fire({
+      /*Swal.fire({
         icon: 'warning',
         title: 'no day data'
-      });
+      });*/
     }
 
     this.updateDayChartValues();
@@ -468,34 +464,37 @@ export class CommunitiesFormComponent implements OnInit {
       })
 
       //delete community id from cups that dont pertain to community anymore:
-      this.allCups.map((cups: any) => {
+      if (this.communityCups.length){
+        this.allCups.map((cups: any) => {
 
-        // if cups contains the community id but dont includes in community cups, delete it:
-        if (cups.communityId == this.communityId) {
+          // if cups contains the community id but dont includes in community cups, delete it:
+          if (cups.community_id == this.communityId) {
 
-          let found = this.communityCups.find(cc =>
-            cc.id == cups.id
-          )
+            let found = this.communityCups.find(cc =>
+              cc.id == cups.id
+            )
 
-          if (!found) {
+            if (!found) {
 
-            let cupsToUpdate: any = {
-              id: cups.id,
-              cups: cups.cups,
-              providerId: cups.providerId,
-              communityId: 0,
-              locationId: cups.locationId,
-              customerId: cups.customerId
+              let cupsToUpdate: any = {
+                id: cups.id,
+                cups: cups.cups,
+                providerId: cups.provider_id,
+                communityId: 0,
+                locationId: cups.location_id,
+                customerId: cups.customer_id
+              }
+
+              this.cupsApiService.update(cups.id, cupsToUpdate).subscribe((res) => {
+                console.log("change community id from cups: ", res)
+              })
             }
 
-            this.cupsApiService.update(cups.id, cupsToUpdate).subscribe((res) => {
-              console.log("change community id from cups: ", res)
-            })
           }
 
-        }
+        })
+      }
 
-      })
 
       Swal.fire({
         icon: 'success',

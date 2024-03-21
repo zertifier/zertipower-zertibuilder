@@ -40,7 +40,17 @@ export class LoginPageComponent implements OnDestroy {
   loading: Subject<boolean> = new Subject<boolean>;
   protected readonly environment = environment;
 
+  imgSource = ''
+  images: string[] = [
+    'assets/img/login-1.jpg',
+    'assets/img/login-2.jpg',
+    'assets/img/login-3.jpg',
+    'assets/img/login-4.webp',
+  ]
+
   constructor(private authStore: AuthStoreService, private router: Router, private themeStoreService: ThemeStoreService, private route: ActivatedRoute, private http: HttpClient, private loginActionService: LoginActionService, private authApiService: AuthApiService) {
+    const randNum = Math.floor(Math.random() * this.images.length);
+    this.imgSource = this.images[randNum]
     effect(() => {
       if (this.authStore.user()) {
         this.router.navigate(["/"]);

@@ -11,7 +11,6 @@ export function pageAccess(page: string): () => Promise<boolean> {
     const authStore = inject(AuthStoreService);
 
     const user = authStore.user();
-    console.log(user)
     if (!user) {
       console.log("user not defined")
       throw new Error('User not defined');

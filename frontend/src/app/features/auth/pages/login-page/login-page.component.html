@@ -39,7 +39,7 @@
       <app-web2-login-form></app-web2-login-form>
     </div>
 
-    <div class="col-12 col-lg-6 d-none d-lg-block" style=" background-image: url('assets/img/solar-city.png');background-repeat: no-repeat;background-size: cover;">
+    <div class="col-12 col-lg-6 d-none d-lg-block"  [ngStyle]="{'background-image': 'url(' + imgSource + ')'}" style=" background-image: url('assets/img/login-4.webp');background-repeat: no-repeat;background-size: cover;">
       <!-- <img src="assets/img/solar-city.png" class="h-100" style="min-height: 100%; overflow: hidden;"> -->
     </div>
 

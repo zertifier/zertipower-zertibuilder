@@ -1,9 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, Input, OnInit} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2';
-import { Observable } from 'rxjs';
+import {Observable} from 'rxjs';
 import moment from 'moment';
-import { LogsService } from 'src/app/core/core-services/logs-service';
+import {LogsService} from 'src/app/core/core-services/logs-service';
 
 @Component({
   selector: 'logs-form',
@@ -11,23 +11,36 @@ import { LogsService } from 'src/app/core/core-services/logs-service';
 })
 export class LogsFormComponent {
 
-    id: number = 0;
-    keys:any = [];
-    values:any = [];
-   
+  id: number = 0;
+  keys: any = [];
+  values: any = [];
+
   constructor(
     private activeModal: NgbActiveModal,
-    private logsService:LogsService
-  ) {}
+    private logsService: LogsService
+  ) {
+  }
 
   setEditingId(id: number) {
     this.id = id;
     if (!this.id) {
       return;
     }
-    this.logsService.byId(this.id).subscribe((res:any)=>{
-        this.keys=Object.keys(res.data)
-        this.values=Object.values(res.data)
+    this.logsService.byId(this.id).subscribe((res: any) => {
+      // this.keys = Object.keys(res.data)
+      this.keys = [
+        'ID',
+        'Cups',
+        'Cups ID',
+        'Estat',
+        'Operació',
+        'Nº de files afectades',
+        'Registre',
+        "Missatge d'error",
+        "Data de creació"
+      ]
+      this.values = Object.values(res.data)
+
     })
   }
 

@@ -59,12 +59,12 @@ export class CommunitiesTableComponent implements OnDestroy {
       title: 'Test',
       data: 'test',
       width: '100px',
-    },
+    },/*
     {
       title: 'CreatedAt',
       data: 'created_at',
       width: '100px',
-    },
+    },*/
     {
       title: '',
       data: 'id',
@@ -113,26 +113,26 @@ export class CommunitiesTableComponent implements OnDestroy {
         defaultData: 0,
         options: [],
       },
-      {
+      /*{
         title: 'created_at',
         description: '',
         value: '',
         type: 0,
         defaultData: 0,
         options: [],
-      },
+      },*/
   ];
 
   columnDefs:any[] = [
     {
       orderable: false, targets: [this.filterParams.length],
     },
-    {
+    /*{
       targets: 5,
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
-    },
+    },*/
     {
       targets: this.filterParams.length,
       title: '',

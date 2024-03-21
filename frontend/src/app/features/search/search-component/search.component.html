@@ -7,7 +7,7 @@
   <div class="row">
 
     <div class="col col-1 d-flex align-items-center p-0">
-      <button class="btn ms-2" type="button">
+      <button class="btn ms-2" type="button" (click)="redirectBack()">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
     </div>
@@ -20,7 +20,7 @@
       <select id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2"
         (change)="OnSelectorChange(selectedCommunity,'community')" data-bs-toggle="tooltip" data-bs-placement="bottom"
         data-bs-title="Tooltip on bottom">
-        <option>Nova comunitat</option>
+        <option [ngValue]="newCommunity">Nova comunitat</option>
         <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
       </select>
     </div>
@@ -45,7 +45,7 @@
 
         <hr class="mb-0">
 
-        <div class="mt-4 ms-4">
+        <div *ngIf="!selectedFeature" class="mt-4 ms-4">
           <span class="fs-5">Consum de la comunitat</span>
 
           <div class="row mt-2">
@@ -66,8 +66,8 @@
           </div>
   
           <div class="d-flex w-100">
-            <div class="custom-chart w-100">
-              <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType" [labels]="communityMonthChartLabels"
+            <div class="custom-chart " style="width:95%">
+              <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType" [labels]="monthChartLabels"
                 [datasets]="communityMonthChartDatasets" [options]="communityMonthChartOptions"
                 [updateSubject]="communityUpdateMonthChartSubject.asObservable()"></app-chart>
             </div>
@@ -83,7 +83,7 @@
   
         </div>
         
-        <hr class="mb-0">
+        <!-- <hr class="mb-0"> -->
 
         <div *ngIf="selectedFeature" class="mt-4 ms-4">
 
@@ -110,8 +110,8 @@
           </div>
 
           <div class="">
-            <div class="custom-chart w-100">
-              <app-chart [chartId]="'selectedCadastre'" [chartType]="selectedCadastreMonthChartType" [labels]="selectedCadastreMonthChartLabels"
+            <div class="custom-chart" style="width:95%">
+              <app-chart [chartId]="'selectedCadastre'" [chartType]="selectedCadastreMonthChartType" [labels]="monthChartLabels"
                 [datasets]="selectedCadastreMonthChartDatasets" [options]="communityMonthChartOptions" [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()"></app-chart>
             </div>
           </div>

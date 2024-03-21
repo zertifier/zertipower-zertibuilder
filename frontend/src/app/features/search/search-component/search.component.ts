@@ -6,7 +6,7 @@ import { EnergyAreasService } from "../../../core/core-services/energy-areas.ser
 import * as turf from '@turf/turf'
 import { LocationService } from 'src/app/core/core-services/location.service';
 import { BehaviorSubject } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 
 interface cadastre {
@@ -39,6 +39,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   communities: any = [];
   locations: any = [];
   selectedCommunity: any;
+  newCommunity:any={};
   selectedCommunities: any;
   selectedLocation: any = { municipality: '' };
   cadastresMap: any;
@@ -72,12 +73,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
   communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   communityMonthChartOptions =
     {
-      indexAxis: 'y',
+      //indexAxis: 'y',
       // Elements options apply to all of the options unless overridden in a dataset
       // In this case, we are setting the border of each horizontal bar to be 2px wide
       elements: {
         bar: {
-          borderWidth: 2,
+          borderWidth: 0,
         }
       },
       responsive: true,
@@ -100,12 +101,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
   updateSelectedCadastreMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   selectedCadastreMonthChartOptions =
     {
-      indexAxis: 'y',
+      //indexAxis: 'y',
       // Elements options apply to all of the options unless overridden in a dataset
       // In this case, we are setting the border of each horizontal bar to be 2px wide
       elements: {
         bar: {
-          borderWidth: 2,
+          borderWidth: 0,
         }
       },
       responsive: true,
@@ -143,7 +144,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
     private communitiesService: CommunitiesApiService,
     private energyAreasService: EnergyAreasService,
     private locationService: LocationService,
-    private activatedRoute: ActivatedRoute) { }
+    private activatedRoute: ActivatedRoute,
+    private router: Router) { }
 
   async ngOnInit() {
     this.paramsSub = this.activatedRoute.params.subscribe(
@@ -221,14 +223,19 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
       case 'community':
 
-        //this.renderSelectedCommunities();
-        //this.renderLocation();
-        let date = moment().format('YYYY-MM-DD')
-        this.communitiesService.getEnergy(this.selectedCommunity.id, date).subscribe((res: any) => {
+        if(this.selectedCommunity==this.newCommunity){
+          
+        }else{
+          //this.renderSelectedCommunities();
+          //this.renderLocation();
+          let date = moment().format('YYYY-MM-DD')
+          this.communitiesService.getEnergy(this.selectedCommunity.id, date).subscribe((res: any) => {
           console.log("DATA COMUNITAT: ", res)
           this.communityEnergyData = res.data;
           this.updateCommunityChart();
         })
+        }
+
         break;
 
       default:
@@ -243,8 +250,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.communityMonthChartDatasets = [];
     this.communityMonthChartType = 'bar';
 
-    let imports: any[] = [];
-    let exports: any[] = [];
+    let imports: number[] = [];
+    let exports: number[] = [];
 
     this.communityEnergyData.forEach((item: any) => {
       this.communityMonthChartLabels.push(item.month);
@@ -252,6 +259,28 @@ export class SearchComponent implements OnInit, AfterViewInit {
       imports.push(item.import);
       exports.push(item.export);
     });
+
+    this.addedAreas.map((addedArea:any)=>{
+
+      addedArea.monthsConsumption?.map((monthConsumption:number,index:number)=>{
+        
+        if(imports[index]){
+          imports[index]+=monthConsumption;
+        }
+
+        if(!imports[index]){
+          imports.push(monthConsumption)
+        }
+        
+        if(exports[index]){
+          exports[index]+=addedArea.monthsGeneration[index];
+        }
+
+        if(!exports[index]){
+          exports.push(addedArea.monthsGeneration[index])
+        }
+      })
+    })
 
     this.communityMonthChartDatasets = [
       {
@@ -343,17 +372,20 @@ export class SearchComponent implements OnInit, AfterViewInit {
       }
 
     })
+  }
 
+  redirectBack(){
+    this.router.navigate(['/select-location']);
   }
 
   groupArrayByAttribute(array: [], attribute: string) {
     const groupedArrays: [][] = [];
 
     // Creamos un mapa para almacenar los arrays agrupados temporalmente
-    const tempMap = new Map<number | string, []>();
+    const tempMap:any = new Map<number | string, []>();
 
     // Iteramos sobre el array para agrupar los elementos según el atributo especificado
-    array.forEach(item => {
+    array.forEach((item: { [x: string]: any; }) => {
       const value = item[attribute];
       if (!tempMap.has(value)) {
         tempMap.set(value, []);
@@ -362,7 +394,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     });
 
     // Convertimos el mapa en un array de arrays y lo devolvemos
-    tempMap.forEach(value => groupedArrays.push(value));
+    tempMap.forEach((value:any) => groupedArrays.push(value));
 
     return groupedArrays;
   }
@@ -478,13 +510,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   addArea(){
 
-    let found = this.addedAreas.find((addedArea)=>addedArea.feature==this.selectedCadastre.feature)
+    let found = this.addedAreas.find((addedArea: any)=>addedArea.feature==this.selectedCadastre.feature)
     if(found){
       //todo: show already added
     }else{
       this.addedAreas.push(this.selectedCadastre)
       //TODO: update community
+      this.updateCommunityChart()
     }
+    console.log(this.addedAreas);
+    this.selectedFeature=undefined;
   }
 
   deleteArea(){

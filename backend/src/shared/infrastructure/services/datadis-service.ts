@@ -72,8 +72,6 @@ export class DatadisService {
         
         let startDate= moment().subtract(1, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM'); 
         let endDate= moment().format('YYYY/MM'); //moment().format('YYYY/MM');
-
-        console.log(startDate,endDate)
         
         this.run(startDate,endDate)
 
@@ -119,8 +117,6 @@ export class DatadisService {
             if(!this.supplies){
                 continue;
             }
-
-            console.log("supplies",this.supplies)
 
             //check if all cups are in database already
             await this.checkCups();
@@ -233,7 +229,7 @@ export class DatadisService {
             maxBodyLength: Infinity, 
             url: 'https://datadis.es/api-private/api/get-supplies', 
             headers: {'Authorization': `Bearer ${this.token}`},
-            timeout: 10000
+            timeout: 20000
         }
         try{
             let response:any = await axios.request(config)
@@ -275,10 +271,8 @@ export class DatadisService {
             response.data.map((supplies:any)=>{
                 supplies.authorizedNif = communityCupsElement.dni
             })
-            console.log("auhorized supply",response.data)
             //add supplies:
             this.supplies=this.supplies.concat(response.data)
-            console.log("update supplies",this.supplies)
             return this.supplies;
         }catch(error){
             if (axios.isAxiosError(error)) {
@@ -288,7 +282,7 @@ export class DatadisService {
                     console.error('Datos de respuesta:', axiosError.response.data);
                 } else if (axiosError.request) {
                     // El error ocurrió durante la solicitud, pero no se recibió respuesta
-                    console.error('La solicitud no recibió respuesta:', axiosError.request);
+                    console.error('La solicitud no recibió respuesta',);
                 } else {
                     // Error al configurar la solicitud
                     console.error('Error al configurar la solicitud:', axiosError.message);
@@ -312,7 +306,7 @@ export class DatadisService {
      */
     async getConsumptionData(cups:string,distributorCode:number,startDate:string,endDate:string,measurementType:number,pointType:number,authorizedNif?:string){
 
-        console.log("try to get datadis data: ",cups,distributorCode,startDate,endDate,0,pointType,authorizedNif)
+        //console.log("try to get datadis data: ",cups,distributorCode,startDate,endDate,0,pointType,authorizedNif)
 
         return new Promise(async (resolve,reject)=>{
 
@@ -415,7 +409,6 @@ export class DatadisService {
                 //insert cups if it isn't already registered
                 if(!dbFound){
                     console.log("try to insert new cups: ", cupsData);
-
                     //get or set location
                     const [ROWS]:any = await this.conn.query(getLocationQuery,[cupsData.province,cupsData.municipality])
                     if(ROWS[0]){
@@ -501,7 +494,7 @@ export class DatadisService {
         WHERE data_to_check.info_dt
         NOT IN (
         SELECT info_dt
-        FROM energy_registers
+        FROM datadis_energy_registers
         WHERE info_dt
         BETWEEN ? AND ?  
         )
@@ -543,7 +536,7 @@ export class DatadisService {
             getDatadisEndingDate
         };
 
-        const insertLogQuery = `INSERT INTO logs (origin,log,cups,cups_id,status,operation,n_affected_registers,error_message) VALUES (?,?,?,?,?,?,?)`
+        const insertLogQuery = `INSERT INTO logs (origin,log,cups,cups_id,status,operation,n_affected_registers,error_message) VALUES (?,?,?,?,?,?,?,?)`
         return new Promise(async (resolve,reject)=>{
             try{
                 let [ROWS] = await this.conn.query(insertLogQuery, ['datadis',JSON.stringify(log),cups,cupsId,status,operation,n_registers,errorMessage]);

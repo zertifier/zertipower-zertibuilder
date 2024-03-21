@@ -48,7 +48,13 @@ export class LoginPageComponent implements OnDestroy {
     'assets/img/login-4.webp',
   ]
 
-  constructor(private authStore: AuthStoreService, private router: Router, private themeStoreService: ThemeStoreService, private route: ActivatedRoute, private http: HttpClient, private loginActionService: LoginActionService, private authApiService: AuthApiService) {
+  constructor(
+    private authStore: AuthStoreService,
+    private router: Router, protected themeStoreService: ThemeStoreService,
+    private route: ActivatedRoute, private http: HttpClient,
+    private loginActionService: LoginActionService,
+    private authApiService: AuthApiService
+  ) {
     const randNum = Math.floor(Math.random() * this.images.length);
     this.imgSource = this.images[randNum]
     effect(() => {

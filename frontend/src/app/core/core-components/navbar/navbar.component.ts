@@ -40,7 +40,7 @@ export class NavbarComponent {
 		protected authStore: AuthStoreService,
 		private authApi: AuthApiService,
 		private router: Router,
-    private themeStoreService: ThemeStoreService,
+    protected themeStoreService: ThemeStoreService,
     private permissionsStoreService: PermissionsStoreService,
 	) {
 

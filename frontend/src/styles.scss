@@ -255,3 +255,9 @@ $table-border-width: 0;
   color: #aaa;
 }
 
+
+
+.dataTables_scrollHead, td{
+  padding: 10px !important;
+  border-bottom: 1px solid #525252;
+}

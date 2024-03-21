@@ -66,7 +66,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   locationId: number | undefined;
 
   communityValoration: number = 1;
-  communityEnergyData: any;
+  communityEnergyData: any = [];
   communityMonthChartLabels: any = [];
   communityMonthChartDatasets: any = [];
   communityMonthChartType = 'bar';
@@ -281,6 +281,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
         }
       })
     })
+
+    console.log("imports",imports)
+    console.log("exports",exports)
 
     this.communityMonthChartDatasets = [
       {

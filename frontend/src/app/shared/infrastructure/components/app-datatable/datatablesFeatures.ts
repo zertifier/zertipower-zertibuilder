@@ -288,7 +288,6 @@ export class DatatablesFeatures {
       that.renderer.addClass(refreshIcon, "fa-spin");
       that.dtInstance.column(0).search("").draw();
       setTimeout(() => {
-        console.log("aaaaa")
         that.updateRefreshButton(refreshIcon);
       }, 1000);
 

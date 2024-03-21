@@ -276,13 +276,22 @@ export class DatatablesFeatures {
     this.renderer.appendChild(this.buttonDiv, refreshDiv);
     let that = this;
     this.renderer.listen(refreshButton, "click", () => {
-      this.dtInstance.columns().every(function (columnNumber: number) {
+      /*this.dtInstance.columns().every(function (columnNumber: number) {
         that.renderer.addClass(refreshIcon, "fa-spin");
         that.dtInstance.column(0).search("").draw();
         setTimeout(() => {
+          console.log("aaaaa")
           that.updateRefreshButton(refreshIcon);
         }, 1000);
-      });
+      });*/
+
+      that.renderer.addClass(refreshIcon, "fa-spin");
+      that.dtInstance.column(0).search("").draw();
+      setTimeout(() => {
+        console.log("aaaaa")
+        that.updateRefreshButton(refreshIcon);
+      }, 1000);
+
     });
   }
 

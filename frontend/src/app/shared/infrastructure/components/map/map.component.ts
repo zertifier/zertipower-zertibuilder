@@ -4,7 +4,8 @@ import {
   Component, ElementRef,
   Input,
   NgZone,
-  OnInit, ViewChild,
+  OnChanges,
+  OnInit, SimpleChanges, ViewChild,
 } from "@angular/core";
 import {GoogleMap} from '@angular/google-maps';
 import { Output, EventEmitter } from '@angular/core';
@@ -43,7 +44,7 @@ import { FormsModule } from "@angular/forms";
 `
 })
 
-export class AppMapComponent implements AfterViewInit {
+export class AppMapComponent implements AfterViewInit, OnChanges {
 
   @ViewChild('mapContainer', {static: false}) gmap!: ElementRef;
   map!: google.maps.Map;
@@ -59,6 +60,7 @@ export class AppMapComponent implements AfterViewInit {
   @Input() streetViewControl: boolean = false;
   @Input() rotateControl: boolean = false;
   @Input() fullscreenControl: boolean = false;
+  @Input() activeFeatures: any;
 
   @Input() address: string = ''; 
 
@@ -83,6 +85,7 @@ export class AppMapComponent implements AfterViewInit {
 
   infoWindow: google.maps.InfoWindow | null = null;
   originalStyle: any = {fillColor:"red",fillOpacity:0.0,strokeColor:"white",strokeWeight:1.0,strokeDashArray: '10000, 10000'}
+  activeStyle:any = {fillColor:"blue",fillOpacity:0.5,strokeColor:"blue",strokeWeight:1.0,strokeDashArray: '10000, 10000'}
   multipleSelection = false;
 
   @Output() selectedFeature = new EventEmitter<any>();
@@ -91,6 +94,35 @@ export class AppMapComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.mapInitializer();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    for (const propName in changes) {
+      if (changes.hasOwnProperty(propName)) {
+        switch (propName) {
+          case 'update':
+            /*if (changes['update'].currentValue) {
+              console.log(changes['update'].currentValue)
+              this.updateChart();
+            } else {
+              console.log(changes['update'].currentValue)
+            }*/
+            break;
+          case 'activeFeatures':
+            this.updateActiveFeatures(changes['activeFeatures'].currentValue)
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  updateActiveFeatures(activeFeatures:any){
+    console.log("active features",activeFeatures)
+    this.activeFeatures.map((activeFeature:any)=>{
+      this.activeArea(activeFeature)
+    })
   }
 
   mapInitializer() {
@@ -105,14 +137,12 @@ export class AppMapComponent implements AfterViewInit {
 
       this.setFeatureArea(event.feature)
 
-      if (event.feature.getProperty('selected')) {
-        console.log("unselect")
+      if (event.feature.getProperty('selected')) { //unselect when click on selected area
         event.feature.setProperty('selected',false);
         this.map.data.overrideStyle(event.feature,this.originalStyle); 
         this.selectedFeature.emit({selected:false,feature:event.feature});
       }else{
-        console.log("select")
-        if(!this.multipleSelection && this.previousFeature){
+        if(!this.multipleSelection && this.previousFeature && !this.previousFeature.getProperty('active')){ //unselect when click on new area if !multipleSelection 
           this.previousFeature.setProperty('selected',false);
           this.map.data.overrideStyle(this.previousFeature,this.originalStyle); 
         }
@@ -203,6 +233,17 @@ export class AppMapComponent implements AfterViewInit {
       console.log(feature)
       this.map.data.overrideStyle(feature,this.originalStyle); 
       feature.setProperty('selected',false);
+    })
+  }
+
+  activeArea(featureData:any){
+    this.map.data.forEach((feature)=>{
+      if(feature==featureData.feature){
+        feature.setProperty('active',true);
+        feature.setProperty('selected',false);
+        this.map.data.overrideStyle(feature,this.activeStyle); 
+        this.selectedFeature.emit({selected:false,feature:feature});
+      }
     })
   }
 

@@ -8,6 +8,7 @@ import { LocationService } from 'src/app/core/core-services/location.service';
 import { BehaviorSubject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
+import { ChangeDetectorRef } from '@angular/core';
 
 interface cadastre {
   totalConsumption: number,
@@ -46,7 +47,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   energyAreas: any;
   energyArea = { cadastral_reference: '', m2: 0, cups: '' };
   selectedEnergyArea: any;
-  nPlaquesCalc: any;
   kwhMonth: any;
   wp: number = 460; //potencia pico (potencia nominal)
 
@@ -130,22 +130,21 @@ export class SearchComponent implements OnInit, AfterViewInit {
   };
 
   cupsNumber: number = 0;
-  addedAreas: cadastre[] = [];
+  addedAreas: any[] = [];
 
   @ViewChild(AppMapComponent) map!: AppMapComponent;
 
   folder: number = 1;
-
   isShrunk: boolean = false;
-
-  selectedFeature: any;
 
   constructor(
     private communitiesService: CommunitiesApiService,
     private energyAreasService: EnergyAreasService,
     private locationService: LocationService,
     private activatedRoute: ActivatedRoute,
-    private router: Router) { }
+    private router: Router,
+    private cdr: ChangeDetectorRef
+    ) { }
 
   async ngOnInit() {
     this.paramsSub = this.activatedRoute.params.subscribe(
@@ -220,7 +219,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
       case 'community':
 
         if(this.selectedCommunity==this.newCommunity){
-          
+          this.communityEnergyData=[];
+          this.updateCommunityChart();
         }else{
           //this.renderSelectedCommunities();
           //this.renderLocation();
@@ -342,6 +342,22 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.resetCadastre();
 
         const feature = event.feature;
+        
+        for (const addedArea of this.addedAreas) {
+          if(addedArea.feature==feature){
+            console.log("coinciden")
+            console.log("addedArea",addedArea)
+            this.selectedCadastre=addedArea;
+            this.updateCadastreChart();
+            this.updateSelectedCadastreValoration();
+            break;
+          }
+        }
+        console.log("Ep")
+        if(this.selectedCadastre.feature){
+          return
+        }
+        console.log("OP")
         this.selectedCadastre.feature=feature;
 
         let energyAreaId = feature.getProperty('energyAreaId')
@@ -357,7 +373,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
         let areaM2:any = feature.getProperty('areaM2');
         this.selectedCadastre.m2 = Math.floor(areaM2);
-        this.nPlaquesCalc = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7);
+        this.selectedCadastre.n_plaques = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7) | 0;
         
         this.updateCadastreConsumptionM2();
         this.updateCadastreChart();
@@ -454,9 +470,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   featureSelected(selectedFeature: any) {
     if (selectedFeature.selected) {
-      this.selectedFeature = selectedFeature.feature;
+      this.selectedCadastre.feature = selectedFeature.feature;
     } else {
-      this.selectedFeature = undefined;
+      this.selectedCadastre.feature = undefined;
     }
   }
 
@@ -476,6 +492,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   updateCadastreChart() {
+    this.cdr.detectChanges();
+
+    console.log("n plaques",this.selectedCadastre.n_plaques)
 
     let monthConsumption = this.selectedCadastre.totalConsumption;
     let monthConsumptionArray: any = [];
@@ -483,7 +502,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let sumMonthConsumption: number = 0;
 
     let monthGenerationArray = Array.apply(null, Array(12)).map((element, index) => {
-      let monthGeneration = this.kwhMonth460wp[index] * this.nPlaquesCalc;
+      let monthGeneration = this.kwhMonth460wp[index] * this.selectedCadastre.n_plaques!;
       monthConsumptionArray.push(monthConsumption);
       sumMonthGeneration += monthGeneration;
       sumMonthConsumption += monthConsumption;
@@ -530,22 +549,23 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   addArea(){
-
+    
+    console.log("before add: ",this.selectedCadastre)
     let found = this.addedAreas.find((addedArea: any)=>addedArea.feature==this.selectedCadastre.feature)
     if(found){
       //todo: show already added
     }else{
-      this.addedAreas.push(this.selectedCadastre)
+      this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
       //TODO: update community
       this.updateCommunityChart()
     }
-    console.log(this.addedAreas);
-    this.selectedFeature=undefined;
+    console.log("Add area: ",this.addedAreas);
+    this.resetCadastre();
   }
 
   deleteArea(){
     //TODO: delete from addedAreas if its added.
-    this.selectedFeature=undefined;
+    this.resetCadastre();
   }
 
 }

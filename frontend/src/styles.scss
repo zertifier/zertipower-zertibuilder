@@ -138,9 +138,9 @@ $btn-bg: $primary;
   text-align: center;
 }
 
-table.dataTable thead th, table.dataTable thead td, table.dataTable tfoot th, table.dataTable tfoot td {
+/*table.dataTable thead th, table.dataTable thead td, table.dataTable tfoot th, table.dataTable tfoot td {
   padding: 15px !important;
-}
+}*/
 
 .ng-input input{
   color: black !important;
@@ -226,40 +226,6 @@ h2, h3, h4, h5, h6{
 
 //-----------------------------------------------------------------
 
-$table-border-width: 0;
 
-.dataTables_filter label, .dataTables_filter .form-control {
-  width: 100% !important;
-}
-
-.dataTables_filter .form-control {
-  padding-left: 30px;
-  margin-left: 0px !important;
-}
-
-.filter-input{
-  // max-width: 90px;
-  // min-width: 90px;
-  //margin-bottom: 10px;
-}
-
-.dataTables_filter .fa-search {
-  position: absolute;
-  z-index: 2;
-  display: block;
-  width: 30px;
-  height: 30px;
-  line-height: 31px;
-  text-align: center;
-  pointer-events: none;
-  color: #aaa;
-}
-
-
-
-.dataTables_scrollHead, td{
-  padding: 10px !important;
-  border-bottom: 1px solid #525252;
-}
 
 

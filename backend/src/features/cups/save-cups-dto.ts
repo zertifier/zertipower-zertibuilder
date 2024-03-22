@@ -33,6 +33,9 @@ export class SaveCupsDto {
   type: CupsType | null;
 
   @IsOptional()
+  surplusDistribution: string | null;
+
+  @IsOptional()
   datadisActive?: boolean | null;
 
   @IsOptional()

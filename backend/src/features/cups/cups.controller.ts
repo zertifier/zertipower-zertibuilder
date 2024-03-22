@@ -53,6 +53,7 @@ export class CupsController {
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCupsDto) {
     if (body.datadisPassword) body.datadisPassword = PasswordUtils.encryptData(body.datadisPassword, process.env.JWT_SECRET!)
+    if (body.surplusDistribution) body.surplusDistribution = body.surplusDistribution.toString()
     const data = await this.prisma.cups.create({ data: body });
     if (data.datadisPassword) data.datadisPassword = PasswordUtils.decryptData(data.datadisPassword, process.env.JWT_SECRET!)
     return HttpResponse.success("cups saved successfully").withData(data);

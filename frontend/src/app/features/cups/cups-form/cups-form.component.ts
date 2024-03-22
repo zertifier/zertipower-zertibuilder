@@ -31,6 +31,7 @@ export class CupsFormComponent {
     address: new FormControl<string | null>(null),
     lat: new FormControl<number | null>(null),
     lng: new FormControl<number | null>(null),
+    surplusDist: new FormControl<number | null>(null, Validators.max(100)),
     type: new FormControl<string | null>(null),
     customerId: new FormControl<number | null>(null),
     createdAt: new FormControl<string | null>(null),
@@ -72,7 +73,13 @@ export class CupsFormComponent {
     private locationsApiService: LocationService,
   ) {
     this.getAvailableDropdownData()
-
+    this.form.get('surplusDist')?.valueChanges.subscribe(value => {
+      if (value && (value >= 100 || value == 0)) {
+        this.form.get('surplusDist')?.setErrors({'exceedsLimit': true});
+      } else {
+        this.form.get('surplusDist')?.setErrors(null);
+      }
+    });
   }
 
   setEditingId(id: number) {
@@ -96,6 +103,9 @@ export class CupsFormComponent {
       this.form.controls.smartMeterActive.setValue(data.smartMeterActive);
       this.form.controls.inverterActive.setValue(data.inverterActive);
       this.form.controls.datadisUser.setValue(data.datadisUser);
+      this.form.controls.surplusDist.setValue(
+        typeof data.surplusDistribution == 'string' ? parseFloat(data.surplusDistribution) : data.surplusDistribution
+      );
       // this.form.controls.datadisPwd.setValue(data.datadisPassword);
       this.form.controls.smartMeterModel.setValue(data.smartMeterModel);
       this.form.controls.smartMeterApiKey.setValue(data.smartMeterApiKey);
@@ -165,6 +175,7 @@ export class CupsFormComponent {
     values.sensorActive = this.form.value.sensorActive
     values.sensorModel = this.form.value.sensorModel
     values.sensorApiKey = this.form.value.sensorApiKey
+    values.surplusDistribution = this.form.value.surplusDist!.toString()
 
 /*    values.createdAt = this.form.value.createdAt;
     values.updatedAt = this.form.value.updatedAt;*/
@@ -200,6 +211,8 @@ export class CupsFormComponent {
     if (!this.selectedLocationId) return {status: false, message: "L'ubicació no pot estar buida"}
 
     if (!this.form.value.address) return {status: false, message: "L'adreça no pot estar buida"}
+
+    if (this.form.get('surplusDist')?.errors) return {status: false, message: 'La distribució comunitaria no pot excedir els 100€'}
 
     return {status: true, message: ''}
   }

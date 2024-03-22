@@ -67,11 +67,22 @@
       </div>
     </div>
 
-    <label class="form-label" for="lng-input">Tipus de cups</label>
-    <select class="px-2 form-select" formControlName="type">
-    <option></option>
-    <option *ngFor="let element of cupsTypes" [ngValue]="element">{{element}}</option>
-    </select>
+    <div class="row">
+      <div class="col">
+        <label class="form-label" for="lng-input">Tipus de cups</label>
+        <select class="px-2 form-select" formControlName="type">
+          <option></option>
+          <option *ngFor="let element of cupsTypes" [ngValue]="element">{{element}}</option>
+        </select>
+      </div>
+
+      <div class="col">
+        <label class="form-label" for="lng-input">Distribució comunitaria</label>
+        <input id="dist-comunitaria-input" type="number" formControlName="surplusDist" class="form-control" min="0.01" max="99.9">
+      </div>
+
+    </div>
+
 
     <div class="form-check mt-2">
       <input class="form-check-input" type="checkbox"  formControlName="datadisActive" id="flexCheckDatadis">

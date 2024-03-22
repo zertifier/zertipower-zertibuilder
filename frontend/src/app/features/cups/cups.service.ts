@@ -18,6 +18,7 @@ export interface CupsInterface {
   datadisActive:boolean
   smartMeterActive:boolean;
   inverterActive:boolean;
+  surplusDistribution:number | string;
   datadisUser:string;
   datadisPassword:string;
   smartMeterModel:string;

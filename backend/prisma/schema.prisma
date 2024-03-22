@@ -127,31 +127,31 @@ model Communities {
 }
 
 model Cups {
-  id                   Int       @id @default(autoincrement())
-  cups                 String    @default("") @db.VarChar(50)
-  providerId           Int       @default(0) @map("provider_id")
-  communityId          Int       @default(0) @map("community_id")
-  surplus_distribution String?   @db.LongText
-  locationId           Int       @default(0) @map("location_id")
-  address              String    @default("") @db.VarChar(50)
-  customerId           Int?      @map("customer_id")
-  lng                  Float?
-  lat                  Float?
-  type                 CupsType?
-  datadisActive        Boolean?  @default(false) @map("datadis_active") @db.TinyInt
-  datadisUser          String?   @map("datadis_user") @db.VarChar(50)
-  datadisPassword      String?   @map("datadis_password") @db.VarChar(100)
-  smartMeterActive     Boolean?  @default(false) @map("smart_meter_active") @db.TinyInt
-  smartMeterModel      String    @default("") @map("smart_meter_model") @db.VarChar(100)
-  smartMeterApiKey     String?   @map("smart_meter_api_key") @db.VarChar(50)
-  inverterActive       Boolean   @default(false) @map("inverter_active") @db.TinyInt
-  inverterModel        String?   @map("inverter_model") @db.VarChar(100)
-  inverterApiKey       String?   @map("inverter_api_key") @db.VarChar(50)
-  sensorActive         Boolean   @default(false) @map("sensor_active") @db.TinyInt
-  sensorModel          String?   @map("sensor_model") @db.VarChar(100)
-  sensorApiKey         String?   @map("sensor_api_key") @db.VarChar(50)
-  createdAt            DateTime? @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt            DateTime? @map("updated_at") @db.DateTime(0)
+  id                  Int       @id @default(autoincrement())
+  cups                String    @default("") @db.VarChar(50)
+  providerId          Int       @default(0) @map("provider_id")
+  communityId         Int       @default(0) @map("community_id")
+  surplusDistribution String?   @map("surplus_distribution") @db.LongText
+  locationId          Int       @default(0) @map("location_id")
+  address             String    @default("") @db.VarChar(50)
+  customerId          Int?      @map("customer_id")
+  lng                 Float?
+  lat                 Float?
+  type                CupsType?
+  datadisActive       Boolean?  @default(false) @map("datadis_active") @db.TinyInt
+  datadisUser         String?   @map("datadis_user") @db.VarChar(50)
+  datadisPassword     String?   @map("datadis_password") @db.VarChar(100)
+  smartMeterActive    Boolean?  @default(false) @map("smart_meter_active") @db.TinyInt
+  smartMeterModel     String    @default("") @map("smart_meter_model") @db.VarChar(100)
+  smartMeterApiKey    String?   @map("smart_meter_api_key") @db.VarChar(50)
+  inverterActive      Boolean   @default(false) @map("inverter_active") @db.TinyInt
+  inverterModel       String?   @map("inverter_model") @db.VarChar(100)
+  inverterApiKey      String?   @map("inverter_api_key") @db.VarChar(50)
+  sensorActive        Boolean   @default(false) @map("sensor_active") @db.TinyInt
+  sensorModel         String?   @map("sensor_model") @db.VarChar(100)
+  sensorApiKey        String?   @map("sensor_api_key") @db.VarChar(50)
+  createdAt           DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt           DateTime? @map("updated_at") @db.DateTime(0)
 
   @@map("cups")
 }
@@ -159,9 +159,10 @@ model Cups {
 model Customers {
   id            Int       @id @default(autoincrement())
   name          String?   @db.VarChar(50)
+  dni           String?   @db.VarChar(50)
+  walletAddress String?   @map("wallet_address") @db.VarChar(200)
   createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt     DateTime? @map("updated_at") @db.DateTime(0)
-  walletAddress String?   @map("wallet_address") @db.VarChar(200)
 
   @@map("customers")
 }
@@ -323,14 +324,15 @@ model Log {
   @@map("logs")
 }
 
-enum CupsType {
-  consumer
-  producer
-  prosumer
-}
-
 enum LogsStatus {
   error
   success
   warning
+}
+
+enum CupsType {
+  consumer
+  producer
+  prosumer
+  community
 }

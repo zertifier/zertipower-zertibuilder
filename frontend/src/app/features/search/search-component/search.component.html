@@ -7,7 +7,7 @@
   <div class="row">
 
     <div class="col col-1 d-flex align-items-center p-0">
-      <button class="btn ms-2" type="button" (click)="redirectBack()">
+      <button class="btn ms-2 shadow-none border-0" type="button" (click)="redirectBack()">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
     </div>
@@ -57,14 +57,14 @@
               <span class="d-flex align-items-center me-2">Agregats {{addedAreas.length}}</span>
             </div>
           </div>
-  
+
           <div class="row mt-2">
             <div class="col ms-2">
               <!-- <span class="d-flex align-items-center me-2 fs-5">Sumatori de la comunitat</span>  -->
               <!-- <span class="fs-6 d-flex align-items-center me-2">Les dades expressades són una estimació aproximada</span>  -->
             </div>
           </div>
-  
+
           <div class="d-flex w-100">
             <div class="custom-chart " style="width:95%">
               <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType" [labels]="monthChartLabels"
@@ -72,17 +72,17 @@
                 [updateSubject]="communityUpdateMonthChartSubject.asObservable()"></app-chart>
             </div>
           </div>
-  
+
           <span class="fs-6 my-2">Valoració del consum comunitari</span>
-  
+
           <div class="d-flex justify-content-center mt-3 mb-4">
             <i class="icon-face fa-regular fa-face-smile mx-3 fa-2x" [ngClass]="communityValoration==1 ? 'smile-color' : 'inactive-color'"></i>
             <i class="icon-face fa-regular fa-face-meh mx-3 fa-2x" [ngClass]="communityValoration==2 ? 'meh-color' : 'inactive-color'"></i>
             <i class="icon-face fa-regular fa-face-frown mx-3 fa-2x" [ngClass]="communityValoration==3 ? 'frown-color' : 'inactive-color'"></i>
           </div>
-  
+
         </div>
-        
+
         <!-- <hr class="mb-0"> -->
 
         <div *ngIf="selectedFeature" class="mt-4 ms-4">
@@ -91,7 +91,7 @@
 
           <div class="mt-3">
             <span class="fs-6 bolder my-1">Consum mensual</span>
-            <span class="fs-6 d-flex align-items-center me-2">Les dades expressades són una estimació aproximada</span> 
+            <span class="fs-6 d-flex align-items-center me-2">Les dades expressades són una estimació aproximada</span>
           </div>
 
           <div class="row p-0 m-0 mt-4">
@@ -126,7 +126,7 @@
           <div class="">
 
             <div class="row ps-0 m-0 pb-2">
-            
+
               <div class="col-3 d-flex m-0 p-0">
                 <span class="d-flex align-items-center fs-12"> Nº de plaques</span>
               </div>
@@ -134,7 +134,7 @@
               <div class="col-3 m-0 p-0 d-flex align-items-center">
                 <input type="number" class="form-control number-input" [(ngModel)]="nPlaquesCalc" (change)="updateCadastreChart()">
               </div>
-            
+
               <div class="col-3 d-flex m-0 p-0">
                 <span class="d-flex align-items-center fs-12">Estalvi mensual</span>
               </div>
@@ -156,7 +156,7 @@
                 <input type="number" class="form-control number-input disabled" readonly>
                 <span class="d-flex align-items-center fs-12 ms-2">€</span>
               </div>
-            
+
               <div class="col-3 d-flex m-0 p-0">
                 <span class="d-flex align-items-center fs-12">Anys per amortitzar</span>
               </div>
@@ -164,7 +164,7 @@
               <div class="col-3 m-0 p-0 d-flex align-items-center">
                 <input type="number" class="form-control number-input disabled" readonly>
               </div>
-            
+
             </div>
 
           </div>

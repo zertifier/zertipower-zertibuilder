@@ -32,7 +32,7 @@ import { log } from "console";
     ) {
       this.conn = this.mysql.pool;
     }
-  
+
     @Post("/geojson")
     @Auth(RESOURCE_NAME)
     async postGeojson(@Body() body: any) {
@@ -43,6 +43,7 @@ import { log } from "console";
       let type = geoJsonFeature.properties.currentUse;
       let m2 = geoJsonFeature.properties.value;
       let cadastralReference = geoJsonFeature.properties.reference;
+      let origin = 'CatastRo';
 
       //todo: obtener el id de la ciudad del body parameters, y postear energy_areas con location_id
 
@@ -50,8 +51,8 @@ import { log } from "console";
 
       try{
 
-      const insertEnergyAreaQuery = `INSERT INTO energy_areas (type,m2,cadastral_reference,geojson_feature) VALUES (?,?,?,?)`;
-      const [result]: any[] = await this.conn.query(insertEnergyAreaQuery, [type,m2,cadastralReference,JSON.stringify(geoJsonFeature)]);
+      const insertEnergyAreaQuery = `INSERT INTO energy_areas (origin,type,m2,cadastral_reference,geojson_feature) VALUES (?,?,?,?,?)`;
+      const [result]: any[] = await this.conn.query(insertEnergyAreaQuery, [origin,type,m2,cadastralReference,JSON.stringify(geoJsonFeature)]);
       let energyAreaId=result.insertId;
         console.log(energyAreaId)
       let coordinates = geoJsonFeature.geometry.coordinates;

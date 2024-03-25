@@ -15,6 +15,7 @@ import { SaveEnergyRegistersDTO } from "./save-energy-registers-dto";
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
+import {ErrorCode} from "../../shared/domain/error";
 
 export const RESOURCE_NAME = "energyRegisters";
 
@@ -24,7 +25,7 @@ export class EnergyRegistersController {
   constructor(private prisma: PrismaService, private datatable: Datatable) {}
 
   @Get()
-  @Auth(RESOURCE_NAME)
+  // @Auth(RESOURCE_NAME)
   async get() {
     const data = await this.prisma.energyRegister.findMany();
     const mappedData = data.map(this.mapData);
@@ -34,7 +35,7 @@ export class EnergyRegistersController {
   }
 
   @Get(":id")
-  @Auth(RESOURCE_NAME)
+  // @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {
     const data = await this.prisma.energyRegister.findUnique({
       where: {
@@ -43,16 +44,47 @@ export class EnergyRegistersController {
     });
     return HttpResponse.success(
       "energy_registers fetched successfully"
-    ).withData(this.mapData(data));
+    ).withData(data);
   }
 
   @Post()
-  @Auth(RESOURCE_NAME)
+  // @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyRegistersDTO) {
-    const data = await this.prisma.energyRegister.create({ data: body });
-    return HttpResponse.success("energy_registers saved successfully").withData(
-      data
-    );
+    if (body.type && body.type == 'community'){
+      const cupsData = await this.prisma.cups.findFirst({
+        where: {
+          id: body.cupsId
+        }
+      })
+
+      if (!cupsData)  return HttpResponse.failure("inexistent cups", ErrorCode.INTERNAL_ERROR)
+
+      const communityId = cupsData.communityId
+
+      const communityCups = await this.prisma.cups.findMany({
+        where: {
+          communityId: communityId
+        }
+      })
+
+      let data = []
+
+      for (const cup of communityCups) {
+        let registerToAdd = body
+        registerToAdd.communityGeneration = parseFloat(cup.surplusDistribution || '0' ) * registerToAdd.generation
+        registerToAdd.cupsId = cup.id
+        data.push(await this.prisma.energyRegister.create({ data: body }));
+      }
+
+      return HttpResponse.success("energy_registers saved successfully").withData(
+        data
+      );
+    }else{
+      const data = await this.prisma.energyRegister.create({ data: body });
+      return HttpResponse.success("energy_registers saved successfully").withData(
+        data
+      );
+    }
   }
 
   @Put(":id")

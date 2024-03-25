@@ -37,6 +37,16 @@
       </div>
       <h3 class="text-center mb-4 fw-semibold mt-5" style="font-size: 45px">Inici de sessió</h3>
       <app-web2-login-form></app-web2-login-form>
+
+    <!--  <div *ngIf="themeStoreService.getCurrentThemeHTML() == 'light'" class=" mt-4 pt-2 text-center">
+        <img class="mx-3" src="assets/img/logos/RIS3CAT_OK-dark.png">
+        <img class="mx-3" src="assets/img/logos/logo%20UE_OK-dark.png" style="width: 176px">
+      </div>
+      <div *ngIf="themeStoreService.getCurrentThemeHTML() != 'light'" class=" mt-4 pt-2 text-center">
+        <img class="mx-3" src="assets/img/logos/RIS3CAT_OK.png">
+        <img class="mx-3" src="assets/img/logos/logo%20UE_OK.png" style="width: 176px">
+      </div>-->
+
     </div>
 
     <div class="col-12 col-lg-6 d-none d-lg-block"  [ngStyle]="{'background-image': 'url(' + imgSource + ')'}" style=" background-image: url('assets/img/login-4.webp');background-repeat: no-repeat;background-size: cover;">

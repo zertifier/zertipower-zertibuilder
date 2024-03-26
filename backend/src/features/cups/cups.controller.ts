@@ -57,7 +57,8 @@ export class CupsController {
       FROM energy_registers
       WHERE DATE(info_dt) = ${date}
         AND cups_id = ${id}
-        AND origin = ${origin};
+        AND origin = ${origin}
+      ORDER BY info_dt;
     `;
 
     const mappedData = data.map(this.energyRegistersMapData);
@@ -65,7 +66,64 @@ export class CupsController {
       // this.mapData(data)
       mappedData
     );
+  }
 
+  @Get(":id/:origin/stats/monthly/:date")
+  // @Auth(RESOURCE_NAME)
+  async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+    const [year, month] = date.split('-');
+
+    const data: any = await this.prisma.$queryRaw`
+      SELECT *,  
+             SUM(generation) AS generation,
+             SUM(import) AS import,
+             SUM(export) AS export,
+             SUM(consumption) AS consumption,
+             SUM(community_generation) AS community_generation,
+             SUM(virtual_generation) AS virtual_generation,
+             DATE(info_dt) AS info_dt
+      FROM energy_registers
+      WHERE YEAR(info_dt) = ${parseInt(year)}
+        AND MONTH(info_dt) = ${parseInt(month)}
+        AND cups_id = ${id}
+        AND origin = ${origin}
+      GROUP BY DAY(info_dt)
+      ORDER BY info_dt;
+    `;
+
+    const mappedData = data.map(this.energyRegistersMapData);
+    return HttpResponse.success("cups fetched successfully").withData(
+      // this.mapData(data)
+      mappedData
+    );
+  }
+  @Get(":id/:origin/stats/yearly/:date")
+  // @Auth(RESOURCE_NAME)
+  async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+    const [year] = date.split('-');
+
+    const data: any = await this.prisma.$queryRaw`
+      SELECT *,  
+             SUM(generation) AS generation, 
+             SUM(import) AS import, 
+             SUM(export) AS export, 
+             SUM(consumption) AS consumption, 
+             SUM(community_generation) AS community_generation, 
+             SUM(virtual_generation) AS virtual_generation, 
+             DATE(info_dt) AS info_dt
+      FROM energy_registers
+      WHERE YEAR(info_dt) = ${parseInt(year)}
+        AND cups_id = ${id}
+        AND origin = ${origin}
+      GROUP BY MONTH(info_dt)
+      ORDER BY info_dt;
+    `;
+
+    const mappedData = data.map(this.energyRegistersMapData);
+    return HttpResponse.success("cups fetched successfully").withData(
+      // this.mapData(data)
+      mappedData
+    );
   }
 
   @Post()
@@ -164,18 +222,18 @@ export class CupsController {
   energyRegistersMapData(data: any) {
     const mappedData: any = {};
     mappedData.id = data.id;
-    mappedData.infoDt = data.infoDt | data.info_dt;
-    mappedData.cupsId = data.cupsId | data.cups_id;
+    mappedData.infoDt = data.infoDt || data.info_dt;
+    mappedData.cupsId = data.cupsId || data.cups_id;
     mappedData.import = data.import;
     mappedData.consumption = data.consumption;
     mappedData.export = data.export;
     mappedData.type = data.type;
     mappedData.origin = data.origin;
-    mappedData.communityGeneration = data.communityGeneration | data.community_generation;
-    mappedData.virtualGeneration = data.virtualGeneration | data.virtual_generation;
+    mappedData.communityGeneration = data.communityGeneration || data.community_generation;
+    mappedData.virtualGeneration = data.virtualGeneration || data.virtual_generation;
     mappedData.generation = data.generation;
-    mappedData.createdAt = data.createdAt | data.created_at;
-    mappedData.updatedAt = data.updatedAt | data.updated_at;
+    mappedData.createdAt = data.createdAt || data.created_at;
+    mappedData.updatedAt = data.updatedAt || data.updated_at;
     return mappedData;
   }
 }

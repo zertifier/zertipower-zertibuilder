@@ -9,22 +9,25 @@ import { BehaviorSubject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { ChangeDetectorRef } from '@angular/core';
+import { generateToken } from 'src/app/shared/domain/utils/RandomUtils';
+import Swal from 'sweetalert2';
 
 interface cadastre {
+  id?:string;
   totalConsumption: number,
   valle: number,
   llano: number,
   punta: number,
-  yearConsumption?:number,
-  yearGeneration?:number,
-  monthsConsumption?:number[],
-  monthsGeneration?:number[],
+  yearConsumption?: number,
+  yearGeneration?: number,
+  monthsConsumption?: number[],
+  monthsGeneration?: number[],
   m2?: number,
   n_plaques?: number,
   inversion?: number,
   savings?: number,
   amortization_years?: number,
-  feature?:any
+  feature?: any
 }
 
 @Component({
@@ -40,7 +43,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   communities: any = [];
   locations: any = [];
   selectedCommunity: any;
-  newCommunity:any={};
+  newCommunity: any = {};
   selectedCommunities: any;
   selectedLocation: any = { municipality: '' };
   cadastresMap: any;
@@ -144,7 +147,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef
-    ) { }
+  ) { }
 
   async ngOnInit() {
     this.paramsSub = this.activatedRoute.params.subscribe(
@@ -156,19 +159,18 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.locations = await new Promise((resolve: any, reject: any) => {
       this.locationService.getLocations().subscribe(async (res: any) => {
-        this.selectedLocation = res.data.find((location: any) => location.id = this.locationId)
-        //this.createLocationControl(res.data);
+        this.selectedLocation = res.data.find((location: any) => location.id == this.locationId)
         this.map.centerToAddress(`${this.selectedLocation.municipality}, España`)
         resolve(res.data)
       }, (error: any) => {
         console.log("error getting locations")
+        Swal.fire('Error de connexió amb el servidor','Intenta-ho mes tard','error')
         reject("error")
       })
     })
 
     this.communities = await new Promise((resolve: any, reject: any) => {
       this.communitiesService.get().subscribe((res: any) => {
-        console.log(res.data)
         resolve(res.data)
       }, (error: any) => {
         console.log("error getting locations")
@@ -217,21 +219,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
         break;
 
       case 'community':
-
-        if(this.selectedCommunity==this.newCommunity){
-          this.communityEnergyData=[];
+        if (this.selectedCommunity == this.newCommunity) {
+          this.communityEnergyData = [];
           this.updateCommunityChart();
-        }else{
-          //this.renderSelectedCommunities();
-          //this.renderLocation();
+        } else {
           let date = moment().format('YYYY-MM-DD')
           this.communitiesService.getEnergy(this.selectedCommunity.id, date).subscribe((res: any) => {
-          console.log("DATA COMUNITAT: ", res)
-          this.communityEnergyData = res.data;
-          this.updateCommunityChart();
-        })
+            this.communityEnergyData = res.data;
+            this.updateCommunityChart();
+          })
         }
-
         break;
 
       default:
@@ -256,23 +253,23 @@ export class SearchComponent implements OnInit, AfterViewInit {
       exports.push(item.export);
     });
 
-    this.addedAreas.map((addedArea:any)=>{
+    this.addedAreas.map((addedArea: any) => {
 
-      addedArea.monthsConsumption?.map((monthConsumption:number,index:number)=>{
-        
-        if(imports[index]){
-          imports[index]+=monthConsumption;
+      addedArea.monthsConsumption?.map((monthConsumption: number, index: number) => {
+
+        if (imports[index]) {
+          imports[index] += monthConsumption;
         }
 
-        if(!imports[index]){
+        if (!imports[index]) {
           imports.push(monthConsumption)
         }
-        
-        if(exports[index]){
-          exports[index]+=addedArea.monthsGeneration[index];
+
+        if (exports[index]) {
+          exports[index] += addedArea.monthsGeneration[index];
         }
 
-        if(!exports[index]){
+        if (!exports[index]) {
           exports.push(addedArea.monthsGeneration[index])
         }
       })
@@ -295,24 +292,24 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.communityUpdateMonthChartSubject.next(true);
 
-    this.updateCommunityValoration(exports,imports)
+    this.updateCommunityValoration(exports, imports)
 
   }
 
-  updateCommunityValoration(communityExports:any[],communityImports:any[]){
-    let totalImports:number=0;
-    let totalExports:number=0;
-    communityExports.map((communityExport:any,index:number)=>{
-      totalExports+=communityExport;
+  updateCommunityValoration(communityExports: any[], communityImports: any[]) {
+    let totalImports: number = 0;
+    let totalExports: number = 0;
+    communityExports.map((communityExport: any, index: number) => {
+      totalExports += communityExport;
     })
-    communityImports.map((communityImport:any,index:number)=>{
-      totalImports+=communityImport;
+    communityImports.map((communityImport: any, index: number) => {
+      totalImports += communityImport;
     })
-    if(totalImports>totalExports){
-      this.communityValoration=3
-    }else{
-      this.communityValoration=1
-    } 
+    if (totalImports > totalExports) {
+      this.communityValoration = 3
+    } else {
+      this.communityValoration = 1
+    }
   }
 
   renderLocation() {
@@ -342,23 +339,18 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.resetCadastre();
 
         const feature = event.feature;
-        
-        for (const addedArea of this.addedAreas) {
-          if(addedArea.feature==feature){
-            console.log("coinciden")
-            console.log("addedArea",addedArea)
-            this.selectedCadastre=addedArea;
-            this.updateCadastreChart();
-            this.updateSelectedCadastreValoration();
-            break;
-          }
+        let cadastre:any = feature.getProperty('localId')
+
+        let foundArea = this.addedAreas.find((addedArea)=>addedArea.id==cadastre)
+        if(foundArea){
+          this.selectedCadastre = foundArea;
+          this.updateCadastreChart();
+          this.updateSelectedCadastreValoration();
+          return;
         }
-        console.log("Ep")
-        if(this.selectedCadastre.feature){
-          return
-        }
-        console.log("OP")
-        this.selectedCadastre.feature=feature;
+
+        this.selectedCadastre.feature = feature;
+        this.selectedCadastre.id = cadastre;
 
         let energyAreaId = feature.getProperty('energyAreaId')
 
@@ -371,10 +363,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
           energyArea.id === energyAreaId
         )
 
-        let areaM2:any = feature.getProperty('areaM2');
+        let areaM2: any = feature.getProperty('areaM2');
         this.selectedCadastre.m2 = Math.floor(areaM2);
         this.selectedCadastre.n_plaques = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7) | 0;
-        
+
         this.updateCadastreConsumptionM2();
         this.updateCadastreChart();
         this.updateSelectedCadastreValoration();
@@ -404,16 +396,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
     })
   }
 
-  redirectBack(){
+  redirectBack() {
     this.router.navigate(['/select-location']);
   }
 
   groupArrayByAttribute(array: [], attribute: string) {
     const groupedArrays: [][] = [];
-
     // Creamos un mapa para almacenar los arrays agrupados temporalmente
-    const tempMap:any = new Map<number | string, []>();
-
+    const tempMap: any = new Map<number | string, []>();
     // Iteramos sobre el array para agrupar los elementos según el atributo especificado
     array.forEach((item: { [x: string]: any; }) => {
       const value = item[attribute];
@@ -422,9 +412,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
       }
       tempMap.get(value)?.push(item);
     });
-
     // Convertimos el mapa en un array de arrays y lo devolvemos
-    tempMap.forEach((value:any) => groupedArrays.push(value));
+    tempMap.forEach((value: any) => groupedArrays.push(value));
 
     return groupedArrays;
   }
@@ -438,9 +427,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     orderedCoords = convexHull!.geometry.coordinates[0].map(coord => ({ lat: coord[0], lng: coord[1] }));
     return orderedCoords;
   }
-
   deleteMarkers() {
-
   }
 
   multipleSelection() {
@@ -450,38 +437,35 @@ export class SearchComponent implements OnInit, AfterViewInit {
     } else {
       this.map.multipleSelection = true;
     }
-
   }
 
-  updateCadastreConsumptionM2(){
+  updateCadastreConsumptionM2() {
     //TODO: update algorythm
     let updatedConsumption = this.selectedCadastre.totalConsumption + this.selectedCadastre.m2!
     this.selectedCadastre.totalConsumption = updatedConsumption;
-
     this.selectedCadastre.valle = this.selectedCadastre.totalConsumption * 0.50;
     this.selectedCadastre.llano = this.selectedCadastre.totalConsumption * 0.26;
     this.selectedCadastre.punta = this.selectedCadastre.totalConsumption * 0.24;
   }
 
-  updateCadastreConsumption(){
-    this.selectedCadastre.totalConsumption=this.selectedCadastre.valle+this.selectedCadastre.llano+this.selectedCadastre.punta
+  updateCadastreConsumption() {
+    
+    this.selectedCadastre.valle = Math.abs(this.selectedCadastre.valle)
+    this.selectedCadastre.llano = Math.abs(this.selectedCadastre.llano)
+    this.selectedCadastre.punta = Math.abs(this.selectedCadastre.punta)
+
+    this.selectedCadastre.totalConsumption = this.selectedCadastre.valle + this.selectedCadastre.llano + this.selectedCadastre.punta
     this.updateCadastreChart();
   }
 
   featureSelected(selectedFeature: any) {
-    if (selectedFeature.selected) {
-      this.selectedCadastre.feature = selectedFeature.feature;
-    } else {
-      this.selectedCadastre.feature = undefined;
-    }
+      
   }
 
   updateSelectedCadastreValoration() {
-
     let consumption = this.selectedCadastre.yearConsumption!;
     let production = this.selectedCadastre.yearGeneration!;
-
-     if (consumption > production) {
+    if (consumption > production) {
       this.cadastreValoration = 3;
     } else if (production > consumption) {
       this.cadastreValoration = 1;
@@ -492,11 +476,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   updateCadastreChart() {
+
     this.cdr.detectChanges();
 
-    console.log("n plaques",this.selectedCadastre.n_plaques)
-
     let monthConsumption = this.selectedCadastre.totalConsumption;
+    this.selectedCadastre.n_plaques=Math.abs( this.selectedCadastre.n_plaques || 0)
     let monthConsumptionArray: any = [];
     let sumMonthGeneration: number = 0;
     let sumMonthConsumption: number = 0;
@@ -509,10 +493,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
       return monthGeneration;
     });
 
-    this.selectedCadastre.yearConsumption=sumMonthConsumption;
-    this.selectedCadastre.yearGeneration=sumMonthGeneration;
-    this.selectedCadastre.monthsConsumption=monthConsumptionArray;
-    this.selectedCadastre.monthsGeneration=monthGenerationArray;
+    this.selectedCadastre.yearConsumption = sumMonthConsumption;
+    this.selectedCadastre.yearGeneration = sumMonthGeneration;
+    this.selectedCadastre.monthsConsumption = monthConsumptionArray;
+    this.selectedCadastre.monthsGeneration = monthGenerationArray;
 
     this.selectedCadastreMonthChartDatasets = [
       {
@@ -539,8 +523,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.isShrunk = !this.isShrunk;
   }
 
-  resetCadastre(){
-    this.selectedCadastre={
+  resetCadastre() {
+    this.selectedCadastre = {
       totalConsumption: 200,
       valle: 98,
       llano: 52,
@@ -548,24 +532,40 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }
   }
 
-  addArea(){
-    
-    console.log("before add: ",this.selectedCadastre)
-    let found = this.addedAreas.find((addedArea: any)=>addedArea.feature==this.selectedCadastre.feature)
-    if(found){
-      //todo: show already added
-    }else{
+  addArea() {
+    console.log("added areas 1",this.addedAreas)
+    let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
+    if (found) {
+      console.log("update area")
+      this.addedAreas = [...this.addedAreas]
+    } else {
+      console.log("add area")
       this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
-      //TODO: update community
       this.updateCommunityChart()
+      this.map.activeArea(this.selectedCadastre)
     }
-    console.log("Add area: ",this.addedAreas);
+    console.log("added areas 2",this.addedAreas)
     this.resetCadastre();
   }
 
-  deleteArea(){
-    //TODO: delete from addedAreas if its added.
+  deleteArea(index: number) {
+    this.map.deleteArea(this.addedAreas[index])
+    this.addedAreas.splice(index, 1);
     this.resetCadastre();
+    console.log(this.addedAreas)
+  }
+
+  unselectArea(feature:any){
+    this.map.unselectArea(feature)
+    this.resetCadastre();
+  }
+
+  editArea(index: number) {
+    console.log("edit area",this.addedAreas[index]);
+    this.map.selectArea(this.addedAreas[index])
+    this.selectedCadastre = this.addedAreas[index];
   }
 
 }
+
+//TODO:  he agregado id para identificar de manera más segura las areas

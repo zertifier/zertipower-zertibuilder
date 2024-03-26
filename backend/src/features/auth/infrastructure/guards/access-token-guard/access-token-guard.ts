@@ -40,6 +40,8 @@ export class AccessTokenGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     const bearerToken = request.headers.authorization;
+    console.log(request.headers, "request.headers")
+    console.log(bearerToken)
     if (!bearerToken) {
       throw new TokenNotGivenError("Token not provided");
     }

@@ -211,15 +211,19 @@ model EnergyBlock {
 }
 
 model EnergyRegister {
-  id          Int       @id @default(autoincrement())
-  infoDt      DateTime? @map("info_dt") @db.DateTime(0)
-  cupsId      Int?      @map("cups_id")
-  import      Float?
-  consumption Float?
-  export      Float?
-  generation  Float?
-  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt   DateTime? @map("updated_at") @db.DateTime(0)
+  id                  Int       @id @default(autoincrement())
+  infoDt              DateTime? @map("info_dt") @db.DateTime(0)
+  cupsId              Int?      @map("cups_id")
+  import              Float?
+  consumption         Float?
+  communityGeneration Float?    @map("community_generation")
+  virtualGeneration   Float?    @map("virtual_generation")
+  export              Float?
+  generation          Float?
+  origin              String?   @map("origin") @db.VarChar(200)
+  type                String?   @map("type") @db.VarChar(200)
+  createdAt           DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt           DateTime? @map("updated_at") @db.DateTime(0)
 
   @@index([cupsId], map: "cups_id")
   @@index([infoDt], map: "info_dt")

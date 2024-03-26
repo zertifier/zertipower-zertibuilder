@@ -49,6 +49,25 @@ export class CupsController {
     );
   }
 
+  @Get(":id/:origin/stats/daily/:date")
+  // @Auth(RESOURCE_NAME)
+  async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+    const data: any = await this.prisma.$queryRaw`
+      SELECT * 
+      FROM energy_registers
+      WHERE DATE(info_dt) = ${date}
+        AND cups_id = ${id}
+        AND origin = ${origin};
+    `;
+
+    const mappedData = data.map(this.energyRegistersMapData);
+    return HttpResponse.success("cups fetched successfully").withData(
+      // this.mapData(data)
+      mappedData
+    );
+
+  }
+
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCupsDto) {
@@ -139,6 +158,24 @@ export class CupsController {
     mappedData.createdAt=data.created_at
     mappedData.updatedAt=data.updated_at
 
+    return mappedData;
+  }
+
+  energyRegistersMapData(data: any) {
+    const mappedData: any = {};
+    mappedData.id = data.id;
+    mappedData.infoDt = data.infoDt | data.info_dt;
+    mappedData.cupsId = data.cupsId | data.cups_id;
+    mappedData.import = data.import;
+    mappedData.consumption = data.consumption;
+    mappedData.export = data.export;
+    mappedData.type = data.type;
+    mappedData.origin = data.origin;
+    mappedData.communityGeneration = data.communityGeneration | data.community_generation;
+    mappedData.virtualGeneration = data.virtualGeneration | data.virtual_generation;
+    mappedData.generation = data.generation;
+    mappedData.createdAt = data.createdAt | data.created_at;
+    mappedData.updatedAt = data.updatedAt | data.updated_at;
     return mappedData;
   }
 }

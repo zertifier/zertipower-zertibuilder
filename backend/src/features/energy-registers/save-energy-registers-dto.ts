@@ -50,7 +50,6 @@ export class SaveEnergyRegistersDTO {
   @IsOptional()
   type: string;
 
-  @ApiProperty({required: false})
   @Transform((value) =>
     moment.utc((value as any).value, "YYYY-MM-DD HH:mm:ss").toDate()
   )

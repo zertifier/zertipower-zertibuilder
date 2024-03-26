@@ -47,6 +47,7 @@ export class EnergyRegistersController {
     ).withData(data);
   }
 
+
   @Post()
   // @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyRegistersDTO) {

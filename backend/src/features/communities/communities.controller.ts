@@ -78,6 +78,92 @@ export class CommunitiesController {
     
   }
 
+  @Get(":id/:origin/stats/daily/:date")
+  // @Auth(RESOURCE_NAME)
+  async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+    const data: any = await this.prisma.$queryRaw`
+      SELECT er.*, community_id
+      FROM energy_registers er
+      LEFT JOIN cups
+      ON cups_id = cups.id
+      WHERE DATE(info_dt) = ${date}
+        AND origin = ${origin}
+        AND cups.community_id = ${id}
+      ORDER BY info_dt;
+    `;
+
+    const mappedData = data.map(this.energyRegistersMapData);
+    return HttpResponse.success("cups fetched successfully").withData(
+      // this.mapData(data)
+      mappedData
+    );
+  }
+
+  @Get(":id/:origin/stats/monthly/:date")
+  // @Auth(RESOURCE_NAME)
+  async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+    const [year, month] = date.split('-');
+
+    const data: any = await this.prisma.$queryRaw`
+      SELECT er.*,  
+             SUM(generation) AS generation,
+             SUM(import) AS import,
+             SUM(export) AS export,
+             SUM(consumption) AS consumption,
+             SUM(community_generation) AS community_generation,
+             SUM(virtual_generation) AS virtual_generation,
+             DATE(info_dt) AS info_dt, 
+             community_id
+      FROM energy_registers er
+      LEFT JOIN cups
+        ON cups_id = cups.id
+      WHERE YEAR(info_dt) = ${parseInt(year)}
+        AND MONTH(info_dt) = ${parseInt(month)}
+        AND cups.community_id = ${id}
+        AND origin = ${origin}
+      GROUP BY DAY(info_dt)
+      ORDER BY info_dt;
+    `;
+
+    const mappedData = data.map(this.energyRegistersMapData);
+    return HttpResponse.success("cups fetched successfully").withData(
+      // this.mapData(data)
+      mappedData
+    );
+  }
+
+  @Get(":id/:origin/stats/yearly/:date")
+  // @Auth(RESOURCE_NAME)
+  async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+    const [year] = date.split('-');
+
+    const data: any = await this.prisma.$queryRaw`
+      SELECT er.*,  
+             SUM(generation) AS generation, 
+             SUM(import) AS import, 
+             SUM(export) AS export, 
+             SUM(consumption) AS consumption, 
+             SUM(community_generation) AS community_generation, 
+             SUM(virtual_generation) AS virtual_generation, 
+             DATE(info_dt) AS info_dt,
+             community_id
+      FROM energy_registers er
+      LEFT JOIN cups
+        ON cups_id = cups.id
+      WHERE YEAR(info_dt) = ${parseInt(year)}
+        AND cups.community_id = ${id}
+        AND origin = ${origin}
+      GROUP BY MONTH(info_dt)
+      ORDER BY info_dt;
+    `;
+
+    const mappedData = data.map(this.energyRegistersMapData);
+    return HttpResponse.success("cups fetched successfully").withData(
+      // this.mapData(data)
+      mappedData
+    );
+  }
+
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCommunitiesDTO) {
@@ -140,6 +226,25 @@ export class CommunitiesController {
     mappedData.energyPrice=data.energyPrice;
     mappedData.createdAt = data.createdAt;
     mappedData.updatedAt = data.updatedAt;
+    return mappedData;
+  }
+
+  energyRegistersMapData(data: any) {
+    const mappedData: any = {};
+    mappedData.id = data.id;
+    mappedData.infoDt = data.infoDt || data.info_dt;
+    // mappedData.cupsId = data.cupsId || data.cups_id;
+    mappedData.import = data.import;
+    mappedData.consumption = data.consumption;
+    mappedData.export = data.export;
+    mappedData.type = data.type;
+    mappedData.origin = data.origin;
+    mappedData.communityGeneration = data.communityGeneration || data.community_generation;
+    mappedData.virtualGeneration = data.virtualGeneration || data.virtual_generation;
+    mappedData.generation = data.generation;
+    mappedData.createdAt = data.createdAt || data.created_at;
+    mappedData.updatedAt = data.updatedAt || data.updated_at;
+    mappedData.communityId = data.communityId || data.community_id;
     return mappedData;
   }
 }

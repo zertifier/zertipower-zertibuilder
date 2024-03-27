@@ -10,7 +10,7 @@
         
       <div class="row p-0 m-0 d-flex justify-content-center align-items-center text-center">
         <div style="max-width: 500px;">
-          <label for="location" class="m-5">Uneix-te a la transició energètica col·lectiva</label>
+          <label for="location" class="m-4">Uneix-te a la transició energètica col·lectiva</label>
           <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
             <option></option>
             <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>

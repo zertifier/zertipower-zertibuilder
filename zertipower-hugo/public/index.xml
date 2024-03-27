@@ -6,6 +6,17 @@
     <description>Recent content on Zertipower</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>es-es</language>
+    <lastBuildDate>Wed, 27 Mar 2024 11:09:44 +0100</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Getting Started</title>
+      <link>http://localhost:1313/getting-started/index.html</link>
+      <pubDate>Wed, 27 Mar 2024 11:09:44 +0100</pubDate>
+      <guid>http://localhost:1313/getting-started/index.html</guid>
+      <description>Backend Un cop tot preparat ens dirigim a la carpeta &amp;ldquo;backend&amp;rdquo; i instalem tots els paquets necessaris.
+npm i Després importem la base de dades que hi ha a la ruta /backend/backups/database.sql Un cop importada la base de dades generem la classe Prisma amb la comanda:
+npx prisma generate I iniciem el servidor amb:
+nest start Frontend Ara anem a la ruta /frontend</description>
+    </item>
   </channel>
 </rss>

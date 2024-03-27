@@ -12,6 +12,7 @@ import { Output, EventEmitter } from '@angular/core';
 import { log } from "console";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import { listenerCount } from "process";
 
 @Component({
   selector: 'app-map',
@@ -61,7 +62,6 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   @Input() rotateControl: boolean = false;
   @Input() fullscreenControl: boolean = false;
   @Input() activeFeatures: any;
-
   @Input() address: string = ''; 
 
   polygonT = [{lat:this.lat,lng:this.lng},{lat:this.lat+0.001,lng:this.lng+0.001}]
@@ -86,6 +86,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   infoWindow: google.maps.InfoWindow | null = null;
   originalStyle: any = {fillColor:"red",fillOpacity:0.0,strokeColor:"white",strokeWeight:1.0,strokeDashArray: '10000, 10000'}
   activeStyle:any = {fillColor:"blue",fillOpacity:0.5,strokeColor:"blue",strokeWeight:1.0,strokeDashArray: '10000, 10000'}
+  selectedStyle:any = { fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white' }
   multipleSelection = false;
 
   @Output() selectedFeature = new EventEmitter<any>();
@@ -118,13 +119,6 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
     }
   }
 
-  updateActiveFeatures(activeFeatures:any){
-    console.log("active features",activeFeatures)
-    this.activeFeatures.map((activeFeature:any)=>{
-      this.activeArea(activeFeature)
-    })
-  }
-
   mapInitializer() {
 
     this.ngZone.run(()=>{
@@ -137,17 +131,38 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
 
       this.setFeatureArea(event.feature)
 
-      if (event.feature.getProperty('selected')) { //unselect when click on selected area
+      //si el area está seleccionada y no está activa (deseleccionar)
+      if(event.feature.getProperty('selected') && !event.feature.getProperty('active') ){
         event.feature.setProperty('selected',false);
         this.map.data.overrideStyle(event.feature,this.originalStyle); 
         this.selectedFeature.emit({selected:false,feature:event.feature});
-      }else{
-        if(!this.multipleSelection && this.previousFeature && !this.previousFeature.getProperty('active')){ //unselect when click on new area if !multipleSelection 
+      }
+      
+      //si el area está seleccionada y está activa (deseleccionar)
+      else if(event.feature.getProperty('selected') && event.feature.getProperty('active')){
+        event.feature.setProperty('selected',false);
+        this.map.data.overrideStyle(event.feature,this.activeStyle);
+        this.selectedFeature.emit({selected:false,feature:event.feature});
+      }
+
+      //si el area no está seleccionada (posiblemente seleccionar)
+      else if(!event.feature.getProperty('selected')){
+
+        //si la multiple seleccion no está activada, deseleccionar anterior selección
+        if(!this.multipleSelection && this.previousFeature && !this.previousFeature.getProperty('active')){ 
           this.previousFeature.setProperty('selected',false);
           this.map.data.overrideStyle(this.previousFeature,this.originalStyle); 
         }
+
+        //si la selección anterior está activa
+        if(this.previousFeature && this.previousFeature.getProperty('selected') && this.previousFeature.getProperty('active')){
+          this.previousFeature.setProperty('selected',false);
+          this.map.data.overrideStyle(this.previousFeature,this.activeStyle);
+        }
+
+        //seleccionar
         event.feature.setProperty('selected',true);
-        this.map.data.overrideStyle(event.feature, { fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white' });
+        this.map.data.overrideStyle(event.feature, this.selectedStyle);
         this.selectedFeature.emit({selected:true,feature:event.feature});
       }
       
@@ -225,6 +240,62 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
 
   setMapStyle(fillColor:string,fillOpacity:number,strokeColor:string,strokeOpacity:number){
     this.map.data.setStyle({fillColor,fillOpacity,strokeColor,strokeOpacity})
+  }
+
+    updateActiveFeatures(activeFeatures:any){
+    console.log("cambio")
+
+    this.map.data.forEach((listedFeature)=>{
+      this.activeFeatures.find((activeFeature:any)=>activeFeature.feature=listedFeature)
+    })
+
+    this.activeFeatures.map((activeFeature:any)=>{
+      this.activeArea(activeFeature)
+    })
+  }
+
+  deleteArea(feature:any){
+    console.log("feature",feature)
+
+    //delete feature from active features by id
+    this.activeFeatures = this.activeFeatures.filter((objeto:any) => objeto.id !== feature.id);
+    
+    this.map.data.forEach((listedFeature)=>{
+      if(feature.id==listedFeature.getProperty('localId')){
+        console.log("ENCONTRADA",listedFeature)
+        listedFeature.setProperty('active',false);
+        listedFeature.setProperty('selected',false);
+        this.map.data.overrideStyle(listedFeature,this.originalStyle);
+      }
+    })
+
+    console.log("active features",this.activeFeatures)
+
+  }
+
+  selectArea(feature:any){
+    //console.log(feature)
+    //let featureFound = this.activeFeatures.find((activeFeature:any)=>activeFeature.id==feature.id);
+    //if(featureFound){
+    this.map.data.forEach((listedFeature)=>{
+      if(listedFeature.getProperty('localId')==feature.id){
+        listedFeature.setProperty('selected',true);
+        this.map.data.overrideStyle(listedFeature, this.selectedStyle);
+      }
+    })
+  }
+
+  unselectArea(feature:any){
+    this.map.data.forEach((listedFeature)=>{
+      if(listedFeature.getProperty('localId')==feature.id){
+        listedFeature.setProperty('selected',false);
+        if(listedFeature.getProperty('active')){
+          this.map.data.overrideStyle(listedFeature, this.activeStyle);
+        } else {
+          this.map.data.overrideStyle(listedFeature, this.originalStyle);
+        }
+      }
+    })
   }
 
   unselect(){

@@ -5,7 +5,7 @@ import { CommunitiesApiService } from "../../communities/communities.service";
 import { EnergyAreasService } from "../../../core/core-services/energy-areas.service";
 import * as turf from '@turf/turf'
 import { LocationService } from 'src/app/core/core-services/location.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { ChangeDetectorRef } from '@angular/core';
@@ -145,6 +145,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
   folder: number = 1;
   isShrunk: boolean = false;
 
+  loading: Subject<boolean> = new Subject<boolean>;
+
   constructor(
     private communitiesService: CommunitiesApiService,
     private energyAreasService: EnergyAreasService,
@@ -229,6 +231,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
           this.updateCommunityChart();
         } else {
           this.getCommunityEnergy()
+          this.map.selectMarker(this.selectedCommunity.lat,this.selectedCommunity.lng)
         }
         this.renderLocation()
         break;
@@ -323,16 +326,35 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }
   }
 
+  showLoading(){
+    let that = this
+    Swal.fire({
+      title: 'Carregant informació',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: function () {
+        Swal.showLoading();
+         that.loading.subscribe((res) => {
+           Swal.close();
+         })
+
+      }
+    })
+  }
+
   renderLocation() {
 
-    console.log("render location")
+    //If the information is loaded, there is no need to make the request again
+    if(this.energyAreas){return}
 
     let geoJson: any = {
       "type": "FeatureCollection",
       "features": []
     }
 
-    this.energyAreasService.getByLocation(this.selectedLocation.id).subscribe((res: any) => {
+    this.showLoading();
+
+    this.energyAreasService.getByLocation(this.selectedLocation.id).subscribe(async (res: any) => {
 
       this.energyAreas = res.data;
 
@@ -343,15 +365,17 @@ export class SearchComponent implements OnInit, AfterViewInit {
         geoJson.features.push(geoJsonFeature)
       })
 
-      this.cadastresMap = this.map.addGeoJson(geoJson);
+      this.cadastresMap = await this.map.addGeoJson(geoJson);
 
+      this.loading.next(false)
+      
       const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
 
         this.resetCadastre();
 
         const feature = event.feature;
         
-        //if selected is false, the click was to deselect
+        //if selected is false, the click was to deselect, so you don't have to do anything else
         let isSelectedArea = feature.getProperty('selected')
         if(!isSelectedArea){
           return;
@@ -381,6 +405,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
       });
 
+    },error=>{
+      this.loading.next(false),
+      Swal.fire({
+        title: 'Error getting areas',
+        icon: "error"
+      })
     })
 
   }
@@ -397,8 +427,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
         marker.addListener('click', () => {
           this.selectedCommunity = community;
+          this.map.selectMarker(community.lat,community.lng)
           this.getCommunityEnergy();
-          this.renderLocation()
+          this.renderLocation();
+          
         })
 
       }

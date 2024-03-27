@@ -80,6 +80,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   };
 
   markers: google.maps.Marker[] = [];
+  selectedMarker:google.maps.Marker | undefined;
 
   previousFeature: any = null;
 
@@ -192,8 +193,50 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
             anchor: new google.maps.Point(200, 550),
           }
       });
+
       this.markers.push(marker)
       return marker
+  }
+
+  selectMarker(lat:any,lng:any){
+    if(this.selectedMarker){ //deselect the previous marker
+      this.selectedMarker.setIcon({
+        path: "M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z",
+        fillColor: "blue",
+        fillOpacity: 1,
+        strokeWeight: 0,
+        rotation: 0,
+        scale: 0.1,
+        anchor: new google.maps.Point(200, 550),
+      })
+    }
+    this.selectedMarker = this.markers.find(marker=>marker.getPosition()?.lat()==lat && marker.getPosition()?.lng() == lng)
+    if(this.selectedMarker){
+      this.selectedMarker.setIcon({
+        path: "M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z",
+        fillColor: "red",
+        fillOpacity: 1,
+        strokeWeight: 0,
+        rotation: 0,
+        scale: 0.1,
+        anchor: new google.maps.Point(200, 550),
+      })
+    }
+  }
+
+  unselectMarker(lat:any,lng:any){
+    let selectedMarker = this.markers.find(marker=>marker.getPosition()?.lat()==lat && marker.getPosition()?.lng() == lng)
+      if(selectedMarker){
+        selectedMarker.setIcon({
+          path: "M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z",
+          fillColor: "blue",
+          fillOpacity: 1,
+          strokeWeight: 0,
+          rotation: 0,
+          scale: 0.1,
+          anchor: new google.maps.Point(200, 550),
+        })
+      }
   }
 
   deleteMarkers(){
@@ -233,8 +276,8 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
     this.map.data.addGeoJson(jsonData);
   }
 
-  addGeoJson(geoJson:any){
-    let geoJsonMap = this.map.data.addGeoJson(geoJson);
+  async addGeoJson(geoJson:any){
+    let geoJsonMap = await this.map.data.addGeoJson(geoJson);
     return this.map.data;
   }
 

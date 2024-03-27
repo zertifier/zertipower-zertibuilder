@@ -22,7 +22,7 @@
   
     &--light {
       background-color: white;
-      color: black;
+      color: #212527;
   
       &::before {
         border: 5px solid white;
@@ -30,11 +30,11 @@
     }
   
     &--dark {
-      background-color: black;
+      background-color: #212527;
       color: white;
   
       &::before {
-        border: 5px solid black;
+        border: 5px solid #212527;
       }
     }
   

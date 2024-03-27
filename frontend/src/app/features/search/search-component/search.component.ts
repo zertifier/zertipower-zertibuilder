@@ -220,7 +220,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         }).filter((element: any) => element);
 
         this.renderSelectedCommunities();
-        this.renderLocation();
+        //this.renderLocation();
         break;
 
       case 'community':
@@ -230,6 +230,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         } else {
           this.getCommunityEnergy()
         }
+        this.renderLocation()
         break;
 
       default:
@@ -349,8 +350,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.resetCadastre();
 
         const feature = event.feature;
+        
+        //if selected is false, the click was to deselect
+        let isSelectedArea = feature.getProperty('selected')
+        if(!isSelectedArea){
+          return;
+        }
+
         let cadastre:any = feature.getProperty('localId')
 
+        //check if selected area is an already added area
         let foundArea = this.addedAreas.find((addedArea)=>addedArea.id==cadastre)
         if(foundArea){
           this.selectedCadastre = foundArea;
@@ -361,17 +370,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
         this.selectedCadastre.feature = feature;
         this.selectedCadastre.id = cadastre;
-
-        let energyAreaId = feature.getProperty('energyAreaId')
-
-        if (this.selectedEnergyArea && this.selectedEnergyArea.id == energyAreaId) { //click unselect
-          this.selectedEnergyArea = null;
-          return;
-        }
-
-        this.selectedEnergyArea = this.energyAreas.find((energyArea: any) =>
-          energyArea.id === energyAreaId
-        )
 
         let areaM2: any = feature.getProperty('areaM2');
         this.selectedCadastre.m2 = Math.floor(areaM2);
@@ -400,6 +398,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         marker.addListener('click', () => {
           this.selectedCommunity = community;
           this.getCommunityEnergy();
+          this.renderLocation()
         })
 
       }

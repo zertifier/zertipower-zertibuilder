@@ -23,13 +23,20 @@
     </div>
 
     <div class="col col-12 col-md-7">
-      <select id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2 heartbeat" [tooltip]="'Selecciona una comunitat'" [theme]="TooltipTheme.LIGHT" [position]="TooltipPosition.BELOW" [showOnInit]="true"
+      <select id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2 heartbeat" [tooltip]="'Selecciona una comunitat'" [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW" [showOnInit]="true"
         (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
         <option [ngValue]="newCommunity">Nova comunitat</option>
         <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
       </select>
     </div>
+
   </div>
+</div>
+
+<div class="card mt-2 position-absolute bottom-0 p-2" style="z-index:3; width: 270px;height: 70px; margin-bottom: 50px;"
+  [ngClass]=" isShrunk ? 'location-bar-closed' : 'location-bar-open'" *ngIf="!addedAreas.length && selectedCommunity && !selectedCadastre.feature">
+  <div><b>Pas 2</b></div>
+  <div>Tria l'area fent clic a sobre d'una.</div>
 </div>
 
 <div *ngIf="selectedCommunity" class="position-absolute top-0 start-0 h-100" style=" z-index:2;">
@@ -92,7 +99,7 @@
 
 
           
-          <span class="fs-6 my-2">Llista d'agregats</span>
+          <span class="fs-6 my-2" *ngIf="addedAreas.length">Llista d'agregats</span>
           <div class="btn-light" style="max-height: 283px; overflow-y: auto; overflow-x: hidden;">
             <div class="fs-6 my-2 row mt-3" *ngFor="let area of addedAreas; index as i" style="max-height: 50px; overflow: hidden;">
               <span class="col-3">area {{i}}</span>

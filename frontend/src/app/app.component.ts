@@ -12,6 +12,7 @@ export class AppComponent {
   locationHidNav= [
     '/search',
     '/auth',
+    '/select-location'
   ]
 
   constructor(

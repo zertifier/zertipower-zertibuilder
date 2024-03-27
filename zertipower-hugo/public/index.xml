@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Zertipower</title>
+    <link>http://localhost:1313/index.html</link>
+    <description>Recent content on Zertipower</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>es-es</language>
+    <lastBuildDate>Wed, 27 Mar 2024 11:09:44 +0100</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Instal·lació</title>
+      <link>http://localhost:1313/instalation/index.html</link>
+      <pubDate>Wed, 27 Mar 2024 11:09:44 +0100</pubDate>
+      <guid>http://localhost:1313/instalation/index.html</guid>
+      <description>El primer que necessitem és descarregar el XAMPP per a la base de dades i el NodeJS per arrancar el servidor.
+XAMPP: https://www.apachefriends.org/es/download.html NodeJS: https://nodejs.org/en/download
+Una vegada instal·lats s&amp;rsquo;ha d&amp;rsquo;executar el XAMPP i iniciar el servei de MySQL
+Ara que ja tenim tot el necessari només queda descarregar-se el projecte.
+Per fer-ho hem d&amp;rsquo;anar a la següent URL: https://github.com/zertifier/zertipower-zertibuilder/
+Una vegada descarregat obrim el terminal i anem a la ubicació del projecte.</description>
+    </item>
+    <item>
+      <title>Primers Passos</title>
+      <link>http://localhost:1313/getting-started/index.html</link>
+      <pubDate>Wed, 27 Mar 2024 11:09:44 +0100</pubDate>
+      <guid>http://localhost:1313/getting-started/index.html</guid>
+      <description>Backend Un cop tot preparat ens dirigim a la carpeta &amp;ldquo;backend&amp;rdquo; i instalem tots els paquets necessaris.
+npm i Després importem la base de dades que hi ha a la ruta /backend/backups/database.sql Un cop importada la base de dades generem la classe Prisma amb la comanda:
+npx prisma generate I iniciem el servidor amb:
+nest start Frontend Ara anem a la ruta /frontend i fem servir la comanda:
+npm i --force I per iniciar la pàgina:</description>
+    </item>
+    <item>
+      <title>Peticions API</title>
+      <link>http://localhost:1313/api/index.html</link>
+      <pubDate>Wed, 27 Mar 2024 11:09:44 +0100</pubDate>
+      <guid>http://localhost:1313/api/index.html</guid>
+      <description>Swagger Per la documentació de les consultes al servidor hem fet un document Swagger on es mostren totes les peticions disponibles. Per accedir al document s&amp;rsquo;ha d&amp;rsquo;anar a: {urlDelServidor}/api
+Hi ha peticions que per seguretat demanen token, per obtenir el token s&amp;rsquo;haurà de fer la crida de /auth/login amb un usuari i una contrasenya correctes el que retornarà el token necessari el qual haurem de posar aqui:</description>
+    </item>
+  </channel>
+</rss>

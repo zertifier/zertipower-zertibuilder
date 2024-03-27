@@ -11,6 +11,8 @@ import moment from 'moment';
 import { ChangeDetectorRef } from '@angular/core';
 import { generateToken } from 'src/app/shared/domain/utils/RandomUtils';
 import Swal from 'sweetalert2';
+import { TooltipPosition, TooltipTheme } from 'src/app/shared/infrastructure/directives/tooltip/tooltip.enums';
+
 
 interface cadastre {
   id?:string;
@@ -135,6 +137,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
   cupsNumber: number = 0;
   addedAreas: any[] = [];
 
+  TooltipPosition: typeof TooltipPosition = TooltipPosition;
+  TooltipTheme: typeof TooltipTheme = TooltipTheme;
+
   @ViewChild(AppMapComponent) map!: AppMapComponent;
 
   folder: number = 1;
@@ -223,11 +228,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
           this.communityEnergyData = [];
           this.updateCommunityChart();
         } else {
-          let date = moment().format('YYYY-MM-DD')
-          this.communitiesService.getEnergy(this.selectedCommunity.id, date).subscribe((res: any) => {
-            this.communityEnergyData = res.data;
-            this.updateCommunityChart();
-          })
+          this.getCommunityEnergy()
         }
         break;
 
@@ -236,6 +237,15 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }
 
   }
+
+  getCommunityEnergy(){
+    let date = moment().format('YYYY-MM-DD')
+    this.communitiesService.getEnergy(this.selectedCommunity.id, date).subscribe((res: any) => {
+      this.communityEnergyData = res.data;
+      this.updateCommunityChart();
+    })
+  }
+
 
   updateCommunityChart() {
 
@@ -389,6 +399,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
         marker.addListener('click', () => {
           this.selectedCommunity = community;
+          this.getCommunityEnergy();
         })
 
       }

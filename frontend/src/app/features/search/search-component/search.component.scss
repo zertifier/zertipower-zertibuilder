@@ -90,3 +90,20 @@
 .w-92{
   width:92% !important;
 }
+
+.heartbeat {
+  animation: heartbeat 1s infinite;
+  animation-iteration-count: 2;
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

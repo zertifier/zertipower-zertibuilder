@@ -5,6 +5,7 @@ theme = "relearn"
 
 [params]
 themeVariant = 'zen-dark'
+disableLandingPageButton = true
 
 [menu]
 [[menu.shortcuts]]

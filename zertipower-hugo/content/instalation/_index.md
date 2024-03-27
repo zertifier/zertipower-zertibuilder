@@ -1,9 +1,14 @@
++++
+title = 'Instal·lació'
+date = 2024-03-27T11:09:44+01:00
+draft = true
+weight = 1
++++
 
-# Instal·lació
 
 El primer que necessitem és descarregar el XAMPP per a la base de dades i el NodeJS per arrancar el servidor.
 
-XAMPP: https://www.apachefriends.org/es/download.html 
+XAMPP: https://www.apachefriends.org/es/download.html
 \
 NodeJS: https://nodejs.org/en/download
 

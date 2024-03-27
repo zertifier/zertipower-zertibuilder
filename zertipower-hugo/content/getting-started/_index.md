@@ -2,6 +2,7 @@
 title = 'Primers Passos'
 date = 2024-03-27T11:09:44+01:00
 draft = true
+weight = 2
 +++
 
 ### Backend
@@ -23,9 +24,6 @@ I iniciem el servidor amb:
 ```console
 nest start
 ```
-
-Per veure les consultes disponibles hem d'anar al 'Swagger' que esta en aquesta URL:
-{urlDelServidor}/api
 
 ### Frontend
 Ara anem a la ruta /frontend i fem servir la comanda:

@@ -27,15 +27,15 @@ export class ProposalsOptionsTableComponent implements OnDestroy {
   readonly subscriptions: Array<Subscription> = []
 
   title: string = 'proposals-options';
-  addRows: boolean = true;
-  editRows: boolean = true;
+  addRows: boolean = false;
+  editRows: boolean = false;
   refreshRows: boolean = true;
   filterColumns: boolean = true;
   url: string = `${environment.api_url}/proposals-options/datatable`;
   columns: dtColumns[] = [
     {
-      title: 'Proposal',
-      data: 'proposal_id',
+      title: 'Proposta',
+      data: 'proposal',
       width: '100px',
     },
     {

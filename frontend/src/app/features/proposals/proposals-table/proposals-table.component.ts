@@ -27,39 +27,39 @@ export class ProposalsTableComponent implements OnDestroy {
   readonly subscriptions: Array<Subscription> = []
 
   title: string = 'proposals';
-  addRows: boolean = true;
-  editRows: boolean = true;
+  addRows: boolean = false;
+  editRows: boolean = false;
   refreshRows: boolean = true;
   filterColumns: boolean = true;
   url: string = `${environment.api_url}/proposals/datatable`;
   columns: dtColumns[] = [
     {
-      title: 'Proposal',
+      title: 'Proposta',
       data: 'proposal',
       width: '100px',
     },
     {
-      title: 'Description',
+      title: 'Descripció',
       data: 'description',
       width: '100px',
     },
     {
-      title: 'CommunityId',
-      data: 'community_id',
+      title: 'Comunitat',
+      data: 'name',
       width: '100px',
     },
     {
-      title: 'ExpirationDt',
+      title: 'Data expiració',
       data: 'expiration_dt',
       width: '100px',
     },
     {
-      title: 'Status',
+      title: 'Estat',
       data: 'status',
       width: '100px',
     },
     {
-      title: 'DaoId',
+      title: 'ID Dao',
       data: 'dao_id',
       width: '100px',
     },
@@ -128,7 +128,7 @@ export class ProposalsTableComponent implements OnDestroy {
     {
       targets: 3,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     {

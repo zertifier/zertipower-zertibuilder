@@ -70,8 +70,11 @@ export class ProposalsController {
   @Post('datatable')
   @Auth(RESOURCE_NAME)
   async datatables(@Body() body: any) {
-    const data = await this.datatable.getData(body, `SELECT id, proposal,description,community_id,expiration_dt,status,dao_id
-                  FROM proposals`);
+    const data = await this.datatable.getData(body, `
+      SELECT proposals.id, proposal, description, community_id, expiration_dt, status, dao_id, name
+      FROM proposals
+        LEFT JOIN communities
+            ON community_id = communities.id`);
     return HttpResponse.success('Datatables fetched successfully').withData(data);
   }
 

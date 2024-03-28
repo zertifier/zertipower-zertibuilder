@@ -27,8 +27,8 @@ export class ResponsesTableComponent implements OnDestroy {
   readonly subscriptions: Array<Subscription> = []
 
   title: string = 'responses';
-  addRows: boolean = true;
-  editRows: boolean = true;
+  addRows: boolean = false;
+  editRows: boolean = false;
   refreshRows: boolean = true;
   filterColumns: boolean = true;
   url: string = `${environment.api_url}/responses/datatable`;
@@ -40,17 +40,17 @@ export class ResponsesTableComponent implements OnDestroy {
     },
     {
       title: 'Proposta',
-      data: 'porposal_id',
+      data: 'proposal',
       width: '100px',
     },
     {
       title: 'Opció',
-      data: 'porposal_option_id',
+      data: 'option',
       width: '100px',
     },
     {
       title: 'Usuari',
-      data: 'user_id',
+      data: 'email',
       width: '100px',
     },
     {

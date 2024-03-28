@@ -8,10 +8,10 @@ import { Subscription } from "rxjs";
 import { AppDatatableComponent } from 'src/app/shared/infrastructure/components/app-datatable/app-datatable.component';
 import Swal from 'sweetalert2';
 import { ProposalsApiService } from '../proposals.service';
-import * as moment from 'moment';
+import moment from 'moment';
 
 @Component({
-  selector: 'proposals-table',
+  selector: 'proposals-options-table',
   templateUrl: './proposals-table.component.html',
   styleUrls: ['./proposals-table.component.scss'],
 })

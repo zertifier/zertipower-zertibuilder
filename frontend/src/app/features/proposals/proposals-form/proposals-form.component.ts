@@ -4,10 +4,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2';
 import { Observable } from 'rxjs';
 import { ProposalsApiService } from '../proposals.service';
-import * as moment from 'moment';
+import moment from 'moment';
 
 @Component({
-  selector: 'proposals-form',
+  selector: 'proposals-options-form',
   templateUrl: './proposals-form.component.html',
   styleUrls: ['./proposals-form.component.scss'],
 })

@@ -87,6 +87,21 @@ const routes: Routes = [
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
     canActivate: [loggedIn, pageAccess('dashboard')],
   },
+  {
+    path: 'proposals',
+    loadChildren: () => import('./features/proposals/proposals.module').then(m => m.ProposalsModule),
+    canActivate: [loggedIn, pageAccess('proposals')],
+  },
+  {
+    path: 'proposals-options',
+    loadChildren: () => import('./features/proposals-options/proposals-options.module').then(m => m.ProposalsOptionsModule),
+    canActivate: [loggedIn, pageAccess('proposals-options')],
+  },
+  {
+    path: 'responses',
+    loadChildren: () => import('./features/responses/responses.module').then(m => m.ResponsesModule),
+    canActivate: [loggedIn, pageAccess('responses')],
+  },
   // {
   //   path: 'search',
   //   loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule),

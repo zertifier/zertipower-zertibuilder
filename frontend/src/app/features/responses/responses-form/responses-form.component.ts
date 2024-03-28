@@ -3,15 +3,15 @@ import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2';
 import { Observable } from 'rxjs';
-import { ProvidersApiService } from '../providers.service';
+import { ProvidersApiService } from '../responses.service';
 import moment from 'moment';
 
 @Component({
   selector: 'responses-form',
-  templateUrl: './providers-form.component.html',
-  styleUrls: ['./providers-form.component.scss'],
+  templateUrl: './responses-form.component.html',
+  styleUrls: ['./responses-form.component.scss'],
 })
-export class ProvidersFormComponent {
+export class ResponsesFormComponent {
   tinymceConfig = {
     language: 'es',
     language_url: '/assets/tinymce/langs/es.js',

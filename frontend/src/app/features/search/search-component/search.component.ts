@@ -12,6 +12,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { generateToken } from 'src/app/shared/domain/utils/RandomUtils';
 import Swal from 'sweetalert2';
 import { TooltipPosition, TooltipTheme } from 'src/app/shared/infrastructure/directives/tooltip/tooltip.enums';
+import { TooltipDirective } from 'src/app/shared/infrastructure/directives/tooltip/tooltip.directive';
 
 
 interface cadastre {
@@ -31,6 +32,8 @@ interface cadastre {
   amortization_years?: number,
   feature?: any
 }
+
+@ViewChild(TooltipDirective)
 
 @Component({
   selector: 'app-search',
@@ -146,6 +149,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   isShrunk: boolean = false;
 
   loading: Subject<boolean> = new Subject<boolean>;
+  
 
   constructor(
     private communitiesService: CommunitiesApiService,
@@ -430,7 +434,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
           this.map.selectMarker(community.lat,community.lng)
           this.getCommunityEnergy();
           this.renderLocation();
-          
+          TooltipDirective.forceClose.next(true)
         })
 
       }

@@ -14,6 +14,7 @@ import {
   import {TooltipComponent} from "./tooltip.component";
   import {TooltipPosition, TooltipTheme} from "./tooltip.enums";
 import { log } from 'console';
+import { Subject } from 'rxjs';
   
   @Directive({
     selector: '[tooltip]'
@@ -26,6 +27,8 @@ import { log } from 'console';
     @Input() showDelay = 0;
     @Input() hideDelay = 3;
     @Input() showOnInit = false;
+
+    static forceClose: Subject<boolean> = new Subject<boolean>
   
     private componentRef: ComponentRef<any> | null = null;
     private showTimeout?: number;
@@ -41,6 +44,12 @@ import { log } from 'console';
       if(this.showOnInit){
         this.initializeTooltip();
       }      
+      TooltipDirective.forceClose.subscribe(close=>{
+        if(close){
+          console.log("close")
+          this.setHideTooltipTimeout();
+        }
+      })
     }
   
     @HostListener('mouseenter')

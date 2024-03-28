@@ -58,8 +58,10 @@ export class LoginPageComponent implements OnDestroy {
     const randNum = Math.floor(Math.random() * this.images.length);
     this.imgSource = this.images[randNum]
     effect(() => {
-      if (this.authStore.user()) {
+      if (this.authStore.user() && this.authStore.user()?.role != 'ADMIN') {
         this.router.navigate(["/"]);
+      }else {
+        this.router.navigate(["/dashboard"]);
       }
     });
 

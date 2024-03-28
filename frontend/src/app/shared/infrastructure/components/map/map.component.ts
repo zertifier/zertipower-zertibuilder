@@ -292,11 +292,11 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   }
 
   updateActiveFeatures(activeFeatures: any) {
-    console.log("cambio")
+    console.log("updateActiveFeatures")
 
-    this.map.data.forEach((listedFeature) => {
-      this.activeFeatures.find((activeFeature: any) => activeFeature.feature = listedFeature)
-    })
+    // this.map.data.forEach((listedFeature) => {
+    //   this.activeFeatures.find((activeFeature: any) => activeFeature.feature = listedFeature)
+    // })
 
     this.activeFeatures.map((activeFeature: any) => {
       this.activeArea(activeFeature)
@@ -359,6 +359,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   activeArea(featureData: any) {
     this.map.data.forEach((feature) => {
       if (feature == featureData.feature) {
+        console.log("activate feature", feature)
         feature.setProperty('active', true);
         feature.setProperty('selected', false);
         this.map.data.overrideStyle(feature, this.activeStyle);

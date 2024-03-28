@@ -8,6 +8,7 @@ import moment from "moment";
 import { log } from "console";
 import { DatadisEnergyService } from "src/app/core/core-services/datadis-energy.service";
 import { BehaviorSubject } from "rxjs";
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'dashboard',
@@ -87,7 +88,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.customersService.getCustomersCups().subscribe(async (res: any) => {
       this.customers = res.data;
 
-      console.log(this.customers)
+      //console.log(this.customers)
 
       //set default value to selected cups:
       this.cupsId = this.customers[0].id
@@ -114,6 +115,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       if (!this.cupsId) {
         //todo: show message 'please select a prosumer'
         console.log('show message: please select a prosumer')
+        Swal.fire("Cap usuari seleccionat","Selecciona un usuari","info")
 
       } else {
         this.unformattedDate = new Date(event.target.value);
@@ -132,7 +134,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
 
   getOriginData(){
-    console.log(this.selectedCupsCustomer)
+    //console.log(this.selectedCupsCustomer)
     if(this.selectedCupsCustomer.datadis_active){
       this.selectedCupsOriginDataType='Datadis';
     } else if(this.selectedCupsCustomer.inverter_active) {
@@ -142,7 +144,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     } else {
       this.selectedCupsOriginDataType='Other';
     }
-    console.log(this.selectedCupsOriginDataType)
+    //console.log(this.selectedCupsOriginDataType)
   }
 
   async updateCharts(yearEnergy:any,weekEnergy:any,dayEnergy:any) {
@@ -176,11 +178,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   async getChartInfo(cupsId: number, year: number, week: number, date: string){
-    console.log(cupsId, year, week, date)
+    //console.log(cupsId, year, week, date)
     let yearEnergy = await this.getYearEnergy(year, cupsId)
     let weekEnergy = await this.getEnergyByWeek(week, year, cupsId)
     let dayEnergy = await this.getEnergyByDay(cupsId, date)
-
     return {yearEnergy,weekEnergy,dayEnergy}
   }
 
@@ -224,13 +225,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
         this.datadisEnergyService.getWeekByCups(date, cups!).subscribe((res: any) => {
           let weekDateLimits: any;
-          let weekCupsData = res.data;
+          let weekCupsData = res.data.rows;
           let weekDays = weekCupsData.map((entry: any) => entry.week_day);
           let weekImport = weekCupsData.map((entry: any) => entry.import);
           let weekGeneration = weekCupsData.map((entry: any) => entry.generation);
           let weekConsumption = weekCupsData.map((entry: any) => entry.consumption);
           let weekExport = weekCupsData.map((entry: any) => entry.export);
-          console.log("week cups data", weekCupsData)
+          //console.log("week cups data",res.data)
 
           if (weekCupsData[0] && weekCupsData[1]) {
             weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
@@ -250,7 +251,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           let weekGeneration = weekCupsData.map((entry: any) => entry.generation);
           let weekConsumption = weekCupsData.map((entry: any) => entry.consumption);
           let weekExport = weekCupsData.map((entry: any) => entry.export);
-          console.log("week cups data", weekCupsData)
+          //console.log("week cups data", weekCupsData)
 
           if (weekCupsData[0] && weekCupsData[1]) {
             weekDateLimits = [weekCupsData[0].date, weekCupsData[weekCupsData.length - 1].date]
@@ -270,7 +271,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       if(this.selectedCupsOriginDataType=='Datadis'){
         this.datadisEnergyService.getHoursByCups(cups, date).subscribe((res: any) => {
           let hourlyData = res.data
-          console.log("hourly data", hourlyData)
+          //console.log("hourly data", hourlyData)
 
           hourlyData.map((hd:any)=>{if(!hd.info_datetime){hd.info_datetime=hd.info_dt} })
 

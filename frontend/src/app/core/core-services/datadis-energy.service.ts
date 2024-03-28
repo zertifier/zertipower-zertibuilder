@@ -12,7 +12,7 @@ export class DatadisEnergyService {
     baseUrl = `${environment.api_url}/datadisEnergy`;
 
     constructor(private http:HttpClient) {
-      console.log(this.baseUrl)
+      
     }
 
 //datadis
@@ -23,7 +23,6 @@ export class DatadisEnergyService {
   }
 
   getWeekByCups(date:string,cups:number){
-    console.log(date)
     let url = `${this.baseUrl}/weekly/${date}?cups=${cups}`;
     return this.http.get(url);
   }

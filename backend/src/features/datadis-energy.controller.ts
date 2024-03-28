@@ -160,7 +160,7 @@ import { MysqlService } from "../shared/infrastructure/services";
         const [firstDayRow]:any = await this.conn.execute('SELECT DATE_SUB(?, INTERVAL WEEKDAY(?) DAY) AS first_day', [date, date]);
         const firstDay = firstDayRow[0].first_day;
 
-        const [lastDayRow]:any = await this.conn.execute('SELECT DATE_ADD(?, INTERVAL 6 DAY) AS last_day', [firstDay]);
+        const [lastDayRow]:any = await this.conn.execute('SELECT DATE_ADD(?, INTERVAL 7 DAY) AS last_day', [firstDay]);
         const lastDay = lastDayRow[0].last_day;
 
         if (community) {
@@ -205,7 +205,7 @@ import { MysqlService } from "../shared/infrastructure/services";
           firstDay,lastDay
         ]);
         return HttpResponse.success("week energy fetched successfully").withData(
-          rows
+          {rows, firstDay,lastDay}
         );
       } catch (e) {
         console.log("error getting week energy",e);

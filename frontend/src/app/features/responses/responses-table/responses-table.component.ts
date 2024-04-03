@@ -34,11 +34,6 @@ export class ResponsesTableComponent implements OnDestroy {
   url: string = `${environment.api_url}/responses/datatable`;
   columns: dtColumns[] = [
     {
-      title: 'Id',
-      data: 'id',
-      width: '100px',
-    },
-    {
       title: 'Proposta',
       data: 'proposal',
       width: '100px',
@@ -61,14 +56,6 @@ export class ResponsesTableComponent implements OnDestroy {
   ];
 
   filterParams: filterParams[] = [
-      {
-        title: 'id',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
       {
         title: 'proposal',
         description: '',

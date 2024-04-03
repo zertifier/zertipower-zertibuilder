@@ -51,7 +51,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   // Week chart variables:
   weekChartType: string = 'bar';
-  weekChartLabels: string[] =  [];
+  weekChartLabels: string[] = ['Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte', 'Diumenge'];
+
   weekChartDatasets: any[] | undefined = undefined;
   weekChartData: any[] = [];
   weekChartBackgroundColor: string [] = [];
@@ -59,7 +60,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   //day chart variables:
   dayChartType: string = 'bar';
-  dayChartLabels: string[] =  [];
+  dayChartLabels: string[] = ['0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '24:00'];
   dayChartDatasets: any[] | undefined = undefined;
   dayChartData: any[] = [];
   dayChartBackgroundColor: string [] = [];
@@ -333,7 +334,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   updateMonthlyChart(yearEnergy:any) {
 
-    this.monthChartLabels=yearEnergy.months
+    //this.monthChartLabels=yearEnergy.months
 
     this.monthChartDatasets = [
       {
@@ -363,7 +364,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   updateWeekChart(weekEnergy:any) {
 
-    this.weekChartLabels = weekEnergy.weekDays;
+    //this.weekChartLabels = weekEnergy.weekDays;
     this.weekChartDatasets = [{
       label: 'Importació (Kwh)',
       data: weekEnergy.weekImport,
@@ -388,7 +389,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   updateHourlyChart(dayEnergy:any){
 
-    this.dayChartLabels = dayEnergy.hours
+    //this.dayChartLabels = dayEnergy.hours
     this.dayChartDatasets = [{
       label: 'Importació (Kwh)',
       data: dayEnergy.dayImport,

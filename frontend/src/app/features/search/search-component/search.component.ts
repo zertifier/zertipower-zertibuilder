@@ -75,7 +75,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   communityValoration: number = 1;
   communityEnergyData: any = [];
-  communityMonthChartLabels: any = [];
+  communityMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
   communityMonthChartDatasets: any = [];
   communityMonthChartType = 'bar';
   communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -266,7 +266,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let exports: number[] = [];
 
     this.communityEnergyData.forEach((item: any) => {
-      this.communityMonthChartLabels.push(item.month);
+      //this.communityMonthChartLabels.push(item.month);
       //numeros_mes.push(item.month_number);
       imports.push(item.import);
       exports.push(item.export);

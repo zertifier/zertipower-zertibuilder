@@ -3,19 +3,19 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { dtColumns } from "src/app/shared/infrastructure/components/app-datatable/interfaces/dtColumns.interface";
 import { filterParams } from "src/app/shared/infrastructure/components/app-datatable/interfaces/filterParams.interface";
 import { environment } from 'src/environments/environment';
-import { ProvidersFormComponent } from '../providers-form/providers-form.component';
+import { ResponsesFormComponent } from '../responses-form/responses-form.component';
 import { Subscription } from "rxjs";
 import { AppDatatableComponent } from 'src/app/shared/infrastructure/components/app-datatable/app-datatable.component';
 import Swal from 'sweetalert2';
-import { ProvidersApiService } from '../providers.service';
+import { ProvidersApiService } from '../responses.service';
 import moment from 'moment';
 
 @Component({
   selector: 'responses-table',
-  templateUrl: './providers-table.component.html',
-  styleUrls: ['./providers-table.component.scss'],
+  templateUrl: './responses-table.component.html',
+  styleUrls: ['./responses-table.component.scss'],
 })
-export class ProvidersTableComponent implements OnDestroy {
+export class ResponsesTableComponent implements OnDestroy {
   @ViewChild(AppDatatableComponent) datatable!: AppDatatableComponent;
 
   constructor(
@@ -26,21 +26,26 @@ export class ProvidersTableComponent implements OnDestroy {
 
   readonly subscriptions: Array<Subscription> = []
 
-  title: string = 'providers';
-  addRows: boolean = true;
-  editRows: boolean = true;
+  title: string = 'responses';
+  addRows: boolean = false;
+  editRows: boolean = false;
   refreshRows: boolean = true;
   filterColumns: boolean = true;
-  url: string = `${environment.api_url}/providers/datatable`;
+  url: string = `${environment.api_url}/responses/datatable`;
   columns: dtColumns[] = [
     {
-      title: 'Id',
-      data: 'id',
+      title: 'Proposta',
+      data: 'proposal',
       width: '100px',
     },
     {
-      title: 'Provider',
-      data: 'provider',
+      title: 'Opció',
+      data: 'option',
+      width: '100px',
+    },
+    {
+      title: 'Usuari',
+      data: 'email',
       width: '100px',
     },
     {
@@ -52,15 +57,23 @@ export class ProvidersTableComponent implements OnDestroy {
 
   filterParams: filterParams[] = [
       {
-        title: 'id',
+        title: 'proposal',
         description: '',
         value: '',
-        type: 1,
+        type: 0,
         defaultData: 0,
         options: [],
       },
       {
-        title: 'provider',
+        title: 'option',
+        description: '',
+        value: '',
+        type: 0,
+        defaultData: 0,
+        options: [],
+      },
+      {
+        title: 'user',
         description: '',
         value: '',
         type: 0,
@@ -90,7 +103,7 @@ export class ProvidersTableComponent implements OnDestroy {
   ];
 
   editRequest(id:any) {
-    const modalRef = this.ngbModal.open(ProvidersFormComponent);
+    const modalRef = this.ngbModal.open(ResponsesFormComponent);
     modalRef.componentInstance.setEditingId(parseInt(id));
 
     this.subscriptions.push(

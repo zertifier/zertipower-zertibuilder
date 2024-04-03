@@ -1,3 +1,6 @@
+import {ProposalsController} from 'src/features/proposals/proposals.controller'
+import {ResponsesController} from 'src/features/responses/responses.controller'
+import {ProposalsOptionsController} from 'src/features/proposals-options/proposals-options.controller'
 import { SmartContractsController } from "src/features/smart-contracts/smart-contracts.controller";
 import { ProvidersController } from "src/features/providers/providers.controller";
 import { EnergyRegistersController } from "src/features/energy-registers/energy-registers.controller";
@@ -45,21 +48,43 @@ import { DatadisEnergyController } from "./features/datadis-energy.controller";
   // Do not remove controllers section cuz zertibuilder
   // can create it if it doesn't exist
   controllers: [
-    CalendarController,
-    CommunitiesController,
-    CupsController,
-    CustomersController,
-    EnergyBlocksController,
-    EnergyTransactionsController,
-    EnergyRegistersController,
-    EnergyRegistersHourlyController,
-    ProvidersController,
-    SmartContractsController,
-    EnergyAreasController,
-    LocationsController,
-    LogsController,
+
+
+
+
+
+
+
+
+
+
+
+    CalendarController,           
+    CommunitiesController,           
+    CupsController,           
+    CustomersController,           
+    EnergyBlocksController,           
+    EnergyTransactionsController,           
+    EnergyRegistersController,           
+    EnergyRegistersHourlyController,           
+    ProvidersController,           
+    SmartContractsController,           
+    EnergyAreasController,           
+    LocationsController,           
+    LogsController,           
     DatadisEnergyController
-  ],
+  ,           ProposalsController
+,          ProposalsOptionsController
+,         ResponsesController
+,        ProposalsController
+,       ProposalsOptionsController
+,      ResponsesController
+,     ProposalsController
+,    ProposalsOptionsController
+,   ResponsesController
+,  ProposalsController
+, ProposalsController
+],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

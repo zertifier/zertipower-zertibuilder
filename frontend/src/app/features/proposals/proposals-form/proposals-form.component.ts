@@ -3,15 +3,15 @@ import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2';
 import { Observable } from 'rxjs';
-import { ProvidersApiService } from '../providers.service';
+import { ProposalsApiService } from '../proposals.service';
 import moment from 'moment';
 
 @Component({
-  selector: 'responses-form',
-  templateUrl: './providers-form.component.html',
-  styleUrls: ['./providers-form.component.scss'],
+  selector: 'proposals-options-form',
+  templateUrl: './proposals-form.component.html',
+  styleUrls: ['./proposals-form.component.scss'],
 })
-export class ProvidersFormComponent {
+export class ProposalsFormComponent {
   tinymceConfig = {
     language: 'es',
     language_url: '/assets/tinymce/langs/es.js',
@@ -31,12 +31,16 @@ export class ProvidersFormComponent {
   }
   id: number = 0;
   form = this.formBuilder.group({
-    id: new FormControl<number | null>(null),
-    provider: new FormControl<string | null>(null),
+    proposal: new FormControl<string | null>(null),
+    description: new FormControl<string | null>(null),
+    communityId: new FormControl<number | null>(null),
+    expirationDt: new FormControl<string | null>(null),
+    status: new FormControl<string | null>(null),
+    daoId: new FormControl<number | null>(null),
   });
   constructor(
     private formBuilder: FormBuilder,
-    private apiService: ProvidersApiService,
+    private apiService: ProposalsApiService,
     private activeModal: NgbActiveModal,
   ) {}
 
@@ -46,17 +50,20 @@ export class ProvidersFormComponent {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
-      this.form.controls.id.setValue(data.id);
-      this.form.controls.provider.setValue(data.provider);
+      this.form.controls.proposal.setValue(data.proposal);
+      this.form.controls.description.setValue(data.description);
+      this.form.controls.communityId.setValue(data.communityId);
+      this.form.controls.expirationDt.setValue(moment.utc(data.expirationDt).format('YYYY-MM-DDTHH:mm'));
+      this.form.controls.status.setValue(data.status);
+      this.form.controls.daoId.setValue(data.daoId);
     });
   }
 
   save() {
-    const validFormObj = this.checkFormValid()
-    if (!validFormObj.status) {
+    if (this.form.invalid) {
       Swal.fire({
         icon: 'error',
-        title: validFormObj.message,
+        title: 'Form not valid'
       });
       return;
     }
@@ -83,15 +90,13 @@ export class ProvidersFormComponent {
   getValues(): any {
     const values: any = {};
 
-    // values.id = this.form.value.id;
-    values.provider = this.form.value.provider;
+    values.proposal = this.form.value.proposal;
+    values.description = this.form.value.description;
+    values.communityId = this.form.value.communityId;
+    values.expirationDt = this.form.value.expirationDt;
+    values.status = this.form.value.status;
+    values.daoId = this.form.value.daoId;
 
     return values;
-  }
-
-  checkFormValid() {
-    if (!this.form.value.provider) return {status: false, message: "El nom del proveïdor no pot estar buit"}
-
-    return {status: true, message: ''}
   }
 }

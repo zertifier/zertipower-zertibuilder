@@ -3,46 +3,47 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { dtColumns } from "src/app/shared/infrastructure/components/app-datatable/interfaces/dtColumns.interface";
 import { filterParams } from "src/app/shared/infrastructure/components/app-datatable/interfaces/filterParams.interface";
 import { environment } from 'src/environments/environment';
-import { ProvidersFormComponent } from '../providers-form/providers-form.component';
+import { ProposalsOptionsFormComponent } from '../proposals-options-form/proposals-options-form.component';
 import { Subscription } from "rxjs";
 import { AppDatatableComponent } from 'src/app/shared/infrastructure/components/app-datatable/app-datatable.component';
 import Swal from 'sweetalert2';
-import { ProvidersApiService } from '../providers.service';
+import { ProposalsApiService } from '../proposals-options.service';
 import moment from 'moment';
 
 @Component({
-  selector: 'responses-table',
-  templateUrl: './providers-table.component.html',
-  styleUrls: ['./providers-table.component.scss'],
+  selector: 'proposals-options-table',
+  templateUrl: './proposals-options-table.component.html',
+  styleUrls: ['./proposals-options-table.component.scss'],
 })
-export class ProvidersTableComponent implements OnDestroy {
+export class ProposalsOptionsTableComponent implements OnDestroy {
   @ViewChild(AppDatatableComponent) datatable!: AppDatatableComponent;
 
   constructor(
     private ngbModal: NgbModal,
-    private apiService: ProvidersApiService,
+    private apiService: ProposalsApiService,
   ) {
   }
 
   readonly subscriptions: Array<Subscription> = []
 
-  title: string = 'providers';
-  addRows: boolean = true;
-  editRows: boolean = true;
+  title: string = 'proposals-options';
+  addRows: boolean = false;
+  editRows: boolean = false;
   refreshRows: boolean = true;
   filterColumns: boolean = true;
-  url: string = `${environment.api_url}/providers/datatable`;
+  url: string = `${environment.api_url}/proposals-options/datatable`;
   columns: dtColumns[] = [
     {
-      title: 'Id',
-      data: 'id',
+      title: 'Proposta',
+      data: 'proposal',
       width: '100px',
     },
     {
-      title: 'Provider',
-      data: 'provider',
+      title: 'Opció',
+      data: 'option',
       width: '100px',
     },
+
     {
       title: '',
       data: 'id',
@@ -52,21 +53,22 @@ export class ProvidersTableComponent implements OnDestroy {
 
   filterParams: filterParams[] = [
       {
-        title: 'id',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'provider',
+        title: 'proposal',
         description: '',
         value: '',
         type: 0,
         defaultData: 0,
         options: [],
       },
+      {
+        title: 'description',
+        description: '',
+        value: '',
+        type: 0,
+        defaultData: 0,
+        options: [],
+      },
+
   ];
 
   columnDefs:any[] = [
@@ -90,7 +92,7 @@ export class ProvidersTableComponent implements OnDestroy {
   ];
 
   editRequest(id:any) {
-    const modalRef = this.ngbModal.open(ProvidersFormComponent);
+    const modalRef = this.ngbModal.open(ProposalsOptionsFormComponent);
     modalRef.componentInstance.setEditingId(parseInt(id));
 
     this.subscriptions.push(

@@ -1,0 +1,21 @@
+<div class="modal-header">
+  <h2>providers form</h2>
+</div>
+<div class="modal-body">
+  <form id="form" [formGroup]="form" (ngSubmit)="save()">
+
+    <div>
+      <label class="form-label" for="provider-input">Proveïdor</label>
+   <!--   <editor
+          [init]="tinymceConfig"
+          formControlName="provider"
+          id="description"></editor>-->
+      <input id="provider-input" type="text" formControlName="provider" class="form-control">
+
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" form="form">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

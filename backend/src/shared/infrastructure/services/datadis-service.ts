@@ -70,7 +70,7 @@ export class DatadisService {
 
         this.conn = this.mysql.pool;
 
-        let startDate = moment().subtract(1, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM'); 
+        let startDate = moment().subtract(3, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM'); 
         let endDate = moment().format('YYYY/MM'); //moment().format('YYYY/MM');
 
         this.run(startDate,endDate)
@@ -263,7 +263,7 @@ export class DatadisService {
             maxBodyLength: Infinity,
             url: `https://datadis.es/api-private/api/get-supplies?authorizedNif=${communityCupsElement.dni}`,
             headers: { 'Authorization': `Bearer ${this.token}` },
-            timeout: 10000
+            timeout: 20000
         }
         try {
             let response: any = await axios.request(config)
@@ -324,7 +324,8 @@ export class DatadisService {
                         'Authorization': `Bearer ${this.token}`,
                         'Accept-Encoding': 'gzip, deflate, br, zlib',
                         'Accept': '*/*'
-                    }
+                    },
+                    timeout: 20000
                 };
 
                 let response = await axios.request(config);
@@ -491,27 +492,36 @@ export class DatadisService {
       INSERT INTO datadis_energy_registers (info_dt,import,export,cups_id)
       SELECT info_dt, import, export, cups_id
       FROM ( ${dataToSearchQueryPart} ) AS data_to_check
-      WHERE data_to_check.info_dt
-        NOT IN (
+      WHERE NOT EXISTS (
         SELECT info_dt
         FROM datadis_energy_registers
-        WHERE info_dt
-        BETWEEN ? AND ?  
+        WHERE datadis_energy_registers.info_dt = data_to_check.info_dt
+        AND datadis_energy_registers.cups_id = data_to_check.cups_id
         )
         AND cups_id = ?
     `
 
-        values.push(startDateFormat); values.push(endDateFormat); values.push(cupsData.id);
+        //values.push(startDateFormat); values.push(endDateFormat); values.push(cupsData.id);  
+        values.push(cupsData.id);
 
         return new Promise(async (resolve, reject) => {
 
             try {
+                //console.log(query,values)
                 let [result] = await this.conn.execute<mysql.ResultSetHeader>(query, values);
                 const insertedRows = result.affectedRows;
                 resolve(insertedRows);
-            } catch (e: any) {
-                console.log("error putting cups energy data", e);
-                reject(e)
+            } catch (error: any) {
+                //console.log("error putting cups energy data", e);
+                if (error && error.code === 'ER_WRONG_ARGUMENTS') {
+                    console.log('Error: Argumentos incorrectos al ejecutar la consulta MySQL.');
+                    // Realiza cualquier acción específica de manejo de errores aquí
+                    console.log(values)
+                } else {
+                    // Manejo genérico de errores
+                    console.error('Error inesperado al ejecutar la consulta MySQL:', error);
+                }
+                reject(error)
             }
 
         })

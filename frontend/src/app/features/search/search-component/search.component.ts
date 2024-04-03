@@ -190,6 +190,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     })
 
     this.OnSelectorChange(this.selectedLocation, 'location')
+    //this.createLocationControl(this.locations)
 
   }
 

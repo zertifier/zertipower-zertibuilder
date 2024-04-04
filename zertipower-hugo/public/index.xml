@@ -39,5 +39,15 @@ npm i --force I per iniciar la pàgina:</description>
       <description>Swagger Per la documentació de les consultes al servidor hem fet un document Swagger on es mostren totes les peticions disponibles. Per accedir al document s&amp;rsquo;ha d&amp;rsquo;anar a: {urlDelServidor}/api
 Hi ha peticions que per seguretat demanen token, per obtenir el token s&amp;rsquo;haurà de fer la crida de /auth/login amb un usuari i una contrasenya correctes el que retornarà el token necessari el qual haurem de posar aqui:</description>
     </item>
+    <item>
+      <title>Datadis</title>
+      <link>http://localhost:1313/datadis/index.html</link>
+      <pubDate>Wed, 27 Mar 2024 11:09:44 +0100</pubDate>
+      <guid>http://localhost:1313/datadis/index.html</guid>
+      <description>Requisits per obtenir les dades de Datadis Per obtenir les dades de un Datadis és necessari tenir un usuari registrat.
+la petició per obtenir la autorització per obenir les dades es aquesta
+https://datadis.es/nikola-auth/tokens/login
+la petició de login espera un usuari i contrasenya al seu cos.</description>
+    </item>
   </channel>
 </rss>

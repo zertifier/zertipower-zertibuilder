@@ -376,3 +376,15 @@ model Responses {
 
   @@map("responses")
 }
+
+model NonWorkingDays {
+  id         Int       @id @default(autoincrement()) @map("id")
+  date       DateTime? @map("date")
+  providerId Int?      @map("provider_id") @db.Int
+  price      Float?    @map("price")
+  rate       String?   @map("rate") @db.VarChar(255)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("non_working_days")
+}

@@ -9,7 +9,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { HttpResponse } from "../../../../shared/infrastructure/http/HttpResponse";
-import { PrismaService } from "../../../../shared/infrastructure/services";
+import { MysqlService, PrismaService } from "../../../../shared/infrastructure/services";
 import { DecodedToken } from "../../../auth/infrastructure/guards/access-token-guard/access-token-guard";
 import { Token } from "../../../auth/domain/tokens/Token";
 import { HttpUtils } from "../../../../shared/infrastructure/http/HttpUtils";
@@ -56,20 +56,27 @@ import { CredentialsChangedEvent } from "../../domain/CredentialsChangedEvent";
 import { Auth } from "../../../auth/infrastructure/decorators";
 import { UserRole } from "../../../roles/domain/UserRole";
 import { Datatable } from "../../../../shared/infrastructure/services/datatable/Datatable";
+import mysql from "mysql2/promise";
 
 export const RESOURCE_NAME = "users";
 
 @Controller(RESOURCE_NAME)
 @ApiTags(RESOURCE_NAME)
 export class UserController {
+
+  private conn: mysql.Pool;
+
   constructor(
     private prisma: PrismaService,
     private findUsersAction: FindUsersAction,
     private saveUserAction: SaveUserAction,
     private userRepository: UserRepository,
     private authRepository: AuthTokenRepository,
-    private datatable: Datatable
-  ) {}
+    private datatable: Datatable,
+    private mysql: MysqlService
+  ) {
+    this.conn = this.mysql.pool;
+  }
 
   @Get("/")
   @ApiOkResponse({
@@ -99,6 +106,52 @@ export class UserController {
     return HttpResponse.success("Users fetched successfully").withData(
       users.map((user) => UserDTOMapper.toDto(user))
     );
+  }
+
+  @Get("/:id/cups")
+  @Auth(RESOURCE_NAME)
+  @ApiBearerAuth()
+  async getUserCups(@Param("id") id: number) {
+
+    let getUserQuery:string=`SELECT customer_id FROM users
+    WHERE id = ?`
+
+    let getCupsQuery:string=`SELECT cups.* from cups 
+    LEFT JOIN customers ON customers.id=cups.customer_id
+    LEFT JOIN users ON users.customer_id=customers.id
+    WHERE users.customer_id = ?
+    `
+
+    let customerId;
+    let cups;
+
+    try{
+      const [rows]:any = await this.conn.query(getUserQuery, [id]);
+      if(rows[0]){
+        customerId=rows[0].customer_id
+      }else{
+        return HttpResponse.failure;
+      }
+    }catch(e){
+      console.log("error getting user", e)
+      return HttpResponse.failure;
+    }
+
+    try{
+      const [rows]:any = await this.conn.query(getCupsQuery, [customerId]);
+      if(rows.length){
+        cups=rows
+      }else{
+        return HttpResponse.failure;
+      }
+    }catch(e){
+      return HttpResponse.failure;
+    }
+
+    return HttpResponse.success("day energy fetched successfully").withData(
+      cups
+  );
+
   }
 
   @Post("/")
@@ -166,6 +219,7 @@ export class UserController {
       ],
     },
   })
+  
   async updateUser(@Body() body: UpdateUserDTO, @Param("id") id: string) {
     const {
       username,

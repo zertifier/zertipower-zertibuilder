@@ -72,7 +72,20 @@ export class SearchComponent implements OnInit, AfterViewInit {
   selectedAreaM2: number | undefined;
   paramsSub: any;
   locationId: number | undefined;
-
+  orientations: any[] = [
+    { name: 'Sud', value: 0 },
+    { name: 'Sudest', value: 30 },
+    { name: 'Sudoest', value: 30 },
+    { name: 'Est', value: 0 },
+    { name: 'Oest', value: 0 }
+];
+  selectedOrientation!:string;
+  inclinations: any[] = [
+    { name: 'Sense inclinació', value: 0 },
+    { name: 'Inclinat', value: 20 },
+    { name: 'Molt inclinat', value: 30 }
+];
+  selectedInclination!:number;
   communityValoration: number = 1;
   communityEnergyData: any = [];
   communityMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];

@@ -15,13 +15,18 @@ import { SaveEnergyTransactionsDTO } from "./save-energy-transactions-dto";
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
+import { CSVNonWorkingConverter } from "src/shared/domain/utils/CSVNonWorkingConverter"
 
 export const RESOURCE_NAME = "energyTransactions";
 
 @ApiTags(RESOURCE_NAME)
 @Controller("energy-transactions")
 export class EnergyTransactionsController {
-  constructor(private prisma: PrismaService, private datatable: Datatable) {}
+  constructor(private prisma: PrismaService, private datatable: Datatable) {
+    CSVNonWorkingConverter.convertCsvNonWorking()
+    // this.getEnergyPrice(new Date('2024-04-05'), 20, 1)
+    // this.getEnergyPrice(new Date('2024-11-07 17:00:00'), 20, 9)
+  }
 
   @Get()
   @Auth(RESOURCE_NAME)
@@ -120,5 +125,37 @@ export class EnergyTransactionsController {
     mappedData.createdAt = data.createdAt || data.created_at;
     mappedData.updatedAt = data.updatedAt || data.updated_at;
     return mappedData;
+  }
+
+  async getEnergyPrice(date: Date, kw: number, providerId: number){
+    let formattedDate = moment(date).format('YYYY-MM-DD')
+    let price;
+
+    const nonWorkingDayData = await this.prisma.nonWorkingDays.findFirst({
+      where: {
+        date: new Date(formattedDate),
+        providerId
+      }
+    })
+
+    if (!nonWorkingDayData){
+      formattedDate = moment(date).format('HH:DD:ss')
+
+      const energyBlockData: any = await this.prisma.$queryRaw`
+        SELECT *
+        FROM energy_blocks
+        WHERE active_init >= ${formattedDate}
+          AND active_end <= ${formattedDate}
+          AND provider_id = ${providerId};
+      `
+
+      const consumptionPrice = energyBlockData[0] ? energyBlockData[0].consumption_price : 0
+        price = consumptionPrice * kw
+    }else{
+      price = nonWorkingDayData.price || 0 * kw
+    }
+
+    console.log(price, "PRICE")
+    return price
   }
 }

@@ -17,6 +17,12 @@ la petició de login espera un usuari i contrasenya al seu cos.
 
  ![postman-datadis-login.PNG](postman-datadis-login.PNG)
 
+Amb aquesta autorització podem demanar les dades generals del client amb petició 'get-supplies'.
+
+ ![postman-datadis-login.PNG](postman-datadis-supplies.PNG)
+
+
+
 <!-- https://datadis.es/api-private/api/get-supplies
 
 https://datadis.es/api-private/api/get-supplies?authorizedNif=43631879M

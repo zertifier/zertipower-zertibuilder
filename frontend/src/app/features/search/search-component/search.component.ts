@@ -31,6 +31,9 @@ interface cadastre {
   savings?: number,
   amortization_years?: number,
   feature?: any
+  totalCost?:number,
+  totalProduction?:number,
+  InsalledPower?:number
 }
 
 @ViewChild(TooltipDirective)
@@ -74,16 +77,17 @@ export class SearchComponent implements OnInit, AfterViewInit {
   locationId: number | undefined;
   orientations: any[] = [
     { name: 'Sud', value: 0 },
-    { name: 'Sudest', value: 30 },
-    { name: 'Sudoest', value: 30 },
-    { name: 'Est', value: 0 },
-    { name: 'Oest', value: 0 }
+    //{ name: 'Sudest', value: 30 },
+    //{ name: 'Sudoest', value: 30 },
+    { name: 'Est', value: 90 },
+    { name: 'Oest', value: 90 }
 ];
-  selectedOrientation!:string;
+  selectedOrientation!:number;
   inclinations: any[] = [
-    { name: 'Sense inclinació', value: 0 },
-    { name: 'Inclinat', value: 20 },
-    { name: 'Molt inclinat', value: 30 }
+    { name: 'Inclinació mínima. A partir de 5%', value: 2 },
+    { name: 'Inclinació baixa. Entre 10 - 15 %', value: 13 },
+    { name: 'Inclinació mitjana. Entre 20 - 30 %', value: 25 },
+    { name: 'Inclinació alta. Entre 30 - 40 %', value: 35 }
 ];
   selectedInclination!:number;
   communityValoration: number = 1;
@@ -162,7 +166,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
   isShrunk: boolean = false;
 
   loading: Subject<boolean> = new Subject<boolean>;
-  
+
+  engineeringCost:number = 1623;
+  installationCost:number[] = [0.35, 0.3, 0.24];
+  invertersCost:number[] = [0.105, 0.087, 0.072];
+  managementCost:number[] = [1500, 1500, 2000];
+  panelsCost:number = 0.265;
+  structureCost:number = 0.07;
+  pvCalc:string = "https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?peakpower=1&loss=14&mountingplace=building&outputformat=json";
+  seriesCalc:string = "https://re.jrc.ec.europa.eu/api/v5_2/seriescalc?peakpower=1&loss=14&mountingplace=building&outputformat=json&startyear=2016&endyear=2020";
+  selectedCoords:any;
 
   constructor(
     private communitiesService: CommunitiesApiService,
@@ -390,6 +403,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
       const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
 
         this.resetCadastre();
+
+        let latLng:any = event.latLng;
+        
+        this.selectedCoords = {lat:latLng.lat(), lng:latLng.lng()}
 
         const feature = event.feature;
         
@@ -626,6 +643,140 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.selectedCadastre = this.addedAreas[index];
   }
 
-}
+  groupDatesByDay(data:any) {
+    return data.reduce(function (result:any, item:any) {
+      let key = `${item.date.getMonth()}_${item.date.getDate()}_${item.date.getHours()}`;
+      (result[key] = result[key] || []).push(item.value);
+      return result;
+    }, {});
+  }
+  
+  sumValuesByMonth(data:any) {
+    return data.reduce(function (result:any, item:any) {
+      let key = item.date.getMonth() + 1;
+      if (result[key] == null) result[key] = 0;
+      result[key] += item.value;
+      return result;
+    }, {});
+  }
+  
+  convertToDateValue(item:any) {
+    let dateString = item.time.substr(0, 4) + '-' +
+      item.time.substr(4, 2) + '-' +
+      item.time.substr(6, 2) + 'T' +
+      item.time.substr(9, 2) + ':00:00Z'
+    return {
+      date: new Date(dateString),
+      value: item["G(i)"]
+    }
+  }
+  
+  calculateProduction(seriesCalcResult:any, pvCalcResult:any, kWp:any) {
+    let year = new Date().getFullYear();
+    let hourValues = seriesCalcResult.outputs.hourly.map(this.convertToDateValue);
+    let grouped = this.groupDatesByDay(hourValues);
+    let totalProduction = pvCalcResult.outputs.totals.fixed.E_y * kWp;
+  
+    let hourValuesAvg = [];
+    let totalIrradiance = 0;
+    for (const entry of Object.entries(grouped)) {
 
-//TODO:  he agregado id para identificar de manera más segura las areas
+      const date = entry[0];
+      const rads = entry[1] as number[];
+
+      let split = date.split('_');
+      if (split[1] === '0' || split[1] === '29') continue; // ignoramos año bisiesto
+      let avg = rads.reduce((x:number, y:number) => x + y, 0) / rads.length;
+      totalIrradiance += avg;
+      hourValuesAvg.push({
+        date: new Date(year, parseInt(split[0]), parseInt(split[1]), parseInt(split[2]), 0, 0),
+        value: avg
+      });
+
+    }
+  
+    hourValuesAvg.forEach((item:any) => item.value = (item.value * totalProduction) / totalIrradiance);
+    return {totalProduction, hourValuesAvg};
+  }
+  
+  calculateCost(kWp:any) {
+    let totalCost:any= this.engineeringCost;
+    let stepCost = this.calculateStepCost(kWp);
+    let watts = kWp * 1000;
+    totalCost += this.installationCost[stepCost] * watts;
+    totalCost += this.invertersCost[stepCost] * watts;
+    totalCost += this.managementCost[stepCost];
+    totalCost += this.panelsCost * watts;
+    totalCost += this.structureCost * watts;
+    totalCost += this.calculateCostOperatingLicense(kWp);
+    totalCost += this.calculateAccessPointRequestAndStudyCost(kWp);
+  
+    return totalCost;
+  }
+  
+  calculateCostOperatingLicense(kWp:any) {
+    if (kWp <= 100) return kWp * 1.1958 + 255.72;
+    return kWp * 1.4218 + 229.35;
+  }
+  
+  calculateAccessPointRequestAndStudyCost(kWp:any) {
+    if (kWp <= 10) return 0;
+    return 260;
+  }
+  
+  calculateStepCost(kWp:any) {
+    if (kWp < 7) {
+      return 0;
+    }
+    if (kWp < 15) {
+      return 1;
+    }
+    return 2;
+  }
+  
+  async calculate(lat:number, lng:number, area:number, direction:number, angle:number) {
+    let kWp;
+    if (angle < 5) { // si es plana se instala en estructura inclinada apuntando al sur
+      angle = 20;
+      direction = 0;
+      kWp = Math.round((area * 0.8 / 9) * 10) / 10;
+    }
+    else {
+      kWp = Math.round((area * 0.8 / 6) * 10) / 10;
+    }
+    let numberPanels = Math.ceil(kWp / 0.45);
+  
+    let urlQueryParams = `&lat=${lat}&lon=${lng}&angle=${angle}&aspect=${direction}`;
+    
+    let [pvCalcResult, seriesCalcResult] = await Promise.all([
+      this.energyAreasService.auxiliarRequest(this.pvCalc + urlQueryParams), 
+      this.energyAreasService.auxiliarRequest(this.seriesCalc + urlQueryParams)
+    ]);
+
+    let {totalProduction, hourValuesAvg} = this.calculateProduction(seriesCalcResult, pvCalcResult, kWp);
+  
+    let prodByMonth = this.sumValuesByMonth(hourValuesAvg);
+  
+    let totalCost = this.calculateCost(kWp);
+    return {kWp, totalProduction, numberPanels, prodByMonth, totalCost};
+  }
+
+  async calculateSolarParams(){
+    const {kWp, totalProduction, numberPanels, prodByMonth, totalCost} =
+    await this.calculate(this.selectedCoords.lat,this.selectedCoords.lng,this.selectedCadastre.m2!,this.selectedOrientation,this.selectedInclination);
+    
+    this.selectedCadastre.InsalledPower=kWp;
+    this.selectedCadastre.n_plaques=numberPanels;
+    this.selectedCadastre.totalCost=totalCost.toFixed(2);
+    this.selectedCadastre.totalProduction=parseInt(totalProduction.toFixed(2))
+    this.selectedCadastre.monthsGeneration=prodByMonth;
+
+    console.log('Installed power', kWp, 'kWp');
+    console.log('Number panels:', numberPanels);
+    console.log('Cost:', totalCost.toFixed(2), '€');
+    console.log('Total year production:', totalProduction.toFixed(2), 'kWh');
+    console.log('Production by months:', prodByMonth);
+
+  }
+
+}

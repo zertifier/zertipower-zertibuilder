@@ -34,5 +34,10 @@ export class EnergyAreasService {
     return this.http.get(url);
   }
 
+  auxiliarRequest(url:string){
+    return this.http.get(url);
+
+  }
+
 }
 

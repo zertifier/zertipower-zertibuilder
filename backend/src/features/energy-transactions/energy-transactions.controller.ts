@@ -62,6 +62,33 @@ export class EnergyTransactionsController {
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyTransactionsDTO) {
     const data = await this.prisma.energyTransaction.create({data: body});
+
+    await this.prisma.$queryRaw`
+      INSERT INTO energy_hourly
+      (cups_id,
+       origin,
+       info_dt,
+       kwh_in,
+       kwh_out,
+       kwh_out_virtual,
+       kwh_surplus,
+       kwh_in_price,
+       kwh_out_price,
+       kwh_in_price_community,
+       kwh_out_price_community)
+      VALUES 
+      (${body.cupsId},
+      'datadis',
+      ${body.infoDt},
+      ${body.kwhIn},
+      ${body.kwhOut},
+      ${body.kwhOutVirtual},
+      ${body.kwhSurplus},
+      ${body.kwhInPrice},
+      ${body.kwhOutPrice},
+      ${body.kwhInPriceCommunity},
+      ${body.kwhOutPriceCommunity})
+    `
     return HttpResponse.success(
       "energy_transactions saved successfully"
     ).withData(data);
@@ -131,7 +158,12 @@ export class EnergyTransactionsController {
     mappedData.infoDt = data.infoDt || data.info_dt;
     mappedData.kwhIn = data.kwhIn || data.kwh_in;
     mappedData.kwhOut = data.kwhOut || data.kwh_out;
+    mappedData.kwhOutVirtual = data.kwhOutVirtual || data.kwh_out_virtual;
     mappedData.kwhSurplus = data.kwhSurplus || data.kwh_surplus;
+    mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
+    mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
+    mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
+    mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
     mappedData.blockId = data.blockId || data.block_id;
     mappedData.createdAt = data.createdAt || data.created_at;
     mappedData.updatedAt = data.updatedAt || data.updated_at;
@@ -176,7 +208,6 @@ export class EnergyTransactionsController {
     data.price = price
 
 
-    console.log(data, "data")
     return data
   }
 }

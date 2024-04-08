@@ -1,47 +1,31 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-} from "@nestjs/common";
-import { HttpResponse } from "../../../../shared/infrastructure/http/HttpResponse";
-import { MysqlService, PrismaService } from "../../../../shared/infrastructure/services";
-import { DecodedToken } from "../../../auth/infrastructure/guards/access-token-guard/access-token-guard";
-import { Token } from "../../../auth/domain/tokens/Token";
-import { HttpUtils } from "../../../../shared/infrastructure/http/HttpUtils";
-import { FindUsersAction } from "../../application/find-users-action/find-users-action";
-import { getUsersFilterSchema } from "./filter-schemas/get-user.filter-schema";
-import { SaveUserDTO } from "./DTOs/SaveUserDTO";
-import { User } from "../../domain/User";
-import { SaveUserAction } from "../../application/save-user-action/save-user-action";
-import { UserIdNotDefinedError } from "../../domain/UserId/UserIdNotDefinedError";
-import { ByUserIdCriteria } from "../../domain/UserId/ByUserIdCriteria";
-import {
-  PasswordNotEncryptedError,
-  UserAlreadyExistsError,
-  UserNotFoundError,
-} from "../../domain/errors";
-import { FilterField } from "../../../../shared/domain/criteria/filter/FilterField";
-import {
-  FilterOperator,
-  FilterOperators,
-} from "../../../../shared/domain/criteria/filter/FilterOperator";
-import { FilterValue } from "../../../../shared/domain/criteria/filter/FilterValue";
-import { Filter } from "../../../../shared/domain/criteria/filter/Filter";
-import { ByUsernameCriteria } from "../../domain/Username/ByUsernameCriteria";
-import { Criteria } from "../../../../shared/domain/criteria/Criteria";
-import { ByEmailCriteria } from "../../domain/Email/ByEmailCriteria";
-import { PasswordUtils } from "../../domain/Password/PasswordUtils";
-import { UserRepository } from "../../domain/UserRepository";
-import { UpdateUserDTO } from "./DTOs/UpdateUserDTO";
-import { BadRequestError } from "../../../../shared/domain/error/common";
-import { AuthTokenRepository } from "../../../auth/domain/tokens/repositories/AuthTokenRepository";
-import { UserDTO } from "./DTOs/UserDTO";
-import { UserDTOMapper } from "./DTOs/UserDTOMapper";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query,} from "@nestjs/common";
+import {HttpResponse} from "../../../../shared/infrastructure/http/HttpResponse";
+import {MysqlService, PrismaService} from "../../../../shared/infrastructure/services";
+import {DecodedToken} from "../../../auth/infrastructure/guards/access-token-guard/access-token-guard";
+import {Token} from "../../../auth/domain/tokens/Token";
+import {HttpUtils} from "../../../../shared/infrastructure/http/HttpUtils";
+import {FindUsersAction} from "../../application/find-users-action/find-users-action";
+import {getUsersFilterSchema} from "./filter-schemas/get-user.filter-schema";
+import {SaveUserDTO} from "./DTOs/SaveUserDTO";
+import {User} from "../../domain/User";
+import {SaveUserAction} from "../../application/save-user-action/save-user-action";
+import {UserIdNotDefinedError} from "../../domain/UserId/UserIdNotDefinedError";
+import {ByUserIdCriteria} from "../../domain/UserId/ByUserIdCriteria";
+import {PasswordNotEncryptedError, UserAlreadyExistsError, UserNotFoundError,} from "../../domain/errors";
+import {FilterField} from "../../../../shared/domain/criteria/filter/FilterField";
+import {FilterOperator, FilterOperators,} from "../../../../shared/domain/criteria/filter/FilterOperator";
+import {FilterValue} from "../../../../shared/domain/criteria/filter/FilterValue";
+import {Filter} from "../../../../shared/domain/criteria/filter/Filter";
+import {ByUsernameCriteria} from "../../domain/Username/ByUsernameCriteria";
+import {Criteria} from "../../../../shared/domain/criteria/Criteria";
+import {ByEmailCriteria} from "../../domain/Email/ByEmailCriteria";
+import {PasswordUtils} from "../../domain/Password/PasswordUtils";
+import {UserRepository} from "../../domain/UserRepository";
+import {UpdateUserDTO} from "./DTOs/UpdateUserDTO";
+import {BadRequestError, UnexpectedError} from "../../../../shared/domain/error/common";
+import {AuthTokenRepository} from "../../../auth/domain/tokens/repositories/AuthTokenRepository";
+import {UserDTO} from "./DTOs/UserDTO";
+import {UserDTOMapper} from "./DTOs/UserDTOMapper";
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -50,12 +34,12 @@ import {
   ApiTags,
   getSchemaPath,
 } from "@nestjs/swagger";
-import { QueryFilterDto } from "../../../../shared/infrastructure/http/QueryFiltersDto";
-import { OnEvent } from "@nestjs/event-emitter";
-import { CredentialsChangedEvent } from "../../domain/CredentialsChangedEvent";
-import { Auth } from "../../../auth/infrastructure/decorators";
-import { UserRole } from "../../../roles/domain/UserRole";
-import { Datatable } from "../../../../shared/infrastructure/services/datatable/Datatable";
+import {QueryFilterDto} from "../../../../shared/infrastructure/http/QueryFiltersDto";
+import {OnEvent} from "@nestjs/event-emitter";
+import {CredentialsChangedEvent} from "../../domain/CredentialsChangedEvent";
+import {Auth} from "../../../auth/infrastructure/decorators";
+import {UserRole} from "../../../roles/domain/UserRole";
+import {Datatable} from "../../../../shared/infrastructure/services/datatable/Datatable";
 import mysql from "mysql2/promise";
 
 export const RESOURCE_NAME = "users";
@@ -83,7 +67,7 @@ export class UserController {
     description: "Users fetched successfully",
     schema: {
       allOf: [
-        { $ref: getSchemaPath(HttpResponse) },
+        {$ref: getSchemaPath(HttpResponse)},
         {
           properties: {
             data: {
@@ -113,44 +97,51 @@ export class UserController {
   @ApiBearerAuth()
   async getUserCups(@Param("id") id: number) {
 
-    let getUserQuery:string=`SELECT customer_id FROM users
-    WHERE id = ?`
+    let getUserQuery: string = `SELECT customer_id
+                                FROM users
+                                WHERE id = ?`
 
-    let getCupsQuery:string=`SELECT cups.* from cups 
-    LEFT JOIN customers ON customers.id=cups.customer_id
-    LEFT JOIN users ON users.customer_id=customers.id
-    WHERE users.customer_id = ?
+    let getCupsQuery: string = `SELECT cups.*
+                                from cups
+                                       LEFT JOIN customers ON customers.id = cups.customer_id
+                                       LEFT JOIN users ON users.customer_id = customers.id
+                                WHERE users.customer_id = ?
     `
 
     let customerId;
     let cups;
 
-    try{
-      const [rows]:any = await this.conn.query(getUserQuery, [id]);
-      if(rows[0]){
-        customerId=rows[0].customer_id
-      }else{
-        return HttpResponse.failure;
-      }
-    }catch(e){
+    let rows;
+    try {
+      const response: any = await this.conn.query(getUserQuery, [id])
+      rows = response[0];
+    } catch (e) {
       console.log("error getting user", e)
-      return HttpResponse.failure;
+      throw new UnexpectedError("Error getting user");
     }
 
-    try{
-      const [rows]:any = await this.conn.query(getCupsQuery, [customerId]);
-      if(rows.length){
-        cups=rows
-      }else{
-        return HttpResponse.failure;
-      }
-    }catch(e){
-      return HttpResponse.failure;
+    if (rows[0]) {
+      customerId = rows[0].customer_id
+    } else {
+      throw new BadRequestError("User not found")
+    }
+
+    try {
+      const response: any = await this.conn.query(getCupsQuery, [customerId]);
+      rows = response[0]
+    } catch (e) {
+      throw new UnexpectedError("Error getting cups");
+    }
+
+    if (rows.length) {
+      cups = rows
+    } else {
+      cups = []
     }
 
     return HttpResponse.success("day energy fetched successfully").withData(
       cups
-  );
+    );
 
   }
 
@@ -161,7 +152,7 @@ export class UserController {
   @ApiCreatedResponse({
     schema: {
       allOf: [
-        { $ref: getSchemaPath(HttpResponse) },
+        {$ref: getSchemaPath(HttpResponse)},
         {
           properties: {
             data: {
@@ -192,7 +183,7 @@ export class UserController {
       email,
       password,
       walletAddress: wallet_address,
-      role: new UserRole({ name: role }),
+      role: new UserRole({name: role}),
     });
 
     const savedUser = await this.saveUserAction.run(user);
@@ -208,7 +199,7 @@ export class UserController {
     description: "User updated successfully",
     schema: {
       allOf: [
-        { $ref: getSchemaPath(HttpResponse) },
+        {$ref: getSchemaPath(HttpResponse)},
         {
           properties: {
             data: {
@@ -219,7 +210,7 @@ export class UserController {
       ],
     },
   })
-  
+
   async updateUser(@Body() body: UpdateUserDTO, @Param("id") id: string) {
     const {
       username,
@@ -237,7 +228,7 @@ export class UserController {
       email,
       password,
       walletAddress: wallet_address,
-      role: new UserRole({ name: role }),
+      role: new UserRole({name: role}),
     });
     user.withId(parseInt(id));
     if (!user.id) {
@@ -361,7 +352,7 @@ export class UserController {
               users.wallet_address as wallet_address,
               roles.name           as role
        FROM users
-                LEFT JOIN roles ON roles.id = users.role_id`
+              LEFT JOIN roles ON roles.id = users.role_id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data

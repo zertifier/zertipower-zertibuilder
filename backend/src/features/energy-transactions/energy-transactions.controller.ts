@@ -23,7 +23,7 @@ export const RESOURCE_NAME = "energyTransactions";
 @Controller("energy-transactions")
 export class EnergyTransactionsController {
   constructor(private prisma: PrismaService, private datatable: Datatable) {
-    CSVNonWorkingConverter.convertCsvNonWorking()
+    // CSVNonWorkingConverter.convertCsvNonWorking()
    /* this.getTransactionsWithNullPrice().then((transactions) => {
       console.log(transactions)
       for (const transaction of transactions) {

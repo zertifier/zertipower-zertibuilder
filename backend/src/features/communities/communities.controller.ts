@@ -109,7 +109,6 @@ export class CommunitiesController {
              SUM(kwh_in) AS kwh_in,
              SUM(kwh_out) AS kwh_out,
              SUM(kwh_out_virtual) AS kwh_out_virtual,
-             SUM(kwh_surplus) AS kwh_surplus,
              SUM(kwh_in_price) AS kwh_in_price,
              SUM(kwh_out_price) AS kwh_out_price,
              SUM(kwh_in_price_community) AS kwh_in_price_community,
@@ -146,7 +145,6 @@ export class CommunitiesController {
              SUM(kwh_in) AS kwh_in, 
              SUM(kwh_out) AS kwh_out, 
              SUM(kwh_out_virtual) AS kwh_out_virtual, 
-             SUM(kwh_surplus) AS kwh_surplus, 
              SUM(kwh_in_price) AS kwh_in_price, 
              SUM(kwh_out_price) AS kwh_out_price, 
              SUM(kwh_in_price_community) AS kwh_in_price_community, 
@@ -247,7 +245,6 @@ export class CommunitiesController {
     mappedData.kwhIn = data.kwhIn || data.kwh_in;
     mappedData.kwhOut = data.kwhOut || data.kwh_out;
     mappedData.kwhOutVirtual = data.kwhOutVirtual || data.kwh_out_virtual;
-    mappedData.kwhSurplus = data.kwhSurplus || data.kwh_surplus;
     mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;

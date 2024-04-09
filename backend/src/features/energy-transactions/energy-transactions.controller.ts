@@ -7,15 +7,15 @@ import {
   Body,
   Param,
 } from "@nestjs/common";
-import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
-import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
-import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
-import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
-import { SaveEnergyTransactionsDTO } from "./save-energy-transactions-dto";
+import {HttpResponse} from "src/shared/infrastructure/http/HttpResponse";
+import {PrismaService} from "src/shared/infrastructure/services/prisma-service/prisma-service";
+import {MysqlService} from "src/shared/infrastructure/services/mysql-service/mysql.service";
+import {Datatable} from "src/shared/infrastructure/services/datatable/Datatable";
+import {SaveEnergyTransactionsDTO} from "./save-energy-transactions-dto";
 import * as moment from "moment";
-import { ApiTags } from "@nestjs/swagger";
-import { Auth } from "src/features/auth/infrastructure/decorators";
-import { CSVNonWorkingConverter } from "src/shared/domain/utils/CSVNonWorkingConverter"
+import {ApiTags} from "@nestjs/swagger";
+import {Auth} from "src/features/auth/infrastructure/decorators";
+import {CSVNonWorkingConverter} from "src/shared/domain/utils/CSVNonWorkingConverter"
 
 export const RESOURCE_NAME = "energyTransactions";
 
@@ -24,8 +24,8 @@ export const RESOURCE_NAME = "energyTransactions";
 export class EnergyTransactionsController {
   constructor(private prisma: PrismaService, private datatable: Datatable) {
     CSVNonWorkingConverter.convertCsvNonWorking()
-    // this.getEnergyPrice(new Date('2024-04-05'), 20, 1)
-    // this.getEnergyPrice(new Date('2024-11-07 17:00:00'), 20, 9)
+    // this.getEnergyPrice(new Date('2024-04-05'), 1)
+    // this.getEnergyPrice(new Date('2024-11-07 17:00:00'), 9)
   }
 
   @Get()
@@ -41,16 +41,15 @@ export class EnergyTransactionsController {
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {
-   /* const data = await this.prisma.energyTransaction.findUnique({
-      where: {
-        id: parseInt(id),
-      },
-    });*/
+    /* const data = await this.prisma.energyTransaction.findUnique({
+       where: {
+         id: parseInt(id),
+       },
+     });*/
     const data: any[] = await this.prisma.$queryRaw`
       SELECT et.*, cups
-      FROM
-        energy_transactions et
-        LEFT JOIN cups ON cups_id = cups.id
+      FROM energy_transactions et
+             LEFT JOIN cups ON cups_id = cups.id
       WHERE et.id = ${id}
     `;
 
@@ -62,7 +61,34 @@ export class EnergyTransactionsController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyTransactionsDTO) {
-    const data = await this.prisma.energyTransaction.create({ data: body });
+    const data = await this.prisma.energyTransaction.create({data: body});
+
+    await this.prisma.$queryRaw`
+      INSERT INTO energy_hourly
+      (cups_id,
+       origin,
+       info_dt,
+       kwh_in,
+       kwh_out,
+       kwh_out_virtual,
+       kwh_surplus,
+       kwh_in_price,
+       kwh_out_price,
+       kwh_in_price_community,
+       kwh_out_price_community)
+      VALUES 
+      (${body.cupsId},
+      'datadis',
+      ${body.infoDt},
+      ${body.kwhIn},
+      ${body.kwhOut},
+      ${body.kwhOutVirtual},
+      ${body.kwhSurplus},
+      ${body.kwhInPrice},
+      ${body.kwhOutPrice},
+      ${body.kwhInPriceCommunity},
+      ${body.kwhOutPriceCommunity})
+    `
     return HttpResponse.success(
       "energy_transactions saved successfully"
     ).withData(data);
@@ -103,10 +129,22 @@ export class EnergyTransactionsController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT et.id,cups_id,info_dt,kwh_in,kwh_out,kwh_surplus,block_id,tx_kwh_in,tx_kwh_out,et.created_at,et.updated_at, cups, reference
-                  FROM energy_transactions et
-                  LEFT JOIN cups ON cups.id = cups_id
-                  LEFT JOIN energy_blocks eb ON eb.id = et.block_id`
+      `SELECT et.id,
+              cups_id,
+              info_dt,
+              kwh_in,
+              kwh_out,
+              kwh_surplus,
+              block_id,
+              tx_kwh_in,
+              tx_kwh_out,
+              et.created_at,
+              et.updated_at,
+              cups,
+              reference
+       FROM energy_transactions et
+              LEFT JOIN cups ON cups.id = cups_id
+              LEFT JOIN energy_blocks eb ON eb.id = et.block_id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data
@@ -120,14 +158,19 @@ export class EnergyTransactionsController {
     mappedData.infoDt = data.infoDt || data.info_dt;
     mappedData.kwhIn = data.kwhIn || data.kwh_in;
     mappedData.kwhOut = data.kwhOut || data.kwh_out;
+    mappedData.kwhOutVirtual = data.kwhOutVirtual || data.kwh_out_virtual;
     mappedData.kwhSurplus = data.kwhSurplus || data.kwh_surplus;
+    mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
+    mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
+    mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
+    mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
     mappedData.blockId = data.blockId || data.block_id;
     mappedData.createdAt = data.createdAt || data.created_at;
     mappedData.updatedAt = data.updatedAt || data.updated_at;
     return mappedData;
   }
 
-  async getEnergyPrice(date: Date, kw: number, providerId: number){
+  async getEnergyPrice(date: Date, providerId: number) {
     let formattedDate = moment(date).format('YYYY-MM-DD')
     let price;
 
@@ -138,7 +181,12 @@ export class EnergyTransactionsController {
       }
     })
 
-    if (!nonWorkingDayData){
+    let data: { rate: string, price: number } = {
+      rate: '',
+      price: 0
+    }
+
+    if (!nonWorkingDayData) {
       formattedDate = moment(date).format('HH:DD:ss')
 
       const energyBlockData: any = await this.prisma.$queryRaw`
@@ -150,12 +198,16 @@ export class EnergyTransactionsController {
       `
 
       const consumptionPrice = energyBlockData[0] ? energyBlockData[0].consumption_price : 0
-        price = consumptionPrice * kw
-    }else{
-      price = nonWorkingDayData.price || 0 * kw
+      price = consumptionPrice
+      data.rate = energyBlockData.reference || ''
+    } else {
+      price = nonWorkingDayData.price || 0
+      data.rate = nonWorkingDayData.rate || ''
     }
 
-    console.log(price, "PRICE")
-    return price
+    data.price = price
+
+
+    return data
   }
 }

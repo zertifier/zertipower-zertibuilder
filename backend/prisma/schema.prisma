@@ -10,7 +10,7 @@ datasource db {
 
 model User {
   id                    Int         @id @default(autoincrement())
-  customer_id           Int?        
+  customer_id           Int?
   username              String      @db.VarChar(255)
   firstname             String      @db.VarChar(255)
   lastname              String      @db.VarChar(255)
@@ -232,19 +232,22 @@ model EnergyRegister {
 }
 
 model EnergyTransaction {
-  id          Int       @id @default(autoincrement())
-  cupsId      Int?      @map("cups_id")
-  infoDt      DateTime? @map("info_dt") @db.DateTime(0)
-  kwhIn       Float?    @map("kwh_in")
-  kwhOut      Float?    @map("kwh_out")
-  kwhSurplus  Float?    @map("kwh_surplus")
-  kwhInPrice  Float?    @map("kwh_in_price")
-  kwhOutPrice Float?    @map("kwh_out_price")
-  txKwhIn     String?   @map("tx_kwh_in") @db.VarChar(100)
-  txKwhOut    String?   @map("tx_kwh_out") @db.VarChar(100)
-  blockId     Int?      @map("block_id")
-  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt   DateTime? @map("updated_at") @db.DateTime(0)
+  id                   Int       @id @default(autoincrement())
+  cupsId               Int?      @map("cups_id")
+  infoDt               DateTime? @map("info_dt") @db.DateTime(0)
+  kwhIn                Float?    @map("kwh_in")
+  kwhOut               Float?    @map("kwh_out")
+  kwhOutVirtual        Float?    @map("kwh_out_virtual")
+  kwhSurplus           Float?    @map("kwh_surplus")
+  kwhInPrice           Float?    @map("kwh_in_price")
+  kwhOutPrice          Float?    @map("kwh_out_price")
+  kwhInPriceCommunity  Float?    @map("kwh_in_price_community")
+  kwhOutPriceCommunity Float?    @map("kwh_out_price_community")
+  txKwhIn              String?   @map("tx_kwh_in") @db.VarChar(100)
+  txKwhOut             String?   @map("tx_kwh_out") @db.VarChar(100)
+  blockId              Int?      @map("block_id")
+  createdAt            DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt            DateTime? @map("updated_at") @db.DateTime(0)
 
   @@map("energy_transactions")
 }

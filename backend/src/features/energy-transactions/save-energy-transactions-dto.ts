@@ -18,6 +18,9 @@ export class SaveEnergyTransactionsDTO {
   @IsOptional()
   infoDt: Date;
 
+  @IsOptional()
+  type: string;
+
   @ApiProperty({ required: false })
   @IsOptional()
   kwhIn: number;

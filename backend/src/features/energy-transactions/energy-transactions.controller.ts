@@ -1,21 +1,13 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Delete,
-  Put,
-  Body,
-  Param,
-} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put,} from "@nestjs/common";
 import {HttpResponse} from "src/shared/infrastructure/http/HttpResponse";
 import {PrismaService} from "src/shared/infrastructure/services/prisma-service/prisma-service";
-import {MysqlService} from "src/shared/infrastructure/services/mysql-service/mysql.service";
 import {Datatable} from "src/shared/infrastructure/services/datatable/Datatable";
 import {SaveEnergyTransactionsDTO} from "./save-energy-transactions-dto";
 import * as moment from "moment";
 import {ApiTags} from "@nestjs/swagger";
 import {Auth} from "src/features/auth/infrastructure/decorators";
 import {CSVNonWorkingConverter} from "src/shared/domain/utils/CSVNonWorkingConverter"
+import {ErrorCode} from "../../shared/domain/error";
 
 export const RESOURCE_NAME = "energyTransactions";
 
@@ -23,15 +15,18 @@ export const RESOURCE_NAME = "energyTransactions";
 @Controller("energy-transactions")
 export class EnergyTransactionsController {
   constructor(private prisma: PrismaService, private datatable: Datatable) {
-    // CSVNonWorkingConverter.convertCsvNonWorking()
-   /* this.getTransactionsWithNullPrice().then((transactions) => {
-      console.log(transactions)
+    CSVNonWorkingConverter.convertCsvNonWorking()
+    this.getTransactionsWithNullPrice().then(async (transactions) => {
+      console.log("Updating",transactions.length, "transactions...")
       for (const transaction of transactions) {
-        /!*this.getEnergyPrice(new Date(transaction.infoDt!), 1).then((price) => {
-          console.log(price, transaction.id)
-        })*!/
+        const energyData = await this.getEnergyPrice(new Date(transaction.infoDt!), transactions.communityId)
+        transaction.kwhInPrice = energyData.price * transaction.kwhIn
+        transaction.kwhOutPrice = energyData.price * transaction.kwhOut
+        transaction.type = energyData.rate
+
+        this.updatePrices(transaction)
       }
-    })*/
+    })
     // this.getEnergyPrice(new Date('2024-04-05'), 1)
     // this.getEnergyPrice(new Date('2024-11-07 17:00:00'), 9)
   }
@@ -69,6 +64,19 @@ export class EnergyTransactionsController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyTransactionsDTO) {
+    const cupsData = await this.prisma.cups.findFirst({
+      where: {
+        id: body.cupsId
+      }
+    })
+    if (!cupsData)
+      return HttpResponse.failure("Cup not found", ErrorCode.BAD_REQUEST);
+
+    const energyData = await this.getEnergyPrice(new Date(body.infoDt!), cupsData!.communityId)
+    body.kwhInPrice = energyData.price * body.kwhIn
+    body.kwhOutPrice = energyData.price * body.kwhOut
+    body.type = energyData.rate
+
     const data = await this.prisma.energyTransaction.create({data: body});
 
     await this.prisma.$queryRaw`
@@ -76,6 +84,7 @@ export class EnergyTransactionsController {
       (cups_id,
        origin,
        info_dt,
+       type,
        kwh_in,
        kwh_out,
        kwh_out_virtual,
@@ -86,6 +95,7 @@ export class EnergyTransactionsController {
       VALUES (${body.cupsId},
               'datadis',
               ${body.infoDt},
+              ${body.type},
               ${body.kwhIn},
               ${body.kwhOut},
               ${body.kwhOutVirtual},
@@ -246,7 +256,12 @@ export class EnergyTransactionsController {
       where: {
         id: parseInt(data.id),
       },
-      data: data,
+      data: {
+        kwhInPrice: data.kwhInPrice,
+        kwhOutPrice: data.kwhOutPrice,
+        type: data.type,
+      },
+
     })
   }
 

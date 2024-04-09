@@ -24,6 +24,14 @@ export const RESOURCE_NAME = "energyTransactions";
 export class EnergyTransactionsController {
   constructor(private prisma: PrismaService, private datatable: Datatable) {
     CSVNonWorkingConverter.convertCsvNonWorking()
+    this.getTransactionsWithNullPrice().then((transactions) => {
+      console.log(transactions)
+      for (const transaction of transactions) {
+        /*this.getEnergyPrice(new Date(transaction.infoDt!), 1).then((price) => {
+          console.log(price, transaction.id)
+        })*/
+      }
+    })
     // this.getEnergyPrice(new Date('2024-04-05'), 1)
     // this.getEnergyPrice(new Date('2024-11-07 17:00:00'), 9)
   }
@@ -71,23 +79,20 @@ export class EnergyTransactionsController {
        kwh_in,
        kwh_out,
        kwh_out_virtual,
-       kwh_surplus,
        kwh_in_price,
        kwh_out_price,
        kwh_in_price_community,
        kwh_out_price_community)
-      VALUES 
-      (${body.cupsId},
-      'datadis',
-      ${body.infoDt},
-      ${body.kwhIn},
-      ${body.kwhOut},
-      ${body.kwhOutVirtual},
-      ${body.kwhSurplus},
-      ${body.kwhInPrice},
-      ${body.kwhOutPrice},
-      ${body.kwhInPriceCommunity},
-      ${body.kwhOutPriceCommunity})
+      VALUES (${body.cupsId},
+              'datadis',
+              ${body.infoDt},
+              ${body.kwhIn},
+              ${body.kwhOut},
+              ${body.kwhOutVirtual},
+              ${body.kwhInPrice},
+              ${body.kwhOutPrice},
+              ${body.kwhInPriceCommunity},
+              ${body.kwhOutPriceCommunity})
     `
     return HttpResponse.success(
       "energy_transactions saved successfully"
@@ -164,11 +169,35 @@ export class EnergyTransactionsController {
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
+    mappedData.communityId = data.communityId || data.community_id;
     mappedData.blockId = data.blockId || data.block_id;
     mappedData.createdAt = data.createdAt || data.created_at;
     mappedData.updatedAt = data.updatedAt || data.updated_at;
     return mappedData;
   }
+
+  async getTransactionsWithNullPrice() {
+    /*const transactionsWithNullPrice = await this.prisma.energyHourly.findMany({
+      where: {
+        OR: [
+          { kwhInPrice: null },
+          { kwhOutPrice: null }
+        ]
+      }
+    })*/
+
+    const transactionsWithNullPrice: any = await this.prisma.$queryRaw`
+      SELECT eh.*, cups.community_id
+      FROM energy_hourly eh
+      LEFT JOIN cups ON eh.cups_id = cups.id
+      WHERE eh.kwh_in_price IS NULL 
+         OR eh.kwh_out_price IS NULL;
+    `
+
+
+    return transactionsWithNullPrice.map(this.mapData);
+  }
+
 
   async getEnergyPrice(date: Date, providerId: number) {
     let formattedDate = moment(date).format('YYYY-MM-DD')
@@ -210,4 +239,15 @@ export class EnergyTransactionsController {
 
     return data
   }
+
+
+  async updatePrices(data: any){
+    await this.prisma.energyHourly.update({
+      where: {
+        id: parseInt(data.id),
+      },
+      data: data,
+    })
+  }
+
 }

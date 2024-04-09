@@ -24,14 +24,14 @@ export const RESOURCE_NAME = "energyTransactions";
 export class EnergyTransactionsController {
   constructor(private prisma: PrismaService, private datatable: Datatable) {
     CSVNonWorkingConverter.convertCsvNonWorking()
-    this.getTransactionsWithNullPrice().then((transactions) => {
+   /* this.getTransactionsWithNullPrice().then((transactions) => {
       console.log(transactions)
       for (const transaction of transactions) {
-        /*this.getEnergyPrice(new Date(transaction.infoDt!), 1).then((price) => {
+        /!*this.getEnergyPrice(new Date(transaction.infoDt!), 1).then((price) => {
           console.log(price, transaction.id)
-        })*/
+        })*!/
       }
-    })
+    })*/
     // this.getEnergyPrice(new Date('2024-04-05'), 1)
     // this.getEnergyPrice(new Date('2024-11-07 17:00:00'), 9)
   }

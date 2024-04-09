@@ -78,12 +78,12 @@ export class CommunitiesController {
     
   }
 
-  @Get(":id/:origin/stats/daily/:date")
+  @Get(":id/stats/:origin/daily/:date")
   // @Auth(RESOURCE_NAME)
   async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     const data: any = await this.prisma.$queryRaw`
-      SELECT er.*, community_id
-      FROM energy_registers er
+      SELECT eh.*, community_id
+      FROM energy_hourly eh
       LEFT JOIN cups
       ON cups_id = cups.id
       WHERE DATE(info_dt) = ${date}
@@ -99,13 +99,13 @@ export class CommunitiesController {
     );
   }
 
-  @Get(":id/:origin/stats/monthly/:date")
+  @Get(":id/stats/:origin/monthly/:date")
   // @Auth(RESOURCE_NAME)
   async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     const [year, month] = date.split('-');
 
     const data: any = await this.prisma.$queryRaw`
-      SELECT er.*,  
+      SELECT eh.*,  
              SUM(generation) AS generation,
              SUM(import) AS import,
              SUM(export) AS export,
@@ -114,7 +114,7 @@ export class CommunitiesController {
              SUM(virtual_generation) AS virtual_generation,
              DATE(info_dt) AS info_dt, 
              community_id
-      FROM energy_registers er
+      FROM energy_hourly eh
       LEFT JOIN cups
         ON cups_id = cups.id
       WHERE YEAR(info_dt) = ${parseInt(year)}
@@ -132,13 +132,13 @@ export class CommunitiesController {
     );
   }
 
-  @Get(":id/:origin/stats/yearly/:date")
+  @Get(":id/stats/:origin/yearly/:date")
   // @Auth(RESOURCE_NAME)
   async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     const [year] = date.split('-');
 
     const data: any = await this.prisma.$queryRaw`
-      SELECT er.*,  
+      SELECT eh.*,  
              SUM(generation) AS generation, 
              SUM(import) AS import, 
              SUM(export) AS export, 
@@ -147,7 +147,7 @@ export class CommunitiesController {
              SUM(virtual_generation) AS virtual_generation, 
              DATE(info_dt) AS info_dt,
              community_id
-      FROM energy_registers er
+      FROM energy_hourly eh
       LEFT JOIN cups
         ON cups_id = cups.id
       WHERE YEAR(info_dt) = ${parseInt(year)}

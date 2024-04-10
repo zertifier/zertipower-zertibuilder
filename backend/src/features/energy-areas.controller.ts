@@ -17,6 +17,12 @@ import {
   import { Auth } from "src/features/auth/infrastructure/decorators";
   import mysql from "mysql2/promise";
 import { log } from "console";
+import { HttpUtils } from "src/shared/infrastructure/http/HttpUtils";
+import { Http } from "winston/lib/winston/transports";
+import axios from "axios";
+import { ErrorCode } from "src/shared/domain/error/ErrorCode";
+const https = require('https');
+
   export const RESOURCE_NAME = "energy-areas";
   
   @ApiTags(RESOURCE_NAME)
@@ -115,6 +121,31 @@ import { log } from "console";
         return HttpResponse.failure;
       }
     }
+
+    @Get("/simulate")
+    @Auth(RESOURCE_NAME)
+    async getSimulation(@Query('lat') lat: number, @Query('lng') lng: number,@Query('area') area: number, @Query('direction') direction: number, @Query('angle') angle: number, @Query('panels') panels:number) {
+      console.log(lat,lng,area,direction,angle)
+
+      const engineeringCost = 1623;
+      const installationCost = [0.35, 0.3, 0.24];
+      const invertersCost = [0.105, 0.087, 0.072];
+      const managementCost = [1500, 1500, 2000];
+      const panelsCost = 0.265;
+      const structureCost = 0.07;
+
+      try{
+        const {kWp, totalProduction, numberPanels, prodByMonth, totalCost} = await calculate(lat,lng,area,direction,angle,installationCost,invertersCost,managementCost,panelsCost,structureCost,engineeringCost,panels)
+        let data = {kWp, totalProduction, numberPanels, prodByMonth, totalCost}
+        return HttpResponse.success("simulation executed successfully").withData(
+          data
+        );
+      }catch(error){
+        console.log("error getting energy simulation", error);
+        return HttpResponse.failure("error getting energy simulation",ErrorCode.BAD_REQUEST);
+      }
+      
+    }
 }
 
 const createMultiplePostQuery = (table:any, records:any) => {
@@ -170,4 +201,152 @@ function simplifyCoordinates(coordinates:any[], areaId:number) {
     })
   
     return coordenadasObj;
+}
+
+function groupDatesByDay(data:any) {
+  return data.reduce(function (result:any, item:any) {
+    let key = `${item.date.getMonth()}_${item.date.getDate()}_${item.date.getHours()}`;
+    (result[key] = result[key] || []).push(item.value);
+    return result;
+  }, {});
+}
+
+function sumValuesByMonth(data:any) {
+  return data.reduce(function (result:any, item:any) {
+    let key = item.date.getMonth() + 1;
+    if (result[key] == null) result[key] = 0;
+    result[key] += item.value;
+    return result;
+  }, {});
+}
+
+function convertToDateValue(item:any) {
+  let dateString = item.time.substr(0, 4) + '-' +
+    item.time.substr(4, 2) + '-' +
+    item.time.substr(6, 2) + 'T' +
+    item.time.substr(9, 2) + ':00:00Z'
+  return {
+    date: new Date(dateString),
+    value: item["G(i)"]
+  }
+}
+
+function calculateProduction(seriesCalcResult:any, pvCalcResult:any, kWp:any) {
+  let year = new Date().getFullYear();
+  let hourValues = seriesCalcResult.outputs.hourly.map(convertToDateValue);
+  let grouped = groupDatesByDay(hourValues);
+  let totalProduction = pvCalcResult.outputs.totals.fixed.E_y * kWp;
+
+  let hourValuesAvg = [];
+  let totalIrradiance = 0;
+  for (const entry of Object.entries(grouped)) {
+
+    const date = entry[0];
+    const rads = entry[1] as number[];
+
+    let split = date.split('_');
+    if (split[1] === '0' || split[1] === '29') continue; // ignoramos año bisiesto
+    let avg = rads.reduce((x:number, y:number) => x + y, 0) / rads.length;
+    totalIrradiance += avg;
+    hourValuesAvg.push({
+      date: new Date(year, parseInt(split[0]), parseInt(split[1]), parseInt(split[2]), 0, 0),
+      value: avg
+    });
+
+  }
+
+  hourValuesAvg.forEach((item:any) => item.value = (item.value * totalProduction) / totalIrradiance);
+  return {totalProduction, hourValuesAvg};
+}
+
+function calculateCost(kWp:any,installationCost:number[],invertersCost:number[],managementCost:number[],panelsCost:number,structureCost:number,engineeringCost:number) {
+  let totalCost:any= engineeringCost;
+  let stepCost = calculateStepCost(kWp);
+  let watts = kWp * 1000;
+  totalCost += installationCost[stepCost] * watts;
+  totalCost += invertersCost[stepCost] * watts;
+  totalCost += managementCost[stepCost];
+  totalCost += panelsCost * watts;
+  totalCost += structureCost * watts;
+  totalCost += calculateCostOperatingLicense(kWp);
+  totalCost += calculateAccessPointRequestAndStudyCost(kWp);
+
+  return totalCost;
+}
+
+function calculateCostOperatingLicense(kWp:any) {
+  if (kWp <= 100) return kWp * 1.1958 + 255.72;
+  return kWp * 1.4218 + 229.35;
+}
+
+function calculateAccessPointRequestAndStudyCost(kWp:any) {
+  if (kWp <= 10) return 0;
+  return 260;
+}
+
+function calculateStepCost(kWp:any) {
+  if (kWp < 7) {
+    return 0;
+  }
+  if (kWp < 15) {
+    return 1;
+  }
+  return 2;
+}
+
+
+async function calculate(lat:number, lng:number, area:number, direction:number, angle:number,installationCost:number[],invertersCost:number[],managementCost:number[],panelsCost:number,structureCost:number,engineeringCost:number,panels:number) {
+  let kWp;
+  if (angle < 5) { // si es plana se instala en estructura inclinada apuntando al sur
+    angle = 20;
+    direction = 0;
+    kWp = Math.round((area * 0.8 / 9) * 10) / 10;
+  }
+  else {
+    kWp = Math.round((area * 0.8 / 6) * 10) / 10;
+  }
+  let numberPanels = panels | Math.ceil(kWp / 0.45);
+
+  let urlQueryParams = `&lat=${lat}&lon=${lng}&angle=${angle}&aspect=${direction}`;
+
+  const pvCalc = "https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?peakpower=1&loss=14&mountingplace=building&outputformat=json";
+  const seriesCalc = "https://re.jrc.ec.europa.eu/api/v5_2/seriescalc?peakpower=1&loss=14&mountingplace=building&outputformat=json&startyear=2016&endyear=2020";
+
+  let [pvCalcResult, seriesCalcResult] = await Promise.all([httpGet(pvCalc + urlQueryParams).catch(error=>{throw new Error(error);}), httpGet(seriesCalc + urlQueryParams).catch(error=>{throw new Error(error);})]);
+
+  //console.log("pvCalcResult, seriesCalcResult",pvCalcResult, seriesCalcResult)
+
+  let {totalProduction, hourValuesAvg} = calculateProduction(seriesCalcResult, pvCalcResult, kWp);
+
+  let prodByMonth = sumValuesByMonth(hourValuesAvg);
+
+  let totalCost = calculateCost(kWp,installationCost,invertersCost,managementCost,panelsCost,structureCost,engineeringCost);
+  return {kWp, totalProduction, numberPanels, prodByMonth, totalCost};
+}
+
+async function httpGet(url:string) {
+
+  return new Promise((resolve,reject) => {
+    try{
+    let data = ''
+    https.get(url, (res:any) => {
+      res.on('data', (chunk:any) => { data += chunk })
+      res.on('end', () => {
+        let parsedData = JSON.parse(data);
+        if(parsedData.status==400){
+          reject(new Error(parsedData.message));  
+        }
+        resolve(JSON.parse(data));
+      })
+      .on('error', (error: any) => {
+        console.log("http error", error)
+        reject(new Error(error.message));
+      });
+    })
+  }catch(error){
+    console.log("http error", error)
+    reject(new Error(error.message))
+  }
+
+  })
 }

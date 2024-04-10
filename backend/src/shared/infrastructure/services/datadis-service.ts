@@ -217,7 +217,7 @@ export class DatadisService {
                 console.log('error logging in', e)
                 reject(e);
             });
-            console.log("login success, token obtained", this.loginData)
+            console.log("login success, token obtained")
             this.token = response.data;
             resolve(this.token);
         })

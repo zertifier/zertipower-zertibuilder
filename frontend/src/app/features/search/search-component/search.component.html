@@ -23,8 +23,9 @@
     </div>
 
     <div class="col col-12 col-md-7">
-      <select id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2 heartbeat" [tooltip]="'Selecciona una comunitat'" [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW" [showOnInit]="true"
-        (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
+      <select id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2 heartbeat"
+        [tooltip]="'Selecciona una comunitat'" [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW"
+        [showOnInit]="true" (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
         <option [ngValue]="newCommunity">Nova comunitat</option>
         <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
       </select>
@@ -34,7 +35,8 @@
 </div>
 
 <div class="card mt-2 position-absolute bottom-0 p-2" style="z-index:3; width: 270px;height: 70px; margin-bottom: 50px;"
-  [ngClass]=" isShrunk ? 'location-bar-closed' : 'location-bar-open'" *ngIf="!addedAreas.length && selectedCommunity && !selectedCadastre.feature">
+  [ngClass]=" isShrunk ? 'location-bar-closed' : 'location-bar-open'"
+  *ngIf="!addedAreas.length && selectedCommunity && !selectedCadastre.feature">
   <div><b>Pas 2</b></div>
   <div>Tria l'area fent clic a sobre d'una.</div>
 </div>
@@ -45,7 +47,7 @@
 
     <nav class="d-flex flex-shrink-0 text-bg-dark d-md-block bg-primary h-100">
 
-      <div class="py-3 d-flex flex-column h-100" [ngClass]=" isShrunk ? 'd-none' : 'open-nav'"
+      <div class="py-3 d-flex flex-column h-100 overflow-auto" [ngClass]=" isShrunk ? 'd-none' : 'open-nav'"
         style="max-height: 100vh;">
         <!-- overflow-y: scroll; overflow-x: hidden; -->
 
@@ -99,21 +101,124 @@
           </div>
 
 
-          
+
           <span class="fs-6 my-2" *ngIf="addedAreas.length">Llista d'agregats</span>
           <div class="btn-light" style="max-height: 283px; overflow-y: auto; overflow-x: hidden;">
-            <div class="fs-6 my-2 row mt-3" *ngFor="let area of addedAreas; index as i" style="max-height: 50px; overflow: hidden;">
+            <div class="fs-6 my-2 row mt-3" *ngFor="let area of addedAreas; index as i"
+              style="max-height: 50px; overflow: hidden;">
               <span class="col-3">area {{i}}</span>
               <button class="col-3 btn btn-secondary ms-2" type="button" (click)="editArea(i)"> Editar </button>
-              <button class="col-3 btn btn-danger ms-2"    type="button" (click)="deleteArea(i)"> Esborrar </button>
+              <button class="col-3 btn btn-danger ms-2" type="button" (click)="deleteArea(i)"> Esborrar </button>
             </div>
           </div>
-          
+
         </div>
 
         <!-- <hr class="mb-0"> -->
 
-        <div *ngIf="selectedCadastre.feature" class="mt-4 ms-4">
+        <div class="w-100 d-flex justify-content-center mt-4">
+
+        <div *ngIf="selectedCadastre.feature" class="" style="width: 465px;">
+
+          <div class="d-flex justify-content-center">
+            <span class="fs-5 my-2">Potencial producció instal·lació fotovoltaica</span>
+          </div>
+          
+          <div class="row ps-0 m-0 pb-2 mt-4">
+
+            <div class="col-6 p-0 d-flex">
+              <span class="d-flex align-items-center fs-12 me-2">Àrea M²</span>
+
+              <input type="number" class="form-select number-input" [(ngModel)]="this.selectedCadastre.m2"
+                (change)="updateCadastreChart()" min="0" step="0">
+            </div>
+
+            <div class="col-6 p-0 d-flex justify-content-end">
+              
+                <span class="d-flex align-items-center fs-12 me-2"> Nº de plaques</span>
+                <input type="number" class="form-control number-input" [(ngModel)]="this.selectedCadastre.n_plaques"
+                  (change)="updateCadastreChart()" min="0" step="0">
+                  <div class="form-text" id="basic-addon4">Opcional</div>
+            </div>
+              
+          </div>
+
+          <div class="row ps-0 m-0 pb-2 mt-4">
+
+            <div class="col-6 p-0 d-flex">
+              <span class="d-flex align-items-center fs-12 me-2">Inclinació del sostre</span>
+              <select id="inclinationSelector" class="form-select text-selector pt-1 w-100" style="width: 115px !important;"
+              [(ngModel)]="this.selectedCadastre.inclination">
+              <option [ngValue]="null"></option>
+              <option *ngFor="let inclination of inclinations" [ngValue]="inclination.value">
+                {{ inclination.name }}
+              </option>
+            </select>
+            </div>
+
+            <div class="col-6 p-0 d-flex justify-content-end">
+              <span class="d-flex align-items-center fs-12 me-2">Orientació</span>
+            
+              <select id="orientationSelector" class="form-select number-input pt-1"
+                [(ngModel)]="this.selectedCadastre.orientation">
+                <option [ngValue]="null"></option>
+                <option *ngFor="let orientation of orientations" [ngValue]="orientation.value">
+                  {{ orientation.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row m-0 p-0">
+            <div class="col-6 m-0 p-0">
+              <span class="m-0 fs-12">0% per a finques de pisos</span><br><br>
+              <span class="m-0 fs-12">10-15% per zones sense plujes</span>
+            </div>
+            <div class="col-6 m-0 p-0">
+              <span class="m-0 fs-12">20-30% per zones amb plujes moderades</span><br>
+              <span class="m-0 fs-12">30-40% per zones amb plujes fortes</span>  
+            </div>
+          </div>
+
+          <div class="row p-0 m-0 w-100 mt-5">
+            <div class="col-12 pe-2 d-flex m-0 ps-0">
+              <button *ngIf="this.selectedCadastre.inclination==undefined || this.selectedCadastre.orientation==undefined" class="btn btn-secondary w-100 fs-7 disabled" (click)="simulateGeneration()">Calcular generació</button>
+              <button *ngIf="this.selectedCadastre.inclination!=undefined && this.selectedCadastre.orientation!=undefined" class="btn btn-secondary w-100 fs-7" (click)="simulateGeneration()">Calcular generació</button>
+            </div>
+          </div>
+
+
+          <div *ngIf="selectedCadastreGenerationMonthChartDatasets.length">
+            <p class="fs-6 my-2 mt-5">Producció àrea mensualment</p>
+            <span class="m-0 fs-12">La gràfica expressa la producció energética basada en les plaques solars que podria contenir l'area</span>
+  
+            <div class="">
+              <div class="custom-chart" style="width:95%">
+                <app-chart [chartId]="'selectedCadastreGeneration'" [chartType]="selectedCadastreMonthChartType"
+                  [labels]="monthChartLabels" [datasets]="selectedCadastreGenerationMonthChartDatasets"
+                  [options]="communityMonthChartOptions"
+                  [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()"></app-chart>
+              </div>
+            </div>
+          </div>
+          
+
+          <div class="row p-0 m-0 w-100 mt-4">
+
+            <div class="col-6 pe-2 d-flex m-0 ps-0">
+              <button class="btn btn-secondary fs-7" (click)="activeAcc=true;activeCec=false">Estalvi autoconsum individual</button>
+            </div>
+
+            <div class="col-6 ps-2 d-flex m-0 ps-0">
+              <button class="btn btn-secondary fs-7" (click)="activeAcc=false;activeCec=true">Estalvi membre comunitari</button>
+            </div>
+
+          </div>
+        </div>
+
+        </div>
+
+        <div *ngIf="activeAcc" class="mt-4 ms-4">
 
           <span class="fs-5 my-2 ">Potencial producció instal·lació fotovoltaica</span>
 
@@ -122,38 +227,45 @@
             <span class="fs-6 d-flex align-items-center me-2">Les dades expressades són una estimació aproximada</span>
           </div>
 
-          <div class="row p-0 m-0 mt-4 me-5" >
+          <div class="row p-0 m-0 mt-4 me-5">
+
             <div class="col-4 d-flex p-0 m-0 justify-content-end">
               <span class="d-flex align-items-center me-2 smile-color">Valle</span>
               <input type="number" class="form-control number-input" [(ngModel)]="selectedCadastre.valle" min="0"
                 (change)="updateCadastreConsumption()">
             </div>
+
             <div class="col-4 d-flex p-0 m-0 justify-content-end">
               <span class="d-flex align-items-center me-2 meh-color">Llano</span>
               <input type="number" class="form-control number-input" [(ngModel)]="selectedCadastre.llano" min="0"
                 (change)="updateCadastreConsumption()">
             </div>
+
             <div class="col-4 d-flex p-0 m-0 justify-content-end">
               <span class="d-flex align-items-center me-2 frown-color">Punta</span>
               <input type="number" class="form-control number-input" [(ngModel)]="selectedCadastre.punta" min="0"
                 (change)="updateCadastreConsumption()">
             </div>
+
           </div>
 
           <div class="row p-0 m-0 me-5 mt-2">
             <div class="col-4 d-flex p-0 m-0 justify-content-end">
               <span class="d-flex align-items-center me-2 smile-color ms-4">€</span>
-              <input type="number" class="form-control number-input" [ngModel]="selectedCadastre.valle * 0.04 | number:'1.2-2'" disabled
+              <input type="number" class="form-control number-input"
+                [ngModel]="selectedCadastre.valle * 0.04 | number:'1.2-2'" disabled
                 (change)="updateCadastreConsumption()">
             </div>
             <div class="col-4 d-flex p-0 m-0 justify-content-end">
               <span class="d-flex align-items-center me-2 meh-color ms-4">€</span>
-              <input type="number" class="form-control number-input" [ngModel]="selectedCadastre.llano * 0.07 | number:'1.2-2'" disabled
+              <input type="number" class="form-control number-input"
+                [ngModel]="selectedCadastre.llano * 0.07 | number:'1.2-2'" disabled
                 (change)="updateCadastreConsumption()">
             </div>
             <div class="col-4 d-flex p-0 m-0 justify-content-end">
               <span class="d-flex align-items-center me-2 frown-color ms-4">€</span>
-              <input type="number" class="form-control number-input" [ngModel]="selectedCadastre.punta * 0.14 | number:'1.2-2'" disabled
+              <input type="number" class="form-control number-input"
+                [ngModel]="selectedCadastre.punta * 0.14 | number:'1.2-2'" disabled
                 (change)="updateCadastreConsumption()">
             </div>
           </div>
@@ -177,121 +289,70 @@
               [ngClass]="cadastreValoration==3 ? 'frown-color' : 'inactive-color'"></i>
           </div>
 
-          <div class="">
+          <div class="row ps-0 m-0 pb-2">
 
-            <div class="row ps-0 m-0 pb-2">
-
-              <div class="col-3 d-flex m-0 p-0">
-                <span class="d-flex align-items-center fs-12">Inclinació</span>
-              </div>
-
-              <div class="col-4 m-0 p-0 d-flex align-items-center">
-                <select id="inclinationSelector" class="form-select text-selector pt-1" [(ngModel)]="this.selectedInclination">
-                <option></option>
-                <option *ngFor="let inclination of inclinations" [ngValue]="inclination.value">
-                  {{ inclination.name }}
-                </option>
-                </select>
-              </div>
-
+          
+            <div class="col-3 d-flex m-0 p-0">
+              <span class="d-flex align-items-center fs-12">Estalvi mensual</span>
             </div>
 
-            <div class="row ps-0 m-0 pb-2">
-
-              <div class="col-3 d-flex m-0 p-0">
-                <span class="d-flex align-items-center fs-12"> M²</span>
-              </div>
-
-              <div class="col-3 m-0 p-0 d-flex align-items-center">
-                <input type="number" class="form-control number-input" [(ngModel)]="this.selectedCadastre.m2"
-                  (change)="updateCadastreChart()" min="0" step="0">
-              </div>
-
-              <div class="col-3 d-flex m-0 p-0">
-                <span class="d-flex align-items-center fs-12">Orientació</span>
-              </div>
-
-              <div class="col-3 m-0 p-0 d-flex align-items-center">
-                <select id="orientationSelector" class="form-select number-input pt-1" [(ngModel)]="this.selectedOrientation">
-                <option></option>
-                <option *ngFor="let orientation of orientations" [ngValue]="orientation.value">
-                  {{ orientation.name }}
-                </option>
-                </select>
-              </div>
-
-            </div>
-
-            <div class="row ps-0 m-0 pb-2">
-
-              <div class="col-3 d-flex m-0 p-0">
-                <span class="d-flex align-items-center fs-12"> Nº de plaques</span>
-              </div>
-
-              <div class="col-3 m-0 p-0 d-flex align-items-center">
-                <input type="number" class="form-control number-input" [(ngModel)]="this.selectedCadastre.n_plaques"
-                  (change)="updateCadastreChart()" min="0" step="0">
-              </div>
-
-              <div class="col-3 d-flex m-0 p-0">
-                <span class="d-flex align-items-center fs-12">Estalvi mensual</span>
-              </div>
-
-              <div class="col-3 m-0 p-0 d-flex align-items-center">
-                <input type="number" class="form-control number-input" readonly disabled>
-                <span class="d-flex align-items-center fs-12 ms-2">€</span>
-              </div>
-
-            </div>
-
-            <div class="row ps-0 m-0 pb-2">
-
-              <div class="col-3 d-flex m-0 p-0">
-                <span class="d-flex align-items-center fs-12">Cost inicial d'inversió</span>
-              </div>
-
-              <div class="col-3 m-0 p-0 d-flex align-items-center">
-                <input type="number" class="form-control number-input" readonly disabled>
-                <span class="d-flex align-items-center fs-12 ms-2">€</span>
-              </div>
-
-              <div class="col-3 d-flex m-0 p-0">
-                <span class="d-flex align-items-center fs-12">Anys per amortitzar</span>
-              </div>
-
-              <div class="col-3 m-0 p-0 d-flex align-items-center">
-                <input type="number" class="form-control number-input" disabled readonly>
-              </div>
-
+            <div class="col-3 m-0 p-0 d-flex align-items-center">
+              <input type="number" class="form-control number-input" readonly disabled>
+              <span class="d-flex align-items-center fs-12 ms-2">€</span>
             </div>
 
           </div>
 
-          <div class="w-100 d-flex" *ngIf="!this.addedAreas.includes(this.selectedCadastre)">
-            <button class="btn btn-secondary mt-4 w-92 " (click)="addArea()">Agregar a comunitat energètica</button>
-          </div>
-          <div class="w-100 d-flex" *ngIf="this.addedAreas.includes(this.selectedCadastre)">
-            <button class="btn btn-secondary mt-4 w-92 " (click)="addArea()">Actualitzar</button>
-          </div>
-          <div class="w-100 d-flex">
-            <button class="btn btn-danger mt-4 w-92" (click)="unselectArea(this.selectedCadastre)">Tornar</button>
+          <div class="row ps-0 m-0 pb-2">
+
+            <div class="col-3 d-flex m-0 p-0">
+              <span class="d-flex align-items-center fs-12">Cost inicial d'inversió</span>
+            </div>
+
+            <div class="col-3 m-0 p-0 d-flex align-items-center">
+              <input type="number" class="form-control number-input" readonly disabled>
+              <span class="d-flex align-items-center fs-12 ms-2">€</span>
+            </div>
+
+            <div class="col-3 d-flex m-0 p-0">
+              <span class="d-flex align-items-center fs-12">Anys per amortitzar</span>
+            </div>
+
+            <div class="col-3 m-0 p-0 d-flex align-items-center">
+              <input type="number" class="form-control number-input" disabled readonly>
+            </div>
+
           </div>
 
+        <div class="w-100 d-flex" *ngIf="!this.addedAreas.includes(this.selectedCadastre)">
+          <button class="btn btn-secondary mt-4 w-92 " (click)="simulateGeneration()">Simular</button>
         </div>
+
+        <div class="w-100 d-flex" *ngIf="!this.addedAreas.includes(this.selectedCadastre)">
+          <button class="btn btn-secondary mt-4 w-92 " (click)="addArea()">Agregar a comunitat energètica</button>
+        </div>
+        <div class="w-100 d-flex" *ngIf="this.addedAreas.includes(this.selectedCadastre)">
+          <button class="btn btn-secondary mt-4 w-92 " (click)="addArea()">Actualitzar</button>
+        </div>
+        <div class="w-100 d-flex">
+          <button class="btn btn-danger mt-4 w-92" (click)="unselectArea(this.selectedCadastre)">Tornar</button>
+        </div>
+
       </div>
-
-    </nav>
-
-    <div id="div-shrink" class="d-flex align-items-center " style="height: 100vh;">
-      <button class="btn btn-light border-0 ps-2 shadow-none rounded-start-0" (click)="changeShrinkState()"
-        style="height: 50px;">
-        <!--        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none"-->
-        <!--                [ngClass]="getThemeName() == 'Dark' ? 'text-light' : 'text-dark'" (click)="changeShrinkState()">-->
-        <i *ngIf="isShrunk" class="fa-solid fa-caret-right fs-5"></i>
-        <i *ngIf="!isShrunk" class="fa-solid fa-caret-left fs-5"></i>
-      </button>
-    </div>
-
   </div>
+
+  </nav>
+
+  <div id="div-shrink" class="d-flex align-items-center " style="height: 100vh;">
+    <button class="btn btn-light border-0 ps-2 shadow-none rounded-start-0" (click)="changeShrinkState()"
+      style="height: 50px;">
+      <!--        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none"-->
+      <!--                [ngClass]="getThemeName() == 'Dark' ? 'text-light' : 'text-dark'" (click)="changeShrinkState()">-->
+      <i *ngIf="isShrunk" class="fa-solid fa-caret-right fs-5"></i>
+      <i *ngIf="!isShrunk" class="fa-solid fa-caret-left fs-5"></i>
+    </button>
+  </div>
+
+</div>
 
 </div>

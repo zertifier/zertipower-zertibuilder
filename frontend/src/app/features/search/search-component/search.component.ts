@@ -33,7 +33,9 @@ interface cadastre {
   feature?: any
   totalCost?:number,
   totalProduction?:number,
-  InsalledPower?:number
+  InsalledPower?:number,
+  orientation?:number,
+  inclination?:number
 }
 
 @ViewChild(TooltipDirective)
@@ -82,14 +84,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
     { name: 'Est', value: 90 },
     { name: 'Oest', value: 90 }
 ];
-  selectedOrientation!:number;
   inclinations: any[] = [
     { name: 'Inclinació mínima. A partir de 5%', value: 2 },
     { name: 'Inclinació baixa. Entre 10 - 15 %', value: 13 },
     { name: 'Inclinació mitjana. Entre 20 - 30 %', value: 25 },
     { name: 'Inclinació alta. Entre 30 - 40 %', value: 35 }
 ];
-  selectedInclination!:number;
   communityValoration: number = 1;
   communityEnergyData: any = [];
   communityMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
@@ -122,6 +122,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   selectedCadastreEnergyData: any;
   selectedCadastreMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
   selectedCadastreMonthChartDatasets: any = [];
+  selectedCadastreGenerationMonthChartDatasets:any = [];
   selectedCadastreMonthChartType = 'bar';
   updateSelectedCadastreMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   selectedCadastreMonthChartOptions =
@@ -176,6 +177,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   pvCalc:string = "https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?peakpower=1&loss=14&mountingplace=building&outputformat=json";
   seriesCalc:string = "https://re.jrc.ec.europa.eu/api/v5_2/seriescalc?peakpower=1&loss=14&mountingplace=building&outputformat=json&startyear=2016&endyear=2020";
   selectedCoords:any;
+ 
+  activeSimulation:boolean=false;
+  activeAcc:boolean=false;
+  activeCec:boolean=false;
 
   constructor(
     private communitiesService: CommunitiesApiService,
@@ -422,8 +427,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
         let foundArea = this.addedAreas.find((addedArea)=>addedArea.id==cadastre)
         if(foundArea){
           this.selectedCadastre = foundArea;
-          this.updateCadastreChart();
-          this.updateSelectedCadastreValoration();
+          //this.updateCadastreChart();
+          //this.updateSelectedCadastreValoration();
           return;
         }
 
@@ -432,11 +437,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
         let areaM2: any = feature.getProperty('areaM2');
         this.selectedCadastre.m2 = Math.floor(areaM2);
-        this.selectedCadastre.n_plaques = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7) | 0;
+        //this.selectedCadastre.n_plaques = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7) | 0;
 
-        this.updateCadastreConsumptionM2();
-        this.updateCadastreChart();
-        this.updateSelectedCadastreValoration();
+        //this.updateCadastreConsumptionM2();
+        //this.updateCadastreChart();
+        //this.updateSelectedCadastreValoration();
 
       });
 
@@ -535,6 +540,27 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.updateCadastreChart();
   }
 
+  // calculateCadastreMonths(){
+  //   let monthConsumption = this.selectedCadastre.totalConsumption;
+  //   this.selectedCadastre.n_plaques=Math.abs( this.selectedCadastre.n_plaques || 0)
+  //   let monthConsumptionArray: any = [];
+  //   let sumMonthGeneration: number = 0;
+  //   let sumMonthConsumption: number = 0;
+
+  //   let monthGenerationArray = Array.apply(null, Array(12)).map((element, index) => {
+  //     let monthGeneration = this.kwhMonth460wp[index] * this.selectedCadastre.n_plaques!;
+  //     monthConsumptionArray.push(monthConsumption);
+  //     sumMonthGeneration += monthGeneration;
+  //     sumMonthConsumption += monthConsumption;
+  //     return monthGeneration;
+  //   });
+
+  //   this.selectedCadastre.yearConsumption = sumMonthConsumption;
+  //   this.selectedCadastre.yearGeneration = sumMonthGeneration;
+  //   this.selectedCadastre.monthsConsumption = monthConsumptionArray;
+  //   this.selectedCadastre.monthsGeneration = monthGenerationArray;
+  // }
+
   featureSelected(selectedFeature: any) {
       
   }
@@ -552,39 +578,41 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   }
 
-  updateCadastreChart() {
+  updateCadastreGenerationChart(){
+   
+    console.log("update")
 
     this.cdr.detectChanges();
 
-    let monthConsumption = this.selectedCadastre.totalConsumption;
-    this.selectedCadastre.n_plaques=Math.abs( this.selectedCadastre.n_plaques || 0)
-    let monthConsumptionArray: any = [];
-    let sumMonthGeneration: number = 0;
-    let sumMonthConsumption: number = 0;
+    this.selectedCadastreGenerationMonthChartDatasets = [
+      {
+        label: 'Generació',
+        data:  this.selectedCadastre.monthsGeneration,
+        backgroundColor: 'rgb(52, 152, 219)',
+        borderColor: 'rgb(255,255,255)'
+      }
+    ]
 
-    let monthGenerationArray = Array.apply(null, Array(12)).map((element, index) => {
-      let monthGeneration = this.kwhMonth460wp[index] * this.selectedCadastre.n_plaques!;
-      monthConsumptionArray.push(monthConsumption);
-      sumMonthGeneration += monthGeneration;
-      sumMonthConsumption += monthConsumption;
-      return monthGeneration;
-    });
+    this.updateSelectedCadastreMonthChartSubject.next(true);
 
-    this.selectedCadastre.yearConsumption = sumMonthConsumption;
-    this.selectedCadastre.yearGeneration = sumMonthGeneration;
-    this.selectedCadastre.monthsConsumption = monthConsumptionArray;
-    this.selectedCadastre.monthsGeneration = monthGenerationArray;
+  }
+
+  updateCadastreChart() {
+
+    //calculateCadastreMonths();
+
+    this.cdr.detectChanges();
 
     this.selectedCadastreMonthChartDatasets = [
       {
         label: 'Consum (Kwh)',
-        data: monthConsumptionArray,
+        data: this.selectedCadastre.monthsConsumption,
         backgroundColor: 'rgb(211, 84, 0)',
         borderColor: 'rgb(255,255,255)'
       },
       {
         label: 'Generació',
-        data: monthGenerationArray,
+        data:  this.selectedCadastre.monthsGeneration,
         backgroundColor: 'rgb(52, 152, 219)',
         borderColor: 'rgb(255,255,255)'
       }
@@ -601,6 +629,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   resetCadastre() {
+    this.selectedCadastreGenerationMonthChartDatasets=[];
+    this.selectedCadastreMonthChartDatasets=[];
     this.selectedCadastre = {
       totalConsumption: 200,
       valle: 98,
@@ -643,140 +673,48 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.selectedCadastre = this.addedAreas[index];
   }
 
-  groupDatesByDay(data:any) {
-    return data.reduce(function (result:any, item:any) {
-      let key = `${item.date.getMonth()}_${item.date.getDate()}_${item.date.getHours()}`;
-      (result[key] = result[key] || []).push(item.value);
-      return result;
-    }, {});
-  }
-  
-  sumValuesByMonth(data:any) {
-    return data.reduce(function (result:any, item:any) {
-      let key = item.date.getMonth() + 1;
-      if (result[key] == null) result[key] = 0;
-      result[key] += item.value;
-      return result;
-    }, {});
-  }
-  
-  convertToDateValue(item:any) {
-    let dateString = item.time.substr(0, 4) + '-' +
-      item.time.substr(4, 2) + '-' +
-      item.time.substr(6, 2) + 'T' +
-      item.time.substr(9, 2) + ':00:00Z'
-    return {
-      date: new Date(dateString),
-      value: item["G(i)"]
-    }
-  }
-  
-  calculateProduction(seriesCalcResult:any, pvCalcResult:any, kWp:any) {
-    let year = new Date().getFullYear();
-    let hourValues = seriesCalcResult.outputs.hourly.map(this.convertToDateValue);
-    let grouped = this.groupDatesByDay(hourValues);
-    let totalProduction = pvCalcResult.outputs.totals.fixed.E_y * kWp;
-  
-    let hourValuesAvg = [];
-    let totalIrradiance = 0;
-    for (const entry of Object.entries(grouped)) {
-
-      const date = entry[0];
-      const rads = entry[1] as number[];
-
-      let split = date.split('_');
-      if (split[1] === '0' || split[1] === '29') continue; // ignoramos año bisiesto
-      let avg = rads.reduce((x:number, y:number) => x + y, 0) / rads.length;
-      totalIrradiance += avg;
-      hourValuesAvg.push({
-        date: new Date(year, parseInt(split[0]), parseInt(split[1]), parseInt(split[2]), 0, 0),
-        value: avg
-      });
-
-    }
-  
-    hourValuesAvg.forEach((item:any) => item.value = (item.value * totalProduction) / totalIrradiance);
-    return {totalProduction, hourValuesAvg};
-  }
-  
-  calculateCost(kWp:any) {
-    let totalCost:any= this.engineeringCost;
-    let stepCost = this.calculateStepCost(kWp);
-    let watts = kWp * 1000;
-    totalCost += this.installationCost[stepCost] * watts;
-    totalCost += this.invertersCost[stepCost] * watts;
-    totalCost += this.managementCost[stepCost];
-    totalCost += this.panelsCost * watts;
-    totalCost += this.structureCost * watts;
-    totalCost += this.calculateCostOperatingLicense(kWp);
-    totalCost += this.calculateAccessPointRequestAndStudyCost(kWp);
-  
-    return totalCost;
-  }
-  
-  calculateCostOperatingLicense(kWp:any) {
-    if (kWp <= 100) return kWp * 1.1958 + 255.72;
-    return kWp * 1.4218 + 229.35;
-  }
-  
-  calculateAccessPointRequestAndStudyCost(kWp:any) {
-    if (kWp <= 10) return 0;
-    return 260;
-  }
-  
-  calculateStepCost(kWp:any) {
-    if (kWp < 7) {
-      return 0;
-    }
-    if (kWp < 15) {
-      return 1;
-    }
-    return 2;
-  }
-  
-  async calculate(lat:number, lng:number, area:number, direction:number, angle:number) {
-    let kWp;
-    if (angle < 5) { // si es plana se instala en estructura inclinada apuntando al sur
-      angle = 20;
-      direction = 0;
-      kWp = Math.round((area * 0.8 / 9) * 10) / 10;
-    }
-    else {
-      kWp = Math.round((area * 0.8 / 6) * 10) / 10;
-    }
-    let numberPanels = Math.ceil(kWp / 0.45);
-  
-    let urlQueryParams = `&lat=${lat}&lon=${lng}&angle=${angle}&aspect=${direction}`;
-    
-    let [pvCalcResult, seriesCalcResult] = await Promise.all([
-      this.energyAreasService.auxiliarRequest(this.pvCalc + urlQueryParams), 
-      this.energyAreasService.auxiliarRequest(this.seriesCalc + urlQueryParams)
-    ]);
-
-    let {totalProduction, hourValuesAvg} = this.calculateProduction(seriesCalcResult, pvCalcResult, kWp);
-  
-    let prodByMonth = this.sumValuesByMonth(hourValuesAvg);
-  
-    let totalCost = this.calculateCost(kWp);
-    return {kWp, totalProduction, numberPanels, prodByMonth, totalCost};
-  }
-
   async calculateSolarParams(){
-    const {kWp, totalProduction, numberPanels, prodByMonth, totalCost} =
-    await this.calculate(this.selectedCoords.lat,this.selectedCoords.lng,this.selectedCadastre.m2!,this.selectedOrientation,this.selectedInclination);
+
+    return new Promise((resolve,reject)=>{
+      console.log("this.selectedCoords.lat,this.selectedCoords.lng,this.selectedCadastre.m2!,this.selectedOrientation,this.selectedInclination",
+      this.selectedCoords.lat,this.selectedCoords.lng,this.selectedCadastre.m2!,this.selectedCadastre.orientation,this.selectedCadastre.inclination,this.selectedCadastre.n_plaques)
+      this.energyAreasService.simulate(this.selectedCoords.lat,this.selectedCoords.lng,this.selectedCadastre.m2!,this.selectedCadastre.orientation!,this.selectedCadastre.inclination!,this.selectedCadastre.n_plaques!)
+      .subscribe((res:any)=>{
+        let data = res.data
+        const kWp = data.kWp 
+        const totalProduction = data.totalProduction 
+        const numberPanels = data.numberPanels 
+        const prodByMonth = data.prodByMonth 
+        const totalCost = data.totalCost    
+  
+        this.selectedCadastre.InsalledPower=kWp;
+        this.selectedCadastre.n_plaques=numberPanels;
+        this.selectedCadastre.totalCost=totalCost.toFixed(2);
+        this.selectedCadastre.totalProduction=parseInt(totalProduction.toFixed(2))
+        Object.keys(prodByMonth).forEach(function(key) {
+          prodByMonth[key] = Math.floor(prodByMonth[key]);
+      });
+        this.selectedCadastre.monthsGeneration=Object.values(prodByMonth);
     
-    this.selectedCadastre.InsalledPower=kWp;
-    this.selectedCadastre.n_plaques=numberPanels;
-    this.selectedCadastre.totalCost=totalCost.toFixed(2);
-    this.selectedCadastre.totalProduction=parseInt(totalProduction.toFixed(2))
-    this.selectedCadastre.monthsGeneration=prodByMonth;
-
-    console.log('Installed power', kWp, 'kWp');
-    console.log('Number panels:', numberPanels);
-    console.log('Cost:', totalCost.toFixed(2), '€');
-    console.log('Total year production:', totalProduction.toFixed(2), 'kWh');
-    console.log('Production by months:', prodByMonth);
-
+        console.log('Installed power', kWp, 'kWp');
+        console.log('Number panels:', numberPanels);
+        console.log('Cost:', totalCost.toFixed(2), '€');
+        console.log('Total year production:', totalProduction.toFixed(2), 'kWh');
+        console.log('Production by months:', this.selectedCadastre.monthsGeneration);
+        resolve('success')
+      },(error:any)=>{reject(error)});
+    })
+    
   }
+
+  async simulateGeneration(){
+    this.showLoading()
+    await this.calculateSolarParams();
+    this.loading.next(false);
+    this.updateCadastreGenerationChart();
+    this.activeSimulation=true;
+  }
+
+
 
 }

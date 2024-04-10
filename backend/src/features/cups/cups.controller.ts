@@ -49,15 +49,16 @@ export class CupsController {
     );
   }
 
-  @Get(":id/:origin/stats/daily/:date")
+  @Get(":id/stats/:origin/daily/:date")
   // @Auth(RESOURCE_NAME)
   async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     const data: any = await this.prisma.$queryRaw`
       SELECT * 
-      FROM energy_registers
+      FROM energy_hourly
       WHERE DATE(info_dt) = ${date}
         AND cups_id = ${id}
         AND origin = ${origin}
+      GROUP BY HOUR(info_dt)
       ORDER BY info_dt;
     `;
 
@@ -68,21 +69,22 @@ export class CupsController {
     );
   }
 
-  @Get(":id/:origin/stats/monthly/:date")
+  @Get(":id/stats/:origin/monthly/:date")
   // @Auth(RESOURCE_NAME)
   async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     const [year, month] = date.split('-');
 
     const data: any = await this.prisma.$queryRaw`
-      SELECT *,  
-             SUM(generation) AS generation,
-             SUM(import) AS import,
-             SUM(export) AS export,
-             SUM(consumption) AS consumption,
-             SUM(community_generation) AS community_generation,
-             SUM(virtual_generation) AS virtual_generation,
+      SELECT *,
+             SUM(kwh_in) AS kwh_in,
+             SUM(kwh_out) AS kwh_out,
+             SUM(kwh_out_virtual) AS kwh_out_virtual,
+             SUM(kwh_in_price) AS kwh_in_price,
+             SUM(kwh_out_price) AS kwh_out_price,
+             SUM(kwh_in_price_community) AS kwh_in_price_community,
+             SUM(kwh_out_price_community) AS kwh_out_price_community,
              DATE(info_dt) AS info_dt
-      FROM energy_registers
+      FROM energy_hourly
       WHERE YEAR(info_dt) = ${parseInt(year)}
         AND MONTH(info_dt) = ${parseInt(month)}
         AND cups_id = ${id}
@@ -97,21 +99,22 @@ export class CupsController {
       mappedData
     );
   }
-  @Get(":id/:origin/stats/yearly/:date")
+  @Get(":id/stats/:origin/yearly/:date")
   // @Auth(RESOURCE_NAME)
   async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     const [year] = date.split('-');
 
     const data: any = await this.prisma.$queryRaw`
-      SELECT *,  
-             SUM(generation) AS generation, 
-             SUM(import) AS import, 
-             SUM(export) AS export, 
-             SUM(consumption) AS consumption, 
-             SUM(community_generation) AS community_generation, 
-             SUM(virtual_generation) AS virtual_generation, 
+      SELECT *,
+             SUM(kwh_in) AS kwh_in,
+             SUM(kwh_out) AS kwh_out,
+             SUM(kwh_out_virtual) AS kwh_out_virtual,
+             SUM(kwh_in_price) AS kwh_in_price,
+             SUM(kwh_out_price) AS kwh_out_price,
+             SUM(kwh_in_price_community) AS kwh_in_price_community,
+             SUM(kwh_out_price_community) AS kwh_out_price_community,
              DATE(info_dt) AS info_dt
-      FROM energy_registers
+      FROM energy_hourly
       WHERE YEAR(info_dt) = ${parseInt(year)}
         AND cups_id = ${id}
         AND origin = ${origin}
@@ -224,13 +227,15 @@ export class CupsController {
     mappedData.id = data.id;
     mappedData.infoDt = data.infoDt || data.info_dt;
     mappedData.cupsId = data.cupsId || data.cups_id;
-    mappedData.import = data.import;
-    mappedData.consumption = data.consumption;
-    mappedData.export = data.export;
-    mappedData.type = data.type;
     mappedData.origin = data.origin;
-    mappedData.communityGeneration = data.communityGeneration || data.community_generation;
-    mappedData.virtualGeneration = data.virtualGeneration || data.virtual_generation;
+    mappedData.kwhIn = data.kwhIn || data.kwh_in;
+    mappedData.kwhOut = data.kwhOut || data.kwh_out;
+    mappedData.kwhOutVirtual = data.kwhOutVirtual || data.kwh_out_virtual;
+    mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
+    mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
+    mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
+    mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
+    mappedData.type = data.type;
     mappedData.generation = data.generation;
     mappedData.createdAt = data.createdAt || data.created_at;
     mappedData.updatedAt = data.updatedAt || data.updated_at;

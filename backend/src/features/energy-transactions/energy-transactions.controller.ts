@@ -19,7 +19,7 @@ export class EnergyTransactionsController {
     this.getTransactionsWithNullPrice().then(async (transactions) => {
       console.log("Updating",transactions.length, "transactions...")
       for (const transaction of transactions) {
-        const energyData = await this.getEnergyPrice(new Date(transaction.infoDt!), transactions.communityId)
+        const energyData = await this.getEnergyPrice(new Date(transaction.infoDt!), transaction.providerId)
         transaction.kwhInPrice = energyData.price * transaction.kwhIn
         transaction.kwhOutPrice = energyData.price * transaction.kwhOut
         transaction.type = energyData.rate
@@ -72,7 +72,7 @@ export class EnergyTransactionsController {
     if (!cupsData)
       return HttpResponse.failure("Cup not found", ErrorCode.BAD_REQUEST);
 
-    const energyData = await this.getEnergyPrice(new Date(body.infoDt!), cupsData!.communityId)
+    const energyData = await this.getEnergyPrice(new Date(body.infoDt!), cupsData!.providerId)
     body.kwhInPrice = energyData.price * body.kwhIn
     body.kwhOutPrice = energyData.price * body.kwhOut
     body.type = energyData.rate
@@ -180,6 +180,7 @@ export class EnergyTransactionsController {
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
     mappedData.communityId = data.communityId || data.community_id;
+    mappedData.providerId = data.providerId || data.provider_id;
     mappedData.blockId = data.blockId || data.block_id;
     mappedData.createdAt = data.createdAt || data.created_at;
     mappedData.updatedAt = data.updatedAt || data.updated_at;
@@ -197,7 +198,7 @@ export class EnergyTransactionsController {
     })*/
 
     const transactionsWithNullPrice: any = await this.prisma.$queryRaw`
-      SELECT eh.*, cups.community_id
+      SELECT eh.*, cups.community_id, cups.provider_id
       FROM energy_hourly eh
       LEFT JOIN cups ON eh.cups_id = cups.id
       WHERE eh.kwh_in_price IS NULL 
@@ -231,8 +232,8 @@ export class EnergyTransactionsController {
       const energyBlockData: any = await this.prisma.$queryRaw`
         SELECT *
         FROM energy_blocks
-        WHERE active_init >= ${formattedDate}
-          AND active_end <= ${formattedDate}
+        WHERE active_init <= ${formattedDate}
+          AND active_end >= ${formattedDate}
           AND provider_id = ${providerId};
       `
 

@@ -58,6 +58,7 @@ export class CupsController {
       WHERE DATE(info_dt) = ${date}
         AND cups_id = ${id}
         AND origin = ${origin}
+      GROUP BY HOUR(info_dt)
       ORDER BY info_dt;
     `;
 

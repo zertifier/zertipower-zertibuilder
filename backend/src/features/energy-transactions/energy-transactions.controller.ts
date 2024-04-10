@@ -260,9 +260,9 @@ export class EnergyTransactionsController {
       data: {
         kwhInPrice: data.kwhInPrice,
         kwhOutPrice: data.kwhOutPrice,
+        kwhOutVirtual: data.kwhOut,
         type: data.type,
       },
-
     })
   }
 

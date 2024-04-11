@@ -118,7 +118,7 @@ export class CommunitiesController {
     }
 
 
-    data = this.dataWithEmpty(data, date, 24, 'dayly')
+    data = this.dataWithEmpty(data, date, 24, 'daily')
 
     const mappedData = data.map(this.energyHourlyMapData);
     return HttpResponse.success("communities fetched successfully").withData(
@@ -341,11 +341,11 @@ export class CommunitiesController {
     return mappedData;
   }
 
-  dataWithEmpty(data: any, date: string, qty: number, type: 'yearly' | 'monthly' | 'dayly') {
+  dataWithEmpty(data: any, date: string, qty: number, type: 'yearly' | 'monthly' | 'daily') {
     if (data.length < qty) {
       for (let i = 0; i < qty; i++) {
         let formattedDate;
-        if (type == 'dayly') {
+        if (type == 'daily') {
           const hour = i.toString().length > 1 ? i : `0${i}`
           formattedDate = `${date} ${hour}:00:00`
         }
@@ -360,11 +360,10 @@ export class CommunitiesController {
           formattedDate = `${date}-${month}-01 01:00:00`
         }
 
-
-        const newDate = moment.utc(formattedDate)
+        const newDate = moment.utc(formattedDate).toDate()
         const sameDate = data.find((item: any) => {
-          if (type == 'dayly')
-            return item.info_dt == newDate
+          if (type == 'daily')
+            return item.info_dt.toString() == newDate.toString()
 
           if (type == 'monthly'){
             const dayOfItem = moment(item.info_dt).format('YYYY-MM-DD')

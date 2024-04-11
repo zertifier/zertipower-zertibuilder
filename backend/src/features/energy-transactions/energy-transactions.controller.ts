@@ -20,8 +20,12 @@ export class EnergyTransactionsController {
       console.log("Updating",transactions.length, "transactions...")
       for (const transaction of transactions) {
         const energyData = await this.getEnergyPrice(new Date(transaction.infoDt!), transaction.providerId)
-        transaction.kwhInPrice = energyData.price * transaction.kwhIn
-        transaction.kwhOutPrice = energyData.price * transaction.kwhOut
+        // transaction.kwhInPrice = energyData.price * transaction.kwhIn
+        transaction.kwhInPrice = energyData.price
+        // transaction.kwhOutPrice = energyData.price * transaction.kwhOut
+        transaction.kwhOutPrice = 0.06
+        transaction.kwhInPriceCommunity = 0.12
+        transaction.kwhOutPriceCommunity = 0.12
         transaction.type = energyData.rate
 
         this.updatePrices(transaction)
@@ -73,8 +77,13 @@ export class EnergyTransactionsController {
       return HttpResponse.failure("Cup not found", ErrorCode.BAD_REQUEST);
 
     const energyData = await this.getEnergyPrice(new Date(body.infoDt!), cupsData!.providerId)
-    body.kwhInPrice = energyData.price * body.kwhIn
+  /*  body.kwhInPrice = energyData.price * body.kwhIn
     body.kwhOutPrice = energyData.price * body.kwhOut
+    body.type = energyData.rate*/
+    body.kwhInPrice = energyData.price
+    body.kwhOutPrice = 0.06
+    body.kwhInPriceCommunity = 0.12
+    body.kwhOutPriceCommunity = 0.12
     body.type = energyData.rate
 
     const data = await this.prisma.energyTransaction.create({data: body});
@@ -246,7 +255,6 @@ export class EnergyTransactionsController {
     }
 
     data.price = price
-
 
     return data
   }

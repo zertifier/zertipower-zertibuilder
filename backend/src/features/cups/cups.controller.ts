@@ -52,7 +52,7 @@ export class CupsController {
   @Get(":id/stats/:origin/daily/:date")
   // @Auth(RESOURCE_NAME)
   async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
-    const data: any = await this.prisma.$queryRaw`
+    let data: any = await this.prisma.$queryRaw`
       SELECT * 
       FROM energy_hourly
       WHERE DATE(info_dt) = ${date}
@@ -62,6 +62,7 @@ export class CupsController {
       ORDER BY info_dt;
     `;
 
+    data = this.dataWithEmpty(data, date, 24, 'daily')
     const mappedData = data.map(this.energyRegistersMapData);
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
@@ -74,7 +75,7 @@ export class CupsController {
   async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     const [year, month] = date.split('-');
 
-    const data: any = await this.prisma.$queryRaw`
+    let data: any = await this.prisma.$queryRaw`
       SELECT *,
              SUM(kwh_in) AS kwh_in,
              SUM(kwh_out) AS kwh_out,
@@ -93,6 +94,9 @@ export class CupsController {
       ORDER BY info_dt;
     `;
 
+    const daysOfMonth = moment(date).daysInMonth()
+    data = this.dataWithEmpty(data, date, daysOfMonth, 'monthly')
+
     const mappedData = data.map(this.energyRegistersMapData);
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
@@ -104,7 +108,7 @@ export class CupsController {
   async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     const [year] = date.split('-');
 
-    const data: any = await this.prisma.$queryRaw`
+    let data: any = await this.prisma.$queryRaw`
       SELECT *,
              SUM(kwh_in) AS kwh_in,
              SUM(kwh_out) AS kwh_out,
@@ -121,6 +125,9 @@ export class CupsController {
       GROUP BY MONTH(info_dt)
       ORDER BY info_dt;
     `;
+
+
+    data = this.dataWithEmpty(data, date, 12, 'yearly')
 
     const mappedData = data.map(this.energyRegistersMapData);
     return HttpResponse.success("cups fetched successfully").withData(
@@ -240,5 +247,72 @@ export class CupsController {
     mappedData.createdAt = data.createdAt || data.created_at;
     mappedData.updatedAt = data.updatedAt || data.updated_at;
     return mappedData;
+  }
+
+  dataWithEmpty(data: any, date: string, qty: number, type: 'yearly' | 'monthly' | 'daily') {
+    if (data.length < qty) {
+      for (let i = 0; i < qty; i++) {
+        let formattedDate;
+        if (type == 'daily') {
+          const hour = i.toString().length > 1 ? i : `0${i}`
+          formattedDate = `${date} ${hour}:00:00`
+        }
+
+        if (type == 'monthly'){
+          const day = (i+1).toString().length > 1 ? i+1 : `0${i+1}`
+          formattedDate = `${date}-${day} 01:00:00`
+        }
+
+        if (type == 'yearly'){
+          const month = (i+1).toString().length > 1 ? i+1 : `0${i+1}`
+          formattedDate = `${date}-${month}-01 01:00:00`
+        }
+
+
+        const newDate = moment.utc(formattedDate).toDate()
+
+        const sameDate = data.find((item: any) => {
+          if (type == 'daily')
+            return item.info_dt.toString() == newDate.toString()
+
+          if (type == 'monthly'){
+            const dayOfItem = moment(item.info_dt).format('YYYY-MM-DD')
+            const dayOfNewDate = moment(newDate).format('YYYY-MM-DD')
+            return dayOfItem == dayOfNewDate
+          }
+
+          if (type == 'yearly'){
+            const monthOfItem = moment(item.info_dt).format('YYYY-MM')
+            const monthOfNewDate = moment(newDate).format('YYYY-MM')
+            return monthOfItem == monthOfNewDate
+          }
+
+          return
+
+        });
+        if (!sameDate) {
+          const cupEmptyObject = {
+            "id": 0,
+            "cups_id": 0,
+            "info_dt": newDate,
+            "type": "",
+            "origin": "datadis",
+            "kwh_in": 0,
+            "kwh_out": 0,
+            "kwh_out_virtual": 0,
+            "kwh_in_price": 0,
+            "kwh_out_price": 0,
+            "kwh_in_price_community": 0,
+            "kwh_out_price_community": 0,
+            "created_at": newDate,
+            "updated_at": newDate,
+            "community_id": 7
+          }
+
+          data.splice(i, 0, cupEmptyObject)
+        }
+      }
+    }
+    return data
   }
 }

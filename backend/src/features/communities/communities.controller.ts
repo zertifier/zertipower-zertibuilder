@@ -85,7 +85,7 @@ export class CommunitiesController {
   @Get(":id/stats/:origin/daily/:date")
   // @Auth(RESOURCE_NAME)
   async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
-    let data: any = await this.prisma.$queryRaw`
+    /*let data: any = await this.prisma.$queryRaw`
       SELECT eh.*, community_id, cups.surplus_distribution
       FROM energy_hourly eh
              LEFT JOIN cups
@@ -96,29 +96,100 @@ export class CommunitiesController {
         AND cups.type != 'community'
       GROUP BY HOUR(info_dt)
       ORDER BY info_dt;
+    `;*/
+    date = `${date}%`
+    let data: any = await this.prisma.$queryRaw`
+      SELECT 
+        b.*,
+        a.surplus_community,
+        c.surplus_distribution,
+        IFNULL(a.surplus_community,0) * c.surplus_distribution surplus_community_active
+        FROM
+        (
+            SELECT 
+              SUM(kwh_out) AS surplus_community,
+              HOUR(info_dt) AS filter_dt,
+              info_dt
+            FROM 
+                energy_hourly eh
+            LEFT JOIN 
+                cups c
+                ON cups_id = c.id
+            WHERE 
+                c.type = 'community'
+                AND info_dt LIKE ${date}
+                AND c.community_id = ${id}
+                AND origin = ${origin}
+                GROUP BY 
+                HOUR(eh.info_dt)    
+        )
+        a
+        LEFT JOIN 
+        (
+            SELECT
+                SUM(kwh_in)                  AS kwh_in,
+                SUM(eh.kwh_out)                 AS kwh_out,
+                SUM(kwh_out_virtual)         AS kwh_out_virtual,
+                SUM(kwh_in_price)            AS kwh_in_price,
+                SUM(kwh_out_price)           AS kwh_out_price,
+                SUM(kwh_in_price_community)  AS kwh_in_price_community,
+                SUM(kwh_out_price_community) AS kwh_out_price_community,
+                HOUR(eh.info_dt)                AS filter_dt,
+                info_dt
+            FROM 
+            energy_hourly eh
+            LEFT JOIN 
+                cups c
+                ON cups_id = c.id        
+            WHERE 
+                c.type != 'community'
+                AND eh.info_dt LIKE ${date}
+                AND c.community_id = ${id}
+                GROUP BY 
+                HOUR(eh.info_dt)
+        ) b 
+        ON a.filter_dt = b.filter_dt
+        JOIN
+        (
+        SELECT 
+            SUM(surplus_distribution) surplus_distribution
+        FROM
+        (
+            SELECT
+                CAST(c.surplus_distribution AS DECIMAL(10,2)) surplus_distribution
+            FROM 
+            cups c
+            LEFT JOIN 
+                energy_hourly eh
+                ON cups_id = c.id        
+            WHERE 
+                c.type != 'community'
+                AND eh.info_dt LIKE ${date}
+                AND c.community_id = ${id}
+                GROUP BY c.id    
+            ) a
+        ) c;
     `;
 
 
-    let communityData: any = await this.prisma.$queryRaw`
-      SELECT kwh_out production
+    date = date.slice(0, -1)
+
+   /* let communityData: any = await this.prisma.$queryRaw`
+      SELECT kwh_out production, info_dt
       FROM energy_hourly eh
              LEFT JOIN cups
                        ON cups_id = cups.id
       WHERE DATE(info_dt) = ${date}
         AND origin = ${origin}
         AND cups.community_id = ${id}
-        AND cups.type != 'community'
+        AND cups.type = 'community'
       GROUP BY HOUR(info_dt)
       ORDER BY info_dt;
     `;
+*/
+    // data = this.setProduction(data, communityData, 'daily')
 
-    for (let i = 0; i < data.length; i++) {
-      data[i].production = communityData[i].production
-      data[i].production_active = data[i].production * data[i].production_active
-    }
-
-
-    data = this.dataWithEmpty(data, date, 24, 'dayly')
+    data = this.dataWithEmpty(data, date, 24, 'daily')
 
     const mappedData = data.map(this.energyHourlyMapData);
     return HttpResponse.success("communities fetched successfully").withData(
@@ -132,48 +203,82 @@ export class CommunitiesController {
   async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     const [year, month] = date.split('-');
 
+    date = `${date}%`
     let data: any = await this.prisma.$queryRaw`
-      SELECT eh.*,
-             SUM(kwh_in)                  AS kwh_in,
-             SUM(kwh_out)                 AS kwh_out,
-             SUM(kwh_out_virtual)         AS kwh_out_virtual,
-             SUM(kwh_in_price)            AS kwh_in_price,
-             SUM(kwh_out_price)           AS kwh_out_price,
-             SUM(kwh_in_price_community)  AS kwh_in_price_community,
-             SUM(kwh_out_price_community) AS kwh_out_price_community,
-             SUM(cups.surplus_distribution)  production_active,
-             DATE(info_dt)                AS info_dt,
-             community_id
-      FROM energy_hourly eh
-             LEFT JOIN cups
-                       ON cups_id = cups.id
-      WHERE YEAR(info_dt) = ${parseInt(year)}
-        AND MONTH(info_dt) = ${parseInt(month)}
-        AND cups.community_id = ${id}
-        AND origin = ${origin}
-        AND cups.type != 'community'
-      GROUP BY DAY(info_dt)
-      ORDER BY info_dt;
-    `;
+     SELECT 
+      b.*,
+      a.surplus_community,
+      c.surplus_distribution,
+      IFNULL(a.surplus_community,0) * c.surplus_distribution surplus_community_active
+      FROM
+      (
+          SELECT 
+            SUM(kwh_out) AS surplus_community,
+            DAY(info_dt) AS filter_dt,
+            info_dt
+          FROM 
+              energy_hourly eh
+          LEFT JOIN 
+              cups c
+              ON cups_id = c.id
+          WHERE 
+              c.type = 'community'
+              AND info_dt LIKE ${date}
+              AND c.community_id = ${id}
+              AND origin = ${origin}
+              GROUP BY 
+              DAY(eh.info_dt)    
+      )
+      a
+      LEFT JOIN 
+      (
+          SELECT
+              SUM(kwh_in)                  AS kwh_in,
+              SUM(eh.kwh_out)                 AS kwh_out,
+              SUM(kwh_out_virtual)         AS kwh_out_virtual,
+              SUM(kwh_in_price)            AS kwh_in_price,
+              SUM(kwh_out_price)           AS kwh_out_price,
+              SUM(kwh_in_price_community)  AS kwh_in_price_community,
+              SUM(kwh_out_price_community) AS kwh_out_price_community,
+              DAY(eh.info_dt)                AS filter_dt,
+              info_dt
+          FROM 
+          energy_hourly eh
+          LEFT JOIN 
+              cups c
+              ON cups_id = c.id        
+          WHERE 
+              c.type != 'community'
+              AND eh.info_dt LIKE ${date}
+              AND c.community_id = ${id}
+              GROUP BY 
+              DAY(eh.info_dt)
+      ) b 
+      ON a.filter_dt = b.filter_dt
+      JOIN
+      (
+      SELECT 
+          SUM(surplus_distribution) surplus_distribution
+      FROM
+      (
+          SELECT
+              CAST(c.surplus_distribution AS DECIMAL(10,2)) surplus_distribution
+          FROM 
+          cups c
+          LEFT JOIN 
+              energy_hourly eh
+              ON cups_id = c.id        
+          WHERE 
+              c.type != 'community'
+              AND eh.info_dt LIKE ${date}
+              AND c.community_id = ${id}
+              GROUP BY c.id    
+          ) a
+      ) c;
+    `
 
-    let communityData: any = await this.prisma.$queryRaw`
-      SELECT SUM(kwh_out) production
-      FROM energy_hourly eh
-             LEFT JOIN cups
-                       ON cups_id = cups.id
-      WHERE YEAR(info_dt) = ${parseInt(year)}
-        AND MONTH(info_dt) = ${parseInt(month)}
-        AND cups.community_id = ${id}
-        AND origin = ${origin}
-        AND cups.type = 'community'
-      GROUP BY DAY(info_dt)
-      ORDER BY info_dt;
-    `;
-
-    for (let i = 0; i < data.length; i++) {
-      data[i].production = communityData[i].production
-      data[i].production_active = data[i].production * data[i].production_active
-    }
+    // data = this.setProduction(data, communityData, 'monthly')
+    date = date.slice(0, -1)
 
     const daysOfMonth = moment(date).daysInMonth()
     data = this.dataWithEmpty(data, date, daysOfMonth, 'monthly')
@@ -190,47 +295,80 @@ export class CommunitiesController {
   async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     const [year] = date.split('-');
 
+    date = `${date}%`
     let data: any = await this.prisma.$queryRaw`
-      SELECT eh.*,
-             SUM(kwh_in)                  AS kwh_in,
-             SUM(kwh_out)                 AS kwh_out,
-             SUM(kwh_out_virtual)         AS kwh_out_virtual,
-             SUM(kwh_in_price)            AS kwh_in_price,
-             SUM(kwh_out_price)           AS kwh_out_price,
-             SUM(kwh_in_price_community)  AS kwh_in_price_community,
-             SUM(kwh_out_price_community) AS kwh_out_price_community,
-             SUM(cups.surplus_distribution)  production_active,
-             DATE(info_dt)                AS info_dt,
-             community_id
-      FROM energy_hourly eh
-             LEFT JOIN cups
-                       ON cups_id = cups.id
-      WHERE YEAR(info_dt) = ${parseInt(year)}
-        AND cups.community_id = ${id}
-        AND origin = ${origin}
-        AND cups.type != 'community'
-      GROUP BY MONTH(info_dt)
-      ORDER BY info_dt;
-    `;
+    SELECT 
+    b.*,
+    a.surplus_community,
+    c.surplus_distribution,
+    IFNULL(a.surplus_community,0) * c.surplus_distribution surplus_community_active
+    FROM
+    (
+        SELECT 
+          SUM(kwh_out) AS surplus_community,
+          MONTH(info_dt) AS filter_dt,
+          info_dt
+        FROM 
+            energy_hourly eh
+        LEFT JOIN 
+            cups c
+            ON cups_id = c.id
+        WHERE 
+            c.type = 'community'
+            AND info_dt LIKE ${date}
+            AND c.community_id = ${id}
+            AND origin = ${origin}
+            GROUP BY MONTH(info_dt)    
+    )
+    a
+    LEFT JOIN 
+    (
+        SELECT
+            SUM(kwh_in)                  AS kwh_in,
+            SUM(eh.kwh_out)                 AS kwh_out,
+            SUM(kwh_out_virtual)         AS kwh_out_virtual,
+            SUM(kwh_in_price)            AS kwh_in_price,
+            SUM(kwh_out_price)           AS kwh_out_price,
+            SUM(kwh_in_price_community)  AS kwh_in_price_community,
+            SUM(kwh_out_price_community) AS kwh_out_price_community,
+            MONTH(eh.info_dt)                AS filter_dt,
+            info_dt
+        FROM 
+        energy_hourly eh
+        LEFT JOIN 
+            cups c
+            ON cups_id = c.id        
+        WHERE 
+            c.type != 'community'
+            AND eh.info_dt LIKE ${date}
+            AND c.community_id = ${id}
+            GROUP BY 
+            MONTH(eh.info_dt)
+    ) b 
+    ON a.filter_dt = b.filter_dt
+    JOIN
+    (
+    SELECT 
+        SUM(surplus_distribution) surplus_distribution
+    FROM
+    (
+        SELECT
+            CAST(c.surplus_distribution AS DECIMAL(10,2)) surplus_distribution
+        FROM 
+        cups c
+        LEFT JOIN 
+            energy_hourly eh
+            ON cups_id = c.id        
+        WHERE 
+            c.type != 'community'
+            AND eh.info_dt LIKE ${date}
+            AND c.community_id = ${id}
+            GROUP BY c.id    
+        ) a
+    ) c
+    `
 
-    let communityData: any = await this.prisma.$queryRaw`
-      SELECT SUM(kwh_out) production
-      FROM energy_hourly eh
-             LEFT JOIN cups
-                       ON cups_id = cups.id
-      WHERE YEAR(info_dt) = ${parseInt(year)}
-        AND cups.community_id = ${id}
-        AND origin = ${origin}
-        AND cups.type = 'community'
-      GROUP BY DAY(info_dt)
-      ORDER BY info_dt;
-    `;
-
-    for (let i = 0; i < data.length; i++) {
-      data[i].production = communityData[i].production
-      data[i].production_active = data[i].production * data[i].production_active
-    }
-
+    date = date.slice(0, -1)
     data = this.dataWithEmpty(data, date, 12, 'yearly')
 
     const mappedData = data.map(this.energyHourlyMapData);
@@ -332,20 +470,20 @@ export class CommunitiesController {
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
-    mappedData.productionActive = data.productionActive || data.production_active;
-    mappedData.production = data.production;
+    mappedData.communitySurplusActive = data.surplusCommunityActive || data.surplus_community_active;
+    mappedData.communitySurplus = data.surplusCommunity || data.surplus_community;
     mappedData.type = data.type;
-    mappedData.createdAt = data.createdAt || data.created_at;
-    mappedData.updatedAt = data.updatedAt || data.updated_at;
+/*    mappedData.createdAt = data.createdAt || data.created_at;
+    mappedData.updatedAt = data.updatedAt || data.updated_at;*/
     mappedData.communityId = data.communityId || data.community_id;
     return mappedData;
   }
 
-  dataWithEmpty(data: any, date: string, qty: number, type: 'yearly' | 'monthly' | 'dayly') {
+  dataWithEmpty(data: any, date: string, qty: number, type: 'yearly' | 'monthly' | 'daily') {
     if (data.length < qty) {
       for (let i = 0; i < qty; i++) {
         let formattedDate;
-        if (type == 'dayly') {
+        if (type == 'daily') {
           const hour = i.toString().length > 1 ? i : `0${i}`
           formattedDate = `${date} ${hour}:00:00`
         }
@@ -360,11 +498,10 @@ export class CommunitiesController {
           formattedDate = `${date}-${month}-01 01:00:00`
         }
 
-
-        const newDate = moment.utc(formattedDate)
+        const newDate = moment.utc(formattedDate).toDate()
         const sameDate = data.find((item: any) => {
-          if (type == 'dayly')
-            return item.info_dt == newDate
+          if (type == 'daily')
+            return item.info_dt.toString() == newDate.toString()
 
           if (type == 'monthly'){
             const dayOfItem = moment(item.info_dt).format('YYYY-MM-DD')
@@ -407,5 +544,28 @@ export class CommunitiesController {
       }
     }
     return data
+  }
+
+  setProduction(cupsData: any, communityData: any, type: 'yearly' | 'monthly' | 'daily'){
+    let dateFormat = 'YYYY-MM-DD HH:mm:ss'
+    if (type == "monthly") dateFormat = 'YYYY-MM-DD'
+    if (type == "yearly") dateFormat = 'YYYY-MM'
+
+    for (const cups of cupsData) {
+      let production = communityData.find((community: {production: number, info_dt: Date}) => {
+        if (moment(community.info_dt).format(dateFormat) == moment(cups.info_dt).format(dateFormat)) return community
+      })
+
+
+      if (!production) production = 0
+      else production = production.production
+console.log(cups.surplus_distribution, 'cups.surplus_distribution')
+
+      cups.production = production
+      cups.production_active  = production * parseFloat(cups.surplus_distribution)
+
+    }
+
+    return cupsData
   }
 }

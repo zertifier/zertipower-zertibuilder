@@ -125,7 +125,7 @@ const https = require('https');
     @Get("/simulate")
     @Auth(RESOURCE_NAME)
     async getSimulation(@Query('lat') lat: number, @Query('lng') lng: number,@Query('area') area: number, @Query('direction') direction: number, @Query('angle') angle: number, @Query('panels') panels:number) {
-      console.log(lat,lng,area,direction,angle)
+      console.log(lat,lng,area,direction,angle,panels)
 
       const engineeringCost = 1623;
       const installationCost = [0.35, 0.3, 0.24];
@@ -305,7 +305,7 @@ async function calculate(lat:number, lng:number, area:number, direction:number, 
   else {
     kWp = Math.round((area * 0.8 / 6) * 10) / 10;
   }
-  let numberPanels = panels | Math.ceil(kWp / 0.45);
+  let numberPanels = panels || Math.ceil(kWp / 0.45);
 
   let urlQueryParams = `&lat=${lat}&lon=${lng}&angle=${angle}&aspect=${direction}`;
 

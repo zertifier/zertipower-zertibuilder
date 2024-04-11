@@ -2,6 +2,7 @@
      [ngClass]="['tooltip--'+position, 'tooltip--'+theme]"
      [class.tooltip--visible]="visible"
      [style.left]="left + 'px'"
-     [style.top]="top + 'px'">
-  {{tooltip}}
+     [style.top]="top + 'px'"
+     >
+  <div [innerHTML]="tooltip"></div>
 </div>

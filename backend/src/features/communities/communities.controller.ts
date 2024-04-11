@@ -332,8 +332,8 @@ export class CommunitiesController {
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
-    mappedData.productionActive = data.productionActive || data.production_active;
-    mappedData.production = data.production;
+    mappedData.communitySurplusActive = data.productionActive || data.production_active;
+    mappedData.communitySurplus = data.production;
     mappedData.type = data.type;
     mappedData.createdAt = data.createdAt || data.created_at;
     mappedData.updatedAt = data.updatedAt || data.updated_at;

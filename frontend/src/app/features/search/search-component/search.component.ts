@@ -39,6 +39,7 @@ interface cadastre {
   amortization_years?: number,
   feature?: any
   totalCost?:number,
+  monthlySavings?:number,
   InsalledPower?:number,
   orientation?:number,
   inclination?:number
@@ -683,6 +684,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
       orientation:0,
       inclination:25
     }
+    this.activeIndividual=false;
+    this.activeCommunity=false;
   }
 
   addArea() {
@@ -699,6 +702,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }
     console.log("added areas 2",this.addedAreas)
     this.resetCadastre();
+
   }
 
   deleteArea(index: number) {
@@ -722,8 +726,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   calculateMonthlySavings(){
     let monthAverageGeneration:number=this.selectedCadastre.yearGeneration!/12;
+    this.selectedCadastre.monthlySavings=monthAverageGeneration*this.selectedCadastre.llanoPrice;
 
-    // let monthAverageConsumption:number=this.selectedCadastre.yearConsumption!/12;
+     let monthAverageConsumption:number=this.selectedCadastre.yearConsumption!/12;
+     let monthlyCosts=monthAverageConsumption*this.selectedCadastre.llanoPrice;
+
+     if(this.selectedCadastre.monthlySavings>monthlyCosts){
+      this.selectedCadastre.monthlySavings=monthlyCosts;
+     }
     // 
     // let monthAverageSurplus:number=monthAverageConsumption-monthAverageGeneration;
     // if(monthAverageSurplus>0){
@@ -772,8 +782,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.loading.next(false);
     this.updateCadastreGenerationChart();
     this.activeSimulation=true;
-    this.updateCadastreConsumptionM2();
+    this.updateCadastreConsumptionM2(); //different 
     this.updateConsumptions();
+    this.calculateMonthlySavings();
     this.updateCadastreChart();
     
   }
@@ -784,8 +795,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.loading.next(false);
     this.updateCadastreGenerationChart();
     this.activeSimulation=true;
-    this.updateConsumptions()
-    this.updateCadastreChart()
+    this.updateConsumptions();
+    this.calculateMonthlySavings();
+    this.updateCadastreChart();
   }
 
 

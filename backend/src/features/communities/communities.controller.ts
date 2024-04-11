@@ -100,23 +100,20 @@ export class CommunitiesController {
 
 
     let communityData: any = await this.prisma.$queryRaw`
-      SELECT kwh_out production
+      SELECT kwh_out production, info_dt
       FROM energy_hourly eh
              LEFT JOIN cups
                        ON cups_id = cups.id
       WHERE DATE(info_dt) = ${date}
         AND origin = ${origin}
         AND cups.community_id = ${id}
-        AND cups.type != 'community'
+        AND cups.type = 'community'
       GROUP BY HOUR(info_dt)
       ORDER BY info_dt;
     `;
 
-    for (let i = 0; i < data.length; i++) {
-      data[i].production = communityData[i].production
-      data[i].production_active = data[i].production * data[i].production_active
-    }
 
+    data = this.setProduction(data, communityData)
 
     data = this.dataWithEmpty(data, date, 24, 'daily')
 
@@ -170,10 +167,7 @@ export class CommunitiesController {
       ORDER BY info_dt;
     `;
 
-    for (let i = 0; i < data.length; i++) {
-      data[i].production = communityData[i].production
-      data[i].production_active = data[i].production * data[i].production_active
-    }
+    data = this.setProduction(data, communityData)
 
     const daysOfMonth = moment(date).daysInMonth()
     data = this.dataWithEmpty(data, date, daysOfMonth, 'monthly')
@@ -226,10 +220,7 @@ export class CommunitiesController {
       ORDER BY info_dt;
     `;
 
-    for (let i = 0; i < data.length; i++) {
-      data[i].production = communityData[i].production
-      data[i].production_active = data[i].production * data[i].production_active
-    }
+    data = this.setProduction(data, communityData)
 
     data = this.dataWithEmpty(data, date, 12, 'yearly')
 
@@ -406,5 +397,23 @@ export class CommunitiesController {
       }
     }
     return data
+  }
+
+  setProduction(cupsData: any, communityData: any){
+    for (const cups of cupsData) {
+      let production = communityData.find((community: {production: number, info_dt: Date}) => {
+        if (community.info_dt.toString() == cups.info_dt.toString()) return community
+      })
+
+
+      if (!production) production = 0
+      else production = production.production
+
+      cups.production = production
+      cups.production_active  = production * parseFloat(cups.surplus_distribution)
+
+    }
+
+    return cupsData
   }
 }

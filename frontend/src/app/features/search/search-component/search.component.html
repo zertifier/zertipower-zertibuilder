@@ -86,10 +86,12 @@
           </div>
 
           <div class="d-flex w-100">
-            <div class="custom-chart " style="width:95%">
+            
+            <div class="custom-chart " style="width:95%; position:relative">
               <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType" [labels]="monthChartLabels"
                 [datasets]="communityMonthChartDatasets" [options]="communityMonthChartOptions"
                 [updateSubject]="communityUpdateMonthChartSubject.asObservable()"></app-chart>
+                <div  *ngIf="selectedCommunity.cups_number.length || addedAreas.length" class="chart-message">Agrega àrees per obtenir dades comunitàries</div>
             </div>
           </div>
 

@@ -192,7 +192,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   activeIndividual:boolean=false;
   activeCommunity:boolean=false;
   activeAcc:boolean=true;
-  activeCec:boolean=false;
+  activeCce:boolean=false;
 
   inclinationTooltipText:any=`<div class="row m-0 p-0">
   <div class="col-12 m-0 p-0 form-text">

@@ -35,14 +35,14 @@ export class LogsComponent implements OnDestroy {
     //   data: 'id',
     //   width: '100px',
     // },
-    {
+   /* {
       title: '',
       className: '', //dt-control
       orderable: false,
       data: null,
       defaultContent: '',
       width: '20px'
-    },
+    },*/
     {
       title: 'Data',
       data: 'creation_dt',
@@ -100,14 +100,14 @@ export class LogsComponent implements OnDestroy {
     //   defaultData: 0,
     //   options: [],
     // },
-    {
+    /*{
       title: 'open',
       description: '',
       value: '',
       type: 4,
       defaultData: 0,
       options: [],
-    },
+    },*/
     {
       title: 'creation_dt',
       description: '',
@@ -187,10 +187,10 @@ export class LogsComponent implements OnDestroy {
     {
       orderable: false, targets: [this.filterParams.length - 1],
     },
-    {
-      targets: 0,
+    /*{
+      // targets: 0,
+      targets: this.filterParams.length-1,
       render: (data: any, type: any, row: any) => {
-
         for (let clave in data) {
           if (typeof data[clave] == 'string') {
             if (data[clave].length > 25)
@@ -200,15 +200,15 @@ export class LogsComponent implements OnDestroy {
 
         return ``
       }
-    },
+    },*/
     {
-      targets: 1,
+      targets: 0,
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     {
-      targets: 4,
+      targets: 3,
       render: (data: any, type: any, row: any) => {
         // Variable para almacenar el estilo del círculo
         let circleStyle = '';

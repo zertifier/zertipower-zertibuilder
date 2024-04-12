@@ -24,8 +24,8 @@ export class EnergyTransactionsController {
         transaction.kwhInPrice = energyData.price
         // transaction.kwhOutPrice = energyData.price * transaction.kwhOut
         transaction.kwhOutPrice = 0.06
-        transaction.kwhInPriceCommunity = 0.12
-        transaction.kwhOutPriceCommunity = 0.12
+        transaction.kwhInPriceCommunity = 0.09
+        transaction.kwhOutPriceCommunity = 0.09
         transaction.type = energyData.rate
 
         this.updatePrices(transaction)

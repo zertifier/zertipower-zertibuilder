@@ -36,7 +36,7 @@ $navbar-link-light: #E9E9E9;
 $navbar-link-dark: #525252;
 $hr-light: #E9E9E9;
 $hr-dark: #525252;
-
+$complement:#959150;
 
 // Icons
 $icon-standard: (
@@ -115,6 +115,10 @@ $btn-bg: $primary;
   background-color: $primary !important;
 }
 
+.bg-complement{
+  background-color: $complement !important;
+}
+
 .btn-primary{
   color: #e8e8e8;
 }
@@ -131,7 +135,6 @@ $btn-bg: $primary;
 .nav-link.active:hover i{
   color: white;
 }
-
 
 .nav-link i {
   min-width: 20px;

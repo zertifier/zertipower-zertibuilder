@@ -21,6 +21,13 @@ interface cadastre {
   valle: number,
   llano: number,
   punta: number,
+  vallePrice:number,
+  llanoPrice:number,
+  puntaPrice:number,
+  valleMonthlyPrice?:number,
+  llanoMonthlyPrice?:number,
+  puntaMonthlyPrice?:number,
+  totalConsumptionPrice?:number,
   yearConsumption?: number,
   yearGeneration?: number,
   monthsConsumption?: number[],
@@ -32,7 +39,7 @@ interface cadastre {
   amortization_years?: number,
   feature?: any
   totalCost?:number,
-  totalProduction?:number,
+  monthlySavings?:number,
   InsalledPower?:number,
   orientation?:number,
   inclination?:number
@@ -99,8 +106,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   communityMonthChartOptions =
     {
       //indexAxis: 'y',
-      // Elements options apply to all of the options unless overridden in a dataset
-      // In this case, we are setting the border of each horizontal bar to be 2px wide
       elements: {
         bar: {
           borderWidth: 0,
@@ -117,7 +122,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         }
       }
     }
-
+    
   cadastreValoration: number = 0;
   selectedCadastreEnergyData: any;
   selectedCadastreMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
@@ -152,7 +157,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
     totalConsumption: 200,
     valle: 98,
     llano: 52,
-    punta: 48
+    punta: 48,
+    vallePrice:0.04,
+    llanoPrice:0.07,
+    puntaPrice:0.14,
+     orientation:0,
+     inclination:25
   };
 
   cupsNumber: number = 0;
@@ -179,8 +189,19 @@ export class SearchComponent implements OnInit, AfterViewInit {
   selectedCoords:any;
  
   activeSimulation:boolean=false;
-  activeAcc:boolean=false;
-  activeCec:boolean=false;
+  activeIndividual:boolean=false;
+  activeCommunity:boolean=false;
+  activeAcc:boolean=true;
+  activeCce:boolean=false;
+
+  inclinationTooltipText:any=`<div class="row m-0 p-0">
+  <div class="col-12 m-0 p-0 form-text">
+    <span class="m-0 fs-12">0% per a finques de pisos</span><br>
+    <span class="m-0 fs-12">10-15% per zones sense plujes</span><br>
+    <span class="m-0 fs-12">20-30% per zones amb plujes moderades</span><br>
+    <span class="m-0 fs-12">30-40% per zones amb plujes fortes</span>
+  </div>
+</div>`
 
   constructor(
     private communitiesService: CommunitiesApiService,
@@ -429,6 +450,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
           this.selectedCadastre = foundArea;
           //this.updateCadastreChart();
           //this.updateSelectedCadastreValoration();
+          
           return;
         }
 
@@ -525,9 +547,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
     //TODO: update algorythm
     let updatedConsumption = this.selectedCadastre.totalConsumption + this.selectedCadastre.m2!
     this.selectedCadastre.totalConsumption = updatedConsumption;
+
     this.selectedCadastre.valle = this.selectedCadastre.totalConsumption * 0.50;
     this.selectedCadastre.llano = this.selectedCadastre.totalConsumption * 0.26;
     this.selectedCadastre.punta = this.selectedCadastre.totalConsumption * 0.24;
+
+    console.log("update consumption by m2","valle:",this.selectedCadastre.valle,"llano:",this.selectedCadastre.llano,"punta:",this.selectedCadastre.punta,"total:",this.selectedCadastre.totalConsumption )
   }
 
   updateCadastreConsumption() {
@@ -537,7 +562,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.selectedCadastre.punta = Math.abs(this.selectedCadastre.punta)
 
     this.selectedCadastre.totalConsumption = this.selectedCadastre.valle + this.selectedCadastre.llano + this.selectedCadastre.punta
-    this.updateCadastreChart();
+
+    this.selectedCadastre.valleMonthlyPrice = this.selectedCadastre.valle * this.selectedCadastre.vallePrice
+    this.selectedCadastre.llanoMonthlyPrice = this.selectedCadastre.llano * this.selectedCadastre.llanoPrice
+    this.selectedCadastre.puntaMonthlyPrice = this.selectedCadastre.punta * this.selectedCadastre.puntaPrice
+
+    this.selectedCadastre.totalConsumptionPrice = this.selectedCadastre.valleMonthlyPrice + this.selectedCadastre.llanoMonthlyPrice + this.selectedCadastre.puntaMonthlyPrice
+
+    console.log("total consumption",this.selectedCadastre.totalConsumption, " price ", this.selectedCadastre.totalConsumptionPrice)
+    console.log(this.selectedCadastre.valleMonthlyPrice, this.selectedCadastre.llanoMonthlyPrice, this.selectedCadastre.puntaMonthlyPrice)
+    //this.updateCadastreChart();
   }
 
   // calculateCadastreMonths(){
@@ -561,6 +595,19 @@ export class SearchComponent implements OnInit, AfterViewInit {
   //   this.selectedCadastre.monthsGeneration = monthGenerationArray;
   // }
 
+  updateConsumptions(){
+    this.updateCadastreConsumption();
+    let monthConsumption = this.selectedCadastre.totalConsumption;
+    let monthConsumptionArray: any = [];
+    let sumMonthConsumption: number = 0;
+    this.selectedCadastre.monthsGeneration?.map((element, index) => {
+      monthConsumptionArray.push(monthConsumption);
+      sumMonthConsumption += monthConsumption;
+    })
+    this.selectedCadastre.yearConsumption = sumMonthConsumption;
+    this.selectedCadastre.monthsConsumption = monthConsumptionArray;
+  }
+
   featureSelected(selectedFeature: any) {
       
   }
@@ -568,6 +615,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   updateSelectedCadastreValoration() {
     let consumption = this.selectedCadastre.yearConsumption!;
     let production = this.selectedCadastre.yearGeneration!;
+    console.log("consumption:",consumption," production:",production)
     if (consumption > production) {
       this.cadastreValoration = 3;
     } else if (production > consumption) {
@@ -579,11 +627,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   updateCadastreGenerationChart(){
-   
-    console.log("update")
-
     this.cdr.detectChanges();
-
     this.selectedCadastreGenerationMonthChartDatasets = [
       {
         label: 'Generació',
@@ -592,9 +636,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         borderColor: 'rgb(255,255,255)'
       }
     ]
-
     this.updateSelectedCadastreMonthChartSubject.next(true);
-
   }
 
   updateCadastreChart() {
@@ -635,8 +677,15 @@ export class SearchComponent implements OnInit, AfterViewInit {
       totalConsumption: 200,
       valle: 98,
       llano: 52,
-      punta: 48
+      punta: 48,
+      vallePrice:0.04,
+      llanoPrice:0.07,
+      puntaPrice:0.14,
+      orientation:0,
+      inclination:25
     }
+    this.activeIndividual=false;
+    this.activeCommunity=false;
   }
 
   addArea() {
@@ -653,6 +702,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }
     console.log("added areas 2",this.addedAreas)
     this.resetCadastre();
+
   }
 
   deleteArea(index: number) {
@@ -673,6 +723,24 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.selectedCadastre = this.addedAreas[index];
   }
 
+
+  calculateMonthlySavings(){
+    let monthAverageGeneration:number=this.selectedCadastre.yearGeneration!/12;
+    this.selectedCadastre.monthlySavings=monthAverageGeneration*this.selectedCadastre.llanoPrice;
+
+     let monthAverageConsumption:number=this.selectedCadastre.yearConsumption!/12;
+     let monthlyCosts=monthAverageConsumption*this.selectedCadastre.llanoPrice;
+
+     if(this.selectedCadastre.monthlySavings>monthlyCosts){
+      this.selectedCadastre.monthlySavings=monthlyCosts;
+     }
+    // 
+    // let monthAverageSurplus:number=monthAverageConsumption-monthAverageGeneration;
+    // if(monthAverageSurplus>0){
+
+    // }
+  }
+
   async calculateSolarParams(){
 
     return new Promise((resolve,reject)=>{
@@ -680,17 +748,18 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.selectedCoords.lat,this.selectedCoords.lng,this.selectedCadastre.m2!,this.selectedCadastre.orientation,this.selectedCadastre.inclination,this.selectedCadastre.n_plaques)
       this.energyAreasService.simulate(this.selectedCoords.lat,this.selectedCoords.lng,this.selectedCadastre.m2!,this.selectedCadastre.orientation!,this.selectedCadastre.inclination!,this.selectedCadastre.n_plaques!)
       .subscribe((res:any)=>{
+
         let data = res.data
         const kWp = data.kWp 
         const totalProduction = data.totalProduction 
         const numberPanels = data.numberPanels 
         const prodByMonth = data.prodByMonth 
-        const totalCost = data.totalCost    
+        const totalCost = data.totalCost
   
         this.selectedCadastre.InsalledPower=kWp;
         this.selectedCadastre.n_plaques=numberPanels;
         this.selectedCadastre.totalCost=totalCost.toFixed(2);
-        this.selectedCadastre.totalProduction=parseInt(totalProduction.toFixed(2))
+        this.selectedCadastre.yearGeneration=parseInt(totalProduction.toFixed(2))
         Object.keys(prodByMonth).forEach(function(key) {
           prodByMonth[key] = Math.floor(prodByMonth[key]);
       });
@@ -713,6 +782,22 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.loading.next(false);
     this.updateCadastreGenerationChart();
     this.activeSimulation=true;
+    this.updateCadastreConsumptionM2(); //different 
+    this.updateConsumptions();
+    this.calculateMonthlySavings();
+    this.updateCadastreChart();
+    
+  }
+
+  async simulateGenerationConsumption(){
+    this.showLoading()
+    await this.calculateSolarParams();
+    this.loading.next(false);
+    this.updateCadastreGenerationChart();
+    this.activeSimulation=true;
+    this.updateConsumptions();
+    this.calculateMonthlySavings();
+    this.updateCadastreChart();
   }
 
 

@@ -78,6 +78,7 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
 
   beforePrintHandler () {
     for (let id in Chart.instances) {
+      console.log("chart ", id)
         Chart.instances[id].resize();
     }
   }
@@ -100,6 +101,7 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
     }
 
     this.chart.update();
+    //this.beforePrintHandler();
     this.cdr.detectChanges();
   }
 

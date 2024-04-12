@@ -97,7 +97,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     { name: 'Inclinació mitjana. Entre 20 - 30 %', value: 25 },
     { name: 'Inclinació alta. Entre 30 - 40 %', value: 35 }
 ];
-  communityValoration: number = 1;
+  communityValoration: number = 0;
   communityEnergyData: any = [];
   communityMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
   communityMonthChartDatasets: any = [];
@@ -194,14 +194,33 @@ export class SearchComponent implements OnInit, AfterViewInit {
   activeAcc:boolean=true;
   activeCce:boolean=false;
 
-  inclinationTooltipText:any=`<div class="row m-0 p-0">
-  <div class="col-12 m-0 p-0 form-text">
-    <span class="m-0 fs-12">0% per a finques de pisos</span><br>
-    <span class="m-0 fs-12">10-15% per zones sense plujes</span><br>
-    <span class="m-0 fs-12">20-30% per zones amb plujes moderades</span><br>
-    <span class="m-0 fs-12">30-40% per zones amb plujes fortes</span>
+  communitySelectionTooltip:any=
+  `
+    <span class="m-0 fs-12">Selecciona una comunitat de la llista o fes clic en un de les icones d'ubicació del mapa.<br>
+    Recorda que pots tornar a fer una nova cerca seleccionant de nou la comunitat o ciutat.</span>
+  `
+
+  inclinationTooltipText:any=
+  `
+  <div class="row m-0 p-0">
+    <div class="col-12 m-0 p-0 form-text">
+      <span class="m-0 fs-12">0% per a finques de pisos</span><br>
+      <span class="m-0 fs-12">10-15% per zones sense plujes</span><br>
+      <span class="m-0 fs-12">20-30% per zones amb plujes moderades</span><br>
+      <span class="m-0 fs-12">30-40% per zones amb plujes fortes</span>
+    </div>
   </div>
-</div>`
+  `
+
+  surplusTooltipText:any=
+  `
+  <div class="row m-0 p-0">
+    <div class="col-12 m-0 p-0 form-text">
+      <span class="m-0 fs-12">Definit per la companyia segons autoconsum o ACC</span><br>
+      <span class="m-0 fs-12">o per la comunitat energética segons CCE</span><br>
+    </div>
+  </div>
+  `
 
   constructor(
     private communitiesService: CommunitiesApiService,
@@ -447,10 +466,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
         //check if selected area is an already added area
         let foundArea = this.addedAreas.find((addedArea)=>addedArea.id==cadastre)
         if(foundArea){
+          console.log("found")
           this.selectedCadastre = foundArea;
-          //this.updateCadastreChart();
-          //this.updateSelectedCadastreValoration();
-          
+          this.restoreCadastre();
           return;
         }
 
@@ -800,6 +818,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.updateCadastreChart();
   }
 
-
+  restoreCadastre(){
+    this.updateCadastreGenerationChart();
+    this.activeSimulation=true;
+    this.updateConsumptions();
+    //this.calculateMonthlySavings();
+    this.updateCadastreChart();
+  }
 
 }

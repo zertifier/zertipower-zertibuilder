@@ -23,9 +23,14 @@
     </div>
 
     <div class="col col-12 col-md-7">
-      <select id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2 heartbeat"
-        [tooltip]="'Selecciona una comunitat'" [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW"
+      <select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2 heartbeat"
+        [tooltip]="communitySelectionTooltip" [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW"
         [showOnInit]="true" (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
+        <option [ngValue]="newCommunity">Nova comunitat</option>
+        <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
+      </select>
+      <select *ngIf="selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2"
+         (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
         <option [ngValue]="newCommunity">Nova comunitat</option>
         <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
       </select>
@@ -34,11 +39,10 @@
   </div>
 </div>
 
-<div class="card mt-2 position-absolute bottom-0 p-2" style="z-index:3; width: 270px;height: 70px; margin-bottom: 50px;"
+<div class="card mt-2 position-absolute p-2" style="z-index:3; width: 260px;height: 45px; margin-bottom: 50px;top: 60px;"
   [ngClass]=" isShrunk ? 'location-bar-closed' : 'location-bar-open'"
   *ngIf="!addedAreas.length && selectedCommunity && !selectedCadastre.feature">
-  <div><b>Pas 2</b></div>
-  <div>Tria l'area fent clic a sobre d'una.</div>
+  <div class="fs-21">Tria l'area fent clic a sobre d'una.</div>
 </div>
 
 <div *ngIf="selectedCommunity" class="position-absolute top-0 start-0 h-100" style=" z-index:2;">
@@ -67,7 +71,7 @@
           <div class="row mt-2">
             <div class="col-3 d-flex justify-content-center">
               <span class="d-flex align-items-center me-2">Membres</span>
-              <span *ngIf="selectedCommunity">{{selectedCommunity.cups_number}}</span>
+              <span *ngIf="selectedCommunity">{{selectedCommunity.cups_number || 0}}</span>
             </div>
             <div class="col-3 d-flex justify-content-center">
               <span class="d-flex align-items-center me-2">Agregats {{addedAreas.length}}</span>
@@ -89,7 +93,7 @@
             </div>
           </div>
 
-          <span class="fs-6 my-2">Valoració del consum comunitari</span>
+          <span class="fs-6 mt-4 my-2">Valoració del consum comunitari</span>
 
           <div class="d-flex justify-content-center mt-3 mb-4">
             <i class="icon-face fa-regular fa-face-smile mx-3 fa-2x"
@@ -258,13 +262,13 @@
 
               <div class="col-6 p-0 d-flex align-items-center">
                 <span class="d-flex align-items-center fs-12 me-2">Inclinació del sostre</span>
-                <select id="inclinationSelector" class="form-select text-selector pt-1 w-100"
+                <select id="inclinationSelector" class="form-select text-selector pt-1"
                   style="width: 115px !important;" [(ngModel)]="this.selectedCadastre.inclination">
                   <option *ngFor="let inclination of inclinations" [ngValue]="inclination.value">
                     {{ inclination.name }}
                   </option>
                 </select>
-                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2" style="height:17px !important; width:21px !important"
+                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2" style="height:17px !important; width:17px !important"
                 [tooltip]=inclinationTooltipText [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW" >
                   <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 13px;"></i>
                 </div>
@@ -298,6 +302,16 @@
               </div>
 
             </div>
+
+            <div class="d-flex align-items-center mt-3">
+              <span class="fs-6 bolder my-1">Introdueix el preu de l'energia sobrant. €/kWh.</span>
+              <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2" style="height:17px !important; width:17px !important"
+                [tooltip]=surplusTooltipText [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW">
+                  <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 13px;"></i>
+                </div>
+            </div>
+
+            <input type="number" class="form-control number-input w-100">
 
             <div class="mt-3">
               <span class="fs-6 bolder my-1">Introdueix el consum mensual per periode.</span>
@@ -356,15 +370,15 @@
 
             <div class="row ps-0 m-0 pb-2 mt-4">
 
-              <div class="col-4 d-flex m-0 p-0">
+              <div class="col-4 d-flex m-0 p-1">
                 <span class="d-flex align-items-center fs-12">Estalvi mensual. €/mes</span>
               </div>
 
-              <div class="col-4 d-flex m-0 p-0">
+              <div class="col-4 d-flex m-0 p-1">
                 <span class="d-flex align-items-center fs-12">Cost inicial d'inversió. €</span>
               </div>
 
-              <div class="col-4 d-flex m-0 p-0">
+              <div class="col-4 d-flex m-0 p-1">
                 <span class="d-flex align-items-center fs-12">Anys per amortitzar</span>
               </div>
 

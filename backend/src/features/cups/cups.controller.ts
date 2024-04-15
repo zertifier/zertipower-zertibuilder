@@ -143,7 +143,6 @@ export class CupsController {
       ORDER BY a.info_dt;
     `;
 
-    console.log(data)
     const daysOfMonth = moment(date).daysInMonth()
     data = this.dataWithEmpty(data, date, daysOfMonth, 'monthly')
 

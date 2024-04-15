@@ -343,16 +343,16 @@ export class CupsController {
         const newDate = moment.utc(formattedDate).toDate()
 
         const sameDate = data.find((item: any) => {
-          if (type == 'daily')
+          if (type == 'daily' && item.info_dt)
             return item.info_dt.toString() == newDate.toString()
 
-          if (type == 'monthly'){
+          if (type == 'monthly' && item.info_dt){
             const dayOfItem = moment(item.info_dt).format('YYYY-MM-DD')
             const dayOfNewDate = moment(newDate).format('YYYY-MM-DD')
             return dayOfItem == dayOfNewDate
           }
 
-          if (type == 'yearly'){
+          if (type == 'yearly' && item.info_dt){
             const monthOfItem = moment(item.info_dt).format('YYYY-MM')
             const monthOfNewDate = moment(newDate).format('YYYY-MM')
             return monthOfItem == monthOfNewDate

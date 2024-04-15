@@ -98,9 +98,12 @@ export class CupsController {
 
     data = this.dataWithEmpty(data, date, 24, 'daily')
     const mappedData = data.map(this.energyRegistersMapData);
+
+    let dataToSend = {stats: []}
+    dataToSend.stats = mappedData
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
-      mappedData
+      dataToSend
     );
   }
 
@@ -147,9 +150,11 @@ export class CupsController {
     data = this.dataWithEmpty(data, date, daysOfMonth, 'monthly')
 
     const mappedData = data.map(this.energyRegistersMapData);
+    let dataToSend = {stats: []}
+    dataToSend.stats = mappedData
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
-      mappedData
+      dataToSend
     );
   }
   @Get(":id/stats/:origin/yearly/:date")
@@ -193,9 +198,11 @@ export class CupsController {
     data = this.dataWithEmpty(data, date, 12, 'yearly')
 
     const mappedData = data.map(this.energyRegistersMapData);
+    let dataToSend = {stats: []}
+    dataToSend.stats = mappedData
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
-      mappedData
+      dataToSend
     );
   }
 

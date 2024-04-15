@@ -62,6 +62,40 @@ export class CupsController {
       ORDER BY info_dt;
     `;
 
+    let communityTotalSurplus : any = await this.prisma.$queryRaw`
+      SELECT sum(kwh_out) as total_surplus, info_dt
+      FROM energy_hourly eh
+             LEFT JOIN cups cu
+                       ON eh.cups_id = cu.id
+      where cu.type = 'community'
+      AND DATE(info_dt) = ${date}
+      GROUP BY HOUR(info_dt)
+    `
+
+    let test: any = await this.prisma.$queryRaw`
+      SELECT a.*,
+             total_surplus * cp.surplus_distribution production
+      FROM energy_hourly a
+             LEFT JOIN
+           (SELECT sum(kwh_out) as total_surplus,
+                   info_dt
+            FROM energy_hourly eh
+                   LEFT JOIN
+                 cups cu
+                 ON eh.cups_id = cu.id
+            WHERE cu.type = 'community'
+              AND DATE(info_dt) = ${date}
+            GROUP BY HOUR(info_dt)
+            ORDER BY info_dt) b
+           ON a.info_dt = b.info_dt
+             LEFT JOIN cups cp ON cp.id = a.cups_id
+      WHERE DATE(a.info_dt) = ${date}
+        AND cups_id = ${id}
+        AND origin = ${origin}
+      GROUP BY HOUR(a.info_dt)
+      ORDER BY a.info_dt;
+    `
+
     data = this.dataWithEmpty(data, date, 24, 'daily')
     const mappedData = data.map(this.energyRegistersMapData);
     return HttpResponse.success("cups fetched successfully").withData(
@@ -76,24 +110,40 @@ export class CupsController {
     const [year, month] = date.split('-');
 
     let data: any = await this.prisma.$queryRaw`
-      SELECT *,
-             SUM(kwh_in) AS kwh_in,
-             SUM(kwh_out) AS kwh_out,
-             SUM(kwh_out_virtual) AS kwh_out_virtual,
-             SUM(kwh_in_price) AS kwh_in_price,
-             SUM(kwh_out_price) AS kwh_out_price,
-             SUM(kwh_in_price_community) AS kwh_in_price_community,
+      SELECT a.*,
+             SUM(kwh_in)                  AS kwh_in,
+             SUM(kwh_out)                 AS kwh_out,
+             SUM(kwh_out_virtual)         AS kwh_out_virtual,
+             SUM(kwh_in_price)            AS kwh_in_price,
+             SUM(kwh_out_price)           AS kwh_out_price,
+             SUM(kwh_in_price_community)  AS kwh_in_price_community,
              SUM(kwh_out_price_community) AS kwh_out_price_community,
-             DATE(info_dt) AS info_dt
-      FROM energy_hourly
-      WHERE YEAR(info_dt) = ${parseInt(year)}
-        AND MONTH(info_dt) = ${parseInt(month)}
+             DATE(a.info_dt)                AS info_dt,
+             total_surplus * cp.surplus_distribution production
+      FROM energy_hourly a
+             LEFT JOIN
+           (SELECT sum(kwh_out) as total_surplus,
+                   info_dt
+            FROM energy_hourly eh
+                   LEFT JOIN
+                 cups cu
+                 ON eh.cups_id = cu.id
+            WHERE cu.type = 'community'
+              AND YEAR(info_dt) = ${parseInt(year)}
+              AND MONTH(info_dt) = ${parseInt(month)}
+            GROUP BY DAY(info_dt)
+            ORDER BY info_dt) b
+           ON a.info_dt = b.info_dt
+             LEFT JOIN cups cp ON cp.id = a.cups_id
+      WHERE YEAR(a.info_dt) = ${parseInt(year)}
+        AND MONTH(a.info_dt) = ${parseInt(month)}
         AND cups_id = ${id}
         AND origin = ${origin}
-      GROUP BY DAY(info_dt)
-      ORDER BY info_dt;
+      GROUP BY DAY(a.info_dt)
+      ORDER BY a.info_dt;
     `;
 
+    console.log(data)
     const daysOfMonth = moment(date).daysInMonth()
     data = this.dataWithEmpty(data, date, daysOfMonth, 'monthly')
 
@@ -109,21 +159,35 @@ export class CupsController {
     const [year] = date.split('-');
 
     let data: any = await this.prisma.$queryRaw`
-      SELECT *,
-             SUM(kwh_in) AS kwh_in,
-             SUM(kwh_out) AS kwh_out,
-             SUM(kwh_out_virtual) AS kwh_out_virtual,
-             SUM(kwh_in_price) AS kwh_in_price,
-             SUM(kwh_out_price) AS kwh_out_price,
-             SUM(kwh_in_price_community) AS kwh_in_price_community,
-             SUM(kwh_out_price_community) AS kwh_out_price_community,
-             DATE(info_dt) AS info_dt
-      FROM energy_hourly
-      WHERE YEAR(info_dt) = ${parseInt(year)}
+      SELECT a.*,
+             SUM(kwh_in)                  AS         kwh_in,
+             SUM(kwh_out)                 AS         kwh_out,
+             SUM(kwh_out_virtual)         AS         kwh_out_virtual,
+             SUM(kwh_in_price)            AS         kwh_in_price,
+             SUM(kwh_out_price)           AS         kwh_out_price,
+             SUM(kwh_in_price_community)  AS         kwh_in_price_community,
+             SUM(kwh_out_price_community) AS         kwh_out_price_community,
+             DATE(a.info_dt)              AS         info_dt,
+             total_surplus * cp.surplus_distribution production
+      FROM energy_hourly a
+             LEFT JOIN
+           (SELECT sum(kwh_out) as total_surplus,
+                   info_dt
+            FROM energy_hourly eh
+                   LEFT JOIN
+                 cups cu
+                 ON eh.cups_id = cu.id
+            WHERE cu.type = 'community'
+              AND YEAR(info_dt) = ${parseInt(year)}
+            GROUP BY MONTH(info_dt)
+            ORDER BY info_dt) b
+           ON a.info_dt = b.info_dt
+             LEFT JOIN cups cp ON cp.id = a.cups_id
+      WHERE YEAR(a.info_dt) = ${parseInt(year)}
         AND cups_id = ${id}
         AND origin = ${origin}
-      GROUP BY MONTH(info_dt)
-      ORDER BY info_dt;
+      GROUP BY MONTH(a.info_dt)
+      ORDER BY a.info_dt;
     `;
 
 
@@ -243,6 +307,7 @@ export class CupsController {
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
     mappedData.type = data.type;
+    mappedData.production = data.production ? data.production : 0;
     mappedData.generation = data.generation;
     mappedData.createdAt = data.createdAt || data.created_at;
     mappedData.updatedAt = data.updatedAt || data.updated_at;
@@ -304,6 +369,7 @@ export class CupsController {
             "kwh_out_price": 0,
             "kwh_in_price_community": 0,
             "kwh_out_price_community": 0,
+            "production": 0,
             "created_at": newDate,
             "updated_at": newDate,
             "community_id": 7

@@ -172,30 +172,35 @@ export class CommunitiesController {
         ) c;
     `;
 
+    let totalActiveMembers: any = await this.prisma.$queryRaw`
+      SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
+      FROM (
+             SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+             FROM energy_hourly eh
+                    LEFT JOIN cups c ON eh.cups_id = c.id
+             WHERE c.type != 'community'
+               AND eh.info_dt LIKE ${date}
+               AND c.community_id = ${id}
+             GROUP BY c.community_id
+           ) AS subquery;
+    `
 
     date = date.slice(0, -1)
 
-   /* let communityData: any = await this.prisma.$queryRaw`
-      SELECT kwh_out production, info_dt
-      FROM energy_hourly eh
-             LEFT JOIN cups
-                       ON cups_id = cups.id
-      WHERE DATE(info_dt) = ${date}
-        AND origin = ${origin}
-        AND cups.community_id = ${id}
-        AND cups.type = 'community'
-      GROUP BY HOUR(info_dt)
-      ORDER BY info_dt;
-    `;
-*/
-    // data = this.setProduction(data, communityData, 'daily')
+    let dataToSend = {
+      totalActiveMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalActiveMembersSum) : 0,
+      stats: []
+    }
 
     data = this.dataWithEmpty(data, date, 24, 'daily')
 
     const mappedData = data.map(this.energyHourlyMapData);
+
+    dataToSend.stats = mappedData
+
     return HttpResponse.success("communities fetched successfully").withData(
       // this.mapData(data)
-      mappedData
+      dataToSend
     );
   }
 
@@ -255,6 +260,24 @@ export class CommunitiesController {
                   GROUP BY c.id) a) c;
     `
 
+    let totalActiveMembers: any = await this.prisma.$queryRaw`
+      SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
+      FROM (
+             SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+             FROM energy_hourly eh
+                    LEFT JOIN cups c ON eh.cups_id = c.id
+             WHERE c.type != 'community'
+               AND eh.info_dt LIKE ${date}
+               AND c.community_id = ${id}
+             GROUP BY c.community_id
+           ) AS subquery;
+    `
+
+    let dataToSend = {
+      totalActiveMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalActiveMembersSum) : 0,
+      stats: []
+    }
+
     // data = this.setProduction(data, communityData, 'monthly')
     date = date.slice(0, -1)
 
@@ -262,9 +285,11 @@ export class CommunitiesController {
     data = this.dataWithEmpty(data, date, daysOfMonth, 'monthly')
 
     const mappedData = data.map(this.energyHourlyMapData);
+
+    dataToSend.stats = mappedData
     return HttpResponse.success("communities fetched successfully").withData(
       // this.mapData(data)
-      mappedData
+      dataToSend
     );
   }
 
@@ -346,14 +371,33 @@ export class CommunitiesController {
         ) a
     ) c
     `
+    let totalActiveMembers: any = await this.prisma.$queryRaw`
+      SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
+      FROM (
+             SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+             FROM energy_hourly eh
+                    LEFT JOIN cups c ON eh.cups_id = c.id
+             WHERE c.type != 'community'
+               AND eh.info_dt LIKE ${date}
+               AND c.community_id = ${id}
+             GROUP BY c.community_id
+           ) AS subquery;
+    `
 
+    let dataToSend = {
+      totalActiveMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalActiveMembersSum) : 0,
+      stats: []
+    }
     date = date.slice(0, -1)
     data = this.dataWithEmpty(data, date, 12, 'yearly')
 
     const mappedData = data.map(this.energyHourlyMapData);
+
+    dataToSend.stats = mappedData
+
     return HttpResponse.success("communities fetched successfully").withData(
       // this.mapData(data)
-      mappedData
+      dataToSend
     );
   }
 

@@ -27,6 +27,9 @@ interface cadastre {
   valleMonthlyPrice?:number,
   llanoMonthlyPrice?:number,
   puntaMonthlyPrice?:number,
+  generationPrice?:number,
+  surplusMonthlyProfits?:number,
+  redeemYears?:number,
   totalConsumptionPrice?:number,
   yearConsumption?: number,
   yearGeneration?: number,
@@ -161,8 +164,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
     vallePrice:0.04,
     llanoPrice:0.07,
     puntaPrice:0.14,
-     orientation:0,
-     inclination:25
+    generationPrice:0.06,
+    orientation:0,
+    inclination:25
   };
 
   cupsNumber: number = 0;
@@ -196,7 +200,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   communitySelectionTooltip:any=
   `
-    <span class="m-0 fs-12">Selecciona una comunitat de la llista o fes clic en un de les icones d'ubicació del mapa.<br>
+    <span class="m-0 fs-12">Selecciona una comunitat de la llista o fes clic en una de les icones d'ubicació del mapa.<br>
     Recorda que pots tornar a fer una nova cerca seleccionant de nou la comunitat o ciutat.</span>
   `
 
@@ -263,6 +267,25 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.OnSelectorChange(this.selectedLocation, 'location')
     //this.createLocationControl(this.locations)
 
+  }
+
+  resetCadastre() {
+    this.selectedCadastreGenerationMonthChartDatasets=[];
+    this.selectedCadastreMonthChartDatasets=[];
+    this.selectedCadastre = {
+      totalConsumption: 200,
+      valle: 98,
+      llano: 52,
+      punta: 48,
+      vallePrice:0.04,
+      llanoPrice:0.07,
+      puntaPrice:0.14,
+      generationPrice:0.06,
+      orientation:0,
+      inclination:25
+    }
+    this.activeIndividual=false;
+    this.activeCommunity=false;
   }
 
   createLocationControl(locations: any[]) {
@@ -387,19 +410,32 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   updateCommunityValoration(communityExports: any[], communityImports: any[]) {
+
     let totalImports: number = 0;
     let totalExports: number = 0;
+
     communityExports.map((communityExport: any, index: number) => {
       totalExports += communityExport;
     })
     communityImports.map((communityImport: any, index: number) => {
       totalImports += communityImport;
     })
-    if (totalImports > totalExports) {
-      this.communityValoration = 3
-    } else {
-      this.communityValoration = 1
+
+    console.log(totalExports,totalImports)
+
+    if(totalExports==0 && totalImports == 0){
+      this.communityValoration = 0;
+      return;
     }
+
+    if (totalImports > (totalExports + 10)) {
+      this.communityValoration = 3;
+    } else if (totalExports > (totalImports + 10)){
+      this.communityValoration = 1;
+    } else {
+      this.communityValoration = 2;
+    }
+
   }
 
   showLoading(){
@@ -443,7 +479,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
       this.cadastresMap = await this.map.addGeoJson(geoJson);
 
-      this.loading.next(false)
+      this.loading.next(false);
       
       const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
 
@@ -562,9 +598,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   updateCadastreConsumptionM2() {
+    
     //TODO: update algorythm
     let updatedConsumption = this.selectedCadastre.totalConsumption + this.selectedCadastre.m2!
     this.selectedCadastre.totalConsumption = updatedConsumption;
+
+    console.log("updateCadastreConsumptionM2",updatedConsumption)
 
     this.selectedCadastre.valle = this.selectedCadastre.totalConsumption * 0.50;
     this.selectedCadastre.llano = this.selectedCadastre.totalConsumption * 0.26;
@@ -688,24 +727,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.isShrunk = !this.isShrunk;
   }
 
-  resetCadastre() {
-    this.selectedCadastreGenerationMonthChartDatasets=[];
-    this.selectedCadastreMonthChartDatasets=[];
-    this.selectedCadastre = {
-      totalConsumption: 200,
-      valle: 98,
-      llano: 52,
-      punta: 48,
-      vallePrice:0.04,
-      llanoPrice:0.07,
-      puntaPrice:0.14,
-      orientation:0,
-      inclination:25
-    }
-    this.activeIndividual=false;
-    this.activeCommunity=false;
-  }
-
   addArea() {
     console.log("added areas 1",this.addedAreas)
     let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
@@ -727,7 +748,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.map.deleteArea(this.addedAreas[index])
     this.addedAreas.splice(index, 1);
     this.resetCadastre();
-    console.log(this.addedAreas)
+    this.updateCommunityChart();
+    
   }
 
   unselectArea(feature:any){
@@ -741,22 +763,47 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.selectedCadastre = this.addedAreas[index];
   }
 
-
+  /** Obtains the price of average month 
+   *  calculates the excedent energy price, the consumption saving price and the years to amortize the investment.
+   *  
+   */
   calculateMonthlySavings(){
+    
     let monthAverageGeneration:number=this.selectedCadastre.yearGeneration!/12;
-    this.selectedCadastre.monthlySavings=monthAverageGeneration*this.selectedCadastre.llanoPrice;
+    
+    let monthAverageConsumption:number=this.selectedCadastre.yearConsumption!/12;
+    let monthlyCosts=monthAverageConsumption*this.selectedCadastre.llanoPrice;
 
-     let monthAverageConsumption:number=this.selectedCadastre.yearConsumption!/12;
-     let monthlyCosts=monthAverageConsumption*this.selectedCadastre.llanoPrice;
+    let monthlyConsumedProduction:number = 0;
+    
+    if(monthAverageGeneration>monthAverageConsumption){
+      
+      //surplus is the generation minus consumption, if generation is greater than consumption
+      let monthAverageSurplus:number=monthAverageGeneration-monthAverageConsumption;
+      
+      //monthlyConsumedProduction is the production directly used by the customer 
+      monthlyConsumedProduction=monthAverageGeneration-monthAverageSurplus;
 
-     if(this.selectedCadastre.monthlySavings>monthlyCosts){
+      //surplusMonthlyProfits is the price of excedent from generation that is sold to the company
+      this.selectedCadastre.surplusMonthlyProfits = monthAverageSurplus*this.selectedCadastre.generationPrice!;
+      
+    } else {
+
+      //monthlyConsumedProduction is the production directly used by the customer 
+      monthlyConsumedProduction=monthAverageGeneration;
+
+    }
+
+    //monthlySavings is the price of energy that you stop using from the company when you have generation
+    this.selectedCadastre.monthlySavings=monthlyConsumedProduction*this.selectedCadastre.llanoPrice;
+
+    //the redeem years are the profits earned month by month:
+    this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.surplusMonthlyProfits! + this.selectedCadastre.monthlySavings!)));
+
+    if(this.selectedCadastre.monthlySavings!>monthlyCosts){
       this.selectedCadastre.monthlySavings=monthlyCosts;
-     }
-    // 
-    // let monthAverageSurplus:number=monthAverageConsumption-monthAverageGeneration;
-    // if(monthAverageSurplus>0){
+    }
 
-    // }
   }
 
   async calculateSolarParams(){
@@ -795,16 +842,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   async simulateGeneration(){
-    this.showLoading()
-    await this.calculateSolarParams();
-    this.loading.next(false);
-    this.updateCadastreGenerationChart();
-    this.activeSimulation=true;
-    this.updateCadastreConsumptionM2(); //different 
-    this.updateConsumptions();
-    this.calculateMonthlySavings();
-    this.updateCadastreChart();
-    
+    this.updateCadastreConsumptionM2(); 
+    await this.simulateGenerationConsumption();    
   }
 
   async simulateGenerationConsumption(){
@@ -827,3 +866,5 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
 }
+
+//todo: refresh chart when deleting 'membres simulats'

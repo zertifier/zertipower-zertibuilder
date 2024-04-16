@@ -149,22 +149,32 @@ export class CommunitiesController {
     `;
 
     let totalActiveMembers: any = await this.prisma.$queryRaw`
-      SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
+      SELECT totalActiveMembers.totalActiveMembersSum totalActiveMembers, totalMembers.totalMembers
       FROM (
-             SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
-             FROM energy_hourly eh
-                    LEFT JOIN cups c ON eh.cups_id = c.id
-             WHERE c.type != 'community'
-               AND eh.info_dt LIKE ${date}
-               AND c.community_id = ${id}
-             GROUP BY c.community_id
-           ) AS subquery;
+             SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
+             FROM (
+                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    FROM energy_hourly eh
+                           LEFT JOIN cups c ON eh.cups_id = c.id
+                    WHERE c.type != 'community'
+                      AND eh.info_dt LIKE ${date}
+                      AND c.community_id = ${id}
+                    GROUP BY c.community_id
+                  ) AS subquery1
+           ) AS totalActiveMembers
+             CROSS JOIN (
+        SELECT COUNT(*) AS totalMembers
+        FROM cups c
+        WHERE community_id = ${id}
+          AND TYPE != 'community'
+      ) AS totalMembers;
     `
 
     date = date.slice(0, -1)
 
     let dataToSend = {
-      totalActiveMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalActiveMembersSum) : 0,
+      totalActiveMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalActiveMembers) : 0,
+      totalMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalMembers) : 0,
       stats: []
     }
 
@@ -237,20 +247,30 @@ export class CommunitiesController {
     `
 
     let totalActiveMembers: any = await this.prisma.$queryRaw`
-      SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
+      SELECT totalActiveMembers.totalActiveMembersSum totalActiveMembers, totalMembers.totalMembers
       FROM (
-             SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
-             FROM energy_hourly eh
-                    LEFT JOIN cups c ON eh.cups_id = c.id
-             WHERE c.type != 'community'
-               AND eh.info_dt LIKE ${date}
-               AND c.community_id = ${id}
-             GROUP BY c.community_id
-           ) AS subquery;
+             SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
+             FROM (
+                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    FROM energy_hourly eh
+                           LEFT JOIN cups c ON eh.cups_id = c.id
+                    WHERE c.type != 'community'
+                      AND eh.info_dt LIKE ${date}
+                      AND c.community_id = ${id}
+                    GROUP BY c.community_id
+                  ) AS subquery1
+           ) AS totalActiveMembers
+             CROSS JOIN (
+        SELECT COUNT(*) AS totalMembers
+        FROM cups c
+        WHERE community_id = ${id}
+          AND TYPE != 'community'
+      ) AS totalMembers;
     `
 
     let dataToSend = {
-      totalActiveMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalActiveMembersSum) : 0,
+      totalActiveMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalActiveMembers) : 0,
+      totalMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalMembers) : 0,
       stats: []
     }
 
@@ -325,20 +345,30 @@ export class CommunitiesController {
                   GROUP BY c.id) a) c
     `
     let totalActiveMembers: any = await this.prisma.$queryRaw`
-      SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
+      SELECT totalActiveMembers.totalActiveMembersSum totalActiveMembers, totalMembers.totalMembers
       FROM (
-             SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
-             FROM energy_hourly eh
-                    LEFT JOIN cups c ON eh.cups_id = c.id
-             WHERE c.type != 'community'
-               AND eh.info_dt LIKE ${date}
-               AND c.community_id = ${id}
-             GROUP BY c.community_id
-           ) AS subquery;
+             SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
+             FROM (
+                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    FROM energy_hourly eh
+                           LEFT JOIN cups c ON eh.cups_id = c.id
+                    WHERE c.type != 'community'
+                      AND eh.info_dt LIKE ${date}
+                      AND c.community_id = ${id}
+                    GROUP BY c.community_id
+                  ) AS subquery1
+           ) AS totalActiveMembers
+             CROSS JOIN (
+        SELECT COUNT(*) AS totalMembers
+        FROM cups c
+        WHERE community_id = ${id}
+          AND TYPE != 'community'
+      ) AS totalMembers;
     `
 
     let dataToSend = {
-      totalActiveMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalActiveMembersSum) : 0,
+      totalActiveMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalActiveMembers) : 0,
+      totalMembers: totalActiveMembers.length ? parseInt(totalActiveMembers[0].totalMembers) : 0,
       stats: []
     }
     date = date.slice(0, -1)
@@ -514,7 +544,6 @@ export class CommunitiesController {
             "active_members": 0,
             "created_at": newDate,
             "updated_at": newDate,
-            "community_id": 7
           }
 
           data.splice(i, 0, cupEmptyObject)

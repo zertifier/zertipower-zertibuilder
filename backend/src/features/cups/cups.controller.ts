@@ -117,10 +117,10 @@ export class CupsController {
              SUM(kwh_in)                  AS kwh_in,
              SUM(kwh_out)                 AS kwh_out,
              SUM(kwh_out_virtual)         AS kwh_out_virtual,
-             SUM(kwh_in_price)            AS kwh_in_price,
-             SUM(kwh_out_price)           AS kwh_out_price,
-             SUM(kwh_in_price_community)  AS kwh_in_price_community,
-             SUM(kwh_out_price_community) AS kwh_out_price_community,
+             kwh_in_price            AS kwh_in_price,
+             kwh_out_price           AS kwh_out_price,
+             kwh_in_price_community  AS kwh_in_price_community,
+             kwh_out_price_community AS kwh_out_price_community,
              DATE(a.info_dt)                AS info_dt,
              total_surplus * cp.surplus_distribution production
       FROM energy_hourly a
@@ -167,10 +167,10 @@ export class CupsController {
              SUM(kwh_in)                  AS         kwh_in,
              SUM(kwh_out)                 AS         kwh_out,
              SUM(kwh_out_virtual)         AS         kwh_out_virtual,
-             SUM(kwh_in_price)            AS         kwh_in_price,
-             SUM(kwh_out_price)           AS         kwh_out_price,
-             SUM(kwh_in_price_community)  AS         kwh_in_price_community,
-             SUM(kwh_out_price_community) AS         kwh_out_price_community,
+             kwh_in_price          AS         kwh_in_price,
+             kwh_out_price           AS         kwh_out_price,
+             kwh_in_price_community  AS         kwh_in_price_community,
+             kwh_out_price_community AS         kwh_out_price_community,
              DATE(a.info_dt)              AS         info_dt,
              total_surplus * cp.surplus_distribution production
       FROM energy_hourly a

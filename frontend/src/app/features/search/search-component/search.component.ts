@@ -38,6 +38,7 @@ interface cadastre {
   monthsGeneration?: number[],
   monthsSurplus?: number[],
   m2?: number,
+  oldM2?: number,
   n_plaques?: number,
   inversion?: number,
   savings?: number,
@@ -47,7 +48,9 @@ interface cadastre {
   monthlySavings?: number,
   InsalledPower?: number,
   orientation?: number,
-  inclination?: number
+  oldOrientation?: number,
+  inclination?: number,
+  oldInclination?: number
 }
 
 @ViewChild(TooltipDirective)
@@ -814,9 +817,15 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
       if (generation > consumption) {
 
+        console.log("generación mayor a consumo")
+
         let surplus = generation - consumption;
 
         let surplusMinusConsumption = surplus - consumption;
+
+        if(surplusMinusConsumption<0){
+          surplusMinusConsumption=0;
+        }
 
         this.selectedCadastre.monthsSurplus?.push(surplusMinusConsumption)
         yearSurplus += yearSurplus + surplusMinusConsumption;
@@ -824,6 +833,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
         //update consumption by consumption minus surplus, because CCE sharing method.
 
         let consumptionMinusSurplus = this.selectedCadastre.monthsConsumption![index] - surplus;
+
+        if(consumptionMinusSurplus<0){
+          surplusMinusConsumption=0;
+        }
 
         //if there is more export than consumption, consumption is 0.
         if (consumptionMinusSurplus < 0) {
@@ -833,6 +846,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
         }
 
       } else { //no surplus
+
+        console.log("generación MENOR a consumo")
 
         consumption = consumption - generation;
         this.selectedCadastre.monthsSurplus?.push(0);
@@ -865,8 +880,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     //the redeem years are the profits earned month by month:
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings! + this.selectedCadastre.surplusMonthlyProfits)));
- 
-    this.updateCadastreChart();
 
   }
 
@@ -922,7 +935,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation, this.selectedCadastre.inclination, this.selectedCadastre.n_plaques)
       this.energyAreasService.simulate(this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation!, this.selectedCadastre.inclination!, this.selectedCadastre.n_plaques!)
         .subscribe((res: any) => {
-          if(!res.success){
+          if (!res.success) {
             reject(res.message);
           } else {
             let data = res.data
@@ -931,7 +944,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
             const numberPanels = data.numberPanels
             const prodByMonth = data.prodByMonth
             const totalCost = data.totalCost
-  
+
             this.selectedCadastre.InsalledPower = kWp;
             this.selectedCadastre.n_plaques = numberPanels;
             this.selectedCadastre.totalCost = totalCost.toFixed(2);
@@ -940,7 +953,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
               prodByMonth[key] = Math.floor(prodByMonth[key]);
             });
             this.selectedCadastre.monthsGeneration = Object.values(prodByMonth);
-  
+
             console.log('Installed power', kWp, 'kWp');
             console.log('Number panels:', numberPanels);
             console.log('Cost:', totalCost.toFixed(2), '€');
@@ -948,10 +961,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
             console.log('Production by months:', this.selectedCadastre.monthsGeneration);
             resolve('success')
           }
-          
-        }, (error: any) => { 
-          console.log("simulation not ok",error)
-          reject(error) 
+
+        }, (error: any) => {
+          console.log("simulation not ok", error)
+          reject(error)
         });
     })
 
@@ -963,25 +976,43 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   async simulateGenerationConsumption() {
-    this.showLoading()
 
-    try{
-      await this.calculateSolarParams()
-    } catch (error){
+    if (
+      this.selectedCadastre.oldM2 !== this.selectedCadastre.m2 ||
+      this.selectedCadastre.oldInclination !== this.selectedCadastre.inclination ||
+      this.selectedCadastre.oldOrientation !== this.selectedCadastre.orientation
+    ) {
+
+      this.showLoading()
+
+      try {
+        await this.calculateSolarParams()
+      } catch (error) {
+        this.loading.next(false);
+        Swal.fire('Error', 'Error calculant la simulació', 'error')
+        return;
+      }
+
       this.loading.next(false);
-      Swal.fire('Error','Error calculant la simulació','error')
-      return;
+
     }
 
-    this.updateConsumptions();
-    this.calculateSurplus();
-    this.calculateMonthlySavings();
+    this.updateSimulationParams();
 
-    this.updateCadastreGenerationChart();
+    this.updateConsumptions();
+
+    if (this.activeCce) {
+      this.calculateCCE()
+    } else {
+      this.calculateSurplus();
+      this.calculateMonthlySavings();
+      this.updateCadastreGenerationChart();
+    }
+
     this.updateCadastreChart();
 
     this.activeSimulation = true;
-    this.loading.next(false);
+
   }
 
   restoreCadastre() {
@@ -990,6 +1021,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.updateConsumptions();
     //this.calculateMonthlySavings();
     this.updateCadastreChart();
+  }
+
+  updateSimulationParams() {
+    this.selectedCadastre.oldM2 = this.selectedCadastre.m2
+    this.selectedCadastre.oldInclination = this.selectedCadastre.inclination
+    this.selectedCadastre.oldOrientation = this.selectedCadastre.orientation
   }
 
 }

@@ -703,6 +703,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   updateCadastreChart() {
 
+    console.log("generation", this.selectedCadastre.monthsGeneration)
+    console.log("surplus", this.selectedCadastre.monthsSurplus)
+    console.log("consumption", this.selectedCadastre.monthsConsumption)
+
     //calculateCadastreMonths();
 
     this.cdr.detectChanges();
@@ -786,11 +790,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
       if (generation > consumption) {
         let surplus = generation - consumption;
         this.selectedCadastre.monthsSurplus!.push(surplus)
+      } else {
+        this.selectedCadastre.monthsSurplus!.push(0)
       }
     })
   }
 
   calculateCCE() {
+
+    console.log("calculate CCE");
+
     //reset the value:
     this.selectedCadastre.monthsSurplus = [];
     let yearSurplus: number = 0;
@@ -867,6 +876,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
    */
   calculateMonthlySavings() {
 
+    console.log("calculate monthly savings");
+
     let monthAverageGeneration: number = this.selectedCadastre.yearGeneration! / 12;
 
     let monthAverageConsumption: number = this.selectedCadastre.yearConsumption! / 12;
@@ -911,7 +922,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation, this.selectedCadastre.inclination, this.selectedCadastre.n_plaques)
       this.energyAreasService.simulate(this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation!, this.selectedCadastre.inclination!, this.selectedCadastre.n_plaques!)
         .subscribe((res: any) => {
-          console.log("simulation ok",res)
           if(!res.success){
             reject(res.message);
           } else {
@@ -962,8 +972,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
       Swal.fire('Error','Error calculant la simulació','error')
       return;
     }
-    
-    console.log("HOLA")
 
     this.updateConsumptions();
     this.calculateSurplus();

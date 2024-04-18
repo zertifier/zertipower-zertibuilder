@@ -18,19 +18,19 @@
     <title>Datadis :: Zertipower</title>
     <link href="/datadis/index.xml" rel="alternate" type="application/rss+xml" title="Datadis :: Zertipower">
     <!-- https://github.com/filamentgroup/loadCSS/blob/master/README.md#how-to-use -->
-    <link href="/css/fontawesome-all.min.css?1712305686" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1712305686" rel="stylesheet"></noscript>
-    <link href="/css/nucleus.css?1712305686" rel="stylesheet">
-    <link href="/css/auto-complete.css?1712305686" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1712305686" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1712305686" rel="stylesheet">
-    <link href="/css/fonts.css?1712305686" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fonts.css?1712305686" rel="stylesheet"></noscript>
-    <link href="/css/theme.css?1712305686" rel="stylesheet">
-    <link href="/css/theme-zen-dark.css?1712305686" rel="stylesheet" id="R-variant-style">
-    <link href="/css/chroma-relearn-dark.css?1712305686" rel="stylesheet" id="R-variant-chroma-style">
-    <link href="/css/variant.css?1712305686" rel="stylesheet">
-    <link href="/css/print.css?1712305686" rel="stylesheet" media="print">
-    <link href="/css/ie.css?1712305686" rel="stylesheet">
-    <script src="/js/url.js?1712305686"></script>
-    <script src="/js/variant.js?1712305686"></script>
+    <link href="/css/fontawesome-all.min.css?1713447037" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1713447037" rel="stylesheet"></noscript>
+    <link href="/css/nucleus.css?1713447037" rel="stylesheet">
+    <link href="/css/auto-complete.css?1713447037" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1713447037" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1713447037" rel="stylesheet">
+    <link href="/css/fonts.css?1713447037" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fonts.css?1713447037" rel="stylesheet"></noscript>
+    <link href="/css/theme.css?1713447037" rel="stylesheet">
+    <link href="/css/theme-zen-dark.css?1713447037" rel="stylesheet" id="R-variant-style">
+    <link href="/css/chroma-relearn-dark.css?1713447037" rel="stylesheet" id="R-variant-chroma-style">
+    <link href="/css/variant.css?1713447037" rel="stylesheet">
+    <link href="/css/print.css?1713447037" rel="stylesheet" media="print">
+    <link href="/css/ie.css?1713447037" rel="stylesheet">
+    <script src="/js/url.js?1713447037"></script>
+    <script src="/js/variant.js?1713447037"></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..';
@@ -102,15 +102,23 @@
 <h1 id="datadis">Datadis</h1>
 
 <h3 id="requisits-per-obtenir-les-dades-de-datadis">Requisits per obtenir les dades de Datadis</h3>
-<p>Per obtenir les dades de un Datadis és necessari tenir un usuari registrat.</p>
+<p>Per obtenir les dades d&rsquo;un Datadis és necessari tenir un usuari registrat.</p>
 <p>la petició per obtenir la autorització per obenir les dades es aquesta</p>
 <p><a href="https://datadis.es/nikola-auth/tokens/login" target="_blank">https://datadis.es/nikola-auth/tokens/login</a></p>
 <p>la petició de login espera un usuari i contrasenya al seu cos.</p>
-<p><a href="#R-image-bfa81cd46b0ef523c231ff2c5aacdb50" class="lightbox-link"><img alt="postman-datadis-login.PNG" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/datadis/postman-datadis-login.PNG" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-bfa81cd46b0ef523c231ff2c5aacdb50"><img alt="postman-datadis-login.PNG" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/datadis/postman-datadis-login.PNG"></a></p>
-<p>Amb aquesta autorització podem demanar les dades generals del client amb petició &lsquo;get-supplies&rsquo;.</p>
-<p><a href="#R-image-2b952fcd17489dacfade231a42c6fd54" class="lightbox-link"><img alt="postman-datadis-login.PNG" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/datadis/postman-datadis-supplies.PNG" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-2b952fcd17489dacfade231a42c6fd54"><img alt="postman-datadis-login.PNG" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/datadis/postman-datadis-supplies.PNG"></a></p>
+<p><a href="#R-image-e845299438c2cd945366fa89940e79ff" class="lightbox-link"><img alt="postman-datadis-login.PNG" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/datadis/postman-datadis-login.PNG" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-e845299438c2cd945366fa89940e79ff"><img alt="postman-datadis-login.PNG" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/datadis/postman-datadis-login.PNG"></a></p>
+<p>Amb aquesta autorització podem demanar les dades generals del client amb petició &lsquo;get-supplies&rsquo;.
+&lsquo;get-supplies&rsquo; ens dona la informació necessària per obtenir els consums dels cups associats amb el compte.
+El paràmetre opcional &lsquo;authorizedNif&rsquo; pot utilitzar-se per obtenir els suministraments dels comptes autoritzats.</p>
+<p><a href="#R-image-53bfe0ef41c7e34a3640df9eb801df28" class="lightbox-link"><img alt="postman-datadis-supplies.PNG" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/datadis/postman-datadis-supplies.PNG" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-53bfe0ef41c7e34a3640df9eb801df28"><img alt="postman-datadis-supplies.PNG" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/datadis/postman-datadis-supplies.PNG"></a></p>
+<p>Els paràmetres per obtenir els consums son els següents:
+cups, meassurementType, pointType, distributorCode, startDate, endDate i authorizedNif (opcional)</p>
+<p><a href="#R-image-f783e489a570355213ca599898b4b65e" class="lightbox-link"><img alt="postman-datadis-consumptions.PNG" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/datadis/postman-datadis-consumptions.PNG" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-f783e489a570355213ca599898b4b65e"><img alt="postman-datadis-consumptions.PNG" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/datadis/postman-datadis-consumptions.PNG"></a>
+<a href="#R-image-cfd2ea6467a78be5e152b2ffecb59cfd" class="lightbox-link"><img alt="postman-datadis-consumptions-response.PNG" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/datadis/postman-datadis-consumptions-response.PNG" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-cfd2ea6467a78be5e152b2ffecb59cfd"><img alt="postman-datadis-consumptions-response.PNG" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/datadis/postman-datadis-consumptions-response.PNG"></a></p>
 <!-- raw HTML omitted -->
 <!-- raw HTML omitted -->
 
@@ -136,12 +144,12 @@
         <script>
           var contentLangs=['es'];
         </script>
-        <script src="/js/auto-complete.js?1712305686" defer></script>
-        <script src="/js/lunr/lunr.min.js?1712305686" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1712305686" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1712305686" defer></script>
-        <script src="/js/lunr/lunr.es.min.js?1712305686" defer></script>
-        <script src="/js/search.js?1712305686" defer></script>
+        <script src="/js/auto-complete.js?1713447037" defer></script>
+        <script src="/js/lunr/lunr.min.js?1713447037" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1713447037" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1713447037" defer></script>
+        <script src="/js/lunr/lunr.es.min.js?1713447037" defer></script>
+        <script src="/js/search.js?1713447037" defer></script>
       </div>
       <div id="R-homelinks" class="default-animation">
         <hr class="padding">
@@ -211,8 +219,8 @@
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1712305686" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1712305686" defer></script>
-    <script src="/js/theme.js?1712305686" defer></script>
+    <script src="/js/clipboard.min.js?1713447037" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1713447037" defer></script>
+    <script src="/js/theme.js?1713447037" defer></script>
   </body>
 </html>

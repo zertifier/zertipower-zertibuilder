@@ -313,54 +313,61 @@ async function calculate(lat: number, lng: number, area: number, direction: numb
   const seriesCalc = "https://re.jrc.ec.europa.eu/api/v5_2/seriescalc?peakpower=1&loss=14&mountingplace=building&outputformat=json&startyear=2016&endyear=2020";
   let pvCalcResult, seriesCalcResult;
 
-  try{
+  console.log(pvCalc + urlQueryParams)
+  console.log(seriesCalc + urlQueryParams)
+
+  try {
     [pvCalcResult, seriesCalcResult] = await Promise.all([
-      httpGet(pvCalc + urlQueryParams), 
+      httpGet(pvCalc + urlQueryParams),
       httpGet(seriesCalc + urlQueryParams)
     ])
-  }catch(error:any){
+  } catch (error: any) {
     throw new Error(`Error fetching data:${error.message}`);
   }
 
-    //console.log("pvCalcResult, seriesCalcResult",pvCalcResult, seriesCalcResult)
-    let { totalProduction, hourValuesAvg } = calculateProduction(seriesCalcResult, pvCalcResult, kWp);
+  //console.log("pvCalcResult, seriesCalcResult",pvCalcResult, seriesCalcResult)
+  let { totalProduction, hourValuesAvg } = calculateProduction(seriesCalcResult, pvCalcResult, kWp);
 
-    let prodByMonth = sumValuesByMonth(hourValuesAvg);
+  let prodByMonth = sumValuesByMonth(hourValuesAvg);
 
-    let totalCost = calculateCost(kWp, installationCost, invertersCost, managementCost, panelsCost, structureCost, engineeringCost);
-    return { kWp, totalProduction, numberPanels, prodByMonth, totalCost };
-  }
+  let totalCost = calculateCost(kWp, installationCost, invertersCost, managementCost, panelsCost, structureCost, engineeringCost);
+  return { kWp, totalProduction, numberPanels, prodByMonth, totalCost };
+}
 
 async function httpGet(url: string) {
 
-    return new Promise((resolve, reject) => {
-      
-        
-        let req = https.get(url, (res: any) => {
+  //HTTPS request config
+  const options = {
+    rejectUnauthorized: false // unable SSL verification
+  };
 
-          let data = ''
+  return new Promise((resolve, reject) => {
 
-          res.on('data', (chunk: any) => { data += chunk })
-          
-          res.on('end', () => {
-            try {
-              let parsedData = JSON.parse(data);
-              if (parsedData.status == 400) {
-                reject(new Error(parsedData.message));
-              } else {
-                resolve(JSON.parse(data));
-              } 
-              } catch (error){
-                reject(error)
-              }
-          })
-          
-        })
+    let req = https.get(url, options, (res: any) => {
 
-        req.on('error', (error: any) => {
-          console.log("Error making HTTP request:", error)
-          reject(new Error(error));
-        });
-      
+      let data = ''
+
+      res.on('data', (chunk: any) => { data += chunk })
+
+      res.on('end', () => {
+        try {
+          let parsedData = JSON.parse(data);
+          if (parsedData.status == 400) {
+            reject(new Error(parsedData.message));
+          } else {
+            resolve(JSON.parse(data));
+          }
+        } catch (error) {
+          reject(error)
+        }
+      })
+
     })
-  }
+
+    req.on('error', (error: any) => {
+      console.log("Error making HTTP request:", error)
+      reject(new Error(error));
+    });
+
+  })
+}

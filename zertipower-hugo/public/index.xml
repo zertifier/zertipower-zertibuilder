@@ -44,12 +44,11 @@ Hi ha peticions que per seguretat demanen token, per obtenir el token s&amp;rsqu
       <link>http://localhost:1313/datadis/index.html</link>
       <pubDate>Wed, 27 Mar 2024 11:09:44 +0100</pubDate>
       <guid>http://localhost:1313/datadis/index.html</guid>
-      <description>Requisits per obtenir les dades de Datadis Per obtenir les dades de un Datadis és necessari tenir un usuari registrat.
+      <description>Requisits per obtenir les dades de Datadis Per obtenir les dades d&amp;rsquo;un Datadis és necessari tenir un usuari registrat.
 la petició per obtenir la autorització per obenir les dades es aquesta
 https://datadis.es/nikola-auth/tokens/login
 la petició de login espera un usuari i contrasenya al seu cos.
-Amb aquesta autorització podem demanar les dades generals del client.
-La petició</description>
+Amb aquesta autorització podem demanar les dades generals del client amb petició &amp;lsquo;get-supplies&amp;rsquo;. &amp;lsquo;get-supplies&amp;rsquo; ens dona la informació necessària per obtenir els consums dels cups associats amb el compte.</description>
     </item>
   </channel>
 </rss>

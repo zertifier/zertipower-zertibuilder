@@ -73,7 +73,7 @@ export class DatadisService {
         let startDate = moment().subtract(1, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM'); 
         let endDate = moment().format('YYYY/MM'); //moment().format('YYYY/MM');
 
-        this.run(startDate,endDate)
+        //this.run(startDate,endDate)
 
         setInterval(() => {
             startDate = moment().subtract(1, 'months').format('YYYY/MM');
@@ -104,7 +104,14 @@ export class DatadisService {
             this.loginData.password = PasswordUtils.decryptData(cups.datadis_password, process.env.JWT_SECRET!);
 
             //get auth token
-            await this.login();
+            await this.login().catch(async e=>{
+                console.log(e)
+                status = 'error';
+                errorType = 'Error getting token';
+                operation = 'Get token'
+                await this.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
+                return;
+            });
 
             //get datadis cups
             await this.getSupplies().catch(async e => {
@@ -199,12 +206,21 @@ export class DatadisService {
                     status = 'error';
                     errorType = "post datadis data error";
                     errorMessage = e.toString().substring(0, 200);
-                    operation = "post datadis hourly energy registers data into database";
+                    operation = "post datadis hourly energy registers data into database (datadis table)";
                     return 0;
                 })
 
                 //insert readed cups energy hours
                 await this.postLogs(supply.cups, cupsData.id, operation, insertedEnergyDataNumber, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
+
+                await this.postIntoEnergyHourly(cupsData, datadisCupsEnergyData, startDate, endDate).catch(async e => {
+                    status = 'error';
+                    errorType = "post datadis data error";
+                    errorMessage = e.toString().substring(0, 200);
+                    operation = "post datadis hourly energy registers data into database (energy_hourly table)";
+                    await this.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage)
+                    return 0;
+                })
 
             }
         }
@@ -218,8 +234,12 @@ export class DatadisService {
                 reject(e);
             });
             console.log("login success, token obtained")
-            this.token = response.data;
-            resolve(this.token);
+            if(response){
+                this.token = response.data;
+                resolve(this.token);
+            }else{
+                reject("error getting token");
+            }
         })
     }
 
@@ -514,7 +534,7 @@ export class DatadisService {
             } catch (error: any) {
                 //console.log("error putting cups energy data", e);
                 if (error && error.code === 'ER_WRONG_ARGUMENTS') {
-                    console.log('Error: Argumentos incorrectos al ejecutar la consulta MySQL.');
+                    console.log('Error: Argumentos incorrectos al ejecutar la consulta MySQL.', error);
                     // Realiza cualquier acción específica de manejo de errores aquí
                     console.log(values)
                 } else {
@@ -528,6 +548,84 @@ export class DatadisService {
 
         function pushToValues(infoDt: string, consumption: number, generation: number, cupsData: any) {
             values.push(infoDt); values.push(consumption); values.push(generation); values.push(cupsData.id)
+        }
+
+    }
+
+    postIntoEnergyHourly(cupsData: any, datadisCupsEnergyData: any[], startDate: string, endDate: string): Promise<number> {
+
+        //create get not inserted energy per cups query
+
+        let origin='datadis'
+        let dataToSearchQueryPart = ''
+        let values: any = []
+        let firstEnergyDate = datadisCupsEnergyData[0]
+        datadisCupsEnergyData = datadisCupsEnergyData.slice(1)
+
+        let day = moment(firstEnergyDate.date, 'YYYY/MM/DD').format('YYYY-MM-DD')
+        let hour = moment(firstEnergyDate.time, 'HH:mm').format('HH:mm:ss')
+        let infoDt = `${day} ${hour}`;
+        let consumption = firstEnergyDate.consumptionKWh;
+        let generation = firstEnergyDate.surplusEnergyKWh;
+
+        dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as kwh_in, ? as kwh_out, ? as cups_id, ? as origin`)
+
+        pushToValues(infoDt, consumption, generation, cupsData, origin)
+
+        for (const energy of datadisCupsEnergyData) {
+
+            let day = moment(energy.date, 'YYYY/MM/DD').format('YYYY-MM-DD')
+            let hour = moment(energy.time, 'HH:mm').format('HH:mm:ss')
+
+            let datetime = `${day} ${hour}`;
+            let energyImport = energy.consumptionKWh;
+            let energyExport = energy.surplusEnergyKWh;
+
+            pushToValues(datetime, energyImport, energyExport, cupsData, origin)
+
+            dataToSearchQueryPart = dataToSearchQueryPart.concat(` UNION ALL SELECT ?,?,?,?,? `)
+
+        }
+
+        let query = `
+            INSERT INTO energy_hourly (info_dt,kwh_in,kwh_out,cups_id,origin)
+            SELECT info_dt, kwh_in, kwh_out, cups_id, origin
+            FROM ( ${dataToSearchQueryPart} ) AS data_to_check
+            WHERE NOT EXISTS (
+                SELECT info_dt
+                FROM energy_hourly
+                WHERE energy_hourly.info_dt = data_to_check.info_dt
+                AND energy_hourly.cups_id = data_to_check.cups_id
+                )
+                AND cups_id = ?
+            `
+
+        values.push(cupsData.id);
+
+        return new Promise(async (resolve, reject) => {
+
+            try {
+                //console.log(query,values)
+                let [result] = await this.conn.execute<mysql.ResultSetHeader>(query, values);
+                const insertedRows = result.affectedRows;
+                resolve(insertedRows);
+            } catch (error: any) {
+                //console.log("error putting cups energy data", e);
+                if (error && error.code === 'ER_WRONG_ARGUMENTS') {
+                    console.log('Error: Argumentos incorrectos al ejecutar la consulta MySQL.');
+                    // Realiza cualquier acción específica de manejo de errores aquí
+                    console.log(values)
+                } else {
+                    // Manejo genérico de errores
+                    console.error('Error inesperado al ejecutar la consulta MySQL:', error);
+                }
+                reject(error)
+            }
+
+        })
+
+        function pushToValues(infoDt: string, consumption: number, generation: number, cupsData: any, origin:string) {
+            values.push(infoDt); values.push(consumption); values.push(generation); values.push(cupsData.id); values.push(origin)
         }
 
     }

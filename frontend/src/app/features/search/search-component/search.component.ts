@@ -842,6 +842,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     })
 
+    let monthAverageSurplus = yearSurplus/12;
+    
     //cost of a month with community prices:
     let averageMonthlyCosts = (yearConsumption / 12) * this.selectedCadastre.generationPrice!;
     //cost of a month without generation and with energy company prices:
@@ -881,14 +883,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
    */
   calculateMonthlySavings() {
 
-    console.log("calculate monthly savings");
+    console.log("calculate monthly savings. Active Acc", this.activeAcc, "Active Cce", this.activeCce);
 
     let monthAverageGeneration: number = this.selectedCadastre.yearGeneration! / 12;
-
     let monthAverageConsumption: number = this.selectedCadastre.yearConsumption! / 12;
-    let monthlyCosts = monthAverageConsumption * this.selectedCadastre.llanoPrice;
-
     let monthlyConsumedProduction: number = 0;
+    let monthlyCosts = monthAverageConsumption * this.selectedCadastre.llanoPrice;
+    let CommunityMonthlyCosts:number;
 
     if (monthAverageGeneration > monthAverageConsumption) {
 
@@ -898,27 +899,50 @@ export class SearchComponent implements OnInit, AfterViewInit {
       //monthlyConsumedProduction is the production directly used by the customer 
       monthlyConsumedProduction = monthAverageGeneration - monthAverageSurplus;
 
-      //surplusMonthlyProfits is the price of excedent from generation that is sold to the company
+      //surplusMonthlyProfits is the price of excedent from generation that is sold to the company or to community
       this.selectedCadastre.surplusMonthlyProfits = monthAverageSurplus * this.selectedCadastre.generationPrice!;
+
+      monthAverageConsumption=0;
 
     } else {
 
       //monthlyConsumedProduction is the production directly used by the customer 
       monthlyConsumedProduction = monthAverageGeneration;
 
+      //update consuption considering generation:
+      monthAverageConsumption = monthAverageConsumption - monthAverageGeneration;
+
+      this.selectedCadastre.surplusMonthlyProfits = 0;
+
     }
 
-    //monthlySavings is the price of energy that you stop using from the company when you have generation
-    this.selectedCadastre.monthlySavings = monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
+    if(this.activeAcc){
+      CommunityMonthlyCosts = monthAverageConsumption * this.selectedCadastre.llanoPrice;
+      //monthlySavings is the price of energy that you stop using from the company when you have generation
+      this.selectedCadastre.monthlySavings = monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
+      console.log("selectedCadastre.monthlySavings, monthlyConsumedProduction",this.selectedCadastre.monthlySavings, monthlyConsumedProduction)
+    }
+
+    if(this.activeCce){
+      CommunityMonthlyCosts = monthAverageConsumption * this.selectedCadastre.generationPrice!;
+      //monthlySavings is the price of energy that you stop using from the company when you have generation
+      this.selectedCadastre.monthlySavings = monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
+    }
 
     //TODO: temporal sum of savings and profits
-    this.selectedCadastre.monthlySavings+=this.selectedCadastre.surplusMonthlyProfits!;
+    this.selectedCadastre.monthlySavings!+=this.selectedCadastre.surplusMonthlyProfits!;
+
+    console.log("this.selectedCadastre.surplusMonthlyProfits",this.selectedCadastre.surplusMonthlyProfits)
     
-    if (this.selectedCadastre.monthlySavings! > monthlyCosts) {
-      this.selectedCadastre.monthlySavings = monthlyCosts;
+    //in acc, the savings cannot overcome the costs
+    if(this.activeAcc && this.selectedCadastre.monthlySavings! > monthlyCosts!){
+      console.log("this.selectedCadastre.monthlySavings!, monthlyCosts!",this.selectedCadastre.monthlySavings!, monthlyCosts!)
+      this.selectedCadastre.monthlySavings = monthlyCosts!;
     }
 
-    this.selectedCadastre.monthlySavings=parseFloat(this.selectedCadastre.monthlySavings.toFixed(2))
+    this.selectedCadastre.monthlySavings=parseFloat(this.selectedCadastre.monthlySavings!.toFixed(2))
+
+    console.log("this.selectedCadastre.monthlySavings",this.selectedCadastre.monthlySavings)
 
     //the redeem years are the profits earned month by month:
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
@@ -999,13 +1023,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.updateConsumptions();
 
-    if (this.activeCce) {
-      this.calculateCCE()
-    } else {
+    //if (this.activeCce) {
+    //  this.calculateCCE()
+    //} else {
       this.calculateSurplus();
       this.calculateMonthlySavings();
       this.updateCadastreGenerationChart();
-    }
+    //}
 
     this.updateCadastreChart();
 

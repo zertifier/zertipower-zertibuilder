@@ -113,6 +113,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   communityMonthChartOptions =
     {
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
       //indexAxis: 'y',
       elements: {
         bar: {
@@ -140,6 +144,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   updateSelectedCadastreMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   selectedCadastreMonthChartOptions =
     {
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
       //indexAxis: 'y',
       // Elements options apply to all of the options unless overridden in a dataset
       // In this case, we are setting the border of each horizontal bar to be 2px wide
@@ -920,9 +928,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   async calculateSolarParams() {
 
     return new Promise((resolve, reject) => {
-      console.log("this.selectedCoords.lat,this.selectedCoords.lng,this.selectedCadastre.m2!,this.selectedOrientation,this.selectedInclination",
-        this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation, this.selectedCadastre.inclination, this.selectedCadastre.n_plaques)
-      this.energyAreasService.simulate(this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation!, this.selectedCadastre.inclination!, this.selectedCadastre.n_plaques!)
+      console.log("this.selectedCadastre.m2!,this.selectedOrientation,this.selectedInclination",
+        this.selectedCadastre.m2!, this.selectedCadastre.orientation, this.selectedCadastre.inclination)
+        let n_plaques;
+      this.energyAreasService.simulate(this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation!, this.selectedCadastre.inclination!, n_plaques!)
         .subscribe((res: any) => {
           if (!res.success) {
             reject(res.message);

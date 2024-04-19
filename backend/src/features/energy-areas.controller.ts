@@ -123,7 +123,6 @@ export class EnergyAreasController {
   }
 
   @Get("/simulate")
-  @Auth(RESOURCE_NAME)
   async getSimulation(@Query('lat') lat: number, @Query('lng') lng: number, @Query('area') area: number, @Query('direction') direction: number, @Query('angle') angle: number, @Query('panels') panels: number) {
     console.log(lat, lng, area, direction, angle, panels)
 

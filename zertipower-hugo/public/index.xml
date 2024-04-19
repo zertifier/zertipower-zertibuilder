@@ -48,7 +48,9 @@ Hi ha peticions que per seguretat demanen token, per obtenir el token s&amp;rsqu
 la petició per obtenir la autorització per obenir les dades es aquesta
 https://datadis.es/nikola-auth/tokens/login
 la petició de login espera un usuari i contrasenya al seu cos.
-Amb aquesta autorització podem demanar les dades generals del client amb petició &amp;lsquo;get-supplies&amp;rsquo;. &amp;lsquo;get-supplies&amp;rsquo; ens dona la informació necessària per obtenir els consums dels cups associats amb el compte.</description>
+Amb aquesta autorització podem demanar les dades generals del client amb petició &amp;lsquo;get-supplies&amp;rsquo;.
+https://datadis.es/api-private/api/get-supplies
+&amp;lsquo;get-supplies&amp;rsquo; ens dona la informació necessària per obtenir els consums dels cups associats amb el compte.</description>
     </item>
   </channel>
 </rss>

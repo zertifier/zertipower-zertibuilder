@@ -236,6 +236,11 @@
               </div>
 
             </div>
+
+            <div class="w-100 d-flex">
+              <button class="btn btn-danger mt-4 w-100" (click)="unselectArea(this.selectedCadastre)">Tornar</button>
+            </div>
+
           </div>
 
         </div>
@@ -364,17 +369,17 @@
               <div class="col-4 d-flex p-0 m-0">
                 <span class="d-flex me-2 smile-color">Vall</span>
                 <input type="number" class="form-control number-input"
-                  [ngModel]="selectedCadastre.vallePrice | number:'1.2-2'" (change)="updateCadastreConsumption()">
+                  [ngModel]="selectedCadastre.vallePrice | number:'1.2-2'" (change)="updateConsumptions()">
               </div>
               <div class="col-4 d-flex p-0 m-0 justify-content-center">
                 <span class="d-flex align-items-center me-2 meh-color ms-4">Pla</span>
                 <input type="number" class="form-control number-input"
-                  [ngModel]="selectedCadastre.llanoPrice | number:'1.2-2'" (change)="updateCadastreConsumption()">
+                  [ngModel]="selectedCadastre.llanoPrice | number:'1.2-2'" (change)="updateConsumptions()">
               </div>
               <div class="col-4 d-flex p-0 m-0 justify-content-end">
                 <span class="d-flex align-items-center me-2 frown-color ms-4">Punta</span>
                 <input type="number" class="form-control number-input"
-                  [ngModel]="selectedCadastre.puntaPrice | number:'1.2-2'" (change)="updateCadastreConsumption()">
+                  [ngModel]="selectedCadastre.puntaPrice | number:'1.2-2'" (change)="updateConsumptions()">
               </div>
             </div>
 

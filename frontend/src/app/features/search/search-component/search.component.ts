@@ -627,7 +627,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   updateCadastreConsumptionM2() {
 
-    //TODO: update algorythm
     let updatedConsumption = this.selectedCadastre.totalConsumption + this.selectedCadastre.m2!
     this.selectedCadastre.totalConsumption = updatedConsumption;
 
@@ -656,34 +655,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     console.log("total consumption", this.selectedCadastre.totalConsumption, " price ", this.selectedCadastre.totalConsumptionPrice)
     console.log(this.selectedCadastre.valleMonthlyPrice, this.selectedCadastre.llanoMonthlyPrice, this.selectedCadastre.puntaMonthlyPrice)
-    //this.updateCadastreChart();
-  }
-
-  // calculateCadastreMonths(){
-  //   let monthConsumption = this.selectedCadastre.totalConsumption;
-  //   this.selectedCadastre.n_plaques=Math.abs( this.selectedCadastre.n_plaques || 0)
-  //   let monthConsumptionArray: any = [];
-  //   let sumMonthGeneration: number = 0;
-  //   let sumMonthConsumption: number = 0;
-
-  //   let monthGenerationArray = Array.apply(null, Array(12)).map((element, index) => {
-  //     let monthGeneration = this.kwhMonth460wp[index] * this.selectedCadastre.n_plaques!;
-  //     monthConsumptionArray.push(monthConsumption);
-  //     sumMonthGeneration += monthGeneration;
-  //     sumMonthConsumption += monthConsumption;
-  //     return monthGeneration;
-  //   });
-
-  //   this.selectedCadastre.yearConsumption = sumMonthConsumption;
-  //   this.selectedCadastre.yearGeneration = sumMonthGeneration;
-  //   this.selectedCadastre.monthsConsumption = monthConsumptionArray;
-  //   this.selectedCadastre.monthsGeneration = monthGenerationArray;
-  // }
-
-
-  featureSelected(selectedFeature: any) {
 
   }
+
+  featureSelected(selectedFeature: any) { }
 
   updateSelectedCadastreValoration() {
     let consumption = this.selectedCadastre.yearConsumption!;
@@ -714,9 +689,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   updateCadastreChart() {
 
-    console.log("generation", this.selectedCadastre.monthsGeneration)
-    console.log("surplus", this.selectedCadastre.monthsSurplus)
-    console.log("consumption", this.selectedCadastre.monthsConsumption)
+    //console.log("generation", this.selectedCadastre.monthsGeneration)
+    //console.log("surplus", this.selectedCadastre.monthsSurplus)
+    //console.log("consumption", this.selectedCadastre.monthsConsumption)
 
     //calculateCadastreMonths();
 
@@ -952,8 +927,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
   async calculateSolarParams() {
 
     return new Promise((resolve, reject) => {
-      console.log("this.selectedCadastre.m2!,this.selectedOrientation,this.selectedInclination",
-        this.selectedCadastre.m2!, this.selectedCadastre.orientation, this.selectedCadastre.inclination)
+      //console.log("this.selectedCadastre.m2!,this.selectedOrientation,this.selectedInclination",
+      // this.selectedCadastre.m2!, this.selectedCadastre.orientation, this.selectedCadastre.inclination)
         let n_plaques;
       this.energyAreasService.simulate(this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation!, this.selectedCadastre.inclination!, n_plaques!)
         .subscribe((res: any) => {
@@ -976,11 +951,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
             });
             this.selectedCadastre.monthsGeneration = Object.values(prodByMonth);
 
-            console.log('Installed power', kWp, 'kWp');
-            console.log('Number panels:', numberPanels);
-            console.log('Cost:', totalCost.toFixed(2), '€');
-            console.log('Total year production:', totalProduction.toFixed(2), 'kWh');
-            console.log('Production by months:', this.selectedCadastre.monthsGeneration);
+            // console.log('Installed power', kWp, 'kWp');
+            // console.log('Number panels:', numberPanels);
+            // console.log('Cost:', totalCost.toFixed(2), '€');
+            // console.log('Total year production:', totalProduction.toFixed(2), 'kWh');
+            // console.log('Production by months:', this.selectedCadastre.monthsGeneration);
             resolve('success')
           }
 

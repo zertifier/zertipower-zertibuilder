@@ -864,7 +864,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let monthAverageConsumption: number = this.selectedCadastre.yearConsumption! / 12;
     let monthlyConsumedProduction: number = 0;
     let monthlyCosts = monthAverageConsumption * this.selectedCadastre.llanoPrice;
-    let CommunityMonthlyCosts:number;
+    let communityMonthlyCosts:number;
 
     if (monthAverageGeneration > monthAverageConsumption) {
 
@@ -891,17 +891,20 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     }
 
+    console.log("Average consumption",monthAverageConsumption,"llano price", this.selectedCadastre.llanoPrice, "generation price", this.selectedCadastre.generationPrice)
+
     if(this.activeAcc){
-      CommunityMonthlyCosts = monthAverageConsumption * this.selectedCadastre.llanoPrice;
+      communityMonthlyCosts = monthAverageConsumption * this.selectedCadastre.llanoPrice;
       //monthlySavings is the price of energy that you stop using from the company when you have generation
-      this.selectedCadastre.monthlySavings = monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
+      this.selectedCadastre.monthlySavings = monthlyCosts - communityMonthlyCosts//monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
       console.log("selectedCadastre.monthlySavings, monthlyConsumedProduction",this.selectedCadastre.monthlySavings, monthlyConsumedProduction)
     }
 
     if(this.activeCce){
-      CommunityMonthlyCosts = monthAverageConsumption * this.selectedCadastre.generationPrice!;
+      communityMonthlyCosts = monthAverageConsumption * this.selectedCadastre.generationPrice!;
       //monthlySavings is the price of energy that you stop using from the company when you have generation
-      this.selectedCadastre.monthlySavings = monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
+      this.selectedCadastre.monthlySavings = monthlyCosts - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
+      console.log("selectedCadastre.monthlySavings, monthlyConsumedProduction",this.selectedCadastre.monthlySavings, monthlyConsumedProduction)
     }
 
     //TODO: temporal sum of savings and profits

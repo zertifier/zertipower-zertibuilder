@@ -121,7 +121,7 @@ export class AuthController {
     if(!dbUser){
       try{
         let encryptedPassword = await PasswordUtils.encrypt(private_key);
-        await this.conn.query(insertUserQuery,[wallet_address,encryptedPassword,2,email,email,email,email]);
+        await this.conn.query(insertUserQuery,[wallet_address,encryptedPassword,1,email,email,email,email]);
       }catch(e){
         console.log("error web wallet login",e);
         throw new UserNotFoundError();

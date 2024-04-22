@@ -7,7 +7,7 @@ weight = 4
 
 ### Requisits per obtenir les dades de Datadis
 
-Per obtenir les dades de un Datadis és necessari tenir un usuari registrat. 
+Per obtenir les dades d'un Datadis és necessari tenir un usuari registrat. 
 
 la petició per obtenir la autorització per obenir les dades es aquesta
 
@@ -19,9 +19,24 @@ la petició de login espera un usuari i contrasenya al seu cos.
 
 Amb aquesta autorització podem demanar les dades generals del client amb petició 'get-supplies'.
 
- ![postman-datadis-login.PNG](postman-datadis-supplies.PNG)
+https://datadis.es/api-private/api/get-supplies
 
+'get-supplies' ens dona la informació necessària per obtenir els consums dels cups associats amb el compte. 
+El paràmetre opcional 'authorizedNif' pot utilitzar-se per obtenir els suministraments dels comptes autoritzats.
 
+ ![postman-datadis-supplies.PNG](postman-datadis-supplies.PNG)
+
+La següent petició és per obtenir els consums: 
+
+https://datadis.es/api-private/api/get-consumption-data
+
+Els paràmetres per obtenir els consums son els següents: 
+cups, meassurementType, pointType, distributorCode, startDate, endDate i authorizedNif (opcional)
+
+![postman-datadis-consumptions.PNG](postman-datadis-consumptions.PNG)
+![postman-datadis-consumptions-response.PNG](postman-datadis-consumptions-response.PNG)
+
+Per consultar més informació sobre el API: https://datadis.es/private-api
 
 <!-- https://datadis.es/api-private/api/get-supplies
 

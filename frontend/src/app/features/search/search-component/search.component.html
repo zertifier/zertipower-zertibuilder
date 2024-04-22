@@ -23,14 +23,15 @@
     </div>
 
     <div class="col col-12 col-md-7">
-      <select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2 heartbeat"
-        [tooltip]="communitySelectionTooltip" [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW"
-        [showOnInit]="true" (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
+      <select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
+        class="form-select px-2 heartbeat" [tooltip]="communitySelectionTooltip" [theme]="TooltipTheme.DARK"
+        [position]="TooltipPosition.BELOW" [showOnInit]="true"
+        (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
         <option [ngValue]="newCommunity">Nova comunitat</option>
         <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
       </select>
       <select *ngIf="selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity" class="form-select px-2"
-         (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
+        (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
         <option [ngValue]="newCommunity">Nova comunitat</option>
         <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{community.name}}</option>
       </select>
@@ -39,7 +40,8 @@
   </div>
 </div>
 
-<div class="card mt-2 position-absolute p-2" style="z-index:3; width: 260px;height: 65px; margin-bottom: 50px;top: 60px;"
+<div class="card mt-2 position-absolute p-2"
+  style="z-index:3; width: 260px;height: 65px; margin-bottom: 50px;top: 60px;"
   [ngClass]=" isShrunk ? 'location-bar-closed' : 'location-bar-open'"
   *ngIf="!addedAreas.length && selectedCommunity && !selectedCadastre.feature">
   <div class="fs-21">Tria una àrea per calcular l'estalvi energètic.</div>
@@ -86,12 +88,13 @@
           </div>
 
           <div class="d-flex w-100">
-            
+
             <div class="custom-chart mb-4" style="width:95%; position:relative">
               <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType" [labels]="monthChartLabels"
                 [datasets]="communityMonthChartDatasets" [options]="communityMonthChartOptions"
                 [updateSubject]="communityUpdateMonthChartSubject.asObservable()"></app-chart>
-                <div  *ngIf="!selectedCommunity.cups_number && !addedAreas.length" class="chart-message">Agrega àrees per obtenir dades comunitàries</div>
+              <div *ngIf="!selectedCommunity.cups_number && !addedAreas.length" class="chart-message">Agrega àrees per
+                obtenir dades comunitàries</div>
             </div>
           </div>
 
@@ -143,8 +146,9 @@
                   <span class="d-flex align-items-center fs-12 me-2"> Nº de plaques</span>
                   <!-- <div class="form-text">(Opcional)</div> -->
                 </div>
-                <input type="number" class="form-control number-input disabled" [(ngModel)]="this.selectedCadastre.n_plaques"
-                  (change)="updateCadastreChart()" min="0" step="0" disabled>
+                <input type="number" class="form-control number-input disabled"
+                  [(ngModel)]="this.selectedCadastre.n_plaques" (change)="updateCadastreChart()" min="0" step="0"
+                  disabled>
               </div>
 
             </div>
@@ -155,16 +159,17 @@
                 <span class="d-flex align-items-center fs-12 me-2">Inclinació del sostre</span>
                 <select id="inclinationSelector" class="form-select text-selector pt-1 w-100"
                   style="width: 115px !important;" [(ngModel)]="this.selectedCadastre.inclination">
-                  
+
                   <option *ngFor="let inclination of inclinations" [ngValue]="inclination.value">
                     {{ inclination.name }}
                   </option>
                 </select>
-                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2" style="height:17px !important; width:21px !important"
-                [tooltip]=inclinationTooltipText [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW" >
+                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2"
+                  style="height:17px !important; width:21px !important" [tooltip]=inclinationTooltipText
+                  [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW">
                   <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 13px;"></i>
                 </div>
-                
+
               </div>
 
               <div class="col-6 p-0 d-flex justify-content-end align-items-center">
@@ -172,7 +177,7 @@
 
                 <select id="orientationSelector" class="form-select number-input pt-1"
                   [(ngModel)]="this.selectedCadastre.orientation">
-                  
+
                   <option *ngFor="let orientation of orientations" [ngValue]="orientation.value">
                     {{ orientation.name }}
                   </option>
@@ -217,17 +222,25 @@
             <div class="row p-0 m-0 w-100 mt-4 d-flex justify-content-between">
 
               <div class="col-6 d-flex m-0 ps-0">
-                <button class="btn fs-7 w-100" (click)="activeIndividual=true;activeCommunity=false; simulateGeneration()" [ngClass]="activeIndividual?'bg-complement':'btn-secondary'">Estalvi
+                <button class="btn fs-7 w-100"
+                  (click)="activeIndividual=true;activeCommunity=false; simulateGeneration()"
+                  [ngClass]="activeIndividual?'bg-complement':'btn-secondary'">Estalvi
                   autoconsum</button>
               </div>
 
               <div class="col-6 d-flex m-0 p-0 d-flex justify-content-end">
                 <button class="btn fs-7 w-100"
-                  (click)="activeIndividual=false;activeCommunity=true; simulateGeneration()"  [ngClass]="activeCommunity?'bg-complement':'btn-secondary'">Estalvi
+                  (click)="activeIndividual=false;activeCommunity=true; simulateGeneration()"
+                  [ngClass]="activeCommunity?'bg-complement':'btn-secondary'">Estalvi
                   membre comunitari</button>
               </div>
 
             </div>
+
+            <div class="w-100 d-flex">
+              <button class="btn btn-danger mt-4 w-100" (click)="unselectArea(this.selectedCadastre)">Tornar</button>
+            </div>
+
           </div>
 
         </div>
@@ -264,17 +277,18 @@
 
               <div class="col-6 p-0 d-flex align-items-center">
                 <span class="d-flex align-items-center fs-12 me-2">Inclinació del sostre</span>
-                <select id="inclinationSelector" class="form-select text-selector pt-1"
-                  style="width: 115px !important;" [(ngModel)]="this.selectedCadastre.inclination">
+                <select id="inclinationSelector" class="form-select text-selector pt-1" style="width: 115px !important;"
+                  [(ngModel)]="this.selectedCadastre.inclination">
                   <option *ngFor="let inclination of inclinations" [ngValue]="inclination.value">
                     {{ inclination.name }}
                   </option>
                 </select>
-                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2" style="height:17px !important; width:17px !important"
-                [tooltip]=inclinationTooltipText [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW" >
+                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2"
+                  style="height:17px !important; width:17px !important" [tooltip]=inclinationTooltipText
+                  [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW">
                   <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 13px;"></i>
                 </div>
-                
+
               </div>
 
               <div class="col-6 p-0 d-flex justify-content-end align-items-center">
@@ -282,7 +296,7 @@
 
                 <select id="orientationSelector" class="form-select number-input pt-1"
                   [(ngModel)]="this.selectedCadastre.orientation">
-                  
+
                   <option *ngFor="let orientation of orientations" [ngValue]="orientation.value">
                     {{ orientation.name }}
                   </option>
@@ -293,26 +307,33 @@
             <div class="row p-0 m-0 w-100 mt-4 d-flex justify-content-between">
 
               <div class="col-6 d-flex m-0 ps-0">
-                <button class="btn btn-secondary fs-7 w-100" (click)="activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()"
-                [ngClass]="activeIndividual?'bg-complement':'btn-secondary'">Estalvi autoconsum</button>
+                <button class="btn btn-secondary fs-7 w-100"
+                  (click)="activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()"
+                  [ngClass]="activeIndividual?'bg-complement':'btn-secondary'">Estalvi autoconsum</button>
               </div>
 
               <div class="col-6 d-flex m-0 p-0 d-flex justify-content-end">
                 <button class="btn fs-7 w-100"
-                  (click)="activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()" [ngClass]="activeCommunity?'bg-complement':'btn-secondary'">Estalvi membre comunitari</button>
+                  (click)="activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()"
+                  [ngClass]="activeCommunity?'bg-complement':'btn-secondary'">Estalvi membre comunitari</button>
               </div>
 
             </div>
 
             <div class="d-flex align-items-center mt-3">
               <span class="fs-6 bolder my-1">Introdueix el preu de l'energia sobrant. €/kWh.</span>
-              <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2" style="height:17px !important; width:17px !important"
-                [tooltip]=surplusTooltipText [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW">
-                  <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 13px;"></i>
-                </div>
+              <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2"
+                style="height:17px !important; width:17px !important" [tooltip]=surplusTooltipText
+                [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW">
+                <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 13px;"></i>
+              </div>
             </div>
 
-            <input type="number" class="form-control number-input w-100" [(ngModel)]="selectedCadastre.generationPrice" min="0">
+            <input *ngIf="!selectedCommunity.energy_price" type="number" class="form-control number-input w-100"
+              [(ngModel)]="selectedCadastre.generationPrice" min="0">
+            <input *ngIf="selectedCommunity.energy_price" type="number" class="form-control number-input w-100"
+              [(ngModel)]="selectedCommunity.energy_price" min="0" disabled>
+            {{selectedCommunity.energyPrice}}
 
             <div class="mt-3">
               <span class="fs-6 bolder my-1">Introdueix el consum mensual per periode.</span>
@@ -348,25 +369,23 @@
               <div class="col-4 d-flex p-0 m-0">
                 <span class="d-flex me-2 smile-color">Vall</span>
                 <input type="number" class="form-control number-input"
-                  [ngModel]="selectedCadastre.vallePrice | number:'1.2-2'" 
-                  (change)="updateCadastreConsumption()">
+                  [ngModel]="selectedCadastre.vallePrice | number:'1.2-2'" (change)="updateConsumptions()">
               </div>
               <div class="col-4 d-flex p-0 m-0 justify-content-center">
                 <span class="d-flex align-items-center me-2 meh-color ms-4">Pla</span>
                 <input type="number" class="form-control number-input"
-                  [ngModel]="selectedCadastre.llanoPrice | number:'1.2-2'" 
-                  (change)="updateCadastreConsumption()">
+                  [ngModel]="selectedCadastre.llanoPrice | number:'1.2-2'" (change)="updateConsumptions()">
               </div>
               <div class="col-4 d-flex p-0 m-0 justify-content-end">
                 <span class="d-flex align-items-center me-2 frown-color ms-4">Punta</span>
                 <input type="number" class="form-control number-input"
-                  [ngModel]="selectedCadastre.puntaPrice | number:'1.2-2'" 
-                  (change)="updateCadastreConsumption()">
+                  [ngModel]="selectedCadastre.puntaPrice | number:'1.2-2'" (change)="updateConsumptions()">
               </div>
             </div>
 
             <div class="d-flex mt-4" *ngIf="!this.addedAreas.includes(this.selectedCadastre)">
-              <button class="btn btn-secondary w-100" (click)="simulateGenerationConsumption()">Calcular estalvi</button>
+              <button class="btn btn-secondary w-100" (click)="simulateGenerationConsumption()">Calcular
+                estalvi</button>
             </div>
 
             <div class="row ps-0 m-0 pb-2 mt-4">
@@ -388,15 +407,18 @@
             <div class="row ps-0 m-0 pb-2">
 
               <div class="col-4 m-0 p-0 d-flex align-items-center p-1">
-                <input type="number" class="form-control number-input w-100" readonly disabled [value]="this.selectedCadastre.monthlySavings | number:'1.2-2'" >                
+                <input type="number" class="form-control number-input w-100" disabled
+                  [value]="this.selectedCadastre.monthlySavings">
               </div>
 
               <div class="col-4 m-0 p-0 d-flex align-items-center p-1">
-                <input type="number" class="form-control number-input w-100" readonly disabled [value]="this.selectedCadastre.totalCost">
+                <input type="number" class="form-control number-input w-100" readonly disabled
+                  [value]="this.selectedCadastre.totalCost">
               </div>
 
               <div class="col-4 m-0 p-0 d-flex align-items-center p-1">
-                <input type="number" class="form-control number-input w-100" disabled readonly [value]="this.selectedCadastre.redeemYears">
+                <input type="number" class="form-control number-input w-100" disabled readonly
+                  [value]="this.selectedCadastre.redeemYears">
               </div>
 
             </div>
@@ -415,37 +437,54 @@
               <div class="row p-0 m-0 w-100 mt-4 d-flex justify-content-between">
 
                 <div class="col-6 d-flex m-0 ps-0 justify-content-center">
-                   
-                <button class="btn w-100" (click)="activeAcc=true;activeCce=false"
-                [ngClass]="activeAcc?'bg-complement':'btn-secondary'">
-                  <span class="fs-6 w-100">Estadístiques segons ACC</span><br>
-                  <span class="fs-7 w-100">Autoconsum compartit</span>  
-                </button>
-              
+
+                  <button class="btn w-100" (click)="activeAcc=true;activeCce=false;simulateGenerationConsumption()"
+                    [ngClass]="activeAcc?'bg-complement':'btn-secondary'">
+                    <span class="fs-6 w-100">ACC</span><br>
+                  </button>
+
                 </div>
-  
+
                 <div class="col-6 d-flex m-0 p-0 d-flex justify-content-center">
-                  <button class="btn w-100" (click)="activeAcc=false;activeCce=true"
-                [ngClass]="activeCce?'bg-complement':'btn-secondary'">
-                <span class="fs-6 w-100">Estadístiques segons CCE</span><br>
-                <span class="fs-7 w-100">Consum energètic compartit</span>
-                </button>
-                  
+                  <button class="btn w-100" (click)="activeAcc=false;activeCce=true;simulateGenerationConsumption()"
+                    [ngClass]="activeCce?'bg-complement':'btn-secondary'">
+                    <span class="fs-6 w-100">CCE</span><br>
+                  </button>
+
                 </div>
-  
+
+              </div>
+
+              <div class="row p-0 m-0 w-100 mt-2 d-flex justify-content-between">
+
+                <div class="col-6 d-flex m-0 ps-0 justify-content-center">
+
+                    <span class=" w-100 form-text">Estadístiques segons
+                    Auto Consum Compartit</span>
+
+                </div>
+
+                <div class="col-6 d-flex m-0 p-0 d-flex justify-content-center">
+                  
+                    <span class=" w-100 form-text">Estadístiques segons CCE
+                    Comunitat Ciutadana Energètica</span>
+                
+                </div>
+
               </div>
 
               <div class="row p-0 m-0 w-100 mt-4 d-flex ">
-                
+
                 <div class="custom-chart mb-4" style="width:95%; position:relative">
-                    <app-chart [chartId]="'selectedCadastreAcc'" [chartType]="selectedCadastreMonthChartType"
-                      [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
-                      [options]="communityMonthChartOptions"
-                      [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()"></app-chart>
-                    <div  *ngIf="!selectedCadastreMonthChartDatasets.length" class="chart-message">Calcula per veure la simulació de l'àrea</div>
+                  <app-chart [chartId]="'selectedCadastreAcc'" [chartType]="selectedCadastreMonthChartType"
+                    [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
+                    [options]="communityMonthChartOptions"
+                    [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()"></app-chart>
+                  <div *ngIf="!selectedCadastreMonthChartDatasets.length" class="chart-message">Calcula per veure la
+                    simulació de l'àrea</div>
                 </div>
 
-                 <!-- <div class="col-6 m-0 ps-0">
+                <!-- <div class="col-6 m-0 ps-0">
                     <app-chart [chartId]="'selectedCadastreCec'" [chartType]="selectedCadastreMonthChartType"
                       [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
                       [options]="communityMonthChartOptions"
@@ -453,7 +492,7 @@
                 </div>  -->
 
               </div>
-             
+
             </div>
 
             <span class="fs-6 my-2">Valoració del teu consum</span>

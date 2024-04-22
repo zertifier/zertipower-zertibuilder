@@ -476,8 +476,10 @@ export class CommunitiesController {
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
-    mappedData.communitySurplusActive = data.surplusCommunityActive || data.surplus_community_active;
-    mappedData.communitySurplus = data.surplusCommunity || data.surplus_community;
+    // mappedData.communitySurplusActive = data.surplusCommunityActive || data.surplus_community_active;
+    mappedData.productionActives = data.surplusCommunityActive || data.surplus_community_active;
+    // mappedData.communitySurplus = data.surplusCommunity || data.surplus_community;
+    mappedData.production = data.surplusCommunity || data.surplus_community;
     mappedData.activeMembers = parseInt(data.activeMembers) || parseInt(data.active_members);
     mappedData.type = data.type;
 /*    mappedData.createdAt = data.createdAt || data.created_at;

@@ -603,12 +603,12 @@
   </div>-->
 
   <div *ngIf="selectedCommunity" class="position-absolute top-0 start-0 h-100 d-flex align-items-end"
-       style=" z-index:2;">
+       style=" z-index:2; pointer-events: none; ">
 
-    <div>
+    <div style="pointer-events: auto;">
       <div id="div-shrink"
            class="d-flex flex-column align-items-center border border-0 border-bottom border-bottom-light"
-           style="width: 100vw !important;">
+           style="width: 100vw !important;  ">
         <button class="btn btn-primary border-0 shadow-none rounded-0 mx-auto w-100 " (click)="changeShrinkState()">
           <!--        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none"-->
           <!--                [ngClass]="getThemeName() == 'Dark' ? 'text-light' : 'text-dark'" (click)="changeShrinkState()">-->
@@ -634,7 +634,7 @@
           <div *ngIf="!selectedCadastre.feature" class="mt-4 ms-4">
             <span class="fs-5">Consum de la comunitat</span>
 
-            <div class="row mt-2">
+            <div class="row mt-2 mx-0">
               <div class="col-6 d-flex justify-content-center">
                 <span class="d-flex align-items-center me-2">Membres</span>
                 <span *ngIf="selectedCommunity">{{ selectedCommunity.cups_number || 0 }}</span>

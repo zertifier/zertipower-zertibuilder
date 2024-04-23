@@ -602,8 +602,8 @@
     <div class="fs-21">Tria una àrea per calcular l'estalvi energètic.</div>
   </div>-->
 
-  <div *ngIf="selectedCommunity" class="position-absolute top-0 start-0 h-100 d-flex align-items-end"
-       style=" z-index:2; pointer-events: none; ">
+  <div *ngIf="selectedCommunity" class="position-absolute top-0 start-0 d-flex align-items-end"
+       style=" z-index:2; pointer-events: none; height: 100vh; ">
 
     <div style="pointer-events: auto;">
       <div id="div-shrink"
@@ -635,11 +635,11 @@
             <span class="fs-5">Consum de la comunitat</span>
 
             <div class="row mt-2 mx-0">
-              <div class="col-6 d-flex justify-content-center">
+              <div class="col-12 col-sm-6 d-flex justify-sm-content-center">
                 <span class="d-flex align-items-center me-2">Membres</span>
                 <span *ngIf="selectedCommunity">{{ selectedCommunity.cups_number || 0 }}</span>
               </div>
-              <div class="col-6 d-flex justify-content-center">
+              <div class="col-12 col-sm-6 d-flex justify-sm-content-center">
                 <span class="d-flex align-items-center me-2">Membres simulats {{ addedAreas.length }}</span>
               </div>
             </div>

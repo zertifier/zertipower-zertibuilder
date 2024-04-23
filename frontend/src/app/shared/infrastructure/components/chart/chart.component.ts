@@ -1,7 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectorRef,
-  Component,
+  Component, HostListener,
   Input,
   OnChanges,
   OnInit,
@@ -33,13 +33,27 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
   @Input() data: any[] = [];
   @Input() backgroundColor: string[] = [];
   @Input() updateSubject!: Observable<any>;
+  @Input() deleteSubject?: Observable<boolean>;
   @Input() options:any = {
     responsive:true,
-    mantainAspectRatio:false
+    mantainAspectRatio:false,
   };
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private cdr: ChangeDetectorRef) {
 
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    // console.log(this.options)
+      /*if(event < 768){
+        this.options.indexAxis = 'y'
+      }else{
+        this.options.indexAxis = 'x'
+      }
+    ;*/
+    this.updateChart()
+  }
   ngAfterViewInit() {
     //console.log(this.chartId)
     this.chartCanvas = document.getElementById(this.chartId);
@@ -52,6 +66,15 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
         this.updateChart();
       }
     })
+
+    if (this.deleteSubject){
+      this.deleteSubject.subscribe((hastToDelete) => {
+
+        if (hastToDelete && this.chart)
+          this.destroyChart()
+          this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []},options:this.options})
+      })
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -109,4 +132,7 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
     return new Promise( resolve => setTimeout(resolve, ms) );
   }
 
+  destroyChart(){
+    this.chart.destroy()
+  }
 }

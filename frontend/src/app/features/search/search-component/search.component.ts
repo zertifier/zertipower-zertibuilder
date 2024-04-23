@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
 import { TooltipPosition, TooltipTheme } from 'src/app/shared/infrastructure/directives/tooltip/tooltip.enums';
 import { TooltipDirective } from 'src/app/shared/infrastructure/directives/tooltip/tooltip.directive';
 import { EnergyBlocksApiService } from '../../energy-blocks/energy-blocks.service';
+import {AppChartComponent} from "../../../shared/infrastructure/components/chart/chart.component";
 
 
 interface cadastre {
@@ -111,13 +112,15 @@ export class SearchComponent implements OnInit, AfterViewInit {
   communityMonthChartDatasets: any = [];
   communityMonthChartType = 'bar';
   communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  communityMonthChartOptions =
+  communityDeleteMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  communityMonthChartOptions: any =
     {
       interaction: {
         intersect: false,
         mode: 'index',
       },
-      //indexAxis: 'y',
+      // indexAxis: this.isMobile ? 'y' : 'x',
+      indexAxis: 'x',
       elements: {
         bar: {
           borderWidth: 0,
@@ -249,16 +252,30 @@ export class SearchComponent implements OnInit, AfterViewInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private renderer: Renderer2
+    private renderer: Renderer2,
   ) { }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    this.setMobileStatus(window.innerWidth)
+    if (this.setMobileStatus(window.innerWidth) != this.isMobile) {
+      this.isMobile = this.setMobileStatus(window.innerWidth)
+      this.setMobileDesktopOptions()
+      this.communityDeleteMonthChartSubject.next(true)
+    }
+    // this.communityMonthChartOptions.indexAxis= this.isMobile ? 'y' : 'x'
+    // this.setMobileOptions()
+    // this.communityDeleteMonthChartSubject.next(true)
+    // this.updateCommunityChart()
+
   }
 
   async ngOnInit() {
-    this.setMobileStatus(window.innerWidth)
+    if (this.setMobileStatus(window.innerWidth) != this.isMobile) {
+      this.isMobile = this.setMobileStatus(window.innerWidth)
+      this.setMobileDesktopOptions()
+      this.communityDeleteMonthChartSubject.next(true)
+    }
+
     this.paramsSub = this.activatedRoute.params.subscribe(
       params => (this.locationId = parseInt(params['id'], 10))
     );
@@ -1039,7 +1056,34 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   setMobileStatus(sizePx: number){
-    this.isMobile = sizePx < 768;
+    return sizePx < 768;
+  }
+
+  setMobileDesktopOptions(){
+    this.communityMonthChartOptions =
+      {
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        indexAxis: this.isMobile ? 'y' : 'x',
+        aspectRatio: this.isMobile ? 1.1 : 1.5,
+        elements: {
+          bar: {
+            borderWidth: 0,
+          }
+        },
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          }
+        }
+      }
   }
 }
 

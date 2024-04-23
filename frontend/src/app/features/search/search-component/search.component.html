@@ -1,7 +1,7 @@
 <app-map [activeFeatures]="addedAreas" class="" style="width:100%;height:100%"></app-map>
 <!-- position-absolute top-0 start-0 p-0 m-0 -->
 
-<a [routerLink]="['/']" class="position-absolute bottom-0 end-0 pb-4">
+<a *ngIf="!isMobile" [routerLink]="['/']" class="position-absolute bottom-0 end-0 pb-4">
   <img src="assets/img/navbar/zertipower-logo-blanc-horizontal.png" class="px-3" alt="zertipower-logo"
        style="width: 265px;">
   <!--  <img *ngIf="isShrunk" src="assets/img/navbar/zertipower-logo-blanc.png" class="w-100  px-3" alt="zertipower-logo">-->
@@ -220,7 +220,7 @@
               </div>
 
               <div class="form-text mt-4">
-                Tria que mode d'estalvi vols, tenint en compte el tipus de consum que tens.<br>
+                Tria quin mode d'estalvi vols, tenint en compte el tipus de consum que tens.<br>
                 Autoconsum individual: Ús de plaques individualitzat sense compartir.<br>
                 Membres de la comunitat: Ús de plaques i energia compartida.
               </div>
@@ -574,10 +574,16 @@
 
       <div class="row my-3">
         <div class="col-12 pe-0 ps-2">
-          <select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
+          <!--<select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
                   class="form-select heartbeat border border-light w-100" [tooltip]="communitySelectionTooltip"
                   [theme]="TooltipTheme.DARK"
                   [position]="TooltipPosition.BELOW" [showOnInit]="true"
+                  (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
+            <option [ngValue]="newCommunity">Nova comunitat</option>
+            <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{ community.name }}</option>
+          </select>-->
+          <select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
+                  class="form-select heartbeat border border-light w-100"
                   (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
             <option [ngValue]="newCommunity">Nova comunitat</option>
             <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{ community.name }}</option>
@@ -616,10 +622,10 @@
           <i *ngIf="!isShrunk" class="fa-solid fa-caret-down fs-5"></i>
         </button>
       </div>
-      <nav class="d-flex flex-shrink-0 text-bg-dark d-md-block bg-primary" style="max-height: 75vh;">
+      <nav class="d-flex flex-shrink-0 text-bg-dark d-md-block bg-primary pb-4" style="max-height: 75vh;">
 
         <div class="py-2 d-flex flex-column overflow-y-auto w-100" [ngClass]=" isShrunk ? 'd-none' : 'open-nav'"
-             style="height: 75vh">
+             style="height: 70vh">
 
           <!-- <a [routerLink]="['/']" class="navbar-brand">ZERTIPOWER</a> -->
           <!--<a [routerLink]="['/']" class="navbar-brand text-center">
@@ -653,7 +659,8 @@
 
             <div class="d-flex w-100">
 
-              <div class="custom-chart mb-4" style="width:95%; position:relative">
+<!--              <div class="custom-chart mb-4" style="width:95%; position:relative">-->
+              <div class="custom-chart mb-4">
                 <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType"
                            [labels]="monthChartLabels"
                            [datasets]="communityMonthChartDatasets" [options]="communityMonthChartOptions"
@@ -741,7 +748,7 @@
                 </div>
 
                 <div class="col-6 mt-1">
-                  <label class="form-label fs-6 me-2">Orientació</label>
+                  <label class="form-label fs-6 me-2">Orientació del sostre</label>
 
                   <select id="orientationSelector" class="form-select number-input mx-auto w-100"
                           style="padding-top: 2px !important;"
@@ -783,7 +790,7 @@
               </div>
 
               <div class="form-text mt-4">
-                Tria que mode d'estalvi vols, tenint en compte el tipus de consum que tens.<br>
+                Tria quin mode d'estalvi vols, tenint en compte el tipus de consum que tens.<br>
                 Autoconsum individual: Ús de plaques individualitzat sense compartir.<br>
                 Membres de la comunitat: Ús de plaques i energia compartida.
               </div>
@@ -1041,7 +1048,8 @@
 
                 <div class="row p-0 m-0 w-100 mt-4 d-flex ">
 
-                  <div class="custom-chart mb-4" style="width:95%; position:relative">
+<!--                  <div class="custom-chart mb-4" style="width:95%; position:relative">-->
+                  <div class="custom-chart mb-4" >
                     <app-chart [chartId]="'selectedCadastreAcc'" [chartType]="selectedCadastreMonthChartType"
                                [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
                                [options]="communityMonthChartOptions"
@@ -1088,6 +1096,10 @@
 
       </nav>
 
+     <div class="w-100 bg-primary text-center py-3 border border-0 border-top ">
+       <img src="assets/img/navbar/zertipower-logo-blanc-horizontal.png" alt="zertipower-logo"
+            style="width: 250px;">
+     </div>
 
     </div>
 

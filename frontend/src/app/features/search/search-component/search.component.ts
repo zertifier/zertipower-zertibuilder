@@ -496,7 +496,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   renderLocation() {
-
     //If the information is loaded, there is no need to make the request again
     if (this.energyAreas) { return }
 
@@ -552,6 +551,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.selectedCadastre.feature = feature;
         this.selectedCadastre.id = cadastre;
 
+        if (this.isMobile) this.isShrunk = false
         let areaM2: any = feature.getProperty('areaM2');
         this.selectedCadastre.m2 = Math.floor(areaM2);
         //this.selectedCadastre.n_plaques = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7) | 0;

@@ -629,7 +629,7 @@
             &lt;!&ndash; <h5>Calculadora energètica</h5> &ndash;&gt;
           </a>-->
 
-<!--          <hr class="mb-0">-->
+          <!--          <hr class="mb-0">-->
 
           <div *ngIf="!selectedCadastre.feature" class="mt-2 mx-4">
             <span class="fs-5">Consum de la comunitat</span>
@@ -690,59 +690,61 @@
 
           <!-- <hr class="mb-0"> -->
 
-          <div class="w-100 d-flex justify-content-center mt-4"
+          <div class="w-100 d-flex justify-content-center mt-2 px-4"
                *ngIf="selectedCadastre.feature && !activeIndividual && !activeCommunity">
 
-            <div style="width: 465px;">
+            <div>
 
               <div class="d-flex justify-content-center">
                 <span class="fs-5 my-2">Potencial producció instal·lació fotovoltaica</span>
               </div>
 
-              <div class="row ps-0 m-0 pb-2 mt-4">
+              <div class="row ps-0 pb-2 mt-4">
 
-                <div class="col-6 p-0 d-flex align-items-center">
-                  <span class="d-flex  fs-12 me-2">Àrea M²</span>
+                <div class="col-6">
+                  <label class="form-label fs-6 me-2">Àrea M²</label>
 
-                  <input type="number" class="form-select number-input" [(ngModel)]="this.selectedCadastre.m2"
+                  <input type="number" class="form-select number-input mx-auto w-100"
+                         [(ngModel)]="this.selectedCadastre.m2"
                          (change)="updateCadastreChart()" min="0" step="0">
                 </div>
 
-                <div class="col-6 p-0 d-flex justify-content-end align-items-center">
-                  <div class="col-6 p-0  d-flex flex-column">
-                    <span class="d-flex align-items-center fs-12 me-2"> Nº de plaques</span>
-                    <!-- <div class="form-text">(Opcional)</div> -->
-                  </div>
-                  <input type="number" class="form-control number-input disabled"
+                <div class="col-6">
+                  <label class="form-label fs-6 me-2"> Nº de plaques</label>
+                  <input type="number" class="form-control number-input disabled mx-auto w-100"
                          [(ngModel)]="this.selectedCadastre.n_plaques" (change)="updateCadastreChart()" min="0" step="0"
                          disabled>
                 </div>
 
               </div>
 
-              <div class="row ps-0 m-0 pb-2 mt-4">
+              <div class="row ps-0 pb-2 mt-4">
+                <div class="col-6">
+                  <div class="d-flex mt-1">
+                    <label class="form-label fs-6 me-2">Inclinació del sostre</label>
+                    <div class="bg-light rounded-circle d-flex justify-content-center align-items-center"
+                         style="height:14px !important; width:13.8px !important" [tooltip]=inclinationTooltipText
+                         [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW">
+                      <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 10px;"></i>
+                    </div>
+                  </div>
 
-                <div class="col-6 p-0 d-flex align-items-center">
-                  <span class="d-flex align-items-center fs-12 me-2">Inclinació del sostre</span>
-                  <select id="inclinationSelector" class="form-select text-selector pt-1 w-100"
-                          style="width: 115px !important;" [(ngModel)]="this.selectedCadastre.inclination">
+                  <select id="inclinationSelector" class="form-select text-selector mx-auto w-100"
+                          style="padding-top: 2px !important;"
+                          [(ngModel)]="this.selectedCadastre.inclination">
 
                     <option *ngFor="let inclination of inclinations" [ngValue]="inclination.value">
                       {{ inclination.name }}
                     </option>
                   </select>
-                  <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2"
-                       style="height:17px !important; width:21px !important" [tooltip]=inclinationTooltipText
-                       [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW">
-                    <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 13px;"></i>
-                  </div>
 
                 </div>
 
-                <div class="col-6 p-0 d-flex justify-content-end align-items-center">
-                  <span class="d-flex align-items-center fs-12 me-2">Orientació</span>
+                <div class="col-6 mt-1">
+                  <label class="form-label fs-6 me-2">Orientació</label>
 
-                  <select id="orientationSelector" class="form-select number-input pt-1"
+                  <select id="orientationSelector" class="form-select number-input mx-auto w-100"
+                          style="padding-top: 2px !important;"
                           [(ngModel)]="this.selectedCadastre.orientation">
 
                     <option *ngFor="let orientation of orientations" [ngValue]="orientation.value">
@@ -752,8 +754,7 @@
                 </div>
               </div>
 
-              <div class="row p-0 m-0 w-100 mt-5">
-                <div class="col-12 d-flex m-0 p-0">
+              <div class="w-100 mt-5 mx-0">
                   <button
                     *ngIf="this.selectedCadastre.inclination==undefined || this.selectedCadastre.orientation==undefined"
                     class="btn btn-secondary w-100 fs-7 disabled" (click)="simulateGeneration()">Calcular
@@ -763,7 +764,6 @@
                     *ngIf="this.selectedCadastre.inclination!=undefined && this.selectedCadastre.orientation!=undefined"
                     class="btn btn-secondary w-100 fs-7" (click)="simulateGeneration()">Calcular generació
                   </button>
-                </div>
               </div>
 
 
@@ -788,27 +788,22 @@
                 Membres de la comunitat: Ús de plaques i energia compartida.
               </div>
 
-              <div class="row p-0 m-0 w-100 mt-4 d-flex justify-content-between">
-
-                <div class="col-6 d-flex m-0 ps-0">
-                  <button class="btn fs-7 w-100"
+              <div class="w-100 mt-4 mx-0">
+                  <button class="btn fs-7 w-100 my-2"
                           (click)="activeIndividual=true;activeCommunity=false; simulateGeneration()"
                           [ngClass]="activeIndividual?'bg-complement':'btn-secondary'">Estalvi
                     autoconsum
                   </button>
-                </div>
 
-                <div class="col-6 d-flex m-0 p-0 d-flex justify-content-end">
-                  <button class="btn fs-7 w-100"
+                  <button class="btn fs-7 w-100 my-2"
                           (click)="activeIndividual=false;activeCommunity=true; simulateGeneration()"
                           [ngClass]="activeCommunity?'bg-complement':'btn-secondary'">Estalvi
                     membre comunitari
                   </button>
-                </div>
 
               </div>
 
-              <div class="w-100 d-flex">
+              <div class="w-100">
                 <button class="btn btn-danger mt-4 w-100" (click)="unselectArea(this.selectedCadastre)">Tornar</button>
               </div>
 
@@ -816,57 +811,59 @@
 
           </div>
 
-          <div *ngIf="activeIndividual || activeCommunity" class="w-100 d-flex justify-content-center mt-4">
+          <div *ngIf="activeIndividual || activeCommunity" class="w-100 d-flex justify-content-center mt-4 px-4">
 
-            <div style="width: 465px;">
+            <div>
 
               <div class="d-flex justify-content-center">
                 <span class="fs-5 my-2">Potencial producció instal·lació fotovoltaica</span>
               </div>
 
-              <div class="row ps-0 m-0 pb-2 mt-4">
+              <div class="row ps-0 pb-2 mt-4">
+                <div class="col-6">
+                  <label class="form-label fs-6 me-2">Àrea M²</label>
 
-                <div class="col-6 p-0 d-flex align-items-center">
-                  <span class="d-flex  fs-12 me-2">Àrea M²</span>
-
-                  <input type="number" class="form-select number-input" [(ngModel)]="this.selectedCadastre.m2"
+                  <input type="number" class="form-select number-input mx-auto w-100"
+                         [(ngModel)]="this.selectedCadastre.m2"
                          (change)="updateCadastreChart()" min="0" step="0">
                 </div>
 
-                <div class="col-6 p-0 d-flex justify-content-end align-items-center">
-                  <div class="col-6 p-0  d-flex flex-column">
-                    <span class="d-flex align-items-center fs-12 me-2"> Nº de plaques</span>
-                    <!-- <div class="form-text">(Opcional)</div> -->
-                  </div>
-                  <input type="number" class="form-control number-input" [(ngModel)]="this.selectedCadastre.n_plaques"
+                <div class="col-6">
+                  <label class="form-label fs-6 me-2"> Nº de plaques</label>
+                  <input type="number" class="form-control number-input mx-auto w-100"
+                         [(ngModel)]="this.selectedCadastre.n_plaques"
                          (change)="updateCadastreChart()" min="0" step="0" disabled>
                 </div>
 
               </div>
 
-              <div class="row ps-0 m-0 pb-2 mt-4">
+              <div class="row ps-0 pb-2 mt-4">
 
-                <div class="col-6 p-0 d-flex align-items-center">
-                  <span class="d-flex align-items-center fs-12 me-2">Inclinació del sostre</span>
-                  <select id="inclinationSelector" class="form-select text-selector pt-1"
-                          style="width: 115px !important;"
+                <div class="col-6">
+                  <div class="d-flex mt-1">
+                    <label class="form-label fs-6 me-2">Inclinació sostre</label>
+                    <div class="bg-light rounded-circle d-flex justify-content-center align-items-center"
+                         style="height:14px !important; width:13.8px !important" [tooltip]=inclinationTooltipText
+                         [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW">
+                      <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 10px;"></i>
+                    </div>
+                  </div>
+                  <select id="inclinationSelector" class="form-select text-selector"
+                          style="padding-top: 2px !important;"
                           [(ngModel)]="this.selectedCadastre.inclination">
                     <option *ngFor="let inclination of inclinations" [ngValue]="inclination.value">
                       {{ inclination.name }}
                     </option>
                   </select>
-                  <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2"
-                       style="height:17px !important; width:17px !important" [tooltip]=inclinationTooltipText
-                       [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW">
-                    <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 13px;"></i>
-                  </div>
+
 
                 </div>
 
-                <div class="col-6 p-0 d-flex justify-content-end align-items-center">
-                  <span class="d-flex align-items-center fs-12 me-2">Orientació</span>
+                <div class="col-6 mt-1">
+                  <label class="form-label fs-6 me-2">Orientació</label>
 
-                  <select id="orientationSelector" class="form-select number-input pt-1"
+                  <select id="orientationSelector" class="form-select number-input mx-auto w-100"
+                          style="padding-top: 2px !important;"
                           [(ngModel)]="this.selectedCadastre.orientation">
 
                     <option *ngFor="let orientation of orientations" [ngValue]="orientation.value">
@@ -876,30 +873,24 @@
                 </div>
               </div>
 
-              <div class="row p-0 m-0 w-100 mt-4 d-flex justify-content-between">
+              <div class="w-100 mt-4">
+                <button class="btn btn-secondary fs-7 w-100"
+                        (click)="activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()"
+                        [ngClass]="activeIndividual?'bg-complement':'btn-secondary'">Estalvi autoconsum
+                </button>
 
-                <div class="col-6 d-flex m-0 ps-0">
-                  <button class="btn btn-secondary fs-7 w-100"
-                          (click)="activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()"
-                          [ngClass]="activeIndividual?'bg-complement':'btn-secondary'">Estalvi autoconsum
-                  </button>
-                </div>
-
-                <div class="col-6 d-flex m-0 p-0 d-flex justify-content-end">
-                  <button class="btn fs-7 w-100"
-                          (click)="activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()"
-                          [ngClass]="activeCommunity?'bg-complement':'btn-secondary'">Estalvi membre comunitari
-                  </button>
-                </div>
-
+                <button class="btn fs-7 w-100 my-4"
+                        (click)="activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()"
+                        [ngClass]="activeCommunity?'bg-complement':'btn-secondary'">Estalvi membre comunitari
+                </button>
               </div>
 
-              <div class="d-flex align-items-center mt-3">
-                <span class="fs-6 bolder my-1">Introdueix el preu de l'energia sobrant. €/kWh.</span>
-                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center ms-2"
-                     style="height:17px !important; width:17px !important" [tooltip]=surplusTooltipText
+              <div class="d-flex mt-3">
+                <label class="form-label fs-6 me-2"> Introdueix el preu de l'energia sobrant. €/kWh.</label>
+                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center"
+                     style="height:14px !important; width:13.8px !important" [tooltip]=surplusTooltipText
                      [theme]="TooltipTheme.DARK" [position]="TooltipPosition.BELOW">
-                  <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 13px;"></i>
+                  <i class="fas fa-question text-dark" aria-hidden="true" style="font-size: 10px;"></i>
                 </div>
               </div>
 
@@ -913,23 +904,23 @@
                 <span class="fs-6 bolder my-1">Introdueix el consum mensual per periode.</span>
               </div>
 
-              <div class="row p-0 m-0 mt-2">
+              <div class="row p-0 mt-2">
 
-                <div class="col-4 d-flex p-0 m-0">
-                  <span class="d-flex align-items-center me-2 smile-color">Vall</span>
-                  <input type="number" class="form-control number-input" [(ngModel)]="selectedCadastre.valle" min="0"
+                <div class="col-4">
+                  <label class="form-label fs-6 smile-color">Vall</label>
+                  <input type="number" class="form-control number-input w-100" [(ngModel)]="selectedCadastre.valle" min="0"
                          (change)="updateCadastreConsumption()">
                 </div>
 
-                <div class="col-4 d-flex p-0 m-0 justify-content-center">
-                  <span class="d-flex align-items-center me-2 meh-color">Pla</span>
-                  <input type="number" class="form-control number-input" [(ngModel)]="selectedCadastre.llano" min="0"
+                <div class="col-4">
+                  <label class="form-label fs-6 meh-color">Pla</label>
+                  <input type="number" class="form-control number-input w-100" [(ngModel)]="selectedCadastre.llano" min="0"
                          (change)="updateCadastreConsumption()">
                 </div>
 
-                <div class="col-4 d-flex p-0 m-0 justify-content-end">
-                  <span class="d-flex align-items-center me-2 frown-color">Punta</span>
-                  <input type="number" class="form-control number-input" [(ngModel)]="selectedCadastre.punta" min="0"
+                <div class="col-4">
+                  <label class="form-label fs-6 frown-color">Punta</label>
+                  <input type="number" class="form-control number-input w-100" [(ngModel)]="selectedCadastre.punta" min="0"
                          (change)="updateCadastreConsumption()">
                 </div>
 
@@ -939,20 +930,20 @@
                 <span class="fs-6 bolder my-1">Introdueix el preu per periode. Kwh.</span>
               </div>
 
-              <div class="row p-0 m-0 mt-2">
-                <div class="col-4 d-flex p-0 m-0">
-                  <span class="d-flex me-2 smile-color">Vall</span>
-                  <input type="number" class="form-control number-input"
+              <div class="row mt-2">
+                <div class="col-4">
+                  <label class="form-label smile-color fs-6">Vall</label>
+                  <input type="number" class="form-control number-input w-100"
                          [ngModel]="selectedCadastre.vallePrice | number:'1.2-2'" (change)="updateConsumptions()">
                 </div>
-                <div class="col-4 d-flex p-0 m-0 justify-content-center">
-                  <span class="d-flex align-items-center me-2 meh-color ms-4">Pla</span>
-                  <input type="number" class="form-control number-input"
+                <div class="col-4">
+                  <label class="form-label meh-color fs-6">Pla</label>
+                  <input type="number" class="form-control number-input w-100"
                          [ngModel]="selectedCadastre.llanoPrice | number:'1.2-2'" (change)="updateConsumptions()">
                 </div>
-                <div class="col-4 d-flex p-0 m-0 justify-content-end">
-                  <span class="d-flex align-items-center me-2 frown-color ms-4">Punta</span>
-                  <input type="number" class="form-control number-input"
+                <div class="col-4">
+                  <label class="form-label frown-color fs-6">Punta</label>
+                  <input type="number" class="form-control number-input w-100"
                          [ngModel]="selectedCadastre.puntaPrice | number:'1.2-2'" (change)="updateConsumptions()">
                 </div>
               </div>
@@ -965,33 +956,33 @@
 
               <div class="row ps-0 m-0 pb-2 mt-4">
 
-                <div class="col-4 d-flex m-0 p-1">
-                  <span class="d-flex align-items-center fs-12">Estalvi mensual. €/mes</span>
+                <div class="col-4 d-flex m-0 px-2">
+                  <span class="d-flex align-items-center fs-6">Estalvi mensual</span>
                 </div>
 
-                <div class="col-4 d-flex m-0 p-1">
-                  <span class="d-flex align-items-center fs-12">Cost inicial d'inversió. €</span>
+                <div class="col-4 d-flex m-0 px-2">
+                  <span class="d-flex align-items-center fs-6">Cost inicial d'inversió</span>
                 </div>
 
-                <div class="col-4 d-flex m-0 p-1">
-                  <span class="d-flex align-items-center fs-12">Anys per amortitzar</span>
+                <div class="col-4 d-flex m-0 px-2">
+                  <span class="d-flex align-items-center fs-6">Anys per amortitzar</span>
                 </div>
 
               </div>
 
               <div class="row ps-0 m-0 pb-2">
 
-                <div class="col-4 m-0 p-0 d-flex align-items-center p-1">
-                  <input type="number" class="form-control number-input w-100" disabled
-                         [value]="this.selectedCadastre.monthlySavings">
+                <div class="col-4 m-0 p-0 d-flex align-items-center px-2">
+                  <input type="text" class="form-control number-input w-100" disabled
+                         [value]="this.selectedCadastre.monthlySavings + ' €/mes'">
                 </div>
 
-                <div class="col-4 m-0 p-0 d-flex align-items-center p-1">
-                  <input type="number" class="form-control number-input w-100" readonly disabled
-                         [value]="this.selectedCadastre.totalCost">
+                <div class="col-4 m-0 p-0 d-flex align-items-center px-2">
+                  <input type="text" class="form-control number-input w-100" readonly disabled
+                         [value]="this.selectedCadastre.totalCost + ' €'">
                 </div>
 
-                <div class="col-4 m-0 p-0 d-flex align-items-center p-1">
+                <div class="col-4 m-0 p-0 d-flex align-items-center px-2">
                   <input type="number" class="form-control number-input w-100" disabled readonly
                          [value]="this.selectedCadastre.redeemYears">
                 </div>

@@ -41,6 +41,7 @@ export class EnergyBlocksController {
         id: parseInt(id),
       },
     });
+    console.log("get block by id", data)
     return HttpResponse.success("energy_blocks fetched successfully").withData(
       this.mapData(data)
     );
@@ -49,7 +50,7 @@ export class EnergyBlocksController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyBlocksDTO) {
-    console.log(body, "BODY")
+    console.log(body, "BODY post energy block")
     const data = await this.prisma.energyBlock.create({ data: body });
     return HttpResponse.success("energy_blocks saved successfully").withData(
       data
@@ -59,6 +60,7 @@ export class EnergyBlocksController {
   @Put(":id")
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: SaveEnergyBlocksDTO) {
+    console.log(body, "BODY put energy block")
     const data = await this.prisma.energyBlock.updateMany({
       where: {
         id: parseInt(id),
@@ -101,6 +103,7 @@ export class EnergyBlocksController {
     const mappedData: any = {};
     mappedData.id = data.id;
     mappedData.reference = data.reference;
+    mappedData.providerId = data.providerId;
     mappedData.expirationDt = data.expirationDt ||data.expiration_dt;
     mappedData.activeInit = data.activeInit || data.active_init;
     mappedData.activeEnd = data.activeEnd  || data.active_end;

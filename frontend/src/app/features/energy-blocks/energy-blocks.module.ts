@@ -6,19 +6,22 @@ import { EnergyBlocksTableComponent } from "./energy-blocks-table/energy-blocks-
 import { EnergyBlocksFormComponent } from "./energy-blocks-form/energy-blocks-form.component";
 import {SharedComponentsModule} from "../../shared/infrastructure/components/shared-components.module";
 import {CoreComponentsModule} from "../../core/core-components/core-components.module";
-import { ReactiveFormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { EditorComponent } from '@tinymce/tinymce-angular';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 @NgModule({
   declarations: [EnergyBlocksTableComponent, EnergyBlocksFormComponent],
   imports: [
     CommonModule,
+    FormsModule,
     EnergyBlocksRoutingModule,
     SharedComponentsModule,
     CoreComponentsModule,
     ReactiveFormsModule,
-    EditorComponent
+    EditorComponent,
+    NgSelectModule
   ]
 })
 export class EnergyBlocksModule { }

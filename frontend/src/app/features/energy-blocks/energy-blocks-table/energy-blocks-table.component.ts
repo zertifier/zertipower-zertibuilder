@@ -188,12 +188,14 @@ export class EnergyBlocksTableComponent implements OnDestroy {
   ];
 
   editRequest(id:any) {
+
     const modalRef = this.ngbModal.open(EnergyBlocksFormComponent);
     modalRef.componentInstance.setEditingId(parseInt(id));
 
     this.subscriptions.push(
       modalRef.closed.subscribe(() => this.datatable.updateTable()),
     )
+    
   }
 
   async deleteRequest(id:any) {

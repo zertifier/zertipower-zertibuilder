@@ -574,20 +574,20 @@
 
       <div class="row my-3">
         <div class="col-12 pe-0 ps-2">
-          <!--<select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
+          <select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
                   class="form-select heartbeat border border-light w-100" [tooltip]="communitySelectionTooltip"
                   [theme]="TooltipTheme.DARK"
                   [position]="TooltipPosition.BELOW" [showOnInit]="true"
                   (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
             <option [ngValue]="newCommunity">Nova comunitat</option>
             <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{ community.name }}</option>
-          </select>-->
-          <select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
-                  class="form-select heartbeat border border-light w-100"
+          </select>
+          <!--<select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
+                  class="form-select heartbeat border border-light w-100" [ngbTooltip]="communitySelectionTooltip"
                   (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
             <option [ngValue]="newCommunity">Nova comunitat</option>
             <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{ community.name }}</option>
-          </select>
+          </select>-->
           <select *ngIf="selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
                   class="form-select px-2"
                   (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
@@ -622,7 +622,7 @@
           <i *ngIf="!isShrunk" class="fa-solid fa-caret-down fs-5"></i>
         </button>
       </div>
-      <nav class="d-flex flex-shrink-0 text-bg-dark d-md-block bg-primary pb-4" style="max-height: 75vh;">
+      <nav class="d-flex flex-shrink-0 text-bg-dark d-md-block bg-primary" style="max-height: 75vh;" [ngClass]="{'pb-4' : !isShrunk }">
 
         <div class="py-2 d-flex flex-column overflow-y-auto w-100" [ngClass]=" isShrunk ? 'd-none' : 'open-nav'"
              style="height: 70vh">

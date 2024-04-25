@@ -54,20 +54,30 @@ import { Subject } from 'rxjs';
 
     @HostListener('mouseenter')
     onMouseEnter(): void {
-      this.initializeTooltip();
+      if (!this.isMobileStatus())
+        this.initializeTooltip();
     }
 
     @HostListener('mouseleave')
     onMouseLeave(): void {
-      this.setHideTooltipTimeout();
+      if (!this.isMobileStatus())
+        this.setHideTooltipTimeout();
     }
 
     @HostListener('mousemove', ['$event'])
     onMouseMove($event: MouseEvent): void {
-      if (this.componentRef !== null && this.position === TooltipPosition.DYNAMIC) {
+      if (this.componentRef !== null && this.position === TooltipPosition.DYNAMIC && !this.isMobileStatus()) {
         this.componentRef.instance.left = $event.clientX;
         this.componentRef.instance.top = $event.clientY;
         this.componentRef.instance.tooltip = this.tooltip;
+      }
+    }
+    @HostListener('click', ['$event'])
+    onClick($event: MouseEvent): void {
+      if (this.componentRef === null && this.isMobileStatus()) {
+        this.initializeTooltip();
+      }else{
+        this.setHideTooltipTimeout();
       }
     }
 
@@ -81,8 +91,10 @@ import { Subject } from 'rxjs';
 
     @HostListener('touchend')
     onTouchEnd(): void {
-      window.clearTimeout(this.touchTimeout);
-      this.setHideTooltipTimeout();
+      if(!this.isMobileStatus()){
+        window.clearTimeout(this.touchTimeout);
+        this.setHideTooltipTimeout();
+      }
     }
 
     private initializeTooltip() {
@@ -159,5 +171,9 @@ import { Subject } from 'rxjs';
         this.componentRef.destroy();
         this.componentRef = null;
       }
+    }
+
+    isMobileStatus(){
+      return window.innerWidth < 768;
     }
   }

@@ -265,6 +265,7 @@ model EnergyHourly {
   kwhOutPriceCommunity Float?    @map("kwh_out_price_community")
   production           Float?    @map("production")
   battery              Float?    @map("battery")
+  shares               Float?    @map("shares")
   origin               String?   @map("origin") @db.VarChar(255)
   type                 String?   @map("type") @db.VarChar(255)
   createdAt            DateTime? @default(now()) @map("created_at") @db.DateTime(0)

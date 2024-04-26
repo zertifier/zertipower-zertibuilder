@@ -35,8 +35,12 @@ import { Subject } from 'rxjs';
     private hideTimeout?: number;
     private touchTimeout?: number;
 
-    constructor(private elementRef: ElementRef, private appRef: ApplicationRef,
-                private componentFactoryResolver: ComponentFactoryResolver, private injector: Injector) {
+    constructor(
+      private elementRef: ElementRef,
+      private appRef: ApplicationRef,
+      private componentFactoryResolver: ComponentFactoryResolver,
+      private injector: Injector
+    ) {
 
     }
 

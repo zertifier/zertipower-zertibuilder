@@ -652,6 +652,10 @@
 
             <div class="row mt-2">
               <div class="col ms-2">
+                <button class="btn btn-secondary rounded-5 fs-12 py-1"
+                        (click)="openChartModal(monthChartLabels, communityMonthChartDatasets, communityMonthChartOptions, communityUpdateMonthChartSubject.asObservable())">
+                  Pantalla completa <i class="fa-solid fa-maximize ms-2"></i>
+                </button>
                 <!-- <span class="d-flex align-items-center me-2 fs-5">Sumatori de la comunitat</span>  -->
                 <!-- <span class="fs-6 d-flex align-items-center me-2">Les dades expressades són una estimació aproximada</span>  -->
               </div>
@@ -780,6 +784,12 @@
                 podria contenir l'area</span>
 
                 <div class="">
+                  <button class="btn btn-secondary rounded-5 fs-12 py-1 mt-3"
+                          (click)="openChartModal(monthChartLabels, selectedCadastreGenerationMonthChartDatasets,
+                        communityMonthChartOptions, updateSelectedCadastreMonthChartSubject.asObservable())">
+                    Pantalla completa <i class="fa-solid fa-maximize ms-2"></i>
+                  </button>
+
                   <div class="custom-chart" style="width:95%">
                     <app-chart [chartId]="'selectedCadastreGeneration'" [chartType]="selectedCadastreMonthChartType"
                                [labels]="monthChartLabels" [datasets]="selectedCadastreGenerationMonthChartDatasets"
@@ -997,6 +1007,12 @@
               </div>
 
               <div *ngIf="activeIndividual">
+                <button class="btn btn-secondary rounded-5 fs-12 py-1 mt-3"
+                        (click)="openChartModal(monthChartLabels, selectedCadastreMonthChartDatasets,
+                        communityMonthChartOptions, updateSelectedCadastreMonthChartSubject.asObservable())">
+                  Pantalla completa <i class="fa-solid fa-maximize ms-2"></i>
+                </button>
+
                 <div class="custom-chart" style="width:95%">
                   <app-chart [chartId]="'selectedCadastre'" [chartType]="selectedCadastreMonthChartType"
                              [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
@@ -1047,7 +1063,11 @@
                 </div>
 
                 <div class="row p-0 m-0 w-100 mt-4 d-flex ">
-
+                  <button class="btn btn-secondary rounded-5 fs-12 py-1 mt-3"
+                          (click)="openChartModal(monthChartLabels, selectedCadastreMonthChartDatasets,
+                        communityMonthChartOptions, updateSelectedCadastreMonthChartSubject.asObservable())">
+                    Pantalla completa <i class="fa-solid fa-maximize ms-2"></i>
+                  </button>
 <!--                  <div class="custom-chart mb-4" style="width:95%; position:relative">-->
                   <div class="custom-chart mb-4" >
                     <app-chart [chartId]="'selectedCadastreAcc'" [chartType]="selectedCadastreMonthChartType"
@@ -1096,7 +1116,7 @@
 
       </nav>
 
-     <div class="w-100 bg-primary text-center py-3 border border-0 border-top ">
+     <div class="w-100 bg-primary text-center py-4 border border-0 border-top ">
        <img src="assets/img/navbar/zertipower-logo-blanc-horizontal.png" alt="zertipower-logo"
             style="width: 250px;">
      </div>

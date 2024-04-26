@@ -1,11 +1,11 @@
 export interface filterParams {
 	title: string;
-	description: string;
+	description: string; 
 	value: string | number;
 	type: filterType;
 	binarySelector?: boolean;
 	defaultTranslation?: String[]; //to translate from 0,1 to active,inactive or similar
-	options: option[];
+	options: option[]; //selector options
 	defaultData: number; // 1 if default, 0 in the other case
 }
 

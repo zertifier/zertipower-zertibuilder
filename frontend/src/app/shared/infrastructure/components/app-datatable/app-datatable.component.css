@@ -211,3 +211,19 @@ div.dataTables_wrapper div.dataTables_filter input{
   padding: 10px !important;
   border-bottom: 1px solid #525252;
 }
+
+::-webkit-scrollbar-track {
+  border: 1px solid #46464600;
+  padding: 2px 0;
+  background-color: #40404000;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #e4e4e477;
+  border: 1px solid #3b3b3b00;
+}

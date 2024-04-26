@@ -11,7 +11,24 @@ import {LogsFormComponent} from '../logs-form/logs-form.component';
 
 @Component({
   selector: 'logs',
-  templateUrl: './logs.component.html'
+  templateUrl: './logs.component.html',
+  styles:`
+  ::-webkit-scrollbar-track {
+    border: 1px solid #000;
+    padding: 2px 0;
+    background-color: #404040;
+  }
+  
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #737272;
+    border: 1px solid #000;
+  }`
 })
 export class LogsComponent implements OnDestroy {
   @ViewChild(AppDatatableComponent) datatable!: AppDatatableComponent;
@@ -234,12 +251,12 @@ export class LogsComponent implements OnDestroy {
                     </div>`;
       }
     },
-    // {
-    //   targets: 4,
-    //   render: (data: any, type: any, row: any) => {
-    //     return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
-    //   }
-    // },
+    {
+      targets: 4,
+      render: (data: any, type: any, row: any) => {
+        return `<div class="overflow-y-auto" style="max-height:50px">${data}</>`
+      }
+    },
     {
       targets: this.filterParams.length,
       title: '',

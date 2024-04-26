@@ -12,16 +12,24 @@
       <input formControlName="reference" id="ref-input" class="form-control">
     </div>
     <div class="my-3">
+      <label  class="form-label"for="ref-input">Proveïdor</label>
+      <ng-select [(ngModel)]="selectedProviderId" name="provider-id-input" formControlName="providerId">
+        <ng-option *ngFor="let provider of availableProviders" [value]="provider.id">
+          <span class="text-capitalize">{{ provider.provider }}</span>
+        </ng-option>
+      </ng-select>
+    </div>
+    <div class="my-3">
       <label class="form-label" for="expiration-dt-input">Data d'expiració</label>
       <input id="expiration-dt-input" type="datetime-local" formControlName="expirationDt" class="form-control">
     </div>
     <div class="my-3">
       <label class="form-label" for="active-init-input">Inici d'activitat</label>
-      <input id="active-init-input" type="datetime-local" formControlName="activeInit" class="form-control">
+      <input id="active-init-input" type="time" formControlName="activeInit" class="form-control">
     </div>
     <div class="my-3">
       <label class="form-label" for="active-end-input">Fi d'activitat</label>
-      <input id="active-end-input" type="datetime-local" formControlName="activeEnd" class="form-control">
+      <input id="active-end-input" type="time" formControlName="activeEnd" class="form-control">
     </div>
     <div class="my-3">
       <label class="form-label" for="consumption-price-input">Preu de consum</label>

@@ -406,6 +406,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   updateCommunityChart() {
 
+    
+
     this.communityMonthChartLabels;
     this.communityMonthChartDatasets = [];
     this.communityMonthChartType = 'bar';

@@ -192,6 +192,23 @@ export class DatatablesFeatures {
                 });
                 filterType = selector;
                 break;
+              case 3: // datetime
+                let inputDatetime = that.renderer.createElement("input");
+                // that.renderer.addClass(inputDatetime, "filter-input");
+                // that.renderer.addClass(inputDatetime, "form-control");
+                // that.renderer.addClass(inputDatetime, "form-control-sm");
+                that.renderer.setProperty(inputDatetime, "type", "date");
+                that.renderer.setProperty(
+                  inputDatetime,
+                  "placeholder",
+                  `${this.header().innerText}`,
+                );
+                that.renderer.listen(inputDatetime, "change", () => {
+                  let searchValue = inputDatetime.value;
+                  that.dtInstance.column(columnNumber).search(searchValue).draw();
+                });
+                filterType=inputDatetime
+                break;
               default:
                 break;
             }

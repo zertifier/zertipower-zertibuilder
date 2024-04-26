@@ -85,31 +85,18 @@ export class CommunitiesController {
   @Get(":id/stats/:origin/daily/:date")
   // @Auth(RESOURCE_NAME)
   async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
-    /*let data: any = await this.prisma.$queryRaw`
-      SELECT eh.*, community_id, cups.surplus_distribution
-      FROM energy_hourly eh
-             LEFT JOIN cups
-                       ON cups_id = cups.id
-      WHERE DATE(info_dt) = ${date}
-        AND origin = ${origin}
-        AND cups.community_id = ${id}
-        AND cups.type != 'community'
-      GROUP BY HOUR(info_dt)
-      ORDER BY info_dt;
-    `;*/
     date = `${date}%`
     let data: any = await this.prisma.$queryRaw`
       SELECT b.*,
-             a.surplus_community,
-             c.surplus_distribution,
-             IFNULL(a.surplus_community, 0) * c.surplus_distribution surplus_community_active
+             a.surplus_community
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
-                   kwh_in_price                              AS kwh_in_price,
-                   kwh_out_price                            AS kwh_out_price,
-                   kwh_in_price_community                      AS kwh_in_price_community,
-                   kwh_out_price_community                     AS kwh_out_price_community,
+                   SUM(IFNULL(production, 0))                        AS surplus_community_active,
+                   kwh_in_price                                      AS kwh_in_price,
+                   kwh_out_price                                     AS kwh_out_price,
+                   kwh_in_price_community                            AS kwh_in_price_community,
+                   kwh_out_price_community                           AS kwh_out_price_community,
                    CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
                    HOUR(eh.info_dt)                                  AS filter_dt,
                    info_dt
@@ -135,17 +122,6 @@ export class CommunitiesController {
               AND origin = ${origin}
             GROUP BY HOUR(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
-             JOIN
-           (SELECT SUM(surplus_distribution) surplus_distribution
-            FROM (SELECT CAST(c.surplus_distribution AS DECIMAL(10, 2)) surplus_distribution
-                  FROM cups c
-                         LEFT JOIN
-                       energy_hourly eh
-                       ON cups_id = c.id
-                  WHERE c.type != 'community'
-                    AND eh.info_dt LIKE ${date}
-                    AND c.community_id = ${id}
-                  GROUP BY c.id) a) c;
     `;
 
     let totalActiveMembers: any = await this.prisma.$queryRaw`
@@ -198,12 +174,11 @@ export class CommunitiesController {
     date = `${date}%`
     let data: any = await this.prisma.$queryRaw`
       SELECT b.*,
-             a.surplus_community,
-             c.surplus_distribution,
-             IFNULL(a.surplus_community, 0) * c.surplus_distribution surplus_community_active
+             a.surplus_community
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
+                   SUM(IFNULL(production, 0))                              AS surplus_community_active,
                    kwh_in_price                                AS kwh_in_price,
                    kwh_out_price                              AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
@@ -233,17 +208,6 @@ export class CommunitiesController {
               AND origin = ${origin}
             GROUP BY DAY(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
-             JOIN
-           (SELECT SUM(surplus_distribution) surplus_distribution
-            FROM (SELECT CAST(c.surplus_distribution AS DECIMAL(10, 2)) surplus_distribution
-                  FROM cups c
-                         LEFT JOIN
-                       energy_hourly eh
-                       ON cups_id = c.id
-                  WHERE c.type != 'community'
-                    AND eh.info_dt LIKE ${date}
-                    AND c.community_id = ${id}
-                  GROUP BY c.id) a) c;
     `
 
     let totalActiveMembers: any = await this.prisma.$queryRaw`
@@ -295,7 +259,7 @@ export class CommunitiesController {
     const [year] = date.split('-');
 
     date = `${date}%`
-    let data: any = await this.prisma.$queryRaw`
+    /*let data: any = await this.prisma.$queryRaw`
       SELECT b.*,
              a.surplus_community,
              c.surplus_distribution,
@@ -343,6 +307,43 @@ export class CommunitiesController {
                     AND eh.info_dt LIKE ${date}
                     AND c.community_id = ${id}
                   GROUP BY c.id) a) c
+    `*/
+    let data: any = await this.prisma.$queryRaw`
+      SELECT b.*,
+             a.surplus_community
+      FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
+                   SUM(eh.kwh_out)                                   AS kwh_out,
+                   SUM(kwh_out_virtual)                              AS kwh_out_virtual,
+                   SUM(IFNULL(production, 0))                              AS surplus_community_active,
+                   kwh_in_price                                 AS kwh_in_price,
+                   kwh_out_price                                AS kwh_out_price,
+                   kwh_in_price_community                       AS kwh_in_price_community,
+                   kwh_out_price_community                      AS kwh_out_price_community,
+                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   MONTH(eh.info_dt)                                 AS filter_dt,
+                   info_dt
+            FROM energy_hourly eh
+                   LEFT JOIN
+                 cups c
+                 ON cups_id = c.id
+            WHERE c.type != 'community'
+              AND eh.info_dt LIKE ${date}
+              AND c.community_id = ${id}
+            GROUP BY MONTH(eh.info_dt)) b
+             LEFT JOIN
+           (SELECT SUM(kwh_out)   AS surplus_community,
+                   MONTH(info_dt) AS filter_dt,
+                   info_dt
+            FROM energy_hourly eh
+                   LEFT JOIN
+                 cups c
+                 ON cups_id = c.id
+            WHERE c.type = 'community'
+              AND info_dt LIKE ${date}
+              AND c.community_id = ${id}
+              AND origin = ${origin}
+            GROUP BY MONTH(eh.info_dt)) a
+           ON a.filter_dt = b.filter_dt
     `
     let totalActiveMembers: any = await this.prisma.$queryRaw`
       SELECT totalActiveMembers.totalActiveMembersSum totalActiveMembers, totalMembers.totalMembers

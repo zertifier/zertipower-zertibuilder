@@ -15,12 +15,12 @@ import {
   import {TooltipPosition, TooltipTheme} from "./tooltip.enums";
 import { log } from 'console';
 import { Subject } from 'rxjs';
-  
+
   @Directive({
     selector: '[tooltip]'
   })
   export class TooltipDirective implements OnInit{
-  
+
     @Input() tooltip = '';
     @Input() position: TooltipPosition = TooltipPosition.DEFAULT;
     @Input() theme: TooltipTheme = TooltipTheme.DEFAULT;
@@ -29,12 +29,12 @@ import { Subject } from 'rxjs';
     @Input() showOnInit = false;
 
     static forceClose: Subject<boolean> = new Subject<boolean>
-  
+
     private componentRef: ComponentRef<any> | null = null;
     private showTimeout?: number;
     private hideTimeout?: number;
     private touchTimeout?: number;
-  
+
     constructor(private elementRef: ElementRef, private appRef: ApplicationRef,
                 private componentFactoryResolver: ComponentFactoryResolver, private injector: Injector) {
 
@@ -43,7 +43,7 @@ import { Subject } from 'rxjs';
     ngOnInit(): void {
       if(this.showOnInit){
         this.initializeTooltip();
-      }      
+      }
       TooltipDirective.forceClose.subscribe(close=>{
         if(close){
           console.log("close")
@@ -51,63 +51,76 @@ import { Subject } from 'rxjs';
         }
       })
     }
-  
+
     @HostListener('mouseenter')
     onMouseEnter(): void {
-      this.initializeTooltip();
+      if (!this.isMobileStatus())
+        this.initializeTooltip();
     }
-  
+
     @HostListener('mouseleave')
     onMouseLeave(): void {
-      this.setHideTooltipTimeout();
+      if (!this.isMobileStatus())
+        this.setHideTooltipTimeout();
     }
-  
+
     @HostListener('mousemove', ['$event'])
     onMouseMove($event: MouseEvent): void {
-      if (this.componentRef !== null && this.position === TooltipPosition.DYNAMIC) {
+      if (this.componentRef !== null && this.position === TooltipPosition.DYNAMIC && !this.isMobileStatus()) {
         this.componentRef.instance.left = $event.clientX;
         this.componentRef.instance.top = $event.clientY;
         this.componentRef.instance.tooltip = this.tooltip;
       }
     }
-  
-    @HostListener('touchstart', ['$event'])
+    @HostListener('click', ['$event'])
+    onClick($event: MouseEvent): void {
+      if (this.componentRef === null && this.isMobileStatus()) {
+        this.initializeTooltip();
+      }else{
+        this.setHideTooltipTimeout();
+      }
+    }
+
+   /* @HostListener('touchstart', ['$event'])
     onTouchStart($event: TouchEvent): void {
+      console.log("aaaaa", $event)
       $event.preventDefault();
       window.clearTimeout(this.touchTimeout);
       this.touchTimeout = window.setTimeout(this.initializeTooltip.bind(this), 500);
-    }
-  
+    }*/
+
     @HostListener('touchend')
     onTouchEnd(): void {
-      window.clearTimeout(this.touchTimeout);
-      this.setHideTooltipTimeout();
+      if(!this.isMobileStatus()){
+        window.clearTimeout(this.touchTimeout);
+        this.setHideTooltipTimeout();
+      }
     }
-  
+
     private initializeTooltip() {
       if (this.componentRef === null) {
         window.clearInterval(this.hideDelay);
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(TooltipComponent);
         this.componentRef = componentFactory.create(this.injector);
-  
+
         this.appRef.attachView(this.componentRef.hostView);
         const [tooltipDOMElement] = (this.componentRef.hostView as EmbeddedViewRef<any>).rootNodes;
-  
+
         this.setTooltipComponentProperties();
-  
+
         document.body.appendChild(tooltipDOMElement);
         this.showTimeout = window.setTimeout(this.showTooltip.bind(this), this.showDelay);
       }
     }
-  
+
     private setTooltipComponentProperties() {
       if (this.componentRef !== null) {
         this.componentRef.instance.tooltip = this.tooltip;
         this.componentRef.instance.position = this.position;
         this.componentRef.instance.theme = this.theme;
-  
+
         const {left, right, top, bottom} = this.elementRef.nativeElement.getBoundingClientRect();
-  
+
         switch (this.position) {
           case TooltipPosition.BELOW: {
             this.componentRef.instance.left = Math.round((right - left) / 2 + left);
@@ -135,21 +148,21 @@ import { Subject } from 'rxjs';
         }
       }
     }
-  
+
     private showTooltip() {
       if (this.componentRef !== null) {
         this.componentRef.instance.visible = true;
       }
     }
-  
+
     private setHideTooltipTimeout() {
       this.hideTimeout = window.setTimeout(this.destroy.bind(this), this.hideDelay);
     }
-  
+
     ngOnDestroy(): void {
       this.destroy();
     }
-  
+
     destroy(): void {
       if (this.componentRef !== null) {
         window.clearInterval(this.showTimeout);
@@ -158,5 +171,9 @@ import { Subject } from 'rxjs';
         this.componentRef.destroy();
         this.componentRef = null;
       }
+    }
+
+    isMobileStatus(){
+      return window.innerWidth < 768;
     }
   }

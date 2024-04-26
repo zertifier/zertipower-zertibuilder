@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import {AfterViewInit, Component, HostListener, OnInit, Renderer2, ViewChild, ViewEncapsulation} from '@angular/core';
 import { CustomersService } from "../../../core/core-services/customers.service";
 import { AppMapComponent } from "../../../shared/infrastructure/components/map/map.component";
 import { CommunitiesApiService } from "../../communities/communities.service";
@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
 import { TooltipPosition, TooltipTheme } from 'src/app/shared/infrastructure/directives/tooltip/tooltip.enums';
 import { TooltipDirective } from 'src/app/shared/infrastructure/directives/tooltip/tooltip.directive';
 import { EnergyBlocksApiService } from '../../energy-blocks/energy-blocks.service';
+import {AppChartComponent} from "../../../shared/infrastructure/components/chart/chart.component";
 
 
 interface cadastre {
@@ -111,13 +112,15 @@ export class SearchComponent implements OnInit, AfterViewInit {
   communityMonthChartDatasets: any = [];
   communityMonthChartType = 'bar';
   communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  communityMonthChartOptions =
+  communityDeleteMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  communityMonthChartOptions: any =
     {
       interaction: {
         intersect: false,
         mode: 'index',
       },
-      //indexAxis: 'y',
+      // indexAxis: this.isMobile ? 'y' : 'x',
+      indexAxis: 'x',
       elements: {
         bar: {
           borderWidth: 0,
@@ -239,6 +242,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
   </div>
   `
 
+  isMobile = false;
+
   constructor(
     private communitiesService: CommunitiesApiService,
     private energyAreasService: EnergyAreasService,
@@ -246,10 +251,31 @@ export class SearchComponent implements OnInit, AfterViewInit {
     private locationService: LocationService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private renderer: Renderer2,
   ) { }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    if (this.setMobileStatus(window.innerWidth) != this.isMobile) {
+      this.isMobile = this.setMobileStatus(window.innerWidth)
+      this.setMobileDesktopOptions()
+      this.communityDeleteMonthChartSubject.next(true)
+    }
+    // this.communityMonthChartOptions.indexAxis= this.isMobile ? 'y' : 'x'
+    // this.setMobileOptions()
+    // this.communityDeleteMonthChartSubject.next(true)
+    // this.updateCommunityChart()
+
+  }
+
   async ngOnInit() {
+    if (this.setMobileStatus(window.innerWidth) != this.isMobile) {
+      this.isMobile = this.setMobileStatus(window.innerWidth)
+      this.setMobileDesktopOptions()
+      this.communityDeleteMonthChartSubject.next(true)
+    }
+
     this.paramsSub = this.activatedRoute.params.subscribe(
       params => (this.locationId = parseInt(params['id'], 10))
     );
@@ -472,7 +498,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   renderLocation() {
-
     //If the information is loaded, there is no need to make the request again
     if (this.energyAreas) { return }
 
@@ -528,6 +553,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.selectedCadastre.feature = feature;
         this.selectedCadastre.id = cadastre;
 
+        if (this.isMobile) this.isShrunk = false
         let areaM2: any = feature.getProperty('areaM2');
         this.selectedCadastre.m2 = Math.floor(areaM2);
         //this.selectedCadastre.n_plaques = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7) | 0;
@@ -820,7 +846,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     })
 
     let monthAverageSurplus = yearSurplus/12;
-    
+
     //cost of a month with community prices:
     let averageMonthlyCosts = (yearConsumption / 12) * this.selectedCadastre.generationPrice!;
     //cost of a month without generation and with energy company prices:
@@ -829,13 +855,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
     //monthlySavings, IN ACC, is the price of energy that you stop using from the company when you have generation
     //this.selectedCadastre.monthlySavings = monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
 
-    //monthlySavings, IN CCE, is the price of energy that you stop using from the company when you get it from generation tokens  
+    //monthlySavings, IN CCE, is the price of energy that you stop using from the company when you get it from generation tokens
     this.selectedCadastre.monthlySavings = originalAverageMonthlyCosts - averageMonthlyCosts;
 
     //average of monthly profits from surplus (sold to community participants)
     this.selectedCadastre.surplusMonthlyProfits = ((yearSurplus / 12) * this.selectedCadastre.generationPrice!);
 
-    //average of monthly savings from getting energy from community 
+    //average of monthly savings from getting energy from community
 
     //TODO: review monthly savings and redeem years and surplus
 
@@ -854,9 +880,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   }
 
-  /** Obtains the price of average month 
+  /** Obtains the price of average month
    *  calculates the excedent energy price, the consumption saving price and the years to amortize the investment.
-   *  
+   *
    */
   calculateMonthlySavings() {
 
@@ -873,7 +899,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       //surplus is the generation minus consumption, if generation is greater than consumption
       let monthAverageSurplus: number = monthAverageGeneration - monthAverageConsumption;
 
-      //monthlyConsumedProduction is the production directly used by the customer 
+      //monthlyConsumedProduction is the production directly used by the customer
       monthlyConsumedProduction = monthAverageGeneration - monthAverageSurplus;
 
       //surplusMonthlyProfits is the price of excedent from generation that is sold to the company or to community
@@ -883,7 +909,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     } else {
 
-      //monthlyConsumedProduction is the production directly used by the customer 
+      //monthlyConsumedProduction is the production directly used by the customer
       monthlyConsumedProduction = monthAverageGeneration;
 
       //update consuption considering generation:
@@ -913,7 +939,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.selectedCadastre.monthlySavings!+=this.selectedCadastre.surplusMonthlyProfits!;
 
     console.log("this.selectedCadastre.surplusMonthlyProfits",this.selectedCadastre.surplusMonthlyProfits)
-    
+
     //in acc, the savings cannot overcome the costs
     if(this.activeAcc && this.selectedCadastre.monthlySavings! > monthlyCosts!){
       console.log("this.selectedCadastre.monthlySavings!, monthlyCosts!",this.selectedCadastre.monthlySavings!, monthlyCosts!)
@@ -1031,6 +1057,36 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.selectedCadastre.oldOrientation = this.selectedCadastre.orientation
   }
 
+  setMobileStatus(sizePx: number){
+    return sizePx < 768;
+  }
+
+  setMobileDesktopOptions(){
+    this.communityMonthChartOptions =
+      {
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        indexAxis: this.isMobile ? 'y' : 'x',
+        aspectRatio: this.isMobile ? 1.1 : 1.5,
+        elements: {
+          bar: {
+            borderWidth: 0,
+          }
+        },
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          }
+        }
+      }
+  }
 }
 
 //todo: refresh chart when deleting 'membres simulats'

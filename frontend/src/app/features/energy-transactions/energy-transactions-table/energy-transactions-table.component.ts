@@ -68,7 +68,17 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
       data: 'reference',
       width: '100px',
     },
-    /* {
+    {
+      title: 'Tx kwh entrada',
+      data: 'tx_kwh_in',
+      width: '100px',
+    },
+    {
+      title: 'Tx kwh sortida',
+      data: 'tx_kwh_out',
+      width: '100px',
+    }/*,
+    {
        title: 'CreatedAt',
        data: 'created_at',
        width: '100px',
@@ -90,10 +100,10 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'cups_id',
+        title: 'cups',
         description: '',
         value: '',
-        type: 1,
+        type: 0,
         defaultData: 0,
         options: [],
       },
@@ -101,7 +111,7 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
         title: 'info_dt',
         description: '',
         value: '',
-        type: 0,
+        type: 3,
         defaultData: 0,
         options: [],
       },
@@ -137,6 +147,22 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
         defaultData: 0,
         options: [],
       },
+      {
+        title: 'tx_kwh_in',
+        description: '',
+        value: '',
+        type: 0,
+        defaultData: 0,
+        options: [],
+      },
+      {
+        title: 'tx_kwh_out',
+        description: '',
+        value: '',
+        type: 0,
+        defaultData: 0,
+        options: [],
+      },
       /*{
         title: 'created_at',
         description: '',
@@ -154,11 +180,11 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
     {
       targets: 2,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('DD-MM-YYYY')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     {
-      targets: 3,
+      targets: 7,
       render: (data: any, type: any, row: any) => {
         if (row.tx_kwh_in){
           return `<span>${data}<a href="https://gnosisscan.io/tx/${row.tx_kwh_in}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square ms-2"></i></a></span>`
@@ -167,7 +193,7 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
       }
     },
     {
-      targets: 4,
+      targets: 8,
       render: (data: any, type: any, row: any) => {
         if (row.tx_kwh_out){
           return `<span>${data}<a href="https://gnosisscan.io/tx/${row.tx_kwh_out}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square ms-2"></i></a></span>`

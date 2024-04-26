@@ -182,6 +182,8 @@ export class EnergyTransactionsController {
     mappedData.infoDt = data.infoDt || data.info_dt;
     mappedData.kwhIn = data.kwhIn || data.kwh_in;
     mappedData.kwhOut = data.kwhOut || data.kwh_out;
+    mappedData.kwhIn = data.txKwhIn || data.tx_kwh_in;
+    mappedData.kwhOut = data.txKwhOut || data.tx_kwh_out;
     mappedData.kwhOutVirtual = data.kwhOutVirtual || data.kwh_out_virtual;
     mappedData.kwhSurplus = data.kwhSurplus || data.kwh_surplus;
     mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;

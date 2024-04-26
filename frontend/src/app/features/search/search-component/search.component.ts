@@ -1,4 +1,13 @@
-import {AfterViewInit, Component, HostListener, OnInit, Renderer2, ViewChild, ViewEncapsulation} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  inject,
+  OnInit,
+  Renderer2,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
 import { CustomersService } from "../../../core/core-services/customers.service";
 import { AppMapComponent } from "../../../shared/infrastructure/components/map/map.component";
 import { CommunitiesApiService } from "../../communities/communities.service";
@@ -15,6 +24,8 @@ import { TooltipPosition, TooltipTheme } from 'src/app/shared/infrastructure/dir
 import { TooltipDirective } from 'src/app/shared/infrastructure/directives/tooltip/tooltip.directive';
 import { EnergyBlocksApiService } from '../../energy-blocks/energy-blocks.service';
 import {AppChartComponent} from "../../../shared/infrastructure/components/chart/chart.component";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {ChartModalComponent} from "./chart-modal/chart-modal.component";
 
 
 interface cadastre {
@@ -132,7 +143,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
           position: 'bottom',
           labels: {
             usePointStyle: true,
-            pointStyle: 'circle'
+            pointStyle: 'circle',
+            color: 'rgb(255, 99, 132)'
           }
         }
       }
@@ -243,6 +255,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   `
 
   isMobile = false;
+  private modalService = inject(NgbModal);
 
   constructor(
     private communitiesService: CommunitiesApiService,
@@ -556,6 +569,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
         if (this.isMobile) this.isShrunk = false
         let areaM2: any = feature.getProperty('areaM2');
         this.selectedCadastre.m2 = Math.floor(areaM2);
+
+        this.cdr.detectChanges()
+
         //this.selectedCadastre.n_plaques = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7) | 0;
 
         //this.updateCadastreConsumptionM2();
@@ -1064,6 +1080,18 @@ export class SearchComponent implements OnInit, AfterViewInit {
   setMobileDesktopOptions(){
     this.communityMonthChartOptions =
       {
+        scales: {
+          y: {
+            ticks: {
+              color: 'rgb(246,246,246)'
+            }
+          },
+          x: {
+            ticks: {
+              color: 'rgb(246,246,246)'
+            }
+          }
+        },
         interaction: {
           intersect: false,
           mode: 'index',
@@ -1081,12 +1109,25 @@ export class SearchComponent implements OnInit, AfterViewInit {
             position: 'bottom',
             labels: {
               usePointStyle: true,
-              pointStyle: 'circle'
+              pointStyle: 'circle',
+              color: 'rgb(246,246,246)'
             }
           }
         }
       }
   }
+
+  openChartModal(labels: any, datasets: any,  options: any, updateSubject: any){
+    const modalRef = this.modalService.open(ChartModalComponent, {fullscreen: true })
+    modalRef.componentInstance.labels = this.monthChartLabels
+    modalRef.componentInstance.datasets = this.communityMonthChartDatasets
+    let customModalOptions = {... this.communityMonthChartOptions}
+    customModalOptions.aspectRatio = 0.5
+    // modalRef.componentInstance.options = this.communityMonthChartOptions
+    modalRef.componentInstance.options = customModalOptions
+    modalRef.componentInstance.updateSubject = this.communityUpdateMonthChartSubject
+  }
 }
+
 
 //todo: refresh chart when deleting 'membres simulats'

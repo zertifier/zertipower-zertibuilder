@@ -7,47 +7,47 @@ import {
   OnChanges,
   OnInit, SimpleChanges, ViewChild,
 } from "@angular/core";
-import { GoogleMap } from '@angular/google-maps';
-import { Output, EventEmitter } from '@angular/core';
-import { log } from "console";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { listenerCount } from "process";
+import {GoogleMap} from '@angular/google-maps';
+import {Output, EventEmitter} from '@angular/core';
+import {log} from "console";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {listenerCount} from "process";
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styles: `
 
-  #map{
-  object-fit: cover;
-  width: 100%;
-  max-height: 100%;
-  border-radius: 6px;
-  height: 85vh;
-  min-height: 323.4px;
-  }
+    #map {
+      object-fit: cover;
+      width: 100%;
+      max-height: 100%;
+      border-radius: 6px;
+      height: 85vh;
+      min-height: 323.4px;
+    }
 
-  .custom-marker{
-    background:url("/assets/marker-blue.png");
-  }
+    .custom-marker {
+      background: url("/assets/marker-blue.png");
+    }
 
-  .custom-marker{
-    max-width: 50px;
-  }
+    .custom-marker {
+      max-width: 50px;
+    }
 
-  /* mapa.component.css */
-  #mapContainer {
-    height: 400px;
-    width: 100%;
-  }
+    /* mapa.component.css */
+    #mapContainer {
+      height: 400px;
+      width: 100%;
+    }
 
-`
+  `
 })
 
 export class AppMapComponent implements AfterViewInit, OnChanges {
 
-  @ViewChild('mapContainer', { static: false }) gmap!: ElementRef;
+  @ViewChild('mapContainer', {static: false}) gmap!: ElementRef;
   map!: google.maps.Map;
 
   lat = 41.505;
@@ -64,7 +64,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   @Input() activeFeatures: any;
   @Input() address: string = '';
 
-  polygonT = [{ lat: this.lat, lng: this.lng }, { lat: this.lat + 0.001, lng: this.lng + 0.001 }]
+  polygonT = [{lat: this.lat, lng: this.lng}, {lat: this.lat + 0.001, lng: this.lng + 0.001}]
 
   mapOptions: google.maps.MapOptions = {
     center: this.coordinates,
@@ -85,9 +85,21 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   previousFeature: any = null;
 
   infoWindow: google.maps.InfoWindow | null = null;
-  originalStyle: any = { fillColor: "red", fillOpacity: 0.0, strokeColor: "white", strokeWeight: 1.0, strokeDashArray: '10000, 10000' }
-  activeStyle: any = { fillColor: "blue", fillOpacity: 0.5, strokeColor: "blue", strokeWeight: 1.0, strokeDashArray: '10000, 10000' }
-  selectedStyle: any = { fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white' }
+  originalStyle: any = {
+    fillColor: "red",
+    fillOpacity: 0.0,
+    strokeColor: "white",
+    strokeWeight: 1.0,
+    strokeDashArray: '10000, 10000'
+  }
+  activeStyle: any = {
+    fillColor: "blue",
+    fillOpacity: 0.5,
+    strokeColor: "blue",
+    strokeWeight: 1.0,
+    strokeDashArray: '10000, 10000'
+  }
+  selectedStyle: any = {fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white'}
   multipleSelection = false;
 
   markerColor = '#959150'
@@ -95,7 +107,8 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
 
   @Output() selectedFeature = new EventEmitter<any>();
 
-  constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone) { }
+  constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone, private ref: ChangeDetectorRef) {
+  }
 
   ngAfterViewInit() {
     this.mapInitializer();
@@ -139,14 +152,14 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
       if (event.feature.getProperty('selected') && !event.feature.getProperty('active')) {
         event.feature.setProperty('selected', false);
         this.map.data.overrideStyle(event.feature, this.originalStyle);
-        this.selectedFeature.emit({ selected: false, feature: event.feature });
+        this.selectedFeature.emit({selected: false, feature: event.feature});
       }
 
       //si el area está seleccionada y está activa (deseleccionar)
       else if (event.feature.getProperty('selected') && event.feature.getProperty('active')) {
         event.feature.setProperty('selected', false);
         this.map.data.overrideStyle(event.feature, this.activeStyle);
-        this.selectedFeature.emit({ selected: false, feature: event.feature });
+        this.selectedFeature.emit({selected: false, feature: event.feature});
       }
 
       //si el area no está seleccionada (posiblemente seleccionar)
@@ -167,9 +180,9 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
         //seleccionar
         event.feature.setProperty('selected', true);
         this.map.data.overrideStyle(event.feature, this.selectedStyle);
-        this.selectedFeature.emit({ selected: true, feature: event.feature });
+        this.selectedFeature.emit({selected: true, feature: event.feature});
       }
-
+      this.ref.detectChanges()
       this.previousFeature = event.feature;
 
     });
@@ -258,7 +271,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
       fillColor: "#FF0000",
       fillOpacity: 0.15,
       map: this.map,
-      center: { lat: lat, lng: lng },
+      center: {lat: lat, lng: lng},
       radius: radius,
     });
 
@@ -288,7 +301,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   }
 
   setMapStyle(fillColor: string, fillOpacity: number, strokeColor: string, strokeOpacity: number) {
-    this.map.data.setStyle({ fillColor, fillOpacity, strokeColor, strokeOpacity })
+    this.map.data.setStyle({fillColor, fillOpacity, strokeColor, strokeOpacity})
   }
 
   updateActiveFeatures(activeFeatures: any) {
@@ -363,7 +376,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
         feature.setProperty('active', true);
         feature.setProperty('selected', false);
         this.map.data.overrideStyle(feature, this.activeStyle);
-        this.selectedFeature.emit({ selected: false, feature: feature });
+        this.selectedFeature.emit({selected: false, feature: feature});
       }
     })
   }
@@ -383,7 +396,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
 
         // Convertir las coordenadas a objetos google.maps.LatLng
         const path = coordinates.map((coordinate: any) => {
-          return { lat: coordinate.lat(), lng: coordinate.lng() };
+          return {lat: coordinate.lat(), lng: coordinate.lng()};
         });
 
         // Calcular el área del polígono
@@ -430,7 +443,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   geocodeAddress(address: string): Promise<google.maps.LatLng | null> {
     return new Promise((resolve, reject) => {
       const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ 'address': address }, (results, status) => {
+      geocoder.geocode({'address': address}, (results, status) => {
         if (status === google.maps.GeocoderStatus.OK) {
           const location = results![0].geometry.location;
           const coordinates = new google.maps.LatLng(location.lat(), location.lng());

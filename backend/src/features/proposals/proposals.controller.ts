@@ -25,6 +25,17 @@ export class ProposalsController {
     const mappedData = data.map(this.mapData)
     return HttpResponse.success('proposals fetched successfully').withData(data);
   }
+  @Get('/status/:status')
+  // @Auth(RESOURCE_NAME)
+  async getByStatus(@Param('status') status: string) {
+    const data = await this.prisma.proposals.findMany({
+      where: {
+        status: status.toUpperCase()
+      }
+    });
+    const mappedData = data.map(this.mapData)
+    return HttpResponse.success('proposals fetched successfully').withData(data);
+  }
 
   @Get(':id')
   @Auth(RESOURCE_NAME)
@@ -85,7 +96,9 @@ export class ProposalsController {
       mappedData.communityId = data.communityId
       mappedData.expirationDt = data.expirationDt
       mappedData.status = data.status
-      mappedData.daoId = data.daoId
+      mappedData.type = data.type
+      mappedData.transparent = data.transparent
+      mappedData.quroum = data.quroum
     return mappedData;
   }
 }

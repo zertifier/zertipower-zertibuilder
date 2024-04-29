@@ -1091,11 +1091,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
           }
         },
         interaction: {
-          intersect: false,
+          // intersect: false,
+          intersect: true,
           mode: 'index',
+          // mode: 'nearest',
         },
         indexAxis: this.isMobile ? 'y' : 'x',
-        aspectRatio: this.isMobile ? 1.1 : 1.5,
+        aspectRatio: this.isMobile ? 1 : 1.5,
         elements: {
           bar: {
             borderWidth: 0,
@@ -1103,6 +1105,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
         },
         responsive: true,
         plugins: {
+          title: {
+            display: true,
+            text: (ctx: any) => {
+              const {axis = 'y', intersect, mode = 'nearest'} = ctx.chart.options.interaction;
+              return 'Mode: ' + mode + ', axis: ' + axis + ', intersect: ' + intersect;
+            }
+          },
           legend: {
             position: 'bottom',
             labels: {

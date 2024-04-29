@@ -17,6 +17,8 @@ import { Auth } from "src/features/auth/infrastructure/decorators";
 import { DatadisService } from "src/shared/infrastructure/services";
 import {SaveCupsDto} from "./save-cups-dto";
 import {PasswordUtils} from "../users/domain/Password/PasswordUtils";
+import { CupsType } from "@prisma/client";
+import { ErrorCode } from "src/shared/domain/error";
 
 export const RESOURCE_NAME = "cups";
 
@@ -235,6 +237,73 @@ export class CupsController {
       // this.mapData(data)
       dataToSend
     );
+  }
+
+  @Post("/datadis")
+  @Auth(RESOURCE_NAME)
+  async datadis(@Body() body: SaveCupsDto) {
+
+    console.log("body",body)
+
+    if(!body.cups || body.customerId > 0 || !body.datadisUser || !body.datadisPassword){
+      return HttpResponse.failure("Missing parameters. The request needs cups, customerId, datadisUser, datadisPassword",ErrorCode.MISSING_PARAMETERS)
+    }
+    
+    const cupsData: any = await this.prisma.$queryRaw
+    `SELECT * from cups WHERE cups = ${body.cups}`;
+  
+    const customerData = await this.prisma.customers.findUnique({
+      where: {
+        id: body.customerId,
+      },
+    });
+
+    if(!customerData){
+      return HttpResponse.failure("Invalid parameters. Customer not found",ErrorCode.MISSING_PARAMETERS)
+    }
+    
+    body.datadisActive = true;
+
+    //let dni = body.dni;
+    //delete body.dni;
+    //let cupsType:CupsType = 'consumer'
+    //body.type  = 'consumer'
+    // const customerUpdatedData = await this.prisma.cups.updateMany({
+    //   where: {
+    //     id: parseInt(body.customerId),
+    //   },
+    //   data: body.nif,
+    // });
+
+    body.datadisPassword = PasswordUtils.encryptData(body.datadisPassword, process.env.JWT_SECRET!)
+    
+    //const data = await this.prisma.cups.create({ data: body });
+
+    //console.log(cupsData)
+
+    let data;
+
+    if(cupsData.length){
+      //return HttpResponse.failure("Invalid parameters. Cups not found",ErrorCode.MISSING_PARAMETERS)
+        data = await this.prisma.cups.update({
+        where: {
+          id: cupsData[0].id,
+        },
+        data: body,
+      });   
+    }
+
+    data = await this.prisma.cups.create({
+      data:body
+    })
+    
+    //update datadis
+    //let startDate = moment().subtract(1, 'months').format('YYYY/MM'); 
+    //let endDate = moment().format('YYYY/MM');
+    //this.datadisService.run(startDate, endDate)
+    
+    return HttpResponse.success("cups with datadis saved successfully").withData("data");
+
   }
 
   @Post()

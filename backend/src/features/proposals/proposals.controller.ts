@@ -26,7 +26,7 @@ export class ProposalsController {
     return HttpResponse.success('proposals fetched successfully').withData(data);
   }
   @Get('/status/:status')
-  // @Auth(RESOURCE_NAME)
+  @Auth(RESOURCE_NAME)
   async getByStatus(@Param('status') status: string) {
     const data = await this.prisma.proposals.findMany({
       where: {

@@ -243,8 +243,6 @@ export class CupsController {
   @Auth(RESOURCE_NAME)
   async datadis(@Body() body: SaveCupsDto) {
 
-    console.log("body",body)
-
     if(!body.cups || body.customerId > 0 || !body.datadisUser || !body.datadisPassword){
       return HttpResponse.failure("Missing parameters. The request needs cups, customerId, datadisUser, datadisPassword",ErrorCode.MISSING_PARAMETERS)
     }
@@ -268,19 +266,9 @@ export class CupsController {
     //delete body.dni;
     //let cupsType:CupsType = 'consumer'
     //body.type  = 'consumer'
-    // const customerUpdatedData = await this.prisma.cups.updateMany({
-    //   where: {
-    //     id: parseInt(body.customerId),
-    //   },
-    //   data: body.nif,
-    // });
 
     body.datadisPassword = PasswordUtils.encryptData(body.datadisPassword, process.env.JWT_SECRET!)
     
-    //const data = await this.prisma.cups.create({ data: body });
-
-    //console.log(cupsData)
-
     let data;
 
     if(cupsData.length){

@@ -24,5 +24,11 @@ export class SaveProposalsDTO {
   status: string;
   @ApiProperty({ required: false })
   @IsOptional()
-  daoId: number;
+  quorum: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  transparent: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  type: string;
 }

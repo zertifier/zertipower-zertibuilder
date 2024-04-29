@@ -374,7 +374,9 @@ model Proposals {
   communityId  Int?      @map("community_id") @db.Int
   expirationDt DateTime? @map("expiration_dt")
   status       String?   @map("status") @db.VarChar(255)
-  daoId        Int?      @map("dao_id") @db.Int
+  type         String?   @map("type") @db.VarChar(255)
+  transparent  Int?      @map("transparent") @db.TinyInt
+  quorum       Float?    @map("quorum")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
 

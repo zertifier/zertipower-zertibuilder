@@ -15,13 +15,17 @@ import { SaveSmartContractsDTO } from "./save-smart-contracts-dto";
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
+import mysql from "mysql2/promise";
 
 export const RESOURCE_NAME = "smartContracts";
 
 @ApiTags(RESOURCE_NAME)
 @Controller("smart-contracts")
 export class SmartContractsController {
-  constructor(private prisma: PrismaService, private datatable: Datatable) {}
+
+  private conn: mysql.Pool;
+
+  constructor(private prisma: PrismaService, private datatable: Datatable,private mysql: MysqlService) {}
 
   @Get()
   @Auth(RESOURCE_NAME)
@@ -89,4 +93,24 @@ export class SmartContractsController {
     mappedData.blockchainId = data.blockchainId;
     return mappedData;
   }
+
+}
+
+/** Obtain blockchain and smart contract data according to config smart contract version.
+ *  expect 3 smart contracts that are the current version
+ * @return {Promise<*>}
+ */
+export async function getBlockchainAndScData(){
+
+  try{
+      const [ROWS] = await this.conn.query(
+          `SELECT * FROM smart_contracts LEFT JOIN blockchains 
+      ON smart_contracts.blockchain_id=blockchains.blockchain_id; 
+      `);
+      return ROWS;
+  } catch (e) {
+      console.log("error getting blockchain and sc data")
+      throw new Error(e);
+  }
+
 }

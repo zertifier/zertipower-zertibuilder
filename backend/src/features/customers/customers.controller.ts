@@ -149,3 +149,13 @@ export class CustomersController {
     return mappedData;
   }
 }
+
+export async function getCustomersCups(){
+  let data: any = await this.prisma.$queryRaw`
+  SELECT cups.id AS id, cups.cups AS cups, 
+         customers.wallet_address AS wallet, customers.name AS name, customers.dni AS dni 
+         FROM customers LEFT JOIN cups 
+         ON cups.customer_id = customers.id
+  `;
+return data;
+}

@@ -254,3 +254,19 @@ import { MysqlService } from "../shared/infrastructure/services";
 
 
 }
+
+export async function getUntokenizedEnergy(){
+  
+  let data: any = await this.prisma.$queryRaw`
+      SELECT * 
+      FROM energy_hourly
+      WHERE
+          (kwh_in IS NOT NULL
+          AND kwh_in_tx IS NULL)
+          OR
+          (kwh_out IS NOT NULL
+          AND kwh_out_tx IS NULL)
+      ORDER BY info_dt;
+      `;
+  return data;
+}

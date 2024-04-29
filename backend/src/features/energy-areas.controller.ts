@@ -353,10 +353,12 @@ async function httpGet(url: string) {
           let parsedData = JSON.parse(data);
           if (parsedData.status == 400) {
             reject(new Error(parsedData.message));
+            console.log("Error:",url, parsedData)
           } else {
             resolve(JSON.parse(data));
           }
         } catch (error) {
+          console.log("Error:",url, data)
           reject(error)
         }
       })

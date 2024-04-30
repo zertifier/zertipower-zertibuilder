@@ -42,6 +42,22 @@ export class CustomersController {
     );
   }
 
+  @Get("/cups/:customerId")
+  @Auth(RESOURCE_NAME)
+  async getCustomersCups(@Param("customerId") customerId: string) {
+    console.log("cups customers")
+    try {
+      let url = `SELECT cups.* , customers.name, customers.wallet_address FROM cups LEFT JOIN customers on cups.customer_id = customers.id WHERE customers.id = ?`;
+      const [ROWS]:any[] = await this.conn.query(url,customerId);
+
+      return HttpResponse.success("customers fetched successfully").withData(
+        ROWS
+      );
+    } catch (e) {
+      console.log("error getting customers-cups:", e);
+    }
+  }
+
   @Get("/cups")
   @Auth(RESOURCE_NAME)
   async getByCups() {
@@ -121,6 +137,7 @@ export class CustomersController {
     const mappedData: any = {};
     mappedData.id = data.id;
     mappedData.name = data.name;
+    mappedData.dni = data.dni;
     mappedData.walletAddress = data.walletAddress ? data.walletAddress.toString() : '';
     mappedData.createdAt = data.createdAt | data.created_at;
     mappedData.updatedAt = data.updatedAt | data.updated_at;

@@ -1,10 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, Validators} from "@angular/forms";
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2';
 import {Observable} from 'rxjs';
 import {CustomersApiService} from '../customers.service';
 import moment from 'moment';
+import { CupsFormComponent } from '../../cups/cups-form/cups-form.component';
 
 @Component({
   selector: 'customers-form',
@@ -33,15 +34,18 @@ export class CustomersFormComponent {
   form = this.formBuilder.group({
     id: new FormControl<number | null>(null),
     name: new FormControl<string | null>(null),
+    dni: new FormControl<string | null>(null),
     walletAddress: new FormControl<string | null>(null),
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
   });
+  customerCups:any[]=[];
 
   constructor(
     private formBuilder: FormBuilder,
     private apiService: CustomersApiService,
     private activeModal: NgbActiveModal,
+    private ngbModal: NgbModal
   ) {
   }
 
@@ -51,12 +55,19 @@ export class CustomersFormComponent {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
+      console.log(data);
       this.form.controls.id.setValue(data.id);
       this.form.controls.name.setValue(data.name);
+      this.form.controls.dni.setValue(data.dni);
       this.form.controls.walletAddress.setValue(data.walletAddress);
       this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
       this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
     });
+
+    this.apiService.getCustomerCups(id).subscribe((data)=>{
+      console.log(data)
+      this.customerCups = data
+    })
   }
 
   save() {
@@ -93,6 +104,7 @@ export class CustomersFormComponent {
 
     // values.id = this.form.value.id;
     values.name = this.form.value.name;
+    values.dni = this.form.value.dni;
     values.walletAddress = this.form.value.walletAddress;
     // values.createdAt = this.form.value.createdAt;
     // values.updatedAt = this.form.value.updatedAt;
@@ -105,4 +117,10 @@ export class CustomersFormComponent {
 
     return {status: true, message: ''}
   }
+
+  editRequest(id:any) {
+    const modalRef = this.ngbModal.open(CupsFormComponent);
+    modalRef.componentInstance.setEditingId(parseInt(id));
+  }
+
 }

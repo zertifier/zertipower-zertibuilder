@@ -33,11 +33,11 @@ export class CupsTableComponent implements OnDestroy {
   filterColumns: boolean = true;
   url: string = `${environment.api_url}/cups/datatable`;
   columns: dtColumns[] = [
-    // {
-    //   title: 'Id',
-    //   data: 'id',
-    //   width: '100px',
-    // },
+    {
+      title: '',
+      data: 'id',
+      width: '0px',
+    },
     {
       title: 'Nom',
       data: 'customer',
@@ -82,14 +82,14 @@ export class CupsTableComponent implements OnDestroy {
   ];
 
   filterParams: filterParams[] = [
-      // {
-      //   title: 'id',
-      //   description: '',
-      //   value: '',
-      //   type: 1,
-      //   defaultData: 0,
-      //   options: [],
-      // },
+      {
+        title: 'id',
+        description: '',
+        value: '',
+        type: 1,
+        defaultData: 0,
+        options: [],
+      },
       {
         title: 'Customer',
         description: '',
@@ -152,6 +152,13 @@ export class CupsTableComponent implements OnDestroy {
   columnDefs:any[] = [
     {
       orderable: false, targets: [this.filterParams.length],
+    },
+     {
+      targets: 0,
+      orderable: false,
+      render: (data: any, type: any, row: any) => {
+        return ``
+      }
     },
    /* {
       targets: 5,

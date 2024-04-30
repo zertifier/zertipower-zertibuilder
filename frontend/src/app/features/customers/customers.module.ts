@@ -8,6 +8,7 @@ import {SharedComponentsModule} from "../../shared/infrastructure/components/sha
 import {CoreComponentsModule} from "../../core/core-components/core-components.module";
 import { ReactiveFormsModule } from "@angular/forms";
 import { EditorComponent } from '@tinymce/tinymce-angular';
+import { CupsFormComponent } from '../cups/cups-form/cups-form.component';
 
 
 @NgModule({

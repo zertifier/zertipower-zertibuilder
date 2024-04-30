@@ -131,6 +131,15 @@ export class CupsFormComponent {
       return;
     }
     const values = this.getValues();
+
+    for (let key in values) {
+      if (values[key] === null) {
+          delete values[key];
+      }
+    }
+
+    console.log("values",values)
+    
     let request: Observable<any>;
     if (!this.id) {
       request = this.apiService.save(values);
@@ -200,17 +209,17 @@ export class CupsFormComponent {
   }
 
   checkFormValid(){
-    if (!this.form.value.cups) return {status: false, message: "El nom pot estar buit"}
+    if (!this.form.value.cups) return {status: false, message: "El cups no pot estar buit"}
 
-    if (!this.selectedCustomerId) return {status: false, message: "El client pot estar buit"}
+    if (!this.selectedCustomerId) return {status: false, message: "El client no pot estar buit"}
 
-    if (!this.selectedProviderId) return {status: false, message: "El proveïdor pot estar buit"}
+    if (!this.selectedProviderId) return {status: false, message: "El proveïdor no pot estar buit"}
 
-    if (!this.selectedCommunityId) return {status: false, message: "La comunitat no pot estar buida"}
+    //if (!this.selectedCommunityId) return {status: false, message: "La comunitat no pot estar buida"}
 
-    if (!this.selectedLocationId) return {status: false, message: "L'ubicació no pot estar buida"}
+    //if (!this.selectedLocationId) return {status: false, message: "L'ubicació no pot estar buida"}
 
-    if (!this.form.value.address) return {status: false, message: "L'adreça no pot estar buida"}
+    //if (!this.form.value.address) return {status: false, message: "L'adreça no pot estar buida"}
 
     if (this.form.get('surplusDist')?.errors) return {status: false, message: 'La distribució comunitaria no pot excedir els 100€'}
 

@@ -8,6 +8,7 @@ import moment from 'moment';
 export interface CustomersApiInterface {
   id: number;
   name: string;
+  dni: string;
   walletAddress: string;
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +17,7 @@ export interface CustomersApiInterface {
 export interface CustomersApiDTO {
   id: number;
   name: string;
+  dni: string;
   walletAddress: string;
   createdAt: string;
   updatedAt: string;
@@ -35,6 +37,11 @@ export class CustomersApiService {
   getById(id: number): Observable<CustomersApiInterface> {
     return this.httpClient.get<HttpResponse<CustomersApiDTO>>(`${environment.api_url}/customers/${id}`)
       .pipe(map(response => mapToApiInterface(response.data)));
+  }
+
+  getCustomerCups(customerId: number): Observable<any> {
+    return this.httpClient.get(`${environment.api_url}/customers/cups/${customerId}`)
+      .pipe(map((response:any) => (response.data)));
   }
 
   save(data: CustomersApiInterface): Observable<CustomersApiInterface> {
@@ -57,6 +64,7 @@ function mapToApiInterface(dto: CustomersApiDTO): CustomersApiInterface {
   return {
     id: dto.id,
     name: dto.name,
+    dni:dto.dni,
     walletAddress: dto.walletAddress,
     createdAt: moment(dto.createdAt, "YYYY-MM-DD HH:mm").toDate(),
     updatedAt: moment(dto.updatedAt, "YYYY-MM-DD HH:mm").toDate(),
@@ -67,6 +75,7 @@ function mapToDTO(dto: CustomersApiInterface): CustomersApiDTO {
   return {
     id: dto.id,
     name: dto.name,
+    dni: dto.dni,
     walletAddress: dto.walletAddress,
     createdAt: moment.utc(dto.createdAt).format("YYYY-MM-DD HH:mm"),
     updatedAt: moment.utc(dto.updatedAt).format("YYYY-MM-DD HH:mm"),

@@ -3,11 +3,8 @@ import axios from 'axios';
 import {MysqlService} from "src/shared/infrastructure/services/mysql-service/mysql.service";
 import mysql from "mysql2/promise";
 import * as moment from 'moment';
-import {throwError} from "rxjs";
 import {PasswordUtils} from "src/features/users/domain/Password/PasswordUtils";
 import {LocationUtils} from "src/shared/domain/utils/locationUtils";
-import {log} from "console";
-import {EnergyTransactionsController} from "../../../features/energy-transactions/energy-transactions.controller";
 import {PrismaService} from "./prisma-service";
 
 
@@ -104,17 +101,17 @@ export class DatadisService {
       this.loginData.password = PasswordUtils.decryptData(cups.datadis_password, process.env.JWT_SECRET!);
 
       //get auth token
-      await this.login().catch(async e => {
+      await this.login(this.loginData.username,this.loginData.password).catch(async e => {
         console.log(e)
         status = 'error';
         errorType = 'Error getting token';
-        operation = 'Get token'
+        operation = 'Get token';
         await this.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
         return;
       });
 
       //get datadis cups
-      await this.getSupplies().catch(async e => {
+      await this.getSupplies(this.token).catch(async e => {
         status = 'error';
         errorType = 'Error getting supplies';
         operation = 'Get supplies'
@@ -148,7 +145,7 @@ export class DatadisService {
       }
 
       //get authorized community datadis cups
-      const authorizedSuppliesPromises = this.communityCups.map(communityCupsElement => this.getAuthorizedSupplies(communityCupsElement));
+      const authorizedSuppliesPromises = this.communityCups.map(communityCupsElement => this.getAuthorizedSupplies(this.token,communityCupsElement.dni));
       try {
         await Promise.all(authorizedSuppliesPromises);
       } catch (e) {
@@ -229,7 +226,10 @@ export class DatadisService {
     this.insertNewRegistersToEnergyHourly(newRegisters)
   }
 
-  async login() {
+  async login(username:string,password:string) {
+
+    this.loginData = { username, password }
+
     let config = {
       method: 'post',
       url: 'https://datadis.es/nikola-auth/tokens/login',
@@ -251,7 +251,10 @@ export class DatadisService {
     })
   }
 
-  async getSupplies() {
+  async getSupplies(token:string) {
+
+    this.token=token;
+
     let config = {
       method: 'get',
       maxBodyLength: Infinity,
@@ -285,11 +288,14 @@ export class DatadisService {
     }
   }
 
-  async getAuthorizedSupplies(communityCupsElement: any) {
+  async getAuthorizedSupplies(token:string, dni:string) {
+
+    this.token=token;
+
     let config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://datadis.es/api-private/api/get-supplies?authorizedNif=${communityCupsElement.dni}`,
+      url: `https://datadis.es/api-private/api/get-supplies?authorizedNif=${dni}`,
       headers: {'Authorization': `Bearer ${this.token}`},
       timeout: 20000
     }
@@ -297,7 +303,7 @@ export class DatadisService {
       let response: any = await axios.request(config)
       //add authorized nif to supplies:
       response.data.map((supplies: any) => {
-        supplies.authorizedNif = communityCupsElement.dni
+        supplies.authorizedNif = dni
       })
       //add supplies:
       this.supplies = this.supplies.concat(response.data)

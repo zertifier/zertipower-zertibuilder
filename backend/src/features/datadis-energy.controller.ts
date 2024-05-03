@@ -13,9 +13,8 @@ import {
   import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
   import { ApiTags } from "@nestjs/swagger";
   import { Auth } from "src/features/auth/infrastructure/decorators";
-  import { DatadisService } from "src/shared/infrastructure/services";
   import mysql from "mysql2/promise";
-import { MysqlService } from "../shared/infrastructure/services";
+  import { DatadisService, MysqlService, MinterService } from "../shared/infrastructure/services";
   
   export const RESOURCE_NAME = "datadisEnergy";
   
@@ -29,6 +28,7 @@ import { MysqlService } from "../shared/infrastructure/services";
         private prisma: PrismaService, 
         private datatable: Datatable, 
         private datadisService:DatadisService,
+        private minterService:MinterService,
         private mysql: MysqlService
         ) {
         this.conn = this.mysql.pool;
@@ -259,13 +259,13 @@ export async function getUntokenizedEnergy(){
   
   let data: any = await this.prisma.$queryRaw`
       SELECT * 
-      FROM energy_hourly
+      FROM datadis_energy_registers
       WHERE
-          (kwh_in IS NOT NULL
-          AND kwh_in_tx IS NULL)
+          (import IS NOT NULL
+          AND tx_import IS NULL)
           OR
-          (kwh_out IS NOT NULL
-          AND kwh_out_tx IS NULL)
+          (export IS NOT NULL
+          AND tx_export IS NULL)
       ORDER BY info_dt;
       `;
   return data;

@@ -5,21 +5,20 @@ import { getUntokenizedEnergy } from "src/features/datadis-energy.controller";
 //import {createMultipleUpdateQuery } from "src/shared/domain/utils/mysqlUtils"
 //import { createWalletByReference } from "./contract_helpers"
 import mysql from "mysql2/promise";
-import { MysqlService } from "./";
+import {MysqlService} from "src/shared/infrastructure/services/mysql-service/mysql.service";
 import { Injectable } from "@nestjs/common";
 
 /**
  * Service used to interact with the datadis api
  */
 @Injectable()
-export class DatadisService {
+export class MinterService {
+
 private conn: mysql.Pool;
 
-    constructor(
-        private mysql: MysqlService
-        ) {
-        this.conn = this.mysql.pool;
-    }
+constructor(private mysql: MysqlService) {
+    this.conn = this.mysql.pool;
+}
 
 /** Each x time tries to mint database registers that dont have transaction yet
  * @param timeBeetweenMint default a hour (milliseconds)
@@ -70,13 +69,13 @@ async mint() {
     try {
         blockchainData.map((blockchainRegister:any) => {
             switch (blockchainRegister.contract_reference) {
-                case 'CommunityEnergyProduction':
+                case 'export':
                     communityEnergyProductionSc = blockchainRegister;
                     break;
-                case 'CommunityEnergyConsumption':
+                case 'consumption':
                     communityEnergyConsumptionSc = blockchainRegister;
                     break;
-                case 'BatchMinter':
+                case 'batchMinter':
                     batchMinterSc = blockchainRegister;
                     break;
                 default:
@@ -109,15 +108,15 @@ async mint() {
             console.log("Minor error: cups not found. EnergyRegister.cups_id: ", energyRegister.cups_id);
             return undefined;
         }
-        if (energyRegister.kwh_prod) {
-            contractAddresses.push(communityEnergyProductionSc.smart_contract_address);
+        if (energyRegister.export) {
+            contractAddresses.push(communityEnergyProductionSc.contract_address);
             walletReceivers.push(user.wallet_address);
-            amounts.push(energyRegister.kwh_prod);
+            amounts.push(energyRegister.export);
         }
-        if (energyRegister.kwh_in) {
-            contractAddresses.push(communityEnergyConsumptionSc.smart_contract_address);
+        if (energyRegister.import) {
+            contractAddresses.push(communityEnergyConsumptionSc.contract_address);
             walletReceivers.push(user.wallet_address);
-            amounts.push(energyRegister.kwh_in);
+            amounts.push(energyRegister.import);
         }
     }).filter((e:any)=>e)
 
@@ -137,7 +136,7 @@ async mint() {
 
         let tx:any = undefined;
         try{
-            tx = await mintBatchERC20(batchMinterSc.smart_contract_address, contractAddresses[i], walletReceivers[i], amounts[i], process.env.PK, batchMinterSc.abi, batchMinterSc.blockchain_id, batchMinterSc.rpc)
+            tx = await mintBatchERC20(batchMinterSc.contract_address, contractAddresses[i], walletReceivers[i], amounts[i], process.env.PK, batchMinterSc.abi, batchMinterSc.blockchain_id, batchMinterSc.rpc_url)
             console.log("minted tx:",tx)
         } catch (e){
             console.log("Major error: error minting: ",e)
@@ -148,23 +147,22 @@ async mint() {
             txToUpdate = [];
             //prepare the values to create update query
             energyRegisters[i].map((energyRegister:any) => {
-                if (energyRegister.kwh_prod) {
-                    txToUpdate.push(['tx_prod',tx]);
+                if (energyRegister.export) {
+                    txToUpdate.push(['tx_export',tx]);
                     energyRegistersId.push(energyRegister.id);
                 }
-                if (energyRegister.kwh_in) {
-                    txToUpdate.push(['tx_in',tx]);
+                if (energyRegister.import) {
+                    txToUpdate.push(['tx_import',tx]);
                     energyRegistersId.push(energyRegister.id);
                 }
                 txToUpdate.push(['smart_contracts_version',blockchainData[0].smart_contracts_version]);
                 energyRegistersId.push(energyRegister.id);
             })
 
-
             try {
                 // console.log('energy_data id', energyRegistersId)
                 //put the tx into registers
-                const {query, values} = createMultipleUpdateQuery('energy_data', txToUpdate, energyRegistersId);
+                const {query, values} = createMultipleUpdateQuery('datadis_energy_registers', txToUpdate, energyRegistersId);
                 //console.log(query,values)
                 const [ROWS] = await this.conn.execute(query, values);
             } catch (e) {

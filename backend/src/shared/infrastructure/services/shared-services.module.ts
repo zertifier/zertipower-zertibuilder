@@ -28,8 +28,8 @@ import { MinterService } from "./minter-service";
     TextTemplateService,
     HandlebarsViewsService,
     PostgresService,
-    MinterService,
     DatadisService,
+    MinterService,
     { provide: Datatable, useClass: MysqlDatatable },
   ],
   exports: [
@@ -43,8 +43,8 @@ import { MinterService } from "./minter-service";
     TextTemplateService,
     HandlebarsViewsService,
     Datatable,
-    MinterService,
-    DatadisService
+    DatadisService,
+    MinterService
   ],
 })
 export class SharedServicesModule {}

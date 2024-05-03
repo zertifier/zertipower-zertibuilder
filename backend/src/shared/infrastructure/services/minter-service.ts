@@ -1,3 +1,4 @@
+import { Injectable } from "@nestjs/common";
 require('dotenv').config();
 import { getCustomersCups } from "src/features/customers/customers.controller";
 import { getBlockchainAndScData } from "src/features/smart-contracts/smart-contracts.controller";
@@ -6,7 +7,7 @@ import { getUntokenizedEnergy } from "src/features/datadis-energy.controller";
 //import { createWalletByReference } from "./contract_helpers"
 import mysql from "mysql2/promise";
 import {MysqlService} from "src/shared/infrastructure/services/mysql-service/mysql.service";
-import { Injectable } from "@nestjs/common";
+
 
 /**
  * Service used to interact with the datadis api

@@ -14,7 +14,7 @@ import {
   import { ApiTags } from "@nestjs/swagger";
   import { Auth } from "src/features/auth/infrastructure/decorators";
   import mysql from "mysql2/promise";
-  import { DatadisService, MysqlService, MinterService } from "../shared/infrastructure/services";
+  import { DatadisService, MysqlService,MinterService } from "../shared/infrastructure/services";
   
   export const RESOURCE_NAME = "datadisEnergy";
   

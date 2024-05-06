@@ -14,7 +14,7 @@ import {
   import { ApiTags } from "@nestjs/swagger";
   import { Auth } from "src/features/auth/infrastructure/decorators";
   import mysql from "mysql2/promise";
-  import { DatadisService, MysqlService,MinterService } from "../shared/infrastructure/services";
+  import { DatadisService, MysqlService, MinterService } from "../shared/infrastructure/services";
   
   export const RESOURCE_NAME = "datadisEnergy";
   
@@ -255,18 +255,4 @@ import {
 
 }
 
-export async function getUntokenizedEnergy(){
-  
-  let data: any = await this.prisma.$queryRaw`
-      SELECT * 
-      FROM datadis_energy_registers
-      WHERE
-          (import IS NOT NULL
-          AND tx_import IS NULL)
-          OR
-          (export IS NOT NULL
-          AND tx_export IS NULL)
-      ORDER BY info_dt;
-      `;
-  return data;
-}
+

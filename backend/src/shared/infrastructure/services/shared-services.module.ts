@@ -44,7 +44,7 @@ import { MinterService } from "./minter-service";
     HandlebarsViewsService,
     Datatable,
     DatadisService,
-    MinterService
+    MinterService,
   ],
 })
 export class SharedServicesModule {}

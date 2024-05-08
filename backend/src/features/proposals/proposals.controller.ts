@@ -21,30 +21,68 @@ export class ProposalsController {
   @Get()
   @Auth(RESOURCE_NAME)
   async get() {
-    const data = await this.prisma.proposals.findMany();
+    // const data = await this.prisma.proposals.findMany();
+    const data: any = await this.prisma.$queryRaw`
+      SELECT pr.*, users.email, users.wallet_address, users.firstname FROM proposals pr LEFT JOIN users ON user_id = users.id ORDER BY pr.created_at DESC
+    `;
     const mappedData = data.map(this.mapData)
-    return HttpResponse.success('proposals fetched successfully').withData(data);
+    return HttpResponse.success('proposals fetched successfully').withData(mappedData);
   }
-  @Get('/status/:status')
+  @Get('/filter/:word')
   @Auth(RESOURCE_NAME)
+  async getByFilter(@Param('word') word: string) {
+    const data: any = await this.prisma.$queryRaw`
+      SELECT pr.*, users.email, users.wallet_address, users.firstname
+      FROM proposals pr
+             LEFT JOIN users ON user_id = users.id
+      WHERE pr.proposal LIKE CONCAT('%', ${word}, '%')
+      ORDER BY pr.created_at DESC
+    `;
+    const mappedData = data.map(this.mapData)
+    return HttpResponse.success('proposals fetched successfully').withData(mappedData);
+  }
+  @Get('/filter/:word/status/:status')
+  @Auth(RESOURCE_NAME)
+  async getByFilterAndStatus(@Param('word') word: string, @Param('status') status: string) {
+    const data: any = await this.prisma.$queryRaw`
+      SELECT pr.*, users.email, users.wallet_address, users.firstname
+      FROM proposals pr
+             LEFT JOIN users ON user_id = users.id
+      WHERE pr.proposal LIKE CONCAT('%', ${word}, '%')
+      AND status = ${status.toUpperCase()}
+      ORDER BY pr.created_at DESC
+    `;
+    const mappedData = data.map(this.mapData)
+    return HttpResponse.success('proposals fetched successfully').withData(mappedData);
+  }
+
+  @Get('/status/:status')
+  // @Auth(RESOURCE_NAME)
   async getByStatus(@Param('status') status: string) {
-    const data = await this.prisma.proposals.findMany({
+    /*const data = await this.prisma.proposals.findMany({
       where: {
         status: status.toUpperCase()
       }
-    });
+    });*/
+    const data: any = await this.prisma.$queryRaw`
+      SELECT pr.*, users.email, users.wallet_address, users.firstname FROM proposals pr LEFT JOIN users ON user_id = users.id WHERE status = ${status.toUpperCase()}
+    `;
     const mappedData = data.map(this.mapData)
-    return HttpResponse.success('proposals fetched successfully').withData(data);
+    return HttpResponse.success('proposals fetched successfully').withData(mappedData);
   }
 
   @Get(':id')
   @Auth(RESOURCE_NAME)
   async getById(@Param('id') id: string) {
-    const data = await this.prisma.proposals.findUnique({
+    /*const data = await this.prisma.proposals.findUnique({
       where: {
         id: parseInt(id)
       }
-    });
+    });*/
+
+    const data: any = await this.prisma.$queryRaw`
+      SELECT pr.*, users.email, users.wallet_address, users.firstname FROM proposals pr LEFT JOIN users ON user_id = users.id WHERE pr.id = ${id}
+    `;
     return HttpResponse.success('proposals fetched successfully').withData(this.mapData(data));
   }
 
@@ -93,8 +131,12 @@ export class ProposalsController {
     const mappedData: any = {};
       mappedData.proposal = data.proposal
       mappedData.description = data.description
-      mappedData.communityId = data.communityId
-      mappedData.expirationDt = data.expirationDt
+      mappedData.userId = data.userId || data.user_id
+      mappedData.email = data.email
+      mappedData.firstname = data.firstname
+      mappedData.walletAddress = data.walletAddress || data.wallet_address
+      mappedData.communityId = data.communityId || data.community_id
+      mappedData.expirationDt = data.expirationDt || data.expiration_dt
       mappedData.status = data.status
       mappedData.type = data.type
       mappedData.transparent = data.transparent

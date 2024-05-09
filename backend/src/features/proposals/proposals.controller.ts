@@ -31,6 +31,13 @@ export class ProposalsController {
   @Get('/filter/:word')
   @Auth(RESOURCE_NAME)
   async getByFilter(@Param('word') word: string) {
+    console.log(`SELECT pr.*, users.email, users.wallet_address, users.firstname
+      FROM proposals pr
+             LEFT JOIN users ON user_id = users.id
+      WHERE pr.proposal LIKE CONCAT('%', ${word}, '%')
+      ORDER BY pr.created_at DESC`)
+    console.log(word, "WORD")
+
     const data: any = await this.prisma.$queryRaw`
       SELECT pr.*, users.email, users.wallet_address, users.firstname
       FROM proposals pr

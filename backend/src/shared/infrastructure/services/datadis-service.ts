@@ -793,7 +793,7 @@ export class DatadisService {
 
       const consumptionPrice = energyBlockData[0] ? energyBlockData[0].consumption_price : 0
       price = consumptionPrice
-      data.rate = energyBlockData[0].reference || ''
+      data.rate = energyBlockData[0] ? energyBlockData[0].reference : ''
     } else {
       price = nonWorkingDayData.price || 0
       data.rate = nonWorkingDayData.rate || ''

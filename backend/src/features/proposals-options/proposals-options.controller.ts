@@ -39,8 +39,8 @@ export class ProposalsOptionsController {
 
   @Post()
   @Auth(RESOURCE_NAME)
-  async create(@Body() body: SaveProposalsOptionsDTO) {
-    const data = await this.prisma.proposalsOptions.create({ data: body });
+  async create(@Body() body: SaveProposalsOptionsDTO[]) {
+    const data = await this.prisma.proposalsOptions.createMany({ data: body });
     return HttpResponse.success('proposals_options saved successfully').withData(data);
   }
 

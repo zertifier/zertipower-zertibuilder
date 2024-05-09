@@ -95,22 +95,3 @@ export class SmartContractsController {
   }
 
 }
-
-/** Obtain blockchain and smart contract data according to config smart contract version.
- *  expect 3 smart contracts that are the current version
- * @return {Promise<*>}
- */
-export async function getBlockchainAndScData(){
-
-  try{
-      const [ROWS] = await this.conn.query(
-          `SELECT * FROM smart_contracts LEFT JOIN blockchains 
-      ON smart_contracts.blockchain_id=blockchains.blockchain_id; 
-      `);
-      return ROWS;
-  } catch (e) {
-      console.log("error getting blockchain and sc data")
-      throw new Error(e);
-  }
-
-}

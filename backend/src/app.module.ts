@@ -48,17 +48,6 @@ import { DatadisEnergyController } from "./features/datadis-energy.controller";
   // Do not remove controllers section cuz zertibuilder
   // can create it if it doesn't exist
   controllers: [
-
-
-
-
-
-
-
-
-
-
-
     CalendarController,           
     CommunitiesController,           
     CupsController,           
@@ -72,18 +61,10 @@ import { DatadisEnergyController } from "./features/datadis-energy.controller";
     EnergyAreasController,           
     LocationsController,           
     LogsController,           
-    DatadisEnergyController
-  ,           ProposalsController
-,          ProposalsOptionsController
-,         ResponsesController
-,        ProposalsController
-,       ProposalsOptionsController
-,      ResponsesController
-,     ProposalsController
-,    ProposalsOptionsController
-,   ResponsesController
-,  ProposalsController
-, ProposalsController
+    DatadisEnergyController,
+    ProposalsController,
+    ProposalsOptionsController,
+    ResponsesController,
 ],
 })
 export class AppModule implements NestModule {

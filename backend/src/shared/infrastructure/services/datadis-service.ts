@@ -1,12 +1,11 @@
-import {Injectable} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import axios from 'axios';
-import {MysqlService} from "src/shared/infrastructure/services/mysql-service/mysql.service";
+import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
 import mysql from "mysql2/promise";
 import * as moment from 'moment';
-import {PasswordUtils} from "src/features/users/domain/Password/PasswordUtils";
-import {LocationUtils} from "src/shared/domain/utils/locationUtils";
-import {PrismaService} from "./prisma-service";
-
+import { PasswordUtils } from "src/features/users/domain/Password/PasswordUtils";
+import { LocationUtils } from "src/shared/domain/utils/locationUtils";
+import { PrismaService } from "./prisma-service";
 
 interface supply {
   address: string
@@ -54,7 +53,7 @@ interface dbCups {
 @Injectable()
 export class DatadisService {
 
-  loginData = {username: 'g67684878', password: 'acEM2020!'}
+  loginData = { username: 'g67684878', password: 'acEM2020!' }
   token: any = undefined;
   supplies: supply[];
   dbCups: dbCups[] = [];
@@ -101,7 +100,7 @@ export class DatadisService {
       this.loginData.password = PasswordUtils.decryptData(cups.datadis_password, process.env.JWT_SECRET!);
 
       //get auth token
-      await this.login(this.loginData.username,this.loginData.password).catch(async e => {
+      await this.login(this.loginData.username, this.loginData.password).catch(async e => {
         console.log(e)
         status = 'error';
         errorType = 'Error getting token';
@@ -138,14 +137,14 @@ export class DatadisService {
 
             //if the customer has a dni
             if (customerFound && customerFound.dni) {
-              this.communityCups.push({...customerFound, ...dbCupsElement})
+              this.communityCups.push({ ...customerFound, ...dbCupsElement })
             }
           }
         })
       }
 
       //get authorized community datadis cups
-      const authorizedSuppliesPromises = this.communityCups.map(communityCupsElement => this.getAuthorizedSupplies(this.token,communityCupsElement.dni));
+      const authorizedSuppliesPromises = this.communityCups.map(communityCupsElement => this.getAuthorizedSupplies(this.token, communityCupsElement.dni));
       try {
         await Promise.all(authorizedSuppliesPromises);
       } catch (e) {
@@ -226,14 +225,14 @@ export class DatadisService {
     this.insertNewRegistersToEnergyHourly(newRegisters)
   }
 
-  async login(username:string,password:string) {
+  async login(username: string, password: string) {
 
     this.loginData = { username, password }
 
     let config = {
       method: 'post',
       url: 'https://datadis.es/nikola-auth/tokens/login',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       data: this.loginData
     }
     return new Promise(async (resolve, reject) => {
@@ -251,15 +250,15 @@ export class DatadisService {
     })
   }
 
-  async getSupplies(token:string) {
+  async getSupplies(token: string) {
 
-    this.token=token;
+    this.token = token;
 
     let config = {
       method: 'get',
       maxBodyLength: Infinity,
       url: 'https://datadis.es/api-private/api/get-supplies',
-      headers: {'Authorization': `Bearer ${this.token}`},
+      headers: { 'Authorization': `Bearer ${this.token}` },
       timeout: 20000
     }
     try {
@@ -288,15 +287,15 @@ export class DatadisService {
     }
   }
 
-  async getAuthorizedSupplies(token:string, dni:string) {
+  async getAuthorizedSupplies(token: string, dni: string) {
 
-    this.token=token;
+    this.token = token;
 
     let config = {
       method: 'get',
       maxBodyLength: Infinity,
       url: `https://datadis.es/api-private/api/get-supplies?authorizedNif=${dni}`,
-      headers: {'Authorization': `Bearer ${this.token}`},
+      headers: { 'Authorization': `Bearer ${this.token}` },
       timeout: 20000
     }
     try {
@@ -468,8 +467,8 @@ export class DatadisService {
 
             try {
               //get cups geolocation
-              let {lat, lng} = await LocationUtils.getCoordinates(cupsData.address, cupsData.municipality)
-              coordinates = {lat, lng}
+              let { lat, lng } = await LocationUtils.getCoordinates(cupsData.address, cupsData.municipality)
+              coordinates = { lat, lng }
               //post cups with geolocation
               await this.conn.query(insertCupsQueryLatLng, [cupsData.cups, locationId, cupsData.address, coordinates.lat, coordinates.lng]); //this.loginData.username,datadisEncriptedPassword
             } catch (e) {
@@ -700,7 +699,7 @@ export class DatadisService {
   }
 
 
-  async insertNewRegistersToEnergyHourly(datadisNewRegisters: any[]){
+  async insertNewRegistersToEnergyHourly(datadisNewRegisters: any[]) {
     const communities = await this.getCommunities()
 
     for (const community of communities) {
@@ -711,21 +710,21 @@ export class DatadisService {
       for (let i = 0; i < datadisRegistersByCommunity.length; i++) {
         const datadisRegister = datadisRegistersByCommunity[i]
 
-        if (datadisRegister.surplus_distribution){
+        if (datadisRegister.surplus_distribution) {
           const communityExport = communityDatadis.find(obj => moment(obj.info_dt).format('YYYY-MM-DD HH:mm') == moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm'));
           const production = communityExport ? datadisRegister.surplus_distribution * communityExport.export : null
           const consumption = production ? production + datadisRegister.import : datadisRegister.import
           query +=
             `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${consumption} , ${datadisRegister.export}, ${production} , ${datadisRegister.cups_id} , 'datadis', 0, ${datadisRegister.surplus_distribution || null}),`
-        }else{
+        } else {
           query +=
             `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${datadisRegister.import} , ${datadisRegister.export}, ${null} , ${datadisRegister.cups_id} , 'datadis', ${null}, ${null}),`
         }
 
-        if (i == datadisNewRegisters.length-1) query = query.slice(0, -1)
+        if (i == datadisNewRegisters.length - 1) query = query.slice(0, -1)
       }
 
-      if (communityDatadis.length){
+      if (communityDatadis.length) {
         let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
         const insertedRows = result.affectedRows;
         console.log(`Energy hourly of community ${community.id} updated with a total of ${insertedRows} rows`)
@@ -733,18 +732,21 @@ export class DatadisService {
     }
 
     this.getTransactionsWithNullPrice().then(async (transactions) => {
-      console.log("Updating",transactions.length, "transactions...")
+      console.log("Updating", transactions.length, "transactions...")
       for (const transaction of transactions) {
-        const energyData = await this.getEnergyPrice(new Date(transaction.info_dt!), transaction.provider_id)
-        // transaction.kwhInPrice = energyData.price * transaction.kwhIn
-        transaction.kwh_in_price = energyData.price
-        // transaction.kwhOutPrice = energyData.price * transaction.kwhOut
-        transaction.kwh_out_price = 0.06
-        transaction.kwh_in_price_community = 0.09
-        transaction.kwh_out_price_community = 0.09
-        transaction.type = energyData.rate
-
-        this.updatePrices(transaction)
+        try {
+          const energyData = await this.getEnergyPrice(new Date(transaction.info_dt!), transaction.provider_id)
+          // transaction.kwhInPrice = energyData.price * transaction.kwhIn
+          transaction.kwh_in_price = energyData.price
+          // transaction.kwhOutPrice = energyData.price * transaction.kwhOut
+          transaction.kwh_out_price = 0.06
+          transaction.kwh_in_price_community = 0.09
+          transaction.kwh_out_price_community = 0.09
+          transaction.type = energyData.rate
+          this.updatePrices(transaction)
+        } catch (e) {
+          console.log("error updating prices in transaction", transaction.info_dt, "provider", transaction.provider_id, e)
+        }
       }
     })
   }
@@ -758,54 +760,63 @@ export class DatadisService {
       WHERE eh.kwh_in_price IS NULL 
          OR eh.kwh_out_price IS NULL;
     `
-
-
     return transactionsWithNullPrice;
   }
 
 
   async getEnergyPrice(date: Date, providerId: number) {
     let formattedDate = moment(date).format('YYYY-MM-DD')
-    let price;
+    let price, energyBlockData: any[];
 
-    const nonWorkingDayData = await this.prisma.nonWorkingDays.findFirst({
-      where: {
-        date: new Date(formattedDate),
-        providerId
+    try {
+
+      const nonWorkingDayData = await this.prisma.nonWorkingDays.findFirst({
+        where: {
+          date: new Date(formattedDate),
+          providerId
+        }
+      })
+
+      let data: { rate: string, price: number } = {
+        rate: '',
+        price: 0
       }
-    })
 
-    let data: { rate: string, price: number } = {
-      rate: '',
-      price: 0
+      if (!nonWorkingDayData) {
+        formattedDate = moment(date).format('HH:DD:ss')
+
+        energyBlockData = await this.prisma.$queryRaw`
+          SELECT *
+          FROM energy_blocks
+          WHERE active_init <= ${formattedDate}
+            AND active_end >= ${formattedDate}
+            AND provider_id = ${providerId};
+        `
+        if (energyBlockData.length) {
+
+          const consumptionPrice = energyBlockData[0] ? energyBlockData[0].consumption_price : 0
+          price = consumptionPrice
+          data.rate = energyBlockData[0].reference || ''
+          data.price = price
+          return data
+
+        }
+
+      } else {
+        data.price = nonWorkingDayData.price || 0
+        data.rate = nonWorkingDayData.rate || ''
+      }
+
+      return data
+
+    } catch (e) {
+      throw new Error(`Get energy price error: energyBlockData",${energyBlockData!},"providerId",${providerId},"formattedDate",${formattedDate},${e}`)
     }
 
-    if (!nonWorkingDayData) {
-      formattedDate = moment(date).format('HH:DD:ss')
-
-      const energyBlockData: any = await this.prisma.$queryRaw`
-        SELECT *
-        FROM energy_blocks
-        WHERE active_init <= ${formattedDate}
-          AND active_end >= ${formattedDate}
-          AND provider_id = ${providerId};
-      `
-
-      const consumptionPrice = energyBlockData[0] ? energyBlockData[0].consumption_price : 0
-      price = consumptionPrice
-      data.rate = energyBlockData[0] ? energyBlockData[0].reference : ''
-    } else {
-      price = nonWorkingDayData.price || 0
-      data.rate = nonWorkingDayData.rate || ''
-    }
-
-    data.price = price
-
-    return data
   }
 
 
-  async updatePrices(data: any){
+  async updatePrices(data: any) {
     await this.prisma.energyHourly.update({
       where: {
         id: parseInt(data.id),

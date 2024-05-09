@@ -15,8 +15,8 @@ import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import { DatadisService } from "src/shared/infrastructure/services";
-import {SaveCupsDto} from "./save-cups-dto";
-import {PasswordUtils} from "../users/domain/Password/PasswordUtils";
+import { SaveCupsDto } from "./save-cups-dto";
+import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
 import { CupsType } from "@prisma/client";
 import { ErrorCode } from "src/shared/domain/error";
 
@@ -25,7 +25,7 @@ export const RESOURCE_NAME = "cups";
 @ApiTags(RESOURCE_NAME)
 @Controller("cups")
 export class CupsController {
-  constructor(private prisma: PrismaService, private datatable: Datatable, private datadisService:DatadisService) {}
+  constructor(private prisma: PrismaService, private datatable: Datatable, private datadisService: DatadisService) { }
 
   @Get()
   @Auth(RESOURCE_NAME)
@@ -64,7 +64,7 @@ export class CupsController {
       ORDER BY info_dt;
     `;
 
-    let communityTotalSurplus : any = await this.prisma.$queryRaw`
+    let communityTotalSurplus: any = await this.prisma.$queryRaw`
       SELECT sum(kwh_out) as total_surplus, info_dt
       FROM energy_hourly eh
              LEFT JOIN cups cu
@@ -101,7 +101,7 @@ export class CupsController {
     data = this.dataWithEmpty(data, date, 24, 'daily')
     const mappedData = data.map(this.energyRegistersMapData);
 
-    let dataToSend = {stats: []}
+    let dataToSend = { stats: [] }
     dataToSend.stats = mappedData
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
@@ -152,7 +152,7 @@ export class CupsController {
     data = this.dataWithEmpty(data, date, daysOfMonth, 'monthly')
 
     const mappedData = data.map(this.energyRegistersMapData);
-    let dataToSend = {stats: []}
+    let dataToSend = { stats: [] }
     dataToSend.stats = mappedData
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
@@ -231,7 +231,7 @@ export class CupsController {
     data = this.dataWithEmpty(data, date, 12, 'yearly')
 
     const mappedData = data.map(this.energyRegistersMapData);
-    let dataToSend = {stats: []}
+    let dataToSend = { stats: [] }
     dataToSend.stats = mappedData
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
@@ -241,25 +241,17 @@ export class CupsController {
 
   @Post("/datadis")
   @Auth(RESOURCE_NAME)
-  async datadis(@Body() body: SaveCupsDto) {
+  async datadis(@Body() body: any) {
 
-    if(!body.cups || body.customerId > 0 || !body.datadisUser || !body.datadisPassword){
-      return HttpResponse.failure("Missing parameters. The request needs cups, customerId, datadisUser, datadisPassword",ErrorCode.MISSING_PARAMETERS)
+    let data;
+
+    if (!body.cups || body.customerId > 0 || !body.datadisUser || !body.datadisPassword || !body.dni) {
+      return HttpResponse.failure("Missing parameters. The request needs cups, customerId, datadisUser, datadisPassword", ErrorCode.MISSING_PARAMETERS)
     }
-    
+
     const cupsData: any = await this.prisma.$queryRaw
-    `SELECT * from cups WHERE cups = ${body.cups}`;
-  
-    const customerData = await this.prisma.customers.findUnique({
-      where: {
-        id: body.customerId,
-      },
-    });
+      `SELECT * from cups WHERE cups = ${body.cups}`;
 
-    if(!customerData){
-      return HttpResponse.failure("Invalid parameters. Customer not found",ErrorCode.MISSING_PARAMETERS)
-    }
-    
     body.datadisActive = true;
 
     //let dni = body.dni;
@@ -268,28 +260,37 @@ export class CupsController {
     //body.type  = 'consumer'
 
     body.datadisPassword = PasswordUtils.encryptData(body.datadisPassword, process.env.JWT_SECRET!)
-    
-    let data;
 
-    if(cupsData.length){
-      //return HttpResponse.failure("Invalid parameters. Cups not found",ErrorCode.MISSING_PARAMETERS)
-        data = await this.prisma.cups.update({
+    const customerData = await this.prisma.customers.findUnique({
+      where: {
+        id: body[0].customerId,
+      },
+    });
+
+    if (!customerData) {
+      return HttpResponse.failure("Invalid parameters. Customer not found", ErrorCode.MISSING_PARAMETERS)
+    }
+
+    //return HttpResponse.failure("Invalid parameters. Cups not found",ErrorCode.MISSING_PARAMETERS)
+
+    if (!cupsData.length) {
+      data = await this.prisma.cups.create({
+        data: body
+      })      
+    }else{
+      data = await this.prisma.cups.update({
         where: {
           id: cupsData[0].id,
         },
         data: body,
-      });   
+      });
     }
-
-    data = await this.prisma.cups.create({
-      data:body
-    })
     
     //update datadis
     //let startDate = moment().subtract(1, 'months').format('YYYY/MM'); 
     //let endDate = moment().format('YYYY/MM');
     //this.datadisService.run(startDate, endDate)
-    
+
     return HttpResponse.success("cups with datadis saved successfully").withData("data");
 
   }
@@ -357,32 +358,32 @@ export class CupsController {
 
   mapData(data: any) {
     const mappedData: any = {};
-    
-    mappedData.id=data.id
-    mappedData.cups=data.cups
-    mappedData.providerId=data.provider_id
-    mappedData.communityId=data.community_id
-    mappedData.surplusDistribution=data.surplus_distribution
-    mappedData.locationId=data.location_id
-    mappedData.address=data.address
-    mappedData.customerId=data.customer_id
-    mappedData.lng=data.lng
-    mappedData.lat=data.lat
-    mappedData.type=data.type
-    mappedData.datadisActive=data.datadis_active
-    mappedData.datadisUser=data.datadis_user
-    mappedData.datadisPassword=data.datadis_password
-    mappedData.smartMeterActive=data.smart_meter_active
-    mappedData.smartMeterModel=data.smart_meter_model
-    mappedData.smartMeterApiKey=data.smart_meter_api_key
-    mappedData.inverterActive=data.inverter_active
-    mappedData.inverterModel=data.inverter_model
-    mappedData.inverterApiKey=data.inverter_api_key
-    mappedData.sensorActive=data.sensor_active
-    mappedData.sensorModel=data.sensor_model
-    mappedData.sensorApiKey=data.sensor_api_key
-    mappedData.createdAt=data.created_at
-    mappedData.updatedAt=data.updated_at
+
+    mappedData.id = data.id
+    mappedData.cups = data.cups
+    mappedData.providerId = data.provider_id
+    mappedData.communityId = data.community_id
+    mappedData.surplusDistribution = data.surplus_distribution
+    mappedData.locationId = data.location_id
+    mappedData.address = data.address
+    mappedData.customerId = data.customer_id
+    mappedData.lng = data.lng
+    mappedData.lat = data.lat
+    mappedData.type = data.type
+    mappedData.datadisActive = data.datadis_active
+    mappedData.datadisUser = data.datadis_user
+    mappedData.datadisPassword = data.datadis_password
+    mappedData.smartMeterActive = data.smart_meter_active
+    mappedData.smartMeterModel = data.smart_meter_model
+    mappedData.smartMeterApiKey = data.smart_meter_api_key
+    mappedData.inverterActive = data.inverter_active
+    mappedData.inverterModel = data.inverter_model
+    mappedData.inverterApiKey = data.inverter_api_key
+    mappedData.sensorActive = data.sensor_active
+    mappedData.sensorModel = data.sensor_model
+    mappedData.sensorApiKey = data.sensor_api_key
+    mappedData.createdAt = data.created_at
+    mappedData.updatedAt = data.updated_at
 
     return mappedData;
   }
@@ -417,13 +418,13 @@ export class CupsController {
           formattedDate = `${date} ${hour}:00:00`
         }
 
-        if (type == 'monthly'){
-          const day = (i+1).toString().length > 1 ? i+1 : `0${i+1}`
+        if (type == 'monthly') {
+          const day = (i + 1).toString().length > 1 ? i + 1 : `0${i + 1}`
           formattedDate = `${date}-${day} 01:00:00`
         }
 
-        if (type == 'yearly'){
-          const month = (i+1).toString().length > 1 ? i+1 : `0${i+1}`
+        if (type == 'yearly') {
+          const month = (i + 1).toString().length > 1 ? i + 1 : `0${i + 1}`
           formattedDate = `${date}-${month}-01 01:00:00`
         }
 
@@ -434,13 +435,13 @@ export class CupsController {
           if (type == 'daily' && item.info_dt)
             return item.info_dt.toString() == newDate.toString()
 
-          if (type == 'monthly' && item.info_dt){
+          if (type == 'monthly' && item.info_dt) {
             const dayOfItem = moment(item.info_dt).format('YYYY-MM-DD')
             const dayOfNewDate = moment(newDate).format('YYYY-MM-DD')
             return dayOfItem == dayOfNewDate
           }
 
-          if (type == 'yearly' && item.info_dt){
+          if (type == 'yearly' && item.info_dt) {
             const monthOfItem = moment(item.info_dt).format('YYYY-MM')
             const monthOfNewDate = moment(newDate).format('YYYY-MM')
             return monthOfItem == monthOfNewDate

@@ -173,6 +173,7 @@ export class UserController {
       lastname,
       email,
       password,
+      customer_id,
       role,
       wallet_address,
     } = body;
@@ -182,6 +183,7 @@ export class UserController {
       lastname,
       email,
       password,
+      customerId:customer_id,
       walletAddress: wallet_address,
       role: new UserRole({name: role}),
     });
@@ -218,6 +220,7 @@ export class UserController {
       lastname,
       email,
       password,
+      customer_id,
       role,
       wallet_address,
     } = body;
@@ -226,6 +229,7 @@ export class UserController {
       firstname,
       lastname,
       email,
+      customerId:customer_id,
       password,
       walletAddress: wallet_address,
       role: new UserRole({name: role}),

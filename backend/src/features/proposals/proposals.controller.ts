@@ -80,10 +80,30 @@ export class ProposalsController {
       }
     });*/
 
+
     const data: any = await this.prisma.$queryRaw`
-      SELECT pr.*, users.email, users.wallet_address, users.firstname FROM proposals pr LEFT JOIN users ON user_id = users.id WHERE pr.id = ${id}
+      SELECT 
+        pr.*, users.email, users.wallet_address, users.firstname
+      FROM proposals pr 
+        LEFT JOIN users ON user_id = users.id 
+        LEFT JOIN proposals_options po ON po.proposal_id = ${id}
+      WHERE pr.id = ${id}
     `;
-    return HttpResponse.success('proposals fetched successfully').withData(this.mapData(data));
+
+    if (data[0]){
+      const dataOptions: any = await this.prisma.$queryRaw`
+      SELECT 
+        po.option,
+        po.proposal_id,
+        po.id
+      FROM proposals_options po
+      WHERE proposal_id = ${data[0].id}
+    `;
+
+      data[0].options = dataOptions
+    }
+
+    return HttpResponse.success('proposals fetched successfully').withData(this.mapData(data[0] || {}));
   }
 
   @Post()
@@ -129,6 +149,7 @@ export class ProposalsController {
 
   mapData(data: any) {
     const mappedData: any = {};
+      mappedData.id = data.id
       mappedData.proposal = data.proposal
       mappedData.description = data.description
       mappedData.userId = data.userId || data.user_id
@@ -141,6 +162,8 @@ export class ProposalsController {
       mappedData.type = data.type
       mappedData.transparent = data.transparent
       mappedData.quroum = data.quroum
+      mappedData.options = data.options
+
     return mappedData;
   }
 }

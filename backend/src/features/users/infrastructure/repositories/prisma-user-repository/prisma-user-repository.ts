@@ -36,6 +36,7 @@ export class PrismaUserRepository implements UserRepository {
           recover_password_code: true,
           id: true,
           password: true,
+          customer_id:true,
           created_at: true,
           updated_at: true,
         },
@@ -51,6 +52,7 @@ export class PrismaUserRepository implements UserRepository {
           lastname: resultSetElement.lastname,
           email: resultSetElement.email,
           password: "",
+          customerId:resultSetElement.customer_id || undefined,
           role: new UserRole({ name: resultSetElement.role.name }).withId(
             resultSetElement.role.id
           ),
@@ -108,6 +110,7 @@ export class PrismaUserRepository implements UserRepository {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           role_id: user.userRole.id!,
           recover_password_code: user.resetPasswordCode,
+          customer_id:user.customerId
         },
         select: {
           username: true,
@@ -119,6 +122,7 @@ export class PrismaUserRepository implements UserRepository {
           recover_password_code: true,
           id: true,
           password: true,
+          customer_id:true,
           created_at: true,
           updated_at: true,
         },
@@ -133,6 +137,7 @@ export class PrismaUserRepository implements UserRepository {
       lastname: createdUser.lastname,
       email: createdUser.email,
       password: "",
+      customerId:createdUser.customer_id || undefined,
       role: new UserRole({ name: createdUser.role.name }).withId(
         createdUser.role.id
       ),
@@ -178,6 +183,7 @@ export class PrismaUserRepository implements UserRepository {
           lastname: user.lastname,
           password: user.encryptedPassword,
           recover_password_code: user.resetPasswordCode,
+          customer_id:user.customerId
         },
         where: {
           id: user.id,
@@ -191,6 +197,7 @@ export class PrismaUserRepository implements UserRepository {
           wallet_address: true,
           recover_password_code: true,
           id: true,
+          customer_id:true,
           password: true,
           created_at: true,
           updated_at: true,
@@ -209,6 +216,7 @@ export class PrismaUserRepository implements UserRepository {
       role: new UserRole({ name: updatedUser.role.name }).withId(
         updatedUser.role.id
       ),
+      customerId:updatedUser.customer_id || undefined,
       walletAddress: updatedUser.wallet_address || undefined,
       resetPasswordCode: updatedUser.recover_password_code || undefined,
     })

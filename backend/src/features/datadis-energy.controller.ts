@@ -251,8 +251,6 @@ import {
         console.log("error getting month energy",e);
       }
     }
-
-
 }
 
 

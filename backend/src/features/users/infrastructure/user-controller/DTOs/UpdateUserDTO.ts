@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsEthereumAddress,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
@@ -23,6 +24,10 @@ export class UpdateUserDTO {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @ApiProperty()
+  @IsNumber()
+  customer_id: number;
 
   @ApiProperty()
   @IsOptional()

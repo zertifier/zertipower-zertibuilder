@@ -16,7 +16,7 @@ export class MinterService {
     constructor(private mysql: MysqlService, private prisma: PrismaService) {
         this.conn = this.mysql.pool;
         console.log("Minting process run")
-        this.mintRegistersInterval()
+        //this.mintRegistersInterval()
     }
 
     /** Each x time tries to mint database registers that dont have transaction yet

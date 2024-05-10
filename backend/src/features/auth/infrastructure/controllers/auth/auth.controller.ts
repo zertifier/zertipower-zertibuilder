@@ -100,7 +100,10 @@ export class AuthController {
   async webWalletLogin(@Body() body:any) {
     const { wallet_address, private_key, email } = body;
     const getUserQuery = `SELECT * FROM users WHERE wallet_address = ?`;
+    const getCustomerEmail = `SELECT * FROM customers WHERE email = ?`;
     const insertUserQuery = `INSERT INTO users (wallet_address,password,role_id, username, firstname, lastname, email) VALUES (?,?,?,?,?,?,?)`
+    const insertUserCustomerQuery = `INSERT INTO users (wallet_address,password,role_id, username, firstname, lastname, email,customer_id) VALUES (?,?,?,?,?,?,?,?)`
+    
     let dbUser;
     let user: User;
     
@@ -120,8 +123,18 @@ export class AuthController {
 
     if(!dbUser){
       try{
+        
+        let customerId;
         let encryptedPassword = await PasswordUtils.encrypt(private_key);
-        await this.conn.query(insertUserQuery,[wallet_address,encryptedPassword,1,email,email,email,email]);
+
+        const [ROWS]:any = await this.conn.query(getCustomerEmail,[email]);
+        if (ROWS.length==1){
+          customerId = ROWS[0].id;
+          await this.conn.query(insertUserCustomerQuery,[wallet_address,encryptedPassword,1,email,email,email,email,customerId]);
+        } else {
+          await this.conn.query(insertUserQuery,[wallet_address,encryptedPassword,1,email,email,email,email]);
+        }
+        
       }catch(e){
         console.log("error web wallet login",e);
         throw new UserNotFoundError();
@@ -146,6 +159,8 @@ export class AuthController {
       signedAccessToken,
       signedRefreshToken
     );
+
+
 
     return HttpResponse.success("Logged in successfully").withData(
       responseData

@@ -7,6 +7,7 @@ export class User implements JsonSerializer {
     username: string;
     firstname: string;
     lastname: string;
+    customerId?:number;
     email: string;
     password: string;
     walletAddress?: string;
@@ -17,6 +18,7 @@ export class User implements JsonSerializer {
     this._firstname = params.firstname;
     this._lastname = params.lastname;
     this._email = params.email;
+    this._customerId = params.customerId;
     this._password = params.password;
     this._walletAddress = params.walletAddress;
     this._resetPasswordCode = params.resetPasswordCode;
@@ -68,6 +70,12 @@ export class User implements JsonSerializer {
 
   get email(): string {
     return this._email;
+  }
+
+  private _customerId?: number;
+
+  get customerId(): number | undefined {
+    return this._customerId;
   }
 
   private _password: string;
@@ -173,6 +181,7 @@ export class User implements JsonSerializer {
       username: this._username,
       firstname: this._firstname,
       lastname: this._lastname,
+      customer_id:this.customerId,
       email: this._email,
       created_at: this._createdAt.getTime(),
       updated_at: this._updatedAt.getTime(),

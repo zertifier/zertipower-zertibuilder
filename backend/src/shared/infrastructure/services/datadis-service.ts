@@ -213,15 +213,6 @@ export class DatadisService {
         //insert readed cups energy hours
         await this.postLogs(supply.cups, cupsData.id, operation, insertedEnergyDataNumber, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
 
-        /*await this.postIntoEnergyHourly(cupsData, datadisCupsEnergyData, startDate, endDate).catch(async e => {
-          status = 'error';
-          errorType = "post datadis data error";
-          errorMessage = e.toString().substring(0, 200);
-          operation = "post datadis hourly energy registers data into database (energy_hourly table)";
-          await this.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage)
-          return 0;
-        })*/
-
       }
     }
 
@@ -570,86 +561,6 @@ export class DatadisService {
 
   }
 
-  postIntoEnergyHourly(cupsData: any, datadisCupsEnergyData: any[], startDate: string, endDate: string): Promise<number> {
-
-    //create get not inserted energy per cups query
-
-    let origin = 'datadis'
-    let dataToSearchQueryPart = ''
-    let values: any = []
-    let firstEnergyDate = datadisCupsEnergyData[0]
-    datadisCupsEnergyData = datadisCupsEnergyData.slice(1)
-
-    let day = moment(firstEnergyDate.date, 'YYYY/MM/DD').format('YYYY-MM-DD')
-    let hour = moment(firstEnergyDate.time, 'HH:mm').format('HH:mm:ss')
-    let infoDt = `${day} ${hour}`;
-    let consumption = firstEnergyDate.consumptionKWh;
-    let generation = firstEnergyDate.surplusEnergyKWh;
-
-    dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as kwh_in, ? as kwh_out, ? as cups_id, ? as origin`)
-
-    pushToValues(infoDt, consumption, generation, cupsData, origin)
-
-    for (const energy of datadisCupsEnergyData) {
-
-      let day = moment(energy.date, 'YYYY/MM/DD').format('YYYY-MM-DD')
-      let hour = moment(energy.time, 'HH:mm').format('HH:mm:ss')
-
-      let datetime = `${day} ${hour}`;
-      let energyImport = energy.consumptionKWh;
-      let energyExport = energy.surplusEnergyKWh;
-
-      pushToValues(datetime, energyImport, energyExport, cupsData, origin)
-
-      dataToSearchQueryPart = dataToSearchQueryPart.concat(` UNION ALL SELECT ?,?,?,?,? `)
-
-    }
-
-    let query = `
-      INSERT INTO energy_hourly (info_dt, kwh_in, kwh_out, cups_id, origin)
-      SELECT info_dt, kwh_in, kwh_out, cups_id, origin
-      FROM (${dataToSearchQueryPart}) AS data_to_check
-      WHERE NOT EXISTS (SELECT info_dt
-                        FROM energy_hourly
-                        WHERE energy_hourly.info_dt = data_to_check.info_dt
-                          AND energy_hourly.cups_id = data_to_check.cups_id)
-        AND cups_id = ?
-    `
-
-    values.push(cupsData.id);
-
-    return new Promise(async (resolve, reject) => {
-
-      try {
-        //console.log(query,values)
-        let [result] = await this.conn.execute<mysql.ResultSetHeader>(query, values);
-        const insertedRows = result.affectedRows;
-        resolve(insertedRows);
-      } catch (error: any) {
-        //console.log("error putting cups energy data", e);
-        if (error && error.code === 'ER_WRONG_ARGUMENTS') {
-          console.log('Error: Argumentos incorrectos al ejecutar la consulta MySQL.');
-          // Realiza cualquier acción específica de manejo de errores aquí
-          console.log(values)
-        } else {
-          // Manejo genérico de errores
-          console.error('Error inesperado al ejecutar la consulta MySQL:', error);
-        }
-        reject(error)
-      }
-
-    })
-
-    function pushToValues(infoDt: string, consumption: number, generation: number, cupsData: any, origin: string) {
-      values.push(infoDt);
-      values.push(consumption);
-      values.push(generation);
-      values.push(cupsData.id);
-      values.push(origin)
-    }
-
-  }
-
   postLogs(cups: string, cupsId: number, operation: string, n_registers: number, startDate: any, endDate: any, getDatadisBegginningDate: any, getDatadisEndingDate: any, status: string, errorType: string, errorMessage: string) {
 
     const log = {
@@ -699,14 +610,22 @@ export class DatadisService {
 
     for (const community of communities) {
       const datadisRegistersByCommunity = datadisNewRegisters.filter(obj => obj.community_id === community.id);
-      const communityDatadis = datadisRegistersByCommunity.filter(obj => obj.type === 'community');
+      const communityCups = datadisRegistersByCommunity.filter(obj => obj.type === 'community');
+
+      const allCommunityCups = await this.getCupsByCommunity(community.id)
+
+      const filteredCups =
+        this.orderArrByInfoDt(datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCommunityCups)))
+
+
+
       let query = 'INSERT INTO energy_hourly (info_dt, kwh_in, kwh_out, production, cups_id, origin, battery, shares) VALUES '
 
-      for (let i = 0; i < datadisRegistersByCommunity.length; i++) {
-        const datadisRegister = datadisRegistersByCommunity[i]
+      for (let i = 0; i < filteredCups.length; i++) {
+        const datadisRegister = filteredCups[i]
 
         if (datadisRegister.surplus_distribution){
-          const communityExport = communityDatadis.find(obj => moment(obj.info_dt).format('YYYY-MM-DD HH:mm') == moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm'));
+          const communityExport = communityCups.find(obj => moment(obj.info_dt).format('YYYY-MM-DD HH:mm') == moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm'));
           const production = communityExport ? datadisRegister.surplus_distribution * communityExport.export : null
           const consumption = production ? production + datadisRegister.import : datadisRegister.import
           query +=
@@ -716,10 +635,13 @@ export class DatadisService {
             `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${datadisRegister.import} , ${datadisRegister.export}, ${null} , ${datadisRegister.cups_id} , 'datadis', ${null}, ${null}),`
         }
 
-        if (i == datadisNewRegisters.length-1) query = query.slice(0, -1)
+
+        // if (i == datadisNewRegisters.length-1) query = query.slice(0, -1)
       }
 
-      if (communityDatadis.length){
+
+      if (communityCups.length){
+        query = query.slice(0, -1)
         let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
         const insertedRows = result.affectedRows;
         console.log(`Energy hourly of community ${community.id} updated with a total of ${insertedRows} rows`)
@@ -798,6 +720,13 @@ export class DatadisService {
     return data
   }
 
+  async getCupsByCommunity(communityId: number){
+    return await this.prisma.cups.findMany({
+      where: {
+        communityId
+      }
+    });
+  }
 
   async updatePrices(data: any){
     await this.prisma.energyHourly.update({
@@ -811,5 +740,55 @@ export class DatadisService {
         type: data.type,
       },
     })
+  }
+
+
+  addNotProvidedCups(existentDatadisCups: any[], allDbCups: any[]){
+
+    if (existentDatadisCups.length === 0) {
+      return [];
+    }
+
+    // Convert arr2 to a Map for efficient lookup
+    const existentDatadisCupsMap = new Map(existentDatadisCups.map(obj => [obj.cups_id, obj]));
+    const newCups = allDbCups.filter((obj) => !existentDatadisCupsMap.has(obj.id))
+
+    if (!newCups.length) return []
+
+    const formattedNewCups: any = []
+
+    for (const existentCups of existentDatadisCups) {
+      formattedNewCups.push(...this.formatNewCups(newCups, existentCups.info_dt))
+    }
+
+    return formattedNewCups
+  }
+
+  formatNewCups(newCups: any[], infoDt: Date){
+
+    const formattedCups = []
+
+    for (const cups of newCups) {
+      formattedCups.push({
+        cups_id: cups.id,
+        info_dt: infoDt,
+        import: null,
+        export: null,
+        surplus_distribution: cups.surplusDistribution || null,
+        community_id: cups.communityId,
+        type: cups.type,
+        transaction_id: null,
+        battery: 0,
+        tx_import: null,
+        tx_export: null,
+        smart_contracts_version: 0
+      })
+    }
+
+    return formattedCups
+  }
+
+  orderArrByInfoDt(array: any[]){
+    return array.sort((a: any, b: any) => a.info_dt - b.info_dt);
   }
 }

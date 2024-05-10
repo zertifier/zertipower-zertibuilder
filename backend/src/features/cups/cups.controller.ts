@@ -242,11 +242,11 @@ export class CupsController {
   @Get("/datadis-active/:id")
   //@Auth(RESOURCE_NAME)
   async datadisActive(@Param("id") id: string) {
-      
-    try{
-      
-    const datadisRows: any = await this.prisma.$queryRaw
-    `
+
+    try {
+
+      const datadisRows: any = await this.prisma.$queryRaw
+        `
     SELECT EXISTS (
       SELECT 1
       FROM datadis_energy_registers
@@ -254,25 +254,25 @@ export class CupsController {
     ) AS datadis_active;
     `;
 
-    if(datadisRows[0].datadis_active){
-      return HttpResponse.success("the cups is active").withData({active:true})
-    } else {
-      return HttpResponse.success("the cups is inactive").withData({active:false})
-    }
+      if (datadisRows[0].datadis_active) {
+        return HttpResponse.success("the cups is active").withData({ active: true })
+      } else {
+        return HttpResponse.success("the cups is inactive").withData({ active: false })
+      }
 
-  }catch(e){
-    return HttpResponse.failure("Error in database connecition",ErrorCode.INTERNAL_ERROR)
-  }
+    } catch (e) {
+      return HttpResponse.failure("Error in database connecition", ErrorCode.INTERNAL_ERROR)
+    }
 
   }
 
   @Post("/datadis")
-  @Auth(RESOURCE_NAME)
+  //@Auth(RESOURCE_NAME)
   async datadis(@Body() body: any) {
 
     let data;
 
-    if (!body.cups || body.customerId > 0 || !body.datadisUser || !body.datadisPassword || !body.dni) {
+    if (!body.cups || !body.customerId || !body.datadisUser || !body.datadisPassword) {
       return HttpResponse.failure("Missing parameters. The request needs cups, customerId, datadisUser, datadisPassword", ErrorCode.MISSING_PARAMETERS)
     }
 
@@ -290,7 +290,7 @@ export class CupsController {
 
     const customerData = await this.prisma.customers.findUnique({
       where: {
-        id: body[0].customerId,
+        id: body.customerId,
       },
     });
 
@@ -300,19 +300,35 @@ export class CupsController {
 
     //return HttpResponse.failure("Invalid parameters. Cups not found",ErrorCode.MISSING_PARAMETERS)
 
-    if (!cupsData.length) {
-      data = await this.prisma.cups.create({
-        data: body
-      })      
-    }else{
-      data = await this.prisma.cups.update({
-        where: {
-          id: cupsData[0].id,
-        },
-        data: body,
-      });
+    if(body.dni){
+      try {
+        const datadisRows: any = await this.prisma.$queryRaw`UPDATE customers SET dni=${body.dni} WHERE id=${body.customerId}`
+      } catch (e) {
+        return HttpResponse.failure("Error updating customer", ErrorCode.INTERNAL_ERROR).withData(e);
+      }
     }
     
+    delete body.dni;
+
+    try {
+      if (!cupsData.length) {
+        data = await this.prisma.cups.create({
+          data: body
+        })
+      } else {
+        data = await this.prisma.cups.update({
+          where: {
+            id: cupsData[0].id,
+          },
+          data: body,
+        });
+      }
+    } catch (e) {
+      return HttpResponse.failure("Error inserting or updating cups", ErrorCode.INTERNAL_ERROR).withData(e);
+    }
+
+
+
     //update datadis
     //let startDate = moment().subtract(1, 'months').format('YYYY/MM'); 
     //let endDate = moment().format('YYYY/MM');

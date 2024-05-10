@@ -239,6 +239,33 @@ export class CupsController {
     );
   }
 
+  @Get("/datadis-active/:id")
+  //@Auth(RESOURCE_NAME)
+  async datadisActive(@Param("id") id: string) {
+      
+    try{
+      
+    const datadisRows: any = await this.prisma.$queryRaw
+    `
+    SELECT EXISTS (
+      SELECT 1
+      FROM datadis_energy_registers
+      WHERE cups_id = ${id}
+    ) AS datadis_active;
+    `;
+
+    if(datadisRows[0].datadis_active){
+      return HttpResponse.success("the cups is active").withData({active:true})
+    } else {
+      return HttpResponse.success("the cups is inactive").withData({active:false})
+    }
+
+  }catch(e){
+    return HttpResponse.failure("Error in database connecition",ErrorCode.INTERNAL_ERROR)
+  }
+
+  }
+
   @Post("/datadis")
   @Auth(RESOURCE_NAME)
   async datadis(@Body() body: any) {

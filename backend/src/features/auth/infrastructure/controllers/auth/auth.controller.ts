@@ -25,6 +25,7 @@ import {
   PasswordNotEncryptedError,
   PasswordNotMatchError,
   ResetPasswordCodeNotValidError,
+  UserAlreadyExistsError,
   UserNotFoundError,
 } from "../../../../users/domain/errors";
 import { UserIdNotDefinedError } from "../../../../users/domain/UserId/UserIdNotDefinedError";
@@ -66,6 +67,8 @@ import { GenerateUserTokensAction } from "../../../application/generate-user-tok
 import mysql from "mysql2/promise";
 import { log } from "console";
 import { ErrorCode } from "src/shared/domain/error";
+import { BadRequestError, InvalidArgumentError, UnexpectedError } from "src/shared/domain/error/common";
+import { MissingParameters } from "src/shared/domain/error/common/MissingParameters";
 
 const signCodesRepository: { [walletAddress: string]: string } = {};
 const RESOURCE_NAME = "auth";
@@ -111,11 +114,11 @@ export class AuthController {
     let customerId: any;
 
     if (!wallet_address || !private_key || !email || !firstname || !lastname) {
-      return HttpResponse.failure("Register user error: missing parameters", ErrorCode.MISSING_PARAMETERS);
+      throw new MissingParameters("Register user error: missing parameters");
     }
 
     if (!email.includes("gmail")) {
-      return HttpResponse.failure("Register user error: a gmail address is needed", ErrorCode.MISSING_PARAMETERS);
+      throw new MissingParameters("Register user error: a gmail address is needed");
     }
 
     try {
@@ -123,7 +126,7 @@ export class AuthController {
       let [ROWS]: any = await this.conn.query(getUserQuery, [email]);
       //check if user exists
       if (ROWS.length) {
-        return HttpResponse.failure("There is a user with this email", ErrorCode.UNEXPECTED);
+        throw new InvalidArgumentError("There is a user with this email");
       }
 
       let encryptedPassword = await PasswordUtils.encrypt(private_key);
@@ -158,12 +161,13 @@ export class AuthController {
         signedRefreshToken
       );
 
-      return HttpResponse.success("Logged in successfully").withData(
+      return HttpResponse.success("User register successfully").withData(
         responseData
       );
 
     } catch (e) {
-      return HttpResponse.failure(e, ErrorCode.INTERNAL_ERROR);
+      console.log("Error registering user:", e)
+      throw new UnexpectedError(e);
     }
 
   }
@@ -174,7 +178,7 @@ export class AuthController {
     const { wallet_address, private_key, email } = body;
 
     if (!wallet_address || !private_key || !email) {
-      return HttpResponse.failure("Error logging in: missing parameters", ErrorCode.MISSING_PARAMETERS);
+      throw new MissingParameters("Error logging in: missing parameters");
     }
 
     const getUserQuery = `SELECT * FROM users WHERE wallet_address = ?`;
@@ -218,7 +222,7 @@ export class AuthController {
 
     } catch (e) {
       console.log("Error logging in:", e)
-      return HttpResponse.failure(`Error logging in: ${e}`, ErrorCode.INTERNAL_ERROR);
+      throw new UnexpectedError(e);
     }
 
   }

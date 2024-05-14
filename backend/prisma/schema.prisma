@@ -394,6 +394,17 @@ model ProposalsOptions {
   @@map("proposals_options")
 }
 
+model Votes {
+  id         Int      @id @default(autoincrement()) @map("id")
+  proposalId Int?     @map("proposal_id") @db.Int
+  optionId   Int?     @map("option_id") @db.Int
+  userId     Int?     @map("user_id") @db.Int
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("votes")
+}
+
 model Responses {
   id               Int      @id @default(autoincrement()) @map("id")
   proposalId       Int?     @map("proposal_id") @db.Int

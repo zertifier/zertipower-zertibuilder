@@ -29,6 +29,7 @@ import { EnergyAreasController } from "./features/energy-areas.controller";
 import { LocationsController } from "./features/locations.controller";
 import { LogsController } from "./features/logs.controller";
 import { DatadisEnergyController } from "./features/datadis-energy.controller";
+import {VotesController} from "./features/votes/votes.controller";
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { DatadisEnergyController } from "./features/datadis-energy.controller";
     DatadisEnergyController,
     ProposalsController,
     ProposalsOptionsController,
+    VotesController,
     ResponsesController,
 ],
 })

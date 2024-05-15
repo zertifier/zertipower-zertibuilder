@@ -72,13 +72,13 @@ export class DatadisService {
     let startDate = moment().subtract(1, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM'); //moment().format('YYYY/MM');
 
-    //this.run(startDate, endDate)
+    this.run(startDate, endDate)
 
-    setInterval(() => {
-      startDate = moment().subtract(1, 'months').format('YYYY/MM');
-      endDate = moment().format('YYYY/MM');
-      this.run(startDate, endDate)
-    }, 86400000) //24 h => ms
+    // setInterval(() => {
+    //   startDate = moment().subtract(1, 'months').format('YYYY/MM');
+    //   endDate = moment().format('YYYY/MM');
+    //   this.run(startDate, endDate)
+    // }, 86400000) //24 h => ms
 
   }
 
@@ -409,7 +409,7 @@ export class DatadisService {
   async getCommunities(): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
-        const getCommunitiesQuery = `SELECT *
+        const getCommunitiesQuery: string = `SELECT *
                                      FROM communities`;
         let [ROWS]: any = await this.conn.query(getCommunitiesQuery);
         resolve(ROWS);
@@ -601,9 +601,9 @@ export class DatadisService {
       let query = `
         SELECT d.*, cups.type, cups.surplus_distribution, cups.community_id
         FROM datadis_energy_registers d
-               LEFT JOIN energy_hourly e ON d.info_dt = e.info_dt
+               LEFT JOIN energy_hourly e ON d.info_dt <> e.info_dt
                LEFT JOIN cups ON d.cups_id = cups.id
-        WHERE e.info_dt IS NULL;
+        WHERE e.info_dt IS NULL ;
       `
       let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
       resolve(result);
@@ -615,13 +615,14 @@ export class DatadisService {
     const communities = await this.getCommunities()
 
     for (const community of communities) {
-      const datadisRegistersByCommunity = datadisNewRegisters.filter(obj => obj.community_id === community.id);
+      let datadisRegistersByCommunity = datadisNewRegisters.filter(obj => obj.community_id === community.id);
       const communityCups = datadisRegistersByCommunity.filter(obj => obj.type === 'community');
 
-      const allCupsOfCommunity = await this.getCupsByCommunity(community.id)
+      if (datadisNewRegisters) datadisRegistersByCommunity = this.orderArrByInfoDt(datadisNewRegisters)
 
-      const filteredCups =
-        this.orderArrByInfoDt(datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity)))
+      const allCupsOfCommunity = await this.getCupsByCommunity(community.id)
+      const filteredCups = allCupsOfCommunity.length > 0 ?
+        this.orderArrByInfoDt(datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity))) : []
 
 
       /* let query = 'INSERT INTO energy_hourly (info_dt, kwh_in, kwh_out, production, cups_id, origin, battery, shares) VALUES '
@@ -656,9 +657,11 @@ export class DatadisService {
 
       // Define the batch size
       const batchSize = 4000;
+      // const batchSize = 99;
 
       // Iterate over the filteredCups array in batches
       for (let start = 0; start < filteredCups.length; start += batchSize) {
+      // for (let start = 0; start < 100; start += batchSize) {
         // Extract a slice of batchSize from filteredCups
         const batch = filteredCups.slice(start, start + batchSize);
 
@@ -682,11 +685,15 @@ export class DatadisService {
 
         // Remove the trailing comma from the query
         query = query.slice(0, -1);
+        // console.log(query)
 
-        // Execute the query for this batch
-        let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
-        const insertedRows = result.affectedRows;
-        console.log(`Energy hourly of community ${community.id} updated with a total of ${insertedRows} rows for batch starting at index ${start}`);
+        if (filteredCups.length){
+          // Execute the query for this batch
+          let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
+          const insertedRows = result.affectedRows;
+          console.log(`Energy hourly of community ${community.id} updated with a total of ${insertedRows} rows for batch starting at index ${start}`);
+        }
+
       }
     }
 
@@ -797,21 +804,25 @@ export class DatadisService {
 
 
   addNotProvidedCups(existentDatadisCups: any[], allDbCups: any[]) {
-
-    /*if (existentDatadisCups.length === 0) {
+    if (allDbCups.length === 0) {
       return [];
-    }*/
+    }
 
-    // Convert arr2 to a Map for efficient lookup
-    const existentDatadisCupsMap = new Map(existentDatadisCups.map(obj => [obj.cups_id, obj]));
-    const newCups = allDbCups.filter((obj) => !existentDatadisCupsMap.has(obj.id))
+    const existingCupsIds = existentDatadisCups.map(cup => cup.cups_id);
+    const newCups = allDbCups.filter(cup => !existingCupsIds.includes(cup.id));
 
     if (!newCups.length) return []
 
     const formattedNewCups: any = []
 
+    let lastCheckedDate = null
+
     for (const existentCups of existentDatadisCups) {
-      formattedNewCups.push(...this.formatNewCups(newCups, existentCups))
+      if (lastCheckedDate != moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss')){
+        formattedNewCups.push(...this.formatNewCups(newCups, existentCups))
+        lastCheckedDate = moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss')
+      }
+
     }
 
     return formattedNewCups
@@ -820,8 +831,21 @@ export class DatadisService {
   formatNewCups(newCups: any[], existentCups: any) {
 
     const formattedCups = []
+    if (moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss') == '2023-11-02 04:00:00'){
+      console.log('--------------------------------------------------')
+      // console.log(existentCups.cups_id)
+    }
 
     for (const cups of newCups) {
+      if (cups.id == 39 && moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss') == '2023-11-02 04:00:00'){
+        // console.log(cups, "cups")
+        // console.log(existentCups.info_dt)
+      }
+      /*if (cups.id == 69 ){
+        console.log(cups, "cups")
+        console.log(existentCups.info_dt, "existentCups.info_dt")
+      }*/
+
       formattedCups.push({
         cups_id: cups.id,
         info_dt: existentCups.info_dt,

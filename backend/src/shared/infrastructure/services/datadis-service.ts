@@ -829,23 +829,8 @@ export class DatadisService {
   }
 
   formatNewCups(newCups: any[], existentCups: any) {
-
     const formattedCups = []
-    if (moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss') == '2023-11-02 04:00:00'){
-      console.log('--------------------------------------------------')
-      // console.log(existentCups.cups_id)
-    }
-
     for (const cups of newCups) {
-      if (cups.id == 39 && moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss') == '2023-11-02 04:00:00'){
-        // console.log(cups, "cups")
-        // console.log(existentCups.info_dt)
-      }
-      /*if (cups.id == 69 ){
-        console.log(cups, "cups")
-        console.log(existentCups.info_dt, "existentCups.info_dt")
-      }*/
-
       formattedCups.push({
         cups_id: cups.id,
         info_dt: existentCups.info_dt,

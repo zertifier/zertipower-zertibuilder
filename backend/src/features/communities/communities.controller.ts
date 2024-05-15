@@ -58,7 +58,7 @@ export class CommunitiesController {
   }
 
   @Get("/energy/:id/:date")
-  @Auth(RESOURCE_NAME)
+  //@Auth(RESOURCE_NAME)
   async getByIdEnergy(@Param("id") id: number, @Param("date") date: string) {
 
     let url = `SELECT MONTHNAME(info_dt) as month,

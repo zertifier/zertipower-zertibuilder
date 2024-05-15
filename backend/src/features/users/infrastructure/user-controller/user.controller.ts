@@ -1,7 +1,7 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query,} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Headers, Param, Post, Put, Query, UseGuards,} from "@nestjs/common";
 import {HttpResponse} from "../../../../shared/infrastructure/http/HttpResponse";
 import {MysqlService, PrismaService} from "../../../../shared/infrastructure/services";
-import {DecodedToken} from "../../../auth/infrastructure/guards/access-token-guard/access-token-guard";
+import {AccessTokenGuard, DecodedToken} from "../../../auth/infrastructure/guards/access-token-guard/access-token-guard";
 import {Token} from "../../../auth/domain/tokens/Token";
 import {HttpUtils} from "../../../../shared/infrastructure/http/HttpUtils";
 import {FindUsersAction} from "../../application/find-users-action/find-users-action";
@@ -94,8 +94,12 @@ export class UserController {
 
   @Get("/:id/cups")
   @Auth(RESOURCE_NAME)
-  @ApiBearerAuth()
-  async getUserCups(@Param("id") id: number) {
+  //@ApiBearerAuth()
+  @UseGuards(AccessTokenGuard)
+  async getUserCups(@Param("id") id: number, @Headers('authorization') authHeader: string) {
+
+    //authHeader
+    //this.accessTokenGuard.canActivate;
 
     let getUserQuery: string = `SELECT customer_id
                                 FROM users
@@ -105,12 +109,10 @@ export class UserController {
                                 from cups
                                        LEFT JOIN customers ON customers.id = cups.customer_id
                                        LEFT JOIN users ON users.customer_id = customers.id
-                                WHERE users.customer_id = ?
-    `
+                                WHERE users.customer_id = ?`
 
     let customerId;
     let cups;
-
     let rows;
     try {
       const response: any = await this.conn.query(getUserQuery, [id])

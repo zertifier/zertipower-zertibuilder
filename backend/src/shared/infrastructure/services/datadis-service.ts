@@ -601,7 +601,7 @@ export class DatadisService {
       let query = `
         SELECT d.*, cups.type, cups.surplus_distribution, cups.community_id
         FROM datadis_energy_registers d
-               LEFT JOIN energy_hourly e ON d.info_dt <> e.info_dt
+               LEFT JOIN energy_hourly e ON d.info_dt = e.info_dt
                LEFT JOIN cups ON d.cups_id = cups.id
         WHERE e.info_dt IS NULL ;
       `

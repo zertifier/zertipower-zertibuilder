@@ -263,7 +263,15 @@ export class CupsController {
     } catch (e) {
       return HttpResponse.failure("Error in database connecition", ErrorCode.INTERNAL_ERROR)
     }
+  }
 
+  @Get("/community/:communityId/total")
+  async getTotalByCommunity(@Param("communityId") communityId: string){
+    const data: any = await this.prisma.$queryRaw`
+        SELECT COUNT(*) total FROM cups WHERE community_id = ${communityId}
+    `
+
+    return HttpResponse.success("the cups is active").withData({ total: parseInt(data[0].total) || 0 })
   }
 
   @Post("/datadis")

@@ -168,6 +168,7 @@ console.log(id,year)
                     WHERE c.type != 'community'
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
+                      AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
                     GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -259,6 +260,7 @@ console.log(id,year)
                     WHERE c.type != 'community'
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
+                      AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
                     GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -399,7 +401,8 @@ console.log(id,year)
                     WHERE c.type != 'community'
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
-                    GROUP BY c.community_id
+                      AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
+                      GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
              CROSS JOIN (

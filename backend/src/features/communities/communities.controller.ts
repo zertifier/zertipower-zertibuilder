@@ -120,7 +120,12 @@ console.log(id,year)
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
-                   SUM(IFNULL(production, 0))                        AS surplus_community_active,
+                   SUM(
+                     CASE
+                       WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
+                       ELSE 0
+                       END
+                   )                              AS surplus_community_active,
                    kwh_in_price                                      AS kwh_in_price,
                    kwh_out_price                                     AS kwh_out_price,
                    kwh_in_price_community                            AS kwh_in_price_community,
@@ -206,7 +211,12 @@ console.log(id,year)
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
-                   SUM(IFNULL(production, 0))                              AS surplus_community_active,
+                   SUM(
+                     CASE
+                       WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
+                       ELSE 0
+                       END
+                   )                              AS surplus_community_active,
                    kwh_in_price                                AS kwh_in_price,
                    kwh_out_price                              AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
@@ -342,7 +352,12 @@ console.log(id,year)
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
-                   SUM(IFNULL(production, 0))                              AS surplus_community_active,
+                   SUM(
+                     CASE
+                       WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
+                       ELSE 0
+                       END
+                     )                              AS surplus_community_active,
                    kwh_in_price                                 AS kwh_in_price,
                    kwh_out_price                                AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,

@@ -102,7 +102,7 @@ export class CommunitiesController {
                    kwh_out_price                                     AS kwh_out_price,
                    kwh_in_price_community                            AS kwh_in_price_community,
                    kwh_out_price_community                           AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT CASE WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN customer_id END) AS VARCHAR(255)) AS active_members,
                    HOUR(eh.info_dt)                                  AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -194,7 +194,7 @@ export class CommunitiesController {
                    kwh_out_price                              AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
                    kwh_out_price_community                      AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT CASE WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN customer_id END) AS VARCHAR(255)) AS active_members,
                    DAY(eh.info_dt)                                   AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -336,7 +336,7 @@ export class CommunitiesController {
                    kwh_out_price                                AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
                    kwh_out_price_community                      AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT CASE WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN customer_id END) AS VARCHAR(255)) AS active_members,
                    MONTH(eh.info_dt)                                 AS filter_dt,
                    info_dt
             FROM energy_hourly eh

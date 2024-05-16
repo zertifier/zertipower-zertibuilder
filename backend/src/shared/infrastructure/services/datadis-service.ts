@@ -624,38 +624,6 @@ export class DatadisService {
       const filteredCups = allCupsOfCommunity.length > 0 ?
         this.orderArrByInfoDt(datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity))) : []
 
-
-      /* let query = 'INSERT INTO energy_hourly (info_dt, kwh_in, kwh_out, production, cups_id, origin, battery, shares) VALUES '
-
-       for (let i = 0; i < filteredCups.length; i++) {
-         const datadisRegister = filteredCups[i]
-
-         if (datadisRegister.surplus_distribution){
-           const communityExport = communityCups.find(obj => moment(obj.info_dt).format('YYYY-MM-DD HH:mm') == moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm'));
-           const production = communityExport ? datadisRegister.surplus_distribution * communityExport.export : null
-           const consumption = (production && datadisRegister.import) ? production + datadisRegister.import : datadisRegister.import
-           query +=
-             `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${consumption} , ${datadisRegister.export}, ${production} , ${datadisRegister.cups_id} , 'datadis', 0, ${datadisRegister.surplus_distribution || null}),`
-         }else{
-           query +=
-             `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${datadisRegister.import} , ${datadisRegister.export}, ${null} , ${datadisRegister.cups_id} , 'datadis', ${null}, ${null}),`
-         }
-
-
-         // if (i == datadisNewRegisters.length-1) query = query.slice(0, -1)
-       }
-
-       console.log(communityCups.length, "communityCups.length")
-       if (communityCups.length){
-         query = query.slice(0, -1)
-         let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
-         const insertedRows = result.affectedRows;
-         console.log(`Energy hourly of community ${community.id} updated with a total of ${insertedRows} rows`)
-       }
-
-       ---------------------------*/
-
-
       // Define the batch size
       const batchSize = 4000;
       // const batchSize = 99;
@@ -675,7 +643,20 @@ export class DatadisService {
           if (datadisRegister.surplus_distribution) {
             const communityExport = communityCups.find(obj => moment(obj.info_dt).format('YYYY-MM-DD HH:mm') == moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm'));
             const production = communityExport ? datadisRegister.surplus_distribution * communityExport.export : null;
-            const consumption = (production && datadisRegister.import) ? production + datadisRegister.import : datadisRegister.import;
+            // const consumption = (production && datadisRegister.import) ? production + datadisRegister.import : datadisRegister.import;
+            let consumption = null;
+
+            if (production && datadisRegister.import){
+              consumption = production + datadisRegister.import
+            }else{
+              if (production && datadisRegister.export){
+                consumption = production + datadisRegister.export
+              }else{
+                consumption = datadisRegister.import
+              }
+            }
+
+
             query +=
               `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${consumption} , ${datadisRegister.export}, ${production} , ${datadisRegister.cups_id} , 'datadis', 0, ${datadisRegister.surplus_distribution || null}),`;
           } else {

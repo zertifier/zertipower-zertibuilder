@@ -58,8 +58,6 @@ export class VotesController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveVotesDTO) {
-    let itExists = false
-
     const getVotes = await this.prisma.votes.findMany({
       where: {
         proposalId: body.proposalId,
@@ -67,9 +65,24 @@ export class VotesController {
         optionId: body.optionId
       }
     })
-
     if (getVotes.length)
       throw new BadRequestError("Your already voted");
+
+    const proposal: any = await this.prisma.$queryRaw`
+      SELECT pr.id
+      FROM users
+      LEFT JOIN cups 
+      ON users.customer_id = cups.customer_id
+      LEFT JOIN proposals pr
+      ON pr.community_id = cups.community_id
+      WHERE users.id = ${body.userId} AND pr.id = ${body.proposalId}
+      GROUP BY cups.community_id
+    `
+    if (!proposal.length)
+      throw new BadRequestError("Wrong community from user");
+
+    if (proposal[0].id != body.proposalId)
+      throw new BadRequestError("Wrong community from user");
 
     const data = await this.prisma.votes.createMany({ data: body });
     return HttpResponse.success('proposals_options saved successfully').withData(data);

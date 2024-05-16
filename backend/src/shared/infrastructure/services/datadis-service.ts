@@ -650,7 +650,7 @@ export class DatadisService {
               consumption = production + datadisRegister.import
             }else{
               if (production && datadisRegister.export){
-                consumption = production + datadisRegister.export
+                consumption = production - datadisRegister.export
               }else{
                 consumption = datadisRegister.import
               }

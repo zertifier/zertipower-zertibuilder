@@ -162,7 +162,7 @@ console.log(id,year)
       FROM (
              SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
              FROM (
-                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    SELECT COUNT(DISTINCT cups_id) AS totalActiveMembers
                     FROM energy_hourly eh
                            LEFT JOIN cups c ON eh.cups_id = c.id
                     WHERE c.type != 'community'
@@ -254,7 +254,7 @@ console.log(id,year)
       FROM (
              SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
              FROM (
-                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    SELECT COUNT(DISTINCT cups_id) AS totalActiveMembers
                     FROM energy_hourly eh
                            LEFT JOIN cups c ON eh.cups_id = c.id
                     WHERE c.type != 'community'
@@ -311,7 +311,7 @@ console.log(id,year)
                    kwh_out_price                                AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
                    kwh_out_price_community                      AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT cups_id) AS VARCHAR(255)) AS active_members,
                    MONTH(eh.info_dt)                                 AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -395,7 +395,7 @@ console.log(id,year)
       FROM (
              SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
              FROM (
-                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    SELECT COUNT(DISTINCT cups_id) AS totalActiveMembers
                     FROM energy_hourly eh
                            LEFT JOIN cups c ON eh.cups_id = c.id
                     WHERE c.type != 'community'

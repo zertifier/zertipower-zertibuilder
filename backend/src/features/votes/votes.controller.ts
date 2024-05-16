@@ -7,6 +7,7 @@ import { SaveVotesDTO } from './save-votes-dto';
 import * as moment from 'moment';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/features/auth/infrastructure/decorators';
+import {BadRequestError, InvalidArgumentError} from "../../shared/domain/error/common";
 
 export const RESOURCE_NAME = 'votes';
 
@@ -56,7 +57,20 @@ export class VotesController {
 
   @Post()
   @Auth(RESOURCE_NAME)
-  async create(@Body() body: SaveVotesDTO[]) {
+  async create(@Body() body: SaveVotesDTO) {
+    let itExists = false
+
+    const getVotes = await this.prisma.votes.findMany({
+      where: {
+        proposalId: body.proposalId,
+        userId: body.userId,
+        optionId: body.optionId
+      }
+    })
+
+    if (getVotes.length)
+      throw new BadRequestError("Your already voted");
+
     const data = await this.prisma.votes.createMany({ data: body });
     return HttpResponse.success('proposals_options saved successfully').withData(data);
   }

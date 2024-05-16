@@ -16,6 +16,7 @@ import * as moment from "moment";
 import {ApiTags} from "@nestjs/swagger";
 import {Auth} from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
+import { UnexpectedError } from "src/shared/domain/error/common";
 
 export const RESOURCE_NAME = "communities";
 
@@ -57,6 +58,31 @@ export class CommunitiesController {
     );
   }
 
+  @Get("energy/actives/:id")
+  //@Auth(RESOURCE_NAME)
+  async getByIdEnergyActives(@Param("id") id: number, @Param("date") date: string) {
+
+    try{
+    let url = `
+        SELECT 
+        COUNT(DISTINCT c.id) AS total_cups,
+        COUNT(DISTINCT der.cups_id) AS total_actives
+    FROM cups AS c
+    LEFT JOIN datadis_energy_registers AS der ON c.id = der.cups_id
+    WHERE c.community_id = ?;
+    `;
+
+    const [ROWS]: any[] = await this.conn.query(url, [id]);
+
+    return HttpResponse.success("community active users fetched successfully").withData(ROWS);
+    
+    }catch(e){
+      console.log(e)
+      throw new UnexpectedError(e);
+    }
+
+  }
+
   @Get("/energy/:id/:date")
   //@Auth(RESOURCE_NAME)
   async getByIdEnergy(@Param("id") id: number, @Param("date") date: string) {
@@ -74,6 +100,8 @@ export class CommunitiesController {
     `;
 
     let year = moment(date, 'YYYY-MM-DD').format('YYYY').toString()
+
+console.log(id,year)
 
     const [ROWS]: any[] = await this.conn.query(url, [id, year]);
 

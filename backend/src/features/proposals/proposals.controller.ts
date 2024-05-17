@@ -7,6 +7,7 @@ import { SaveProposalsDTO } from './save-proposals-dto';
 import * as moment from 'moment';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/features/auth/infrastructure/decorators';
+import {GovernanceService} from "../../shared/infrastructure/services/governance/governance.service";
 
 export const RESOURCE_NAME = 'proposals';
 
@@ -15,7 +16,8 @@ export const RESOURCE_NAME = 'proposals';
 export class ProposalsController {
   constructor(
     private prisma: PrismaService,
-    private datatable: Datatable
+    private datatable: Datatable,
+    private governanceService: GovernanceService
   ) {}
 
   @Get()
@@ -42,6 +44,8 @@ export class ProposalsController {
   @Get('/community/:communityId')
   @Auth(RESOURCE_NAME)
   async getByCommunity(@Param('communityId') communityId: string) {
+
+    await this.governanceService.updatePropsalsStatus()
     // const data = await this.prisma.proposals.findMany();
     const [updatedData, data]: [any, any] = await this.prisma.$transaction([
       this.prisma.$queryRaw`

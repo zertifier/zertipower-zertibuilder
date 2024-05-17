@@ -38,7 +38,7 @@ export class VotesController {
     return HttpResponse.success('proposals_options fetched successfully').withData(this.mapData(data));
   }
   @Get('proposal/:proposalId')
-  // @Auth(RESOURCE_NAME)
+  @Auth(RESOURCE_NAME)
   async getVotesByProposalId(@Param('proposalId') proposalId: string) {
     const data: any = await this.prisma.$queryRaw`
       SELECT option_id, COUNT(option_id) qty  FROM votes WHERE proposal_id = ${proposalId} GROUP BY option_id
@@ -47,7 +47,7 @@ export class VotesController {
   }
 
   @Get('proposal/:proposalId/user/:userId')
-  // @Auth(RESOURCE_NAME)
+  @Auth(RESOURCE_NAME)
   async getVotesByProposalIdAndUserId(@Param('proposalId') proposalId: string, @Param('userId') userId: string) {
     const data: any = await this.prisma.$queryRaw`
       SELECT option_id FROM votes WHERE proposal_id = ${proposalId} AND user_id = ${userId}

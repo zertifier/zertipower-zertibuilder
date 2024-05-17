@@ -22,12 +22,45 @@ export class ProposalsController {
   @Auth(RESOURCE_NAME)
   async get() {
     // const data = await this.prisma.proposals.findMany();
-    const data: any = await this.prisma.$queryRaw`
-      SELECT pr.*, users.email, users.wallet_address, users.firstname FROM proposals pr LEFT JOIN users ON user_id = users.id ORDER BY pr.created_at DESC
-    `;
+    const [updatedData, data]: [any, any] = await this.prisma.$transaction([
+      this.prisma.$queryRaw`
+        UPDATE proposals
+        SET status = 'EXPIRED'
+        WHERE expiration_dt < CURRENT_DATE;`,
+
+      this.prisma.$queryRaw`
+        SELECT pr.*, users.email, users.wallet_address, users.firstname
+        FROM proposals pr
+               LEFT JOIN users ON user_id = users.id
+        ORDER BY pr.created_at DESC`
+    ])
+
     const mappedData = data.map(this.mapData)
     return HttpResponse.success('proposals fetched successfully').withData(mappedData);
   }
+
+  @Get('/community/:communityId')
+  @Auth(RESOURCE_NAME)
+  async getByCommunity(@Param('communityId') communityId: string) {
+    // const data = await this.prisma.proposals.findMany();
+    const [updatedData, data]: [any, any] = await this.prisma.$transaction([
+      this.prisma.$queryRaw`
+        UPDATE proposals
+        SET status = 'EXPIRED'
+        WHERE expiration_dt < CURRENT_DATE;`,
+
+      this.prisma.$queryRaw`
+        SELECT pr.*, users.email, users.wallet_address, users.firstname
+        FROM proposals pr
+               LEFT JOIN users ON user_id = users.id
+        WHERE pr.community_id = ${communityId}
+        ORDER BY pr.created_at DESC`
+    ])
+
+    const mappedData = data.map(this.mapData)
+    return HttpResponse.success('proposals fetched successfully').withData(mappedData);
+  }
+
   @Get('/filter/:word')
   @Auth(RESOURCE_NAME)
   async getByFilter(@Param('word') word: string) {
@@ -36,6 +69,19 @@ export class ProposalsController {
       FROM proposals pr
              LEFT JOIN users ON user_id = users.id
       WHERE pr.proposal LIKE CONCAT('%', ${word}, '%')
+      ORDER BY pr.created_at DESC
+    `;
+    const mappedData = data.map(this.mapData)
+    return HttpResponse.success('proposals fetched successfully').withData(mappedData);
+  }
+  @Get('/community/:communityId/filter/:word')
+  @Auth(RESOURCE_NAME)
+  async getByFilterAndCommunity(@Param('communityId') communityId: string, @Param('word') word: string) {
+    const data: any = await this.prisma.$queryRaw`
+      SELECT pr.*, users.email, users.wallet_address, users.firstname
+      FROM proposals pr
+             LEFT JOIN users ON user_id = users.id
+      WHERE pr.proposal LIKE CONCAT('%', ${word}, '%') AND pr.community_id = ${communityId}
       ORDER BY pr.created_at DESC
     `;
     const mappedData = data.map(this.mapData)
@@ -55,9 +101,23 @@ export class ProposalsController {
     const mappedData = data.map(this.mapData)
     return HttpResponse.success('proposals fetched successfully').withData(mappedData);
   }
+  @Get('/community/:communityId/filter/:word/status/:status')
+  @Auth(RESOURCE_NAME)
+  async getByFilterAndStatusAndCommunity(@Param('communityId') communityId: string, @Param('word') word: string, @Param('status') status: string) {
+    const data: any = await this.prisma.$queryRaw`
+      SELECT pr.*, users.email, users.wallet_address, users.firstname
+      FROM proposals pr
+             LEFT JOIN users ON user_id = users.id
+      WHERE pr.proposal LIKE CONCAT('%', ${word}, '%') AND pr.community_id = ${communityId}
+      AND status = ${status.toUpperCase()}
+      ORDER BY pr.created_at DESC
+    `;
+    const mappedData = data.map(this.mapData)
+    return HttpResponse.success('proposals fetched successfully').withData(mappedData);
+  }
 
   @Get('/status/:status')
-  // @Auth(RESOURCE_NAME)
+  @Auth(RESOURCE_NAME)
   async getByStatus(@Param('status') status: string) {
     /*const data = await this.prisma.proposals.findMany({
       where: {
@@ -66,6 +126,16 @@ export class ProposalsController {
     });*/
     const data: any = await this.prisma.$queryRaw`
       SELECT pr.*, users.email, users.wallet_address, users.firstname FROM proposals pr LEFT JOIN users ON user_id = users.id WHERE status = ${status.toUpperCase()}
+    `;
+    const mappedData = data.map(this.mapData)
+    return HttpResponse.success('proposals fetched successfully').withData(mappedData);
+  }
+
+  @Get('/community/:communityId/status/:status')
+  @Auth(RESOURCE_NAME)
+  async getByStatusAndCommunity(@Param('communityId') communityId: string, @Param('status') status: string) {
+    const data: any = await this.prisma.$queryRaw`
+      SELECT pr.*, users.email, users.wallet_address, users.firstname FROM proposals pr LEFT JOIN users ON user_id = users.id WHERE status = ${status.toUpperCase()} && pr.community_id = ${communityId}
     `;
     const mappedData = data.map(this.mapData)
     return HttpResponse.success('proposals fetched successfully').withData(mappedData);

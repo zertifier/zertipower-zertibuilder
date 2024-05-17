@@ -72,7 +72,7 @@ export class DatadisService {
     let startDate = moment().subtract(1, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM'); //moment().format('YYYY/MM');
 
-    this.run(startDate, endDate)
+    // this.run(startDate, endDate)
 
     setInterval(() => {
       startDate = moment().subtract(1, 'months').format('YYYY/MM');

@@ -30,7 +30,6 @@ export class GovernanceService {
       ORDER BY count DESC LIMIT 1
     `
 
-    console.log(expiredProposals)
 
     await this.prisma.$queryRaw`
         UPDATE proposals

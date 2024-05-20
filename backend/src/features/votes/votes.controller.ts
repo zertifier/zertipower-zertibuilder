@@ -66,25 +66,31 @@ export class VotesController {
       }
     })
     if (getVotes.length)
-      throw new BadRequestError("Your already voted");
+      throw new BadRequestError("You already voted");
 
     const proposal: any = await this.prisma.$queryRaw`
-      SELECT pr.id
+      SELECT pr.id,
+             CASE
+               WHEN pr.type = 'weighted' THEN SUM(cups.surplus_distribution)
+               ELSE 1
+             END as voteValue
       FROM users
-      LEFT JOIN cups 
-      ON users.customer_id = cups.customer_id
-      LEFT JOIN proposals pr
-      ON pr.community_id = cups.community_id
-      WHERE users.id = ${body.userId} AND pr.id = ${body.proposalId}
+             LEFT JOIN cups
+                       ON users.customer_id = cups.customer_id
+             LEFT JOIN proposals pr
+                       ON pr.community_id = cups.community_id
+      WHERE users.id = ${body.userId}
+        AND pr.id = ${body.proposalId}
       GROUP BY cups.community_id
     `
+
     if (!proposal.length)
       throw new BadRequestError("Wrong community from user");
 
     if (proposal[0].id != body.proposalId)
       throw new BadRequestError("Wrong community from user");
 
-    const data = await this.prisma.votes.createMany({ data: body });
+    const data = await this.prisma.votes.create({ data: {...body, voteValue: proposal[0].voteValue } });
     return HttpResponse.success('proposals_options saved successfully').withData(data);
   }
 

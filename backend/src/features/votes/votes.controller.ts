@@ -41,7 +41,7 @@ export class VotesController {
   @Auth(RESOURCE_NAME)
   async getVotesByProposalId(@Param('proposalId') proposalId: string) {
     const data: any = await this.prisma.$queryRaw`
-      SELECT option_id, COUNT(option_id) qty  FROM votes WHERE proposal_id = ${proposalId} GROUP BY option_id
+      SELECT option_id, SUM(vote_value) votes, COUNT(option_id) qty  FROM votes WHERE proposal_id = ${proposalId} GROUP BY option_id
     `
     return HttpResponse.success('proposals_options fetched successfully').withData(data.map(this.mapData));
   }
@@ -81,6 +81,7 @@ export class VotesController {
                        ON pr.community_id = cups.community_id
       WHERE users.id = ${body.userId}
         AND pr.id = ${body.proposalId}
+        AND pr.expiration_dt > CURRENT_DATE
       GROUP BY cups.community_id
     `
 
@@ -138,6 +139,7 @@ export class VotesController {
       mappedData.userId = data.userId || data.user_id
       mappedData.option = data.option
       mappedData.qty = data.qty ? parseInt(data.qty) : undefined
+      mappedData.votes = data.votes ? parseFloat(data.votes) : undefined
     return mappedData;
   }
 }

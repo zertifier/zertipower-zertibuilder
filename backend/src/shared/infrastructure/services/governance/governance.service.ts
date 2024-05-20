@@ -8,9 +8,9 @@ export class GovernanceService {
   ) {
   }
 
-  async updatePropsalsStatus() {
+  async updateExpiredPropsalsStatus() {
 
-    const proposals = await this.prisma.$queryRaw`
+    /*const proposals = await this.prisma.$queryRaw`
       SELECT pr.id, votes.option_id as vote, COUNT(option_id) count
       FROM proposals pr
              LEFT JOIN votes ON proposal_id = pr.id
@@ -19,9 +19,23 @@ export class GovernanceService {
         AND votes.id IS NOT NULL
       GROUP BY option_id
       ORDER BY count DESC LIMIT 1
+    `*/
+    const expiredProposals = await this.prisma.$queryRaw`
+      SELECT pr.id, votes.option_id as vote, SUM(vote_value) count
+      FROM proposals pr
+             LEFT JOIN votes ON proposal_id = pr.id
+      WHERE expiration_dt < CURRENT_DATE
+        AND result_option_id IS NULL
+      GROUP BY option_id
+      ORDER BY count DESC LIMIT 1
     `
 
-    console.log(proposals)
+    console.log(expiredProposals)
+
+    await this.prisma.$queryRaw`
+        UPDATE proposals
+        SET status = 'EXPIRED'
+        WHERE expiration_dt < CURRENT_DATE;`
     /*const [data, updatedData]: [any, any] = await this.prisma.$transaction([
       this.prisma.$queryRaw`
         SELECT pr.*

@@ -45,9 +45,9 @@ export class ProposalsController {
   @Auth(RESOURCE_NAME)
   async getByCommunity(@Param('communityId') communityId: string) {
 
-    await this.governanceService.updatePropsalsStatus()
+    await this.governanceService.updateExpiredPropsalsStatus()
     // const data = await this.prisma.proposals.findMany();
-    const [updatedData, data]: [any, any] = await this.prisma.$transaction([
+   /* const [updatedData, data]: [any, any] = await this.prisma.$transaction([
       this.prisma.$queryRaw`
         UPDATE proposals
         SET status = 'EXPIRED'
@@ -59,7 +59,14 @@ export class ProposalsController {
                LEFT JOIN users ON user_id = users.id
         WHERE pr.community_id = ${communityId}
         ORDER BY pr.created_at DESC`
-    ])
+    ])*/
+
+    const data: any = await this.prisma.$queryRaw`
+        SELECT pr.*, users.email, users.wallet_address, users.firstname
+        FROM proposals pr
+               LEFT JOIN users ON user_id = users.id
+        WHERE pr.community_id = ${communityId}
+        ORDER BY pr.created_at DESC`
 
     const mappedData = data.map(this.mapData)
     return HttpResponse.success('proposals fetched successfully').withData(mappedData);

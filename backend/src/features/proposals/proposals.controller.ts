@@ -206,6 +206,20 @@ export class ProposalsController {
     return HttpResponse.success('proposals updated successfully').withData(data);
   }
 
+  @Put(':id/status')
+  @Auth(RESOURCE_NAME)
+  async updateState(@Param('id') id: string, @Body() body: {status: string}) {
+    const data = await this.prisma.proposals.updateMany({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        status: body.status.toUpperCase()
+      }
+    });
+    return HttpResponse.success('proposals updated successfully').withData(data);
+  }
+
   @Delete(':id')
   @Auth(RESOURCE_NAME)
   async remove(@Param('id') id: string) {

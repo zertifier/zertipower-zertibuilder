@@ -120,12 +120,17 @@ console.log(id,year)
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
-                   SUM(IFNULL(production, 0))                        AS surplus_community_active,
+                   SUM(
+                     CASE
+                       WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
+                       ELSE 0
+                       END
+                   )                              AS surplus_community_active,
                    kwh_in_price                                      AS kwh_in_price,
                    kwh_out_price                                     AS kwh_out_price,
                    kwh_in_price_community                            AS kwh_in_price_community,
                    kwh_out_price_community                           AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT CASE WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN customer_id END) AS VARCHAR(255)) AS active_members,
                    HOUR(eh.info_dt)                                  AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -157,12 +162,13 @@ console.log(id,year)
       FROM (
              SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
              FROM (
-                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    SELECT COUNT(DISTINCT cups_id) AS totalActiveMembers
                     FROM energy_hourly eh
                            LEFT JOIN cups c ON eh.cups_id = c.id
                     WHERE c.type != 'community'
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
+                      AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
                     GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -206,12 +212,17 @@ console.log(id,year)
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
-                   SUM(IFNULL(production, 0))                              AS surplus_community_active,
+                   SUM(
+                     CASE
+                       WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
+                       ELSE 0
+                       END
+                   )                              AS surplus_community_active,
                    kwh_in_price                                AS kwh_in_price,
                    kwh_out_price                              AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
                    kwh_out_price_community                      AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT CASE WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN customer_id END) AS VARCHAR(255)) AS active_members,
                    DAY(eh.info_dt)                                   AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -243,12 +254,13 @@ console.log(id,year)
       FROM (
              SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
              FROM (
-                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    SELECT COUNT(DISTINCT cups_id) AS totalActiveMembers
                     FROM energy_hourly eh
                            LEFT JOIN cups c ON eh.cups_id = c.id
                     WHERE c.type != 'community'
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
+                      AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
                     GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -299,7 +311,7 @@ console.log(id,year)
                    kwh_out_price                                AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
                    kwh_out_price_community                      AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT cups_id) AS VARCHAR(255)) AS active_members,
                    MONTH(eh.info_dt)                                 AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -342,12 +354,17 @@ console.log(id,year)
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
-                   SUM(IFNULL(production, 0))                              AS surplus_community_active,
+                   SUM(
+                     CASE
+                       WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
+                       ELSE 0
+                       END
+                     )                              AS surplus_community_active,
                    kwh_in_price                                 AS kwh_in_price,
                    kwh_out_price                                AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
                    kwh_out_price_community                      AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT CASE WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN customer_id END) AS VARCHAR(255)) AS active_members,
                    MONTH(eh.info_dt)                                 AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -378,13 +395,14 @@ console.log(id,year)
       FROM (
              SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
              FROM (
-                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    SELECT COUNT(DISTINCT cups_id) AS totalActiveMembers
                     FROM energy_hourly eh
                            LEFT JOIN cups c ON eh.cups_id = c.id
                     WHERE c.type != 'community'
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
-                    GROUP BY c.community_id
+                      AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
+                      GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
              CROSS JOIN (

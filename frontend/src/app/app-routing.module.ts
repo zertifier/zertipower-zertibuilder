@@ -107,16 +107,16 @@ const routes: Routes = [
   //   loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule),
   //   canActivate:[loggedIn]
   // },
-  {
-    path: 'search/:id',
-    loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule),
-    canActivate:[loggedIn]
-  },
-  {
-    path:'select-location',
-    component:SelectLocationComponent,
-    canActivate:[loggedIn]
-  },
+  // {
+  //   path: 'search/:id',
+  //   loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule),
+  //   canActivate:[loggedIn]
+  // },
+  // {
+  //   path:'select-location',
+  //   component:SelectLocationComponent,
+  //   canActivate:[loggedIn]
+  // },
   {
     path: 'logs',
     loadChildren: () => import('./features/logs/logs.module').then(m => m.LogsModule),
@@ -125,7 +125,7 @@ const routes: Routes = [
   {
     path: "**",
     pathMatch: "full",
-    redirectTo: "select-location"
+    redirectTo: "auth"
   },
 ];
 
@@ -133,4 +133,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-export class AppRoutingModule {  }
+export class AppRoutingModule { }

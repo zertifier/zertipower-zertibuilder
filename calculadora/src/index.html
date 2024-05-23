@@ -1,18 +1,16 @@
 <!doctype html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Zertipower</title>
+  <title>Calculadora</title>
   <base href="/">
-  <meta content="width=device-width, initial-scale=1" name="viewport">
-  <link href="favicon.ico" rel="icon" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <script crossorigin="anonymous" src="https://kit.fontawesome.com/b31af7341e.js"></script>
   <script async src="https://accounts.google.com/gsi/client"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBmPVHY3C3Zqg9HnQiSV2M1Kywgrm3koYk&libraries=marker"></script>
-
-  <script src="bootstrap-theme.ts"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBmPVHY3C3Zqg9HnQiSV2M1Kywgrm3koYk&libraries=marker&v=beta"></script> <!-- Reemplaza "YOUR_API_KEY" con tu clave de API de Google Maps -->
   <style>
-    html,
+        html,
 body {
     height: 100%;
     width: 100%;
@@ -22,9 +20,9 @@ body {
 </head>
 <body>
   <app-root></app-root>
-  <script>
+  <!-- <script>
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-  </script>
+  </script> -->
 </body>
 </html>

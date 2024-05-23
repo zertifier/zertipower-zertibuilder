@@ -9,7 +9,6 @@ import {
 } from "@angular/core";
 import {GoogleMap} from '@angular/google-maps';
 import {Output, EventEmitter} from '@angular/core';
-import {log} from "console";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 

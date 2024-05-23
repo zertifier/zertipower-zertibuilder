@@ -26,14 +26,15 @@ export class NavbarComponent {
       iconClass: 'fa-solid fa-chart-line',
       url: '/dashboard',
       status: false
-    },
-    {
-      text: 'Mapa',
-      dbName: 'search',
-      iconClass: 'fa-solid fa-map',
-      url: '/search',
-      status: false
-    }
+     } 
+     //,
+    // {
+    //   text: 'Mapa',
+    //   dbName: 'search',
+    //   iconClass: 'fa-solid fa-map',
+    //   url: '/search',
+    //   status: false
+    // }
   ]
 
 	constructor(

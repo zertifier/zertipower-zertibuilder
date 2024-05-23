@@ -67,7 +67,7 @@ export class VotesController {
     })
     if (getVotes.length)
       throw new BadRequestError("You already voted");
-
+/*
     const proposal: any = await this.prisma.$queryRaw`
       SELECT pr.id,
              CASE
@@ -83,6 +83,22 @@ export class VotesController {
         AND pr.id = ${body.proposalId}
         AND pr.expiration_dt > CURRENT_DATE
       GROUP BY cups.community_id
+    `*/
+    const proposal: any = await this.prisma.$queryRaw`
+      SELECT pr.id,
+             CASE
+               WHEN pr.type = 'weighted' THEN shares.shares
+               ELSE 1
+             END as voteValue
+      FROM users
+             LEFT JOIN shares
+                       ON users.customer_id = shares.customer_id
+             LEFT JOIN proposals pr
+                       ON pr.community_id = shares.community_id
+      WHERE users.id = ${body.userId}
+        AND pr.id = ${body.proposalId}
+        AND pr.expiration_dt > CURRENT_DATE
+      GROUP BY shares.community_id
     `
 
     if (!proposal.length)
@@ -118,7 +134,7 @@ export class VotesController {
     return HttpResponse.success('proposals_options removed successfully').withData(data);
   }
 
-  @Post('datatable')
+ /* @Post('datatable')
   @Auth(RESOURCE_NAME)
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(body, `
@@ -130,7 +146,7 @@ export class VotesController {
         LEFT JOIN proposals
       ON proposals.id = proposal_id`);
     return HttpResponse.success('Datatables fetched successfully').withData(data);
-  }
+  }*/
 
   mapData(data: any) {
     const mappedData: any = {};

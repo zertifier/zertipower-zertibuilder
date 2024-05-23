@@ -28,7 +28,7 @@ export class ProposalsController {
       this.prisma.$queryRaw`
         UPDATE proposals
         SET status = 'EXPIRED'
-        WHERE expiration_dt < CURRENT_DATE;`,
+        WHERE expiration_dt < CURRENT_DATE AND (status = 'ACTIVE' OR status = 'PENDING');`,
 
       this.prisma.$queryRaw`
         SELECT pr.*, users.email, users.wallet_address, users.firstname

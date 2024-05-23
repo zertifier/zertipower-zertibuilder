@@ -368,18 +368,19 @@ enum CupsType {
 }
 
 model Proposals {
-  id           Int       @id @default(autoincrement()) @map("id")
-  proposal     String?   @map("proposal") @db.VarChar(255)
-  description  String?   @map("description") @db.Text
-  communityId  Int?      @map("community_id") @db.Int
-  userId       Int?      @map("user_id") @db.Int
-  expirationDt DateTime? @map("expiration_dt")
-  status       String?   @map("status") @db.VarChar(255)
-  type         String?   @map("type") @db.VarChar(255)
-  transparent  Int?      @map("transparent") @db.TinyInt
-  quorum       Float?    @map("quorum")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+  id             Int       @id @default(autoincrement()) @map("id")
+  proposal       String?   @map("proposal") @db.VarChar(255)
+  description    String?   @map("description") @db.Text
+  communityId    Int?      @map("community_id") @db.Int
+  userId         Int?      @map("user_id") @db.Int
+  expirationDt   DateTime? @map("expiration_dt")
+  status         String?   @map("status") @db.VarChar(255)
+  resultOptionId Int?      @map("result_option_id")
+  type           String?   @map("type") @db.VarChar(255)
+  transparent    Int?      @map("transparent") @db.TinyInt
+  quorum         Float?    @map("quorum")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
 
   @@map("proposals")
 }
@@ -399,10 +400,22 @@ model Votes {
   proposalId Int?     @map("proposal_id") @db.Int
   optionId   Int?     @map("option_id") @db.Int
   userId     Int?     @map("user_id") @db.Int
+  voteValue  Float?   @map("vote_value")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("votes")
+}
+
+model Shares {
+  id          Int      @id @default(autoincrement()) @map("id")
+  communityId Int?     @map("community_id") @db.Int
+  customerId  Int?     @map("customer_id") @db.Int
+  shares      Float?   @map("shares")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("shares")
 }
 
 model Responses {

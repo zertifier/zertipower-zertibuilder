@@ -799,6 +799,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   deleteArea(index: number) {
+    console.log("area to delete:",this.addedAreas[index],index,this.addedAreas)
     this.map.deleteArea(this.addedAreas[index])
     this.addedAreas.splice(index, 1);
     this.resetCadastre();

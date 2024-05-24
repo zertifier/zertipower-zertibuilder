@@ -34,7 +34,7 @@ export class GovernanceService {
     await this.prisma.$queryRaw`
         UPDATE proposals
         SET status = 'EXPIRED'
-        WHERE expiration_dt < CURRENT_DATE;`
+        WHERE expiration_dt < CURRENT_DATE AND (status = 'ACTIVE' OR status = 'PENDING');`
     /*const [data, updatedData]: [any, any] = await this.prisma.$transaction([
       this.prisma.$queryRaw`
         SELECT pr.*

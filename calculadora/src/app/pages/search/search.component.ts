@@ -78,6 +78,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   locations: any = [];
   selectedCommunity: any;
   newCommunity: any = {};
+  communityCups:any=[];
   selectedCommunities: any;
   selectedLocation: any = { municipality: '' };
   cadastresMap: any;
@@ -225,8 +226,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   managementCost: number[] = [1500, 1500, 2000];
   panelsCost: number = 0.265;
   structureCost: number = 0.07;
-  pvCalc: string = "https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?peakpower=1&loss=14&mountingplace=building&outputformat=json";
-  seriesCalc: string = "https://re.jrc.ec.europa.eu/api/v5_2/seriescalc?peakpower=1&loss=14&mountingplace=building&outputformat=json&startyear=2016&endyear=2020";
   selectedCoords: any;
 
   activeSimulation: boolean = false;
@@ -234,6 +233,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
   activeCommunity: boolean = false;
   activeAcc: boolean = true;
   activeCce: boolean = false;
+
+  isMobile = false;
+  private modalService = inject(NgbModal);
 
   communitySelectionTooltip: any =
     `
@@ -262,9 +264,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     </div>
   </div>
   `
-
-  isMobile = false;
-  private modalService = inject(NgbModal);
 
   constructor(
     private communitiesService: CommunitiesApiService,
@@ -392,6 +391,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
           this.communityEnergyData = [];
           this.updateCommunityChart();
         } else {
+          this.getCommunityCups(this.selectedCommunity.id)
           this.getCommunityEnergy();
           //this.getCommunityPrices();
           this.map.selectMarker(this.selectedCommunity.lat, this.selectedCommunity.lng);
@@ -403,6 +403,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
         break;
     }
 
+  }
+
+  getCommunityCups(id:number){
+    this.communitiesService.getCups(id).subscribe((res:any)=>{
+      this.communityCups = res.data.filter((obj:any) => obj.type !== 'community');
+    })
   }
 
   getCommunityEnergy() {
@@ -466,7 +472,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.communityMonthChartDatasets = [
       {
-        label: 'Importació (Kwh)',
+        label: 'Consum de la xarxa (Kwh)',
         data: imports,
         backgroundColor: 'rgb(211, 84, 0)',
         borderColor: 'rgb(255,255,255)'

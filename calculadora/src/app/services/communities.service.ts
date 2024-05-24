@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable, map } from 'rxjs';
-import {environment} from "../../environments/environment";
+import {environment} from "../../environments/environment.prod";
 import { HttpResponse } from '../interfaces/http-response';
 import moment from 'moment';
 
@@ -53,6 +53,10 @@ export class CommunitiesApiService {
   remove(id: number): Observable<void> {
     return this.httpClient.delete<HttpResponse<void>>(`${environment.api_url}/communities/${id}`)
       .pipe(map(response => response.data));
+  }
+
+  getCups(id:number){
+    return this.httpClient.get(`${environment.api_url}/communities/${id}/cups`);
   }
 
   getEnergy(id:number,date:string){

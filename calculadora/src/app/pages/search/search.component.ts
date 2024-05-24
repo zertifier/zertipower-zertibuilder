@@ -408,6 +408,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   getCommunityCups(id:number){
     this.communitiesService.getCups(id).subscribe((res:any)=>{
       this.communityCups = res.data.filter((obj:any) => obj.type !== 'community');
+      console.log(this.communityCups.length,this.communityCups)
     })
   }
 
@@ -419,14 +420,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.communitiesService.getEnergyActivesById(this.selectedCommunity.id).subscribe((res: any) => {
         let communityActiveCups = res.data[0].total_actives
         let communityCups = res.data[0].total_cups
-        console.log("communityActiveCups",res)
+        //console.log("communityActiveCups",res)
         for (const cupsMonthEnergy of this.communityEnergyData) {
 
           let averageImport = cupsMonthEnergy.import/communityActiveCups;
           cupsMonthEnergy.import = averageImport*communityCups;
         }
 
-        console.log("this.communityEnergyData",this.communityEnergyData)
+        //console.log("this.communityEnergyData",this.communityEnergyData)
         this.updateCommunityChart();
       })
     })

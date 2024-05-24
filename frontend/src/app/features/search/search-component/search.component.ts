@@ -144,11 +144,25 @@ export class SearchComponent implements OnInit, AfterViewInit {
           labels: {
             usePointStyle: true,
             pointStyle: 'circle',
-            color: 'rgb(255, 99, 132)'
+            color: 'rgb(246,246,246)'
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            color: 'rgb(246,246,246)'
+          }
+        },
+        x: {
+          ticks: {
+            color: 'rgb(246,246,246)'
           }
         }
       }
     }
+
+    
 
   cadastreValoration: number = 0;
   selectedCadastreEnergyData: any;

@@ -237,7 +237,7 @@ export class CupsController {
   @Get("/community/:communityId/total")
   async getTotalByCommunity(@Param("communityId") communityId: string){
     const data: any = await this.prisma.$queryRaw`
-        SELECT COUNT(*) total FROM cups WHERE community_id = ${communityId}
+        SELECT COUNT(*) total FROM cups WHERE community_id = ${communityId} AND type != 'community'
     `
 
     return HttpResponse.success("the cups is active").withData({ total: parseInt(data[0].total) || 0 })

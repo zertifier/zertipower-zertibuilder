@@ -45,6 +45,16 @@ export class CommunitiesController {
     );
   }
 
+  @Get("/:id/cups")
+  async getCommunityCupsById(@Param("id") id: number) {
+    console.log("eeeeeee")
+    let url = `SELECT * FROM cups WHERE community_id = ?`;
+    const [ROWS]:any[] = await this.conn.query(url,[id]);
+    return HttpResponse.success("communities fetched successfully").withData(
+      ROWS
+    );
+  }
+
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {

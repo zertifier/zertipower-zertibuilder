@@ -485,7 +485,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       totalImports += communityImport;
     })
 
-    console.log(totalExports, totalImports)
+    //console.log(totalExports, totalImports)
 
     if (totalExports == 0 && totalImports == 0) {
       this.communityValoration = 0;
@@ -804,6 +804,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.addedAreas.splice(index, 1);
     this.resetCadastre();
     this.updateCommunityChart();
+    this.cdr.detectChanges()
 
   }
 

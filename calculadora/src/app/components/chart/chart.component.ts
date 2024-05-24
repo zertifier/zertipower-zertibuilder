@@ -37,6 +37,7 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
   @Input() options:any = {
     responsive:true,
     mantainAspectRatio:false,
+    
   };
 
   constructor(private cdr: ChangeDetectorRef) {

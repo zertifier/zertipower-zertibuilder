@@ -46,20 +46,25 @@ export class CommunitiesTableComponent implements OnDestroy {
       width: '100px',
     },
     {
+      title: 'Location',
+      data: 'municipality',
+      width: '100px',
+    },
+    {
+      title: 'Cups',
+      data: 'qty_cups',
+      width: '100px',
+    },
+    {
       title: 'Test',
       data: 'test',
       width: '100px',
-    },
+    },/*
     {
       title: 'CreatedAt',
       data: 'created_at',
       width: '100px',
-    },
-    {
-      title: 'UpdatedAt',
-      data: 'updated_at',
-      width: '100px',
-    },
+    },*/
     {
       title: '',
       data: 'id',
@@ -85,6 +90,22 @@ export class CommunitiesTableComponent implements OnDestroy {
         options: [],
       },
       {
+        title: 'location',
+        description: '',
+        value: '',
+        type: 0,
+        defaultData: 0,
+        options: [],
+      },
+      {
+        title: 'qty_cups',
+        description: '',
+        value: '',
+        type: 0,
+        defaultData: 0,
+        options: [],
+      },
+      {
         title: 'test',
         description: '',
         value: '',
@@ -92,40 +113,26 @@ export class CommunitiesTableComponent implements OnDestroy {
         defaultData: 0,
         options: [],
       },
-      {
+      /*{
         title: 'created_at',
         description: '',
         value: '',
         type: 0,
         defaultData: 0,
         options: [],
-      },
-      {
-        title: 'updated_at',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
+      },*/
   ];
 
   columnDefs:any[] = [
     {
       orderable: false, targets: [this.filterParams.length],
     },
-    {
-      targets: 3,
+    /*{
+      targets: 5,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
-    },
-    {
-      targets: 4,
-      render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
-      }
-    },
+    },*/
     {
       targets: this.filterParams.length,
       title: '',

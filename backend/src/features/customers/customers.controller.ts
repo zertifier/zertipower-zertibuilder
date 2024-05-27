@@ -31,14 +31,31 @@ export class CustomersController {
     this.conn = this.mysql.pool;
   }
 
-  @Get()
+  @Get("/")
   @Auth(RESOURCE_NAME)
   async get() {
     const data = await this.prisma.customers.findMany();
     const mappedData = data.map(this.mapData);
+
     return HttpResponse.success("customers fetched successfully").withData(
-      data
+      mappedData
     );
+  }
+
+  @Get("/cups/:customerId")
+  @Auth(RESOURCE_NAME)
+  async getCustomersCups(@Param("customerId") customerId: string) {
+    console.log("cups customers")
+    try {
+      let url = `SELECT cups.* , customers.name, customers.wallet_address FROM cups LEFT JOIN customers on cups.customer_id = customers.id WHERE customers.id = ?`;
+      const [ROWS]:any[] = await this.conn.query(url,customerId);
+
+      return HttpResponse.success("customers fetched successfully").withData(
+        ROWS
+      );
+    } catch (e) {
+      console.log("error getting customers-cups:", e);
+    }
   }
 
   @Get("/cups")
@@ -120,9 +137,11 @@ export class CustomersController {
     const mappedData: any = {};
     mappedData.id = data.id;
     mappedData.name = data.name;
-    mappedData.walletAddress = data.walletAddress;
-    mappedData.createdAt = data.createdAt;
-    mappedData.updatedAt = data.updatedAt;
+    mappedData.dni = data.dni;
+    mappedData.walletAddress = data.walletAddress ? data.walletAddress.toString() : '';
+    mappedData.createdAt = data.createdAt | data.created_at;
+    mappedData.updatedAt = data.updatedAt | data.updated_at;
+
     return mappedData;
   }
 
@@ -147,3 +166,5 @@ export class CustomersController {
     return mappedData;
   }
 }
+
+

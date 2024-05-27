@@ -1,0 +1,18 @@
+<div class="modal-header">
+    <h2>Log</h2>
+  </div>
+  <div class="modal-body">
+    <div class="my-2" *ngFor="let key of keys; index as i">
+        <label class="form-label" for="id-input ms-2"><b>{{key}}</b></label>
+        <div *ngIf="values[i].length>30; else input">
+            <textarea class="form-control" readonly disabled style="height: 150px;">{{values[i]}}</textarea>
+        </div>
+        <ng-template #input>
+            <input class="form-control" readonly disabled value={{values[i]}}>
+        </ng-template>
+    </div>
+
+
+  </div>
+  <div class="modal-footer">
+  </div>

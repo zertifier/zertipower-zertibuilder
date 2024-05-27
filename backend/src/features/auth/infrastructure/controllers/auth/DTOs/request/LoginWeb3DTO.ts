@@ -8,4 +8,7 @@ export class LoginWeb3DTO {
   @ApiProperty()
   @IsNotEmpty()
   signature: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  email?: string;
 }

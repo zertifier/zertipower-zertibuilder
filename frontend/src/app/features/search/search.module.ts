@@ -7,17 +7,21 @@ import {SearchComponent} from "./search-component/search.component";
 import {AppMapComponent} from "../../shared/infrastructure/components/map/map.component";
 import {GoogleMap} from "@angular/google-maps";
 import { SharedComponentsModule } from 'src/app/shared/infrastructure/components/shared-components.module';
+import { TooltipModule } from 'src/app/shared/infrastructure/directives/tooltip/tooltip.module';
+import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 
 @NgModule({
   declarations: [SearchComponent,AppMapComponent],
-  imports: [
-    CommonModule,
-    CoreComponentsModule,
-    SearchRoutingModule,
-    FormsModule,
-    GoogleMap,
-    SharedComponentsModule
-  ]
+    imports: [
+        CommonModule,
+        CoreComponentsModule,
+        SearchRoutingModule,
+        FormsModule,
+        GoogleMap,
+        SharedComponentsModule,
+        TooltipModule,
+        NgbTooltip
+    ]
 })
 export class SearchModule {
 }

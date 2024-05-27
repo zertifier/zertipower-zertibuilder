@@ -7,7 +7,7 @@ export function eventErrorHandler(error: unknown) {
 		return throwError(() => of(error));
 	}
 
-	console.log(error);
+	console.log(error, 'eventErrorHandler');
 
 	// Alerting user
 	Swal.fire({

@@ -26,7 +26,7 @@ export class EnergyBlocksController {
   @Get()
   @Auth(RESOURCE_NAME)
   async get() {
-    const data = await this.prisma.energyBlocks.findMany();
+    const data = await this.prisma.energyBlock.findMany();
     const mappedData = data.map(this.mapData);
     return HttpResponse.success("energy_blocks fetched successfully").withData(
       data
@@ -36,11 +36,12 @@ export class EnergyBlocksController {
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {
-    const data = await this.prisma.energyBlocks.findUnique({
+    const data = await this.prisma.energyBlock.findUnique({
       where: {
         id: parseInt(id),
       },
     });
+    console.log("get block by id", data)
     return HttpResponse.success("energy_blocks fetched successfully").withData(
       this.mapData(data)
     );
@@ -49,7 +50,8 @@ export class EnergyBlocksController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyBlocksDTO) {
-    const data = await this.prisma.energyBlocks.create({ data: body });
+    console.log(body, "BODY post energy block")
+    const data = await this.prisma.energyBlock.create({ data: body });
     return HttpResponse.success("energy_blocks saved successfully").withData(
       data
     );
@@ -58,7 +60,8 @@ export class EnergyBlocksController {
   @Put(":id")
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: SaveEnergyBlocksDTO) {
-    const data = await this.prisma.energyBlocks.updateMany({
+    console.log(body, "BODY put energy block")
+    const data = await this.prisma.energyBlock.updateMany({
       where: {
         id: parseInt(id),
       },
@@ -72,7 +75,7 @@ export class EnergyBlocksController {
   @Delete(":id")
   @Auth(RESOURCE_NAME)
   async remove(@Param("id") id: string) {
-    const data = await this.prisma.energyBlocks.delete({
+    const data = await this.prisma.energyBlock.delete({
       where: {
         id: parseInt(id),
       },
@@ -87,8 +90,9 @@ export class EnergyBlocksController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,reference,expiration_dt,active_init,active_end,consumption_price,generation_price
-                  FROM energy_blocks`
+      `SELECT eb.id,reference,expiration_dt,active_init,active_end,consumption_price,generation_price, pr.provider
+                  FROM energy_blocks eb
+                  LEFT JOIN providers pr ON pr.id = eb.provider_id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data
@@ -99,11 +103,12 @@ export class EnergyBlocksController {
     const mappedData: any = {};
     mappedData.id = data.id;
     mappedData.reference = data.reference;
-    mappedData.expirationDt = data.expirationDt;
-    mappedData.activeInit = data.activeInit;
-    mappedData.activeEnd = data.activeEnd;
-    mappedData.consumptionPrice = data.consumptionPrice;
-    mappedData.generationPrice = data.generationPrice;
+    mappedData.providerId = data.providerId;
+    mappedData.expirationDt = data.expirationDt ||data.expiration_dt;
+    mappedData.activeInit = data.activeInit || data.active_init;
+    mappedData.activeEnd = data.activeEnd  || data.active_end;
+    mappedData.consumptionPrice = data.consumptionPrice || data.consumption_price ;
+    mappedData.generationPrice = data.generationPrice || data.generation_price;
     return mappedData;
   }
 }

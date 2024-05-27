@@ -12,6 +12,8 @@ export class UserDTO {
   @ApiProperty()
   email: string;
   @ApiProperty()
+  customer_id?: number;
+  @ApiProperty()
   created_at: number;
   @ApiProperty()
   updated_at: number;

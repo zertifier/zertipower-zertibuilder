@@ -13,6 +13,8 @@ import { Datatable } from "./datatable/Datatable";
 //import { PostgresDatatable } from './datatable/PostgresDatatable';
 import { MysqlDatatable } from "./datatable/MysqlDatatable";
 import { DatadisService } from "./datadis-service";
+import { MinterService } from "./minter-service";
+import { GovernanceService } from './governance/governance.service';
 
 @Global()
 @Module({
@@ -27,8 +29,10 @@ import { DatadisService } from "./datadis-service";
     TextTemplateService,
     HandlebarsViewsService,
     PostgresService,
+    DatadisService,
+    MinterService,
     { provide: Datatable, useClass: MysqlDatatable },
-    DatadisService
+    GovernanceService,
   ],
   exports: [
     PrismaService,
@@ -41,7 +45,9 @@ import { DatadisService } from "./datadis-service";
     TextTemplateService,
     HandlebarsViewsService,
     Datatable,
-    DatadisService
+    DatadisService,
+    MinterService,
+    GovernanceService,
   ],
 })
 export class SharedServicesModule {}

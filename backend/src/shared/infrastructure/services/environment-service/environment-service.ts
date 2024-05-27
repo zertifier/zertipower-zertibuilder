@@ -22,6 +22,7 @@ export class EnvironmentService implements OnModuleInit {
     PORT: 0,
     JWT_SECRET: "",
     DATABASE_URL: "",
+    // DATABASE_URL: "",
     FRONTEND_URL: "",
     GOOGLE_CLIENT_SECRET: "",
     GOOGLE_CLIENT_ID: "",

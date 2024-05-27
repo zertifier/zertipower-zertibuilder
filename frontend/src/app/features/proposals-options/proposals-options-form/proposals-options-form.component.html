@@ -1,0 +1,38 @@
+<div class="modal-header">
+  <h2>proposals form</h2>
+</div>
+<div class="modal-body">
+  <form id="form" [formGroup]="form" (ngSubmit)="save()">
+    <div class="my-2">
+      <label class="form-label" for="proposal-input">proposal</label>
+      <input id="proposal-input" type="text" formControlName="proposal" class="form-control">
+    </div>
+    <div class="my-2">
+      <label class="form-label" for="description-input">description</label>
+      <editor
+          [init]="tinymceConfig"
+          formControlName="description"
+          id="description"></editor>
+    </div>
+    <div class="my-2">
+      <label class="form-label" for="community-id-input">community_id</label>
+      <input id="community-id-input" type="number" formControlName="communityId" class="form-control">
+    </div>
+    <div class="my-2">
+      <label class="form-label" for="expiration-dt-input">expiration_dt</label>
+      <input id="expiration-dt-input" type="datetime-local" formControlName="expirationDt" class="form-control">
+    </div>
+    <div class="my-2">
+      <label class="form-label" for="status-input">status</label>
+      <input id="status-input" type="text" formControlName="status" class="form-control">
+    </div>
+    <div class="my-2">
+      <label class="form-label" for="dao-id-input">dao_id</label>
+      <input id="dao-id-input" type="number" formControlName="daoId" class="form-control">
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" form="form">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

@@ -15,6 +15,7 @@ import { SaveEnergyRegistersDTO } from "./save-energy-registers-dto";
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
+import {ErrorCode} from "../../shared/domain/error";
 
 export const RESOURCE_NAME = "energyRegisters";
 
@@ -24,9 +25,9 @@ export class EnergyRegistersController {
   constructor(private prisma: PrismaService, private datatable: Datatable) {}
 
   @Get()
-  @Auth(RESOURCE_NAME)
+  // @Auth(RESOURCE_NAME)
   async get() {
-    const data = await this.prisma.energyRegisters.findMany();
+    const data = await this.prisma.energyRegister.findMany();
     const mappedData = data.map(this.mapData);
     return HttpResponse.success(
       "energy_registers fetched successfully"
@@ -34,31 +35,63 @@ export class EnergyRegistersController {
   }
 
   @Get(":id")
-  @Auth(RESOURCE_NAME)
+  // @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {
-    const data = await this.prisma.energyRegisters.findUnique({
+    const data = await this.prisma.energyRegister.findUnique({
       where: {
         id: parseInt(id),
       },
     });
     return HttpResponse.success(
       "energy_registers fetched successfully"
-    ).withData(this.mapData(data));
+    ).withData(data);
   }
 
+
   @Post()
-  @Auth(RESOURCE_NAME)
+  // @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveEnergyRegistersDTO) {
-    const data = await this.prisma.energyRegisters.create({ data: body });
-    return HttpResponse.success("energy_registers saved successfully").withData(
-      data
-    );
+    if (body.type && body.type == 'community'){
+      const cupsData = await this.prisma.cups.findFirst({
+        where: {
+          id: body.cupsId
+        }
+      })
+
+      if (!cupsData)  return HttpResponse.failure("inexistent cups", ErrorCode.INTERNAL_ERROR)
+
+      const communityId = cupsData.communityId
+
+      const communityCups = await this.prisma.cups.findMany({
+        where: {
+          communityId: communityId
+        }
+      })
+
+      let data = []
+
+      for (const cup of communityCups) {
+        let registerToAdd = body
+        registerToAdd.communityGeneration = (cup.surplusDistribution || 0 ) * registerToAdd.generation
+        registerToAdd.cupsId = cup.id
+        data.push(await this.prisma.energyRegister.create({ data: body }));
+      }
+
+      return HttpResponse.success("energy_registers saved successfully").withData(
+        data
+      );
+    }else{
+      const data = await this.prisma.energyRegister.create({ data: body });
+      return HttpResponse.success("energy_registers saved successfully").withData(
+        data
+      );
+    }
   }
 
   @Put(":id")
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: SaveEnergyRegistersDTO) {
-    const data = await this.prisma.energyRegisters.updateMany({
+    const data = await this.prisma.energyRegister.updateMany({
       where: {
         id: parseInt(id),
       },
@@ -72,7 +105,7 @@ export class EnergyRegistersController {
   @Delete(":id")
   @Auth(RESOURCE_NAME)
   async remove(@Param("id") id: string) {
-    const data = await this.prisma.energyRegisters.delete({
+    const data = await this.prisma.energyRegister.delete({
       where: {
         id: parseInt(id),
       },
@@ -87,8 +120,9 @@ export class EnergyRegistersController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,info_dt,cups_id,import,consumption,export,generation,created_at,updated_at
-                  FROM energy_registers`
+      `SELECT er.id,info_dt,cups_id,import,consumption,export,generation,er.created_at,er.updated_at, cups
+                  FROM energy_registers er
+                  LEFT JOIN cups ON cups.id = cups_id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data
@@ -98,14 +132,14 @@ export class EnergyRegistersController {
   mapData(data: any) {
     const mappedData: any = {};
     mappedData.id = data.id;
-    mappedData.infoDt = data.infoDt;
-    mappedData.cupsId = data.cupsId;
+    mappedData.infoDt = data.infoDt | data.info_dt;
+    mappedData.cupsId = data.cupsId | data.cups_id;
     mappedData.import = data.import;
     mappedData.consumption = data.consumption;
     mappedData.export = data.export;
     mappedData.generation = data.generation;
-    mappedData.createdAt = data.createdAt;
-    mappedData.updatedAt = data.updatedAt;
+    mappedData.createdAt = data.createdAt | data.created_at;
+    mappedData.updatedAt = data.updatedAt | data.updated_at;
     return mappedData;
   }
 }

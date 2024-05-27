@@ -7,7 +7,7 @@ import { ProvidersApiService } from '../providers.service';
 import moment from 'moment';
 
 @Component({
-  selector: 'providers-form',
+  selector: 'responses-form',
   templateUrl: './providers-form.component.html',
   styleUrls: ['./providers-form.component.scss'],
 })
@@ -52,10 +52,11 @@ export class ProvidersFormComponent {
   }
 
   save() {
-    if (this.form.invalid) {
+    const validFormObj = this.checkFormValid()
+    if (!validFormObj.status) {
       Swal.fire({
         icon: 'error',
-        title: 'Form not valid'
+        title: validFormObj.message,
       });
       return;
     }
@@ -82,9 +83,15 @@ export class ProvidersFormComponent {
   getValues(): any {
     const values: any = {};
 
-    values.id = this.form.value.id;
+    // values.id = this.form.value.id;
     values.provider = this.form.value.provider;
 
     return values;
+  }
+
+  checkFormValid() {
+    if (!this.form.value.provider) return {status: false, message: "El nom del proveïdor no pot estar buit"}
+
+    return {status: true, message: ''}
   }
 }

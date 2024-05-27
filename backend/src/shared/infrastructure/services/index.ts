@@ -5,4 +5,5 @@ export * from "./environment-service";
 export * from "./mysql-service";
 export * from "./prisma-service";
 export * from "./mustache-views-service";
-export * from "./datadis-service"
+export * from "./datadis-service";
+export * from "./minter-service";

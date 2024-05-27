@@ -27,7 +27,7 @@ export class EnergyRegistersTableComponent implements OnDestroy {
   readonly subscriptions: Array<Subscription> = []
 
   title: string = 'energy_registers';
-  addRows: boolean = true;
+  addRows: boolean = false;
   editRows: boolean = true;
   refreshRows: boolean = true;
   filterColumns: boolean = true;
@@ -44,8 +44,8 @@ export class EnergyRegistersTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'CupsId',
-      data: 'cups_id',
+      title: 'Cups',
+      data: 'cups',
       width: '100px',
     },
     {
@@ -78,11 +78,11 @@ export class EnergyRegistersTableComponent implements OnDestroy {
       data: 'updated_at',
       width: '100px',
     },*/
-    {
+    /*{
       title: '',
       data: 'id',
       width: '100px'
-    }
+    }*/
   ];
 
   filterParams: filterParams[] = [
@@ -103,7 +103,7 @@ export class EnergyRegistersTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'cups_id',
+        title: 'cups',
         description: '',
         value: '',
         type: 1,
@@ -161,13 +161,13 @@ export class EnergyRegistersTableComponent implements OnDestroy {
   ];
 
   columnDefs:any[] = [
-    {
+    /*{
       orderable: false, targets: [this.filterParams.length],
-    },
+    },*/
     {
       targets: 1,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
     // {
@@ -182,7 +182,7 @@ export class EnergyRegistersTableComponent implements OnDestroy {
     //     return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
     //   }
     // },
-    {
+    /*{
       targets: this.filterParams.length,
       title: '',
       render: (data: any, type: any, row: any) => {
@@ -195,7 +195,7 @@ export class EnergyRegistersTableComponent implements OnDestroy {
          </div>
         `
       }
-    }
+    }*/
   ];
 
   editRequest(id:any) {

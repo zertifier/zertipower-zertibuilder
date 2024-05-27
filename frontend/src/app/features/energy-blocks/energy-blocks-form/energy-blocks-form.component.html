@@ -3,37 +3,45 @@
 </div>
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
-    <div>
+    <!--<div>
       <label for="id-input">Id</label>
       <input id="id-input" type="number" formControlName="id" class="form-control">
-    </div>
-    <div>
-      <label for="ref-input">Referència</label>
+    </div>-->
+    <div class="my-3">
+      <label  class="form-label"for="ref-input">Referència</label>
       <input formControlName="reference" id="ref-input" class="form-control">
     </div>
-    <div>
-      <label for="expiration-dt-input">Data d'expiració</label>
+    <div class="my-3">
+      <label  class="form-label"for="ref-input">Proveïdor</label>
+      <ng-select [(ngModel)]="selectedProviderId" name="provider-id-input" formControlName="providerId">
+        <ng-option *ngFor="let provider of availableProviders" [value]="provider.id">
+          <span class="text-capitalize">{{ provider.provider }}</span>
+        </ng-option>
+      </ng-select>
+    </div>
+    <div class="my-3">
+      <label class="form-label" for="expiration-dt-input">Data d'expiració</label>
       <input id="expiration-dt-input" type="datetime-local" formControlName="expirationDt" class="form-control">
     </div>
-    <div>
-      <label for="active-init-input">Inici d'activitat</label>
-      <input id="active-init-input" type="datetime-local" formControlName="activeInit" class="form-control">
+    <div class="my-3">
+      <label class="form-label" for="active-init-input">Inici d'activitat</label>
+      <input id="active-init-input" type="time" formControlName="activeInit" class="form-control">
     </div>
-    <div>
-      <label for="active-end-input">Fi d'activitat</label>
-      <input id="active-end-input" type="datetime-local" formControlName="activeEnd" class="form-control">
+    <div class="my-3">
+      <label class="form-label" for="active-end-input">Fi d'activitat</label>
+      <input id="active-end-input" type="time" formControlName="activeEnd" class="form-control">
     </div>
-    <div>
-      <label for="consumption-price-input">Preu de consum</label>
+    <div class="my-3">
+      <label class="form-label" for="consumption-price-input">Preu de consum</label>
       <input id="consumption-price-input" type="number" formControlName="consumptionPrice" class="form-control">
     </div>
-    <div>
-      <label for="generation-price-input">Preu de generació</label>
+    <div class="my-3">
+      <label class="form-label" for="generation-price-input">Preu de generació</label>
       <input id="generation-price-input" type="number" formControlName="generationPrice" class="form-control">
     </div>
   </form>
 </div>
 <div class="modal-footer">
-  <button type="submit" class="btn btn-primary" form="form">Save</button>
-  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+  <button type="submit" class="btn btn-primary" form="form">Guardar</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Tancar</button>
 </div>

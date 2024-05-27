@@ -1,0 +1,43 @@
+<div class="h-100" style="background-image: url(assets/img/city.jpg);background-size: cover; width: 100vw;">
+
+  <div class="row p-0 m-0" style="min-height: 30vh; height: 30vh;"></div>
+
+  <div class="row p-0 m-0 d-flex justify-content-center">
+    <div class="bg-primary p-5 d-none d-md-block" style="max-width: 600px;">
+      <div class="row d-flex justify-content-center align-items-center">
+        <img  src="assets/img/navbar/zertipower-logo-blanc.png" class="px-4" alt="zertipwoer-logo" style="width: 300px;">
+      </div>
+
+      <div class="row p-0 m-0 d-flex justify-content-center align-items-center text-center">
+        <div style="max-width: 500px;">
+          <label for="location" class="m-4 text-light">Uneix-te a la transició energètica col·lectiva</label>
+          <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
+            <option></option>
+            <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
+          </select>
+      </div>
+      </div>
+    </div>
+
+<!--    MOBILE-->
+    <div class="bg-primary px-2 py-5 d-block d-md-none" >
+      <div class="d-flex justify-content-center align-items-center">
+        <img  src="assets/img/navbar/zertipower-logo-blanc.png" class="px-4" alt="zertipwoer-logo" style="width: 300px;">
+      </div>
+
+      <div class="p-0 m-0 d-flex justify-content-center align-items-center text-center">
+        <div>
+          <label for="location" class="m-4 fs-4">Uneix-te a la transició energètica col·lectiva</label>
+          <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
+            <option></option>
+            <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+

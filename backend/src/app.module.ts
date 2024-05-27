@@ -1,10 +1,13 @@
+import {ProposalsController} from 'src/features/proposals/proposals.controller'
+import {ResponsesController} from 'src/features/responses/responses.controller'
+import {ProposalsOptionsController} from 'src/features/proposals-options/proposals-options.controller'
 import { SmartContractsController } from "src/features/smart-contracts/smart-contracts.controller";
 import { ProvidersController } from "src/features/providers/providers.controller";
 import { EnergyRegistersController } from "src/features/energy-registers/energy-registers.controller";
 import { EnergyTransactionsController } from "src/features/energy-transactions/energy-transactions.controller";
 import { EnergyBlocksController } from "src/features/energy-blocks/energy-blocks.controller";
 import { CustomersController } from "src/features/customers/customers.controller";
-import { CupsController } from "src/features/cups.controller";
+import { CupsController } from "src/features/cups/cups.controller";
 import { CommunitiesController } from "src/features/communities/communities.controller";
 import { CalendarController } from "src/features/calendar/calendar.controller";
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
@@ -25,6 +28,9 @@ import { EnergyRegistersHourlyController } from "./features/energy-registers-hou
 import { EnergyAreasController } from "./features/energy-areas.controller";
 import { LocationsController } from "./features/locations.controller";
 import { LogsController } from "./features/logs.controller";
+import { DatadisEnergyController } from "./features/datadis-energy.controller";
+import {VotesController} from "./features/votes/votes.controller";
+import {SharesController} from "./features/shares/shares.controller";
 
 @Module({
   imports: [
@@ -44,20 +50,26 @@ import { LogsController } from "./features/logs.controller";
   // Do not remove controllers section cuz zertibuilder
   // can create it if it doesn't exist
   controllers: [
-    CalendarController,
-    CommunitiesController,
-    CupsController,
-    CustomersController,
-    EnergyBlocksController,
-    EnergyTransactionsController,
-    EnergyRegistersController,
-    EnergyRegistersHourlyController,
-    ProvidersController,
-    SmartContractsController,
-    EnergyAreasController,
-    LocationsController,
-    LogsController
-  ],
+    CalendarController,           
+    CommunitiesController,           
+    CupsController,           
+    CustomersController,           
+    EnergyBlocksController,           
+    EnergyTransactionsController,           
+    EnergyRegistersController,           
+    EnergyRegistersHourlyController,           
+    ProvidersController,           
+    SmartContractsController,           
+    EnergyAreasController,           
+    LocationsController,           
+    LogsController,           
+    DatadisEnergyController,
+    ProposalsController,
+    ProposalsOptionsController,
+    VotesController,
+    ResponsesController,
+    SharesController,
+],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

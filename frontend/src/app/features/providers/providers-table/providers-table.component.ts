@@ -11,7 +11,7 @@ import { ProvidersApiService } from '../providers.service';
 import moment from 'moment';
 
 @Component({
-  selector: 'providers-table',
+  selector: 'responses-table',
   templateUrl: './providers-table.component.html',
   styleUrls: ['./providers-table.component.scss'],
 })

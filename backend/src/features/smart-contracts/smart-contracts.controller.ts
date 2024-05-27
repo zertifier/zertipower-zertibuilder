@@ -15,18 +15,22 @@ import { SaveSmartContractsDTO } from "./save-smart-contracts-dto";
 import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
+import mysql from "mysql2/promise";
 
 export const RESOURCE_NAME = "smartContracts";
 
 @ApiTags(RESOURCE_NAME)
 @Controller("smart-contracts")
 export class SmartContractsController {
-  constructor(private prisma: PrismaService, private datatable: Datatable) {}
+
+  private conn: mysql.Pool;
+
+  constructor(private prisma: PrismaService, private datatable: Datatable,private mysql: MysqlService) {}
 
   @Get()
   @Auth(RESOURCE_NAME)
   async get() {
-    const data = await this.prisma.smartContracts.findMany();
+    const data = await this.prisma.smartContract.findMany();
     const mappedData = data.map(this.mapData);
     return HttpResponse.success(
       "smart_contracts fetched successfully"
@@ -36,7 +40,7 @@ export class SmartContractsController {
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {
-    const data = await this.prisma.smartContracts.findUnique({
+    const data = await this.prisma.smartContract.findUnique({
       where: {
         id: parseInt(id),
       },
@@ -49,7 +53,7 @@ export class SmartContractsController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveSmartContractsDTO) {
-    const data = await this.prisma.smartContracts.create({ data: body });
+    const data = await this.prisma.smartContract.create({ data: body });
     return HttpResponse.success("smart_contracts saved successfully").withData(
       data
     );
@@ -58,7 +62,7 @@ export class SmartContractsController {
   @Put(":id")
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: SaveSmartContractsDTO) {
-    const data = await this.prisma.smartContracts.updateMany({
+    const data = await this.prisma.smartContract.updateMany({
       where: {
         id: parseInt(id),
       },
@@ -72,7 +76,7 @@ export class SmartContractsController {
   @Delete(":id")
   @Auth(RESOURCE_NAME)
   async remove(@Param("id") id: string) {
-    const data = await this.prisma.smartContracts.delete({
+    const data = await this.prisma.smartContract.delete({
       where: {
         id: parseInt(id),
       },
@@ -89,4 +93,5 @@ export class SmartContractsController {
     mappedData.blockchainId = data.blockchainId;
     return mappedData;
   }
+
 }

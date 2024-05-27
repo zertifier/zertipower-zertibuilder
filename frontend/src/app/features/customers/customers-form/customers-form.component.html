@@ -1,37 +1,45 @@
 <div class="modal-header">
-  <h2>customers form</h2>
+  <h2>Client</h2>
 </div>
 <div class="modal-body">
   <form id="form" [formGroup]="form" (ngSubmit)="save()">
-    <div>
-      <label for="id-input">id</label>
+    <!--<div class="my-3">
+      <label class="form-label" for="id-input">ID</label>
       <input id="id-input" type="number" formControlName="id" class="form-control">
+    </div>-->
+    <div class="my-3">
+      <label class="form-label" for="name-input">Nom</label>
+      <input formControlName="name" id="name-input" class="form-control">
     </div>
-    <div>
-      <label for="name-input">name</label>
-      <editor
-          [init]="tinymceConfig"
-          formControlName="name"
-          id="description"></editor>
+    <div class="my-3">
+      <label class="form-label" for="wallet-address-input">DNI</label>
+      <input formControlName="dni" id="dni-input" class="form-control">
     </div>
-    <div>
-      <label for="wallet-address-input">wallet_address</label>
-      <editor
-          [init]="tinymceConfig"
-          formControlName="walletAddress"
-          id="description"></editor>
+    <div class="my-3">
+      <label class="form-label" for="wallet-address-input">Wallet Address</label>
+      <input formControlName="walletAddress" id="wallet-address-input" class="form-control">
     </div>
-    <div>
+    <!--<div>
       <label for="created-at-input">created_at</label>
       <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
     </div>
     <div>
       <label for="updated-at-input">updated_at</label>
       <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control">
-    </div>
+    </div>-->
   </form>
+
+  <div>Cups</div>
+  <div *ngFor="let element of customerCups">
+    <div class="d-flex align-items-center">
+      <div>{{element.cups}}</div>
+      <button type="button" class="btn btn-column column btn-transparent editRow" (click)="editRequest(element.id)"><i class="fa-solid fa-pen-to-square hoverPrimary editRow"></i></button>
+    </div>
+  </div>
+
+
 </div>
 <div class="modal-footer">
-  <button type="submit" class="btn btn-primary" form="form">Save</button>
-  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+  <button type="submit" class="btn btn-primary" form="form">Guardar</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel·lar</button>
 </div>

@@ -1,0 +1,16 @@
+baseURL = 'https://example.org/'
+languageCode = 'es-es'
+title = 'Zertipower'
+theme = "relearn"
+
+[params]
+themeVariant = 'zen-dark'
+disableLandingPageButton = true
+
+[menu]
+[[menu.shortcuts]]
+identifier = 'ds'
+name = "<i class='fa-fw fab fa-github'></i> GitHub repo"
+url = 'https://github.com/zertifier/zertipower-zertibuilder/'
+weight = 10
+

@@ -1,3 +1,5 @@
+
+
   .folder-selected {
     background-color: rgb(172, 172, 172);
     cursor: pointer;
@@ -11,3 +13,127 @@
   .btn-folder:hover {
     background-color: rgb(196, 196, 196);
   }
+
+  .dropdown-menu.show{
+    min-width: 60px !important;
+}
+
+#div-shrink {
+  background: none !important;
+}
+
+.btn-shrink {
+  position: absolute;
+  top: 50%;
+  left: 266px;
+  transform: translate(-50%, -50%);
+}
+
+.btn-shrank{
+  left: 110px;
+}
+
+.div-shrunk{
+  transform: translate(-16,0);
+}
+
+
+.navbar-dropdown > .dropdown-toggle::after{
+  margin-right: 5px;
+  position: absolute;
+  right: 0;
+  bottom: 50%;
+  transform: rotate(-90deg) translateX(6px);
+  transform-origin: 100% 100%;
+}
+
+.number-input{
+  width: 90px;
+  height: 30px;
+}
+
+.text-selector{
+// width: 90px;
+  height: 30px;
+}
+
+.open-nav{
+  width: 550px;
+}
+
+.closed-nav{
+  display:none;
+}
+
+.location-bar-open{
+  left:600px;
+}
+
+.location-bar-open-mobile{
+  //left:600px;
+}
+
+.location-bar-closed{
+  left:50px;
+}
+
+.icon-face{
+
+}
+
+.smile-color{
+  color:#28B463
+}
+.meh-color{
+  color:#F19915
+}
+.frown-color{
+  color:#ef002b
+}
+.inactive-color{
+  color:#bfbfbf;
+}
+
+.fs-12{
+  font-size: 12px;
+}
+
+.w-92{
+  width:92% !important;
+}
+
+.heartbeat {
+  animation: heartbeat 1s infinite;
+  animation-iteration-count: 2;
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media only screen and (max-width: 1150px) {
+
+}
+
+.chart-message {
+  position: absolute;
+  top: 35%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.8);
+  color:black;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  text-align: center;
+}
+
+

@@ -52,7 +52,7 @@ export class PrismaPermissionsRepository implements OnModuleInit {
     }
 
     for (const fetchedPermission of fetchedPermissions) {
-      fetchedPermission.RolePermission.forEach((rolePermission) => {
+      fetchedPermission.RolePermission.forEach((rolePermission: any) => {
         permissions.push(
           new Permission({
             role: new UserRole({ name: rolePermission.role.name }).withId(

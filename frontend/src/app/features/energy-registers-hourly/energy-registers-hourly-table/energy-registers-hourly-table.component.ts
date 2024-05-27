@@ -29,7 +29,7 @@ export class EnergyRegistersHourlyTableComponent implements OnDestroy {
   readonly subscriptions: Array<Subscription> = []
 
   title: string = 'Energy registers hourly';
-  addRows: boolean = true;
+  addRows: boolean = false;
   editRows: boolean = true;
   refreshRows: boolean = true;
   filterColumns: boolean = true;
@@ -41,8 +41,8 @@ export class EnergyRegistersHourlyTableComponent implements OnDestroy {
       width: '200px',
     },
     {
-      title: 'Cups Id',
-      data: 'cups_id',
+      title: 'Cups',
+      data: 'cups',
       width: '100px',
     },
     {
@@ -77,7 +77,7 @@ export class EnergyRegistersHourlyTableComponent implements OnDestroy {
       options: [],
     },
     {
-      title: 'cupsId',
+      title: 'cups',
       description: '',
       value: '',
       type: 1,
@@ -122,7 +122,7 @@ export class EnergyRegistersHourlyTableComponent implements OnDestroy {
     {
       targets: 0,
       render: (data: any, type: any, row: any) => {
-        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')} <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
+        return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     }
   ];

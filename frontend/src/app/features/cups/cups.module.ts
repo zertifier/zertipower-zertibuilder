@@ -8,18 +8,20 @@ import {SharedComponentsModule} from "../../shared/infrastructure/components/sha
 import {CoreComponentsModule} from "../../core/core-components/core-components.module";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { EditorComponent } from '@tinymce/tinymce-angular';
+import {NgSelectModule} from "@ng-select/ng-select";
 
 
 @NgModule({
   declarations: [CupsTableComponent, CupsFormComponent],
-  imports: [
-    CommonModule,
-    CupsRoutingModule,
-    SharedComponentsModule,
-    CoreComponentsModule,
-    ReactiveFormsModule,
-    EditorComponent,
-    FormsModule
-  ]
+    imports: [
+        CommonModule,
+        CupsRoutingModule,
+        SharedComponentsModule,
+        CoreComponentsModule,
+        ReactiveFormsModule,
+        EditorComponent,
+        FormsModule,
+        NgSelectModule
+    ]
 })
 export class CupsModule { }

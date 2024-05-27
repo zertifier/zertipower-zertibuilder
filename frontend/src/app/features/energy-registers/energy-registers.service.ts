@@ -76,6 +76,7 @@ function mapToApiInterface(dto: EnergyRegistersApiDTO): EnergyRegistersApiInterf
 }
 
 function mapToDTO(dto: EnergyRegistersApiInterface): EnergyRegistersApiDTO {
+  console.log(dto, "DTO")
   return {
     id: dto.id,
     infoDt: moment.utc(dto.infoDt).format("YYYY-MM-DD HH:mm"),

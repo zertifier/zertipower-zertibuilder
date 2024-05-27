@@ -25,6 +25,7 @@ import {
   PasswordNotEncryptedError,
   PasswordNotMatchError,
   ResetPasswordCodeNotValidError,
+  UserAlreadyExistsError,
   UserNotFoundError,
 } from "../../../../users/domain/errors";
 import { UserIdNotDefinedError } from "../../../../users/domain/UserId/UserIdNotDefinedError";
@@ -65,6 +66,9 @@ import { Cron } from "@nestjs/schedule";
 import { GenerateUserTokensAction } from "../../../application/generate-user-tokens-action/generate-user-tokens-action";
 import mysql from "mysql2/promise";
 import { log } from "console";
+import { ErrorCode } from "src/shared/domain/error";
+import { BadRequestError, InvalidArgumentError, UnexpectedError } from "src/shared/domain/error/common";
+import { MissingParameters } from "src/shared/domain/error/common/MissingParameters";
 
 const signCodesRepository: { [walletAddress: string]: string } = {};
 const RESOURCE_NAME = "auth";
@@ -95,67 +99,135 @@ export class AuthController {
 
   }
 
+  @Post("web-wallet-register")
+  async webWalletRegister(@Body() body: any) {
 
-  @Post("web-wallet-login")
-  async webWalletLogin(@Body() body:any) {
-    const { wallet_address, private_key } = body;
-    const getUserQuery = `SELECT * FROM users WHERE wallet_address = ?`;
+    const { wallet_address, private_key, email, firstname, lastname, dni } = body;
+    const getUserQuery = `SELECT * FROM users WHERE email = ?`;
+    const getCustomerEmail = `SELECT * FROM customers WHERE email = ?`;
     const insertUserQuery = `INSERT INTO users (wallet_address,password,role_id, username, firstname, lastname, email) VALUES (?,?,?,?,?,?,?)`
+    const insertCustomerDniQuery = `INSERT INTO customers (name,dni,email) VALUES (?,?,?)`
+    const insertCustomerQuery = `INSERT INTO customers (name,email) VALUES (?,?)`
+    const insertUserCustomerQuery = `INSERT INTO users (wallet_address,password,role_id, username, firstname, lastname, email,customer_id) VALUES (?,?,?,?,?,?,?,?)`
     let dbUser;
     let user: User;
-    
-    try{
-      const [ROWS]:any = await this.conn.query(getUserQuery,[wallet_address]);
-      dbUser = ROWS[0];
-      if(dbUser){
-        let passwordMatch = await PasswordUtils.match(dbUser.password,private_key);
-        if (!passwordMatch) {
-          throw new PasswordNotMatchError();
-        }  
+    let customerId: any;
+
+    if (!wallet_address || !private_key || !email || !firstname || !lastname) {
+      throw new MissingParameters("Register user error: missing parameters");
+    }
+
+    if (!email.includes("gmail")) {
+      throw new MissingParameters("Register user error: a gmail address is needed");
+    }
+
+    try {
+
+      let [ROWS]: any = await this.conn.query(getUserQuery, [email]);
+      //check if user exists
+      if (ROWS.length) {
+        throw new InvalidArgumentError("There is a user with this email");
       }
-    }catch(e){
-      console.log("error web wallet login get",e);
-      throw new UserNotFoundError();
-    }
 
-    if(!dbUser){
-      try{
-        let encryptedPassword = await PasswordUtils.encrypt(private_key);
-        await this.conn.query(insertUserQuery,[wallet_address,encryptedPassword,2,'','','','']);
-      }catch(e){
-        console.log("error web wallet login",e);
-        throw new UserNotFoundError();
-      } 
-    }
+      let encryptedPassword = await PasswordUtils.encrypt(private_key);
 
-    try{
-      console.log("wallet",wallet_address)
+      //check if customer exists
+      [ROWS] = await this.conn.query(getCustomerEmail, [email]);
+      if (ROWS.length == 1) {
+        customerId = ROWS[0].id;
+      } else {
+        if (dni) {
+          const result: any = await this.conn.query(insertCustomerDniQuery, [`${firstname} ${lastname}`, dni, email]);
+          customerId = result[0].insertId;
+        } else {
+          const result: any = await this.conn.query(insertCustomerQuery, [`${firstname} ${lastname}`, email]);
+          customerId = result[0].insertId;
+        }
+      }
+
+      //insert user with customer id:
+      const result: any = await this.conn.query(insertUserCustomerQuery, [wallet_address, encryptedPassword, 2, `${firstname} ${lastname}`, firstname, lastname, email, customerId]);
+
       let fetchedUsers = await this.userRepository.find(
         new ByWalletAddress(wallet_address)
       );
       user = fetchedUsers[0];
-      
-    }catch(e){
-      console.log(e)
-      throw new UserNotFoundError();
+
+      const { signedRefreshToken, signedAccessToken } =
+        await this.generateUserTokensAction.run(user);
+
+      const responseData: LoggedInDTO = new LoggedInDTO(
+        signedAccessToken,
+        signedRefreshToken
+      );
+
+      return HttpResponse.success("User register successfully").withData(
+        responseData
+      );
+
+    } catch (e) {
+      console.log("Error registering user:", e)
+      throw new UnexpectedError(e);
     }
-    
-    const { signedRefreshToken, signedAccessToken } =
-    await this.generateUserTokensAction.run(user);
 
-    const responseData: LoggedInDTO = new LoggedInDTO(
-      signedAccessToken,
-      signedRefreshToken
-    );
-
-    return HttpResponse.success("Logged in successfully").withData(
-      responseData
-    );
-
-    
   }
 
-    
+  @Post("web-wallet-login")
+  async webWalletLogin(@Body() body: any) {
+
+    const { wallet_address, private_key, email } = body;
+
+    if (!wallet_address || !private_key || !email) {
+      throw new MissingParameters("Error logging in: missing parameters");
+    }
+
+    const getUserQuery = `SELECT * FROM users WHERE wallet_address = ?`;
+
+    let dbUser;
+    let user: User;
+
+    try {
+      const [ROWS]: any = await this.conn.query(getUserQuery, [wallet_address]);
+      dbUser = ROWS[0];
+      if (!dbUser) {
+        throw new UserNotFoundError();
+      }
+      let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
+      if (!passwordMatch) {
+        throw new PasswordNotMatchError();
+      }
+    } catch (e) {
+      console.log("error web wallet login get", e);
+      throw new UserNotFoundError();
+    }
+
+    try {
+
+      let fetchedUsers = await this.userRepository.find(
+        new ByWalletAddress(wallet_address)
+      );
+      user = fetchedUsers[0];
+
+      const { signedRefreshToken, signedAccessToken } =
+        await this.generateUserTokensAction.run(user);
+
+      const responseData: LoggedInDTO = new LoggedInDTO(
+        signedAccessToken,
+        signedRefreshToken
+      );
+
+      return HttpResponse.success("Logged in successfully").withData(
+        responseData
+      );
+
+    } catch (e) {
+      console.log("Error logging in:", e)
+      throw new UnexpectedError(e);
+    }
+
+  }
+
+
 
   /**
    * A traditional login with user and password
@@ -213,7 +285,7 @@ export class AuthController {
       throw new PasswordNotMatchError();
     }
 
-    console.log("user",user)
+    console.log("user", user)
 
     // Creating errors
     const { signedRefreshToken, signedAccessToken } =
@@ -312,8 +384,9 @@ export class AuthController {
     },
   })
   async loginWeb3(@Body() body: LoginWeb3DTO) {
-    const { wallet_address, signature } = body;
+    const { wallet_address, signature, email } = body;
 
+    console.log(body)
     const criteria = new ByWalletAddress(wallet_address);
     const users = await this.findUsersAction.run(criteria);
     const user = users[0];

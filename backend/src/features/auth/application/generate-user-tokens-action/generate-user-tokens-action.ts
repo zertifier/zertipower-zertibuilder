@@ -27,10 +27,8 @@ export class GenerateUserTokensAction {
       );
     }
 
-    console.log("refresh token",refreshToken)
     const signedRefreshToken = await this.jwtService.sign(refreshToken);
     const signedAccessToken = await this.jwtService.sign(accessToken);
-
     // Saving refresh token
     await this.authRepository.save(
       signedRefreshToken,

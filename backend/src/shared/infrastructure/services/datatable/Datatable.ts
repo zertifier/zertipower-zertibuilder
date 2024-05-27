@@ -1,6 +1,7 @@
 export interface DatatableSearch {
   value: string;
   regex: boolean;
+  smart:boolean;
 }
 
 export interface DatatableOrder {

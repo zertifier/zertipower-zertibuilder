@@ -96,7 +96,7 @@ export class PrismaRoleRepository implements UserRoleRepository {
     });
 
     if (result.length !== roles.length) {
-      const existingRoleIds = result.map((resultEntry) => resultEntry.id);
+      const existingRoleIds = result.map((resultEntry: any) => resultEntry.id);
       const nonExistingRoles = roles
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         .filter((role) => !existingRoleIds.includes(role.id!))
@@ -135,7 +135,7 @@ export class PrismaRoleRepository implements UserRoleRepository {
 
     if (result.length !== 0) {
       throw new RoleAlreadyExistError(
-        `Roles [${result.map((role) => role.name)}] already exist`
+        `Roles [${result.map((role: any) => role.name)}] already exist`
       );
     }
 

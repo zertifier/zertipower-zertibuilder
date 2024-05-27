@@ -7,6 +7,7 @@ import { SaveVotesDTO } from './save-votes-dto';
 import * as moment from 'moment';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/features/auth/infrastructure/decorators';
+import {BadRequestError, InvalidArgumentError} from "../../shared/domain/error/common";
 
 export const RESOURCE_NAME = 'votes';
 
@@ -37,16 +38,16 @@ export class VotesController {
     return HttpResponse.success('proposals_options fetched successfully').withData(this.mapData(data));
   }
   @Get('proposal/:proposalId')
-  // @Auth(RESOURCE_NAME)
+  @Auth(RESOURCE_NAME)
   async getVotesByProposalId(@Param('proposalId') proposalId: string) {
     const data: any = await this.prisma.$queryRaw`
-      SELECT option_id, COUNT(option_id) qty  FROM votes WHERE proposal_id = ${proposalId} GROUP BY option_id
+      SELECT option_id, SUM(vote_value) votes, COUNT(option_id) qty  FROM votes WHERE proposal_id = ${proposalId} GROUP BY option_id
     `
     return HttpResponse.success('proposals_options fetched successfully').withData(data.map(this.mapData));
   }
 
   @Get('proposal/:proposalId/user/:userId')
-  // @Auth(RESOURCE_NAME)
+  @Auth(RESOURCE_NAME)
   async getVotesByProposalIdAndUserId(@Param('proposalId') proposalId: string, @Param('userId') userId: string) {
     const data: any = await this.prisma.$queryRaw`
       SELECT option_id FROM votes WHERE proposal_id = ${proposalId} AND user_id = ${userId}
@@ -56,8 +57,57 @@ export class VotesController {
 
   @Post()
   @Auth(RESOURCE_NAME)
-  async create(@Body() body: SaveVotesDTO[]) {
-    const data = await this.prisma.votes.createMany({ data: body });
+  async create(@Body() body: SaveVotesDTO) {
+    const getVotes = await this.prisma.votes.findMany({
+      where: {
+        proposalId: body.proposalId,
+        userId: body.userId,
+        optionId: body.optionId
+      }
+    })
+    if (getVotes.length)
+      throw new BadRequestError("You already voted");
+/*
+    const proposal: any = await this.prisma.$queryRaw`
+      SELECT pr.id,
+             CASE
+               WHEN pr.type = 'weighted' THEN SUM(cups.surplus_distribution)
+               ELSE 1
+             END as voteValue
+      FROM users
+             LEFT JOIN cups
+                       ON users.customer_id = cups.customer_id
+             LEFT JOIN proposals pr
+                       ON pr.community_id = cups.community_id
+      WHERE users.id = ${body.userId}
+        AND pr.id = ${body.proposalId}
+        AND pr.expiration_dt > CURRENT_DATE
+      GROUP BY cups.community_id
+    `*/
+    const proposal: any = await this.prisma.$queryRaw`
+      SELECT pr.id,
+             CASE
+               WHEN pr.type = 'weighted' THEN shares.shares
+               ELSE 1
+             END as voteValue
+      FROM users
+             LEFT JOIN shares
+                       ON users.customer_id = shares.customer_id
+             LEFT JOIN proposals pr
+                       ON pr.community_id = shares.community_id
+      WHERE users.id = ${body.userId}
+        AND pr.id = ${body.proposalId}
+        AND pr.expiration_dt > CURRENT_DATE
+      GROUP BY shares.community_id
+    `
+
+    if (!proposal.length)
+      throw new BadRequestError("Wrong community from user");
+
+    if (proposal[0].id != body.proposalId)
+      throw new BadRequestError("Wrong community from user");
+
+    const data = await this.prisma.votes.create({ data: {...body, voteValue: proposal[0].voteValue } });
     return HttpResponse.success('proposals_options saved successfully').withData(data);
   }
 
@@ -84,7 +134,7 @@ export class VotesController {
     return HttpResponse.success('proposals_options removed successfully').withData(data);
   }
 
-  @Post('datatable')
+ /* @Post('datatable')
   @Auth(RESOURCE_NAME)
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(body, `
@@ -96,7 +146,7 @@ export class VotesController {
         LEFT JOIN proposals
       ON proposals.id = proposal_id`);
     return HttpResponse.success('Datatables fetched successfully').withData(data);
-  }
+  }*/
 
   mapData(data: any) {
     const mappedData: any = {};
@@ -105,6 +155,7 @@ export class VotesController {
       mappedData.userId = data.userId || data.user_id
       mappedData.option = data.option
       mappedData.qty = data.qty ? parseInt(data.qty) : undefined
+      mappedData.votes = data.votes ? parseFloat(data.votes) : undefined
     return mappedData;
   }
 }

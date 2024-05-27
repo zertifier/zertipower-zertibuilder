@@ -144,11 +144,25 @@ export class SearchComponent implements OnInit, AfterViewInit {
           labels: {
             usePointStyle: true,
             pointStyle: 'circle',
-            color: 'rgb(255, 99, 132)'
+            color: 'rgb(246,246,246)'
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            color: 'rgb(246,246,246)'
+          }
+        },
+        x: {
+          ticks: {
+            color: 'rgb(246,246,246)'
           }
         }
       }
     }
+
+    
 
   cadastreValoration: number = 0;
   selectedCadastreEnergyData: any;
@@ -398,15 +412,26 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   getCommunityEnergy() {
     let date = moment().format('YYYY-MM-DD')
+    console.log("this.selectedCommunity.id",this.selectedCommunity.id)
     this.communitiesService.getEnergy(this.selectedCommunity.id, date).subscribe((res: any) => {
       this.communityEnergyData = res.data;
-      this.updateCommunityChart();
+      this.communitiesService.getEnergyActivesById(this.selectedCommunity.id).subscribe((res: any) => {
+        let communityActiveCups = res.data[0].total_actives
+        let communityCups = res.data[0].total_cups
+        console.log("communityActiveCups",res)
+        for (const cupsMonthEnergy of this.communityEnergyData) {
+
+          let averageImport = cupsMonthEnergy.import/communityActiveCups;
+          cupsMonthEnergy.import = averageImport*communityCups;
+        }
+
+        console.log("this.communityEnergyData",this.communityEnergyData)
+        this.updateCommunityChart();
+      })
     })
   }
 
   updateCommunityChart() {
-
-    
 
     this.communityMonthChartLabels;
     this.communityMonthChartDatasets = [];

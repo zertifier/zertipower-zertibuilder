@@ -16,6 +16,7 @@ import * as moment from "moment";
 import {ApiTags} from "@nestjs/swagger";
 import {Auth} from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
+import { UnexpectedError } from "src/shared/domain/error/common";
 
 export const RESOURCE_NAME = "communities";
 
@@ -44,6 +45,15 @@ export class CommunitiesController {
     );
   }
 
+  @Get("/:id/cups")
+  async getCommunityCupsById(@Param("id") id: number) {
+    let url = `SELECT * FROM cups WHERE community_id = ?`;
+    const [ROWS]:any[] = await this.conn.query(url,[id]);
+    return HttpResponse.success("communities cups fetched successfully").withData(
+      ROWS
+    );
+  }
+
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {
@@ -57,28 +67,69 @@ export class CommunitiesController {
     );
   }
 
+  @Get("energy/actives/:id")
+  //@Auth(RESOURCE_NAME)
+  async getByIdEnergyActives(@Param("id") id: number, @Param("date") date: string) {
+
+    try{
+    let url = `
+        SELECT 
+        COUNT(DISTINCT c.id) AS total_cups,
+        COUNT(DISTINCT der.cups_id) AS total_actives
+    FROM cups AS c
+    LEFT JOIN datadis_energy_registers AS der ON c.id = der.cups_id
+    WHERE c.community_id = ?;
+    `;
+
+    const [ROWS]: any[] = await this.conn.query(url, [id]);
+
+    return HttpResponse.success("community active users fetched successfully").withData(ROWS);
+    
+    }catch(e){
+      console.log(e)
+      throw new UnexpectedError(e);
+    }
+
+  }
+
   @Get("/energy/:id/:date")
   //@Auth(RESOURCE_NAME)
   async getByIdEnergy(@Param("id") id: number, @Param("date") date: string) {
 
-    let url = `SELECT MONTHNAME(info_dt) as month,
+    let importDataQuery = `SELECT MONTHNAME(info_dt) as month,
                       MONTH(info_dt)     as month_number,
-                      SUM(import)        AS import,
-                      SUM(export)        AS export
+                      SUM(import)        AS import
                FROM communities
                       LEFT join cups ON community_id = communities.id
                       LEFT join datadis_energy_registers ON cups_id = cups.id
                WHERE cups.community_id = ?
                  AND YEAR(info_dt) = ?
-               GROUP BY MONTH(info_dt)
+                 AND cups.type != 'community'
+               GROUP BY MONTH(info_dt);
+    `;
+
+      let productionDataQuery = `SELECT MONTHNAME(info_dt) as month,
+      MONTH(info_dt)     as month_number,
+      SUM(export)        AS export
+      FROM communities
+          LEFT join cups ON community_id = communities.id
+          LEFT join datadis_energy_registers ON cups_id = cups.id
+      WHERE cups.community_id = ?
+      AND YEAR(info_dt) = ?
+      AND cups.type = 'community'
+      GROUP BY MONTH(info_dt);
     `;
 
     let year = moment(date, 'YYYY-MM-DD').format('YYYY').toString()
 
-    const [ROWS]: any[] = await this.conn.query(url, [id, year]);
+    console.log(id,year)
 
+    let [ROWS]: any[] = await this.conn.query(importDataQuery, [id, year]);
+    let importData = ROWS;
+    [ROWS] = await this.conn.query(productionDataQuery, [id, year]);
+    let productionData = ROWS;
 
-    return HttpResponse.success("communities fetched successfully").withData(ROWS)
+    return HttpResponse.success("communities fetched successfully").withData({importData,productionData})
 
   }
 
@@ -92,12 +143,17 @@ export class CommunitiesController {
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
-                   SUM(IFNULL(production, 0))                        AS surplus_community_active,
+                   SUM(
+                     CASE
+                       WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
+                       ELSE 0
+                       END
+                   )                              AS surplus_community_active,
                    kwh_in_price                                      AS kwh_in_price,
                    kwh_out_price                                     AS kwh_out_price,
                    kwh_in_price_community                            AS kwh_in_price_community,
                    kwh_out_price_community                           AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT CASE WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN customer_id END) AS VARCHAR(255)) AS active_members,
                    HOUR(eh.info_dt)                                  AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -129,12 +185,13 @@ export class CommunitiesController {
       FROM (
              SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
              FROM (
-                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    SELECT COUNT(DISTINCT cups_id) AS totalActiveMembers
                     FROM energy_hourly eh
                            LEFT JOIN cups c ON eh.cups_id = c.id
                     WHERE c.type != 'community'
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
+                      AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
                     GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -178,12 +235,17 @@ export class CommunitiesController {
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
-                   SUM(IFNULL(production, 0))                              AS surplus_community_active,
+                   SUM(
+                     CASE
+                       WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
+                       ELSE 0
+                       END
+                   )                              AS surplus_community_active,
                    kwh_in_price                                AS kwh_in_price,
                    kwh_out_price                              AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
                    kwh_out_price_community                      AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT CASE WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN customer_id END) AS VARCHAR(255)) AS active_members,
                    DAY(eh.info_dt)                                   AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -215,12 +277,13 @@ export class CommunitiesController {
       FROM (
              SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
              FROM (
-                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    SELECT COUNT(DISTINCT cups_id) AS totalActiveMembers
                     FROM energy_hourly eh
                            LEFT JOIN cups c ON eh.cups_id = c.id
                     WHERE c.type != 'community'
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
+                      AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
                     GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -271,7 +334,7 @@ export class CommunitiesController {
                    kwh_out_price                                AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
                    kwh_out_price_community                      AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT cups_id) AS VARCHAR(255)) AS active_members,
                    MONTH(eh.info_dt)                                 AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -314,12 +377,17 @@ export class CommunitiesController {
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
-                   SUM(IFNULL(production, 0))                              AS surplus_community_active,
+                   SUM(
+                     CASE
+                       WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
+                       ELSE 0
+                       END
+                     )                              AS surplus_community_active,
                    kwh_in_price                                 AS kwh_in_price,
                    kwh_out_price                                AS kwh_out_price,
                    kwh_in_price_community                       AS kwh_in_price_community,
                    kwh_out_price_community                      AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT customer_id) AS VARCHAR(255)) AS active_members,
+                   CAST(COUNT(DISTINCT CASE WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN customer_id END) AS VARCHAR(255)) AS active_members,
                    MONTH(eh.info_dt)                                 AS filter_dt,
                    info_dt
             FROM energy_hourly eh
@@ -350,13 +418,14 @@ export class CommunitiesController {
       FROM (
              SELECT SUM(totalActiveMembers) AS totalActiveMembersSum
              FROM (
-                    SELECT COUNT(DISTINCT customer_id) AS totalActiveMembers
+                    SELECT COUNT(DISTINCT cups_id) AS totalActiveMembers
                     FROM energy_hourly eh
                            LEFT JOIN cups c ON eh.cups_id = c.id
                     WHERE c.type != 'community'
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
-                    GROUP BY c.community_id
+                      AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
+                      GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
              CROSS JOIN (

@@ -30,6 +30,7 @@ import { LocationsController } from "./features/locations.controller";
 import { LogsController } from "./features/logs.controller";
 import { DatadisEnergyController } from "./features/datadis-energy.controller";
 import {VotesController} from "./features/votes/votes.controller";
+import {SharesController} from "./features/shares/shares.controller";
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import {VotesController} from "./features/votes/votes.controller";
     ProposalsOptionsController,
     VotesController,
     ResponsesController,
+    SharesController,
 ],
 })
 export class AppModule implements NestModule {

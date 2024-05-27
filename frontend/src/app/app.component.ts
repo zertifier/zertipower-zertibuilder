@@ -10,9 +10,9 @@ export class AppComponent {
 	title = "frontend";
   displayNavbar = false
   locationHidNav= [
-    '/search',
+    //'/search',
     '/auth',
-    '/select-location'
+    //'/select-location'
   ]
 
   constructor(

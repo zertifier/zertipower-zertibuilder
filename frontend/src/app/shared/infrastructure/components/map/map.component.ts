@@ -12,7 +12,6 @@ import {Output, EventEmitter} from '@angular/core';
 import {log} from "console";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {listenerCount} from "process";
 
 @Component({
   selector: 'app-map',

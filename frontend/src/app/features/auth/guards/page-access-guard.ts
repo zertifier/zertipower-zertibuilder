@@ -20,7 +20,7 @@ export function pageAccess(page: string): () => Promise<boolean> {
     const permissions = permissionsStore.permissions();
 
     if (user.role !== 'ADMIN' && !permissions[user.role][page]['pageAccess'])
-      window.location.href = '/select-location';
+      window.location.href = '/auth';
     return user.role === 'ADMIN' || permissions[user.role][page]['pageAccess'];
   }
 }

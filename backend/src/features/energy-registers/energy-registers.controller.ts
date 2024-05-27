@@ -72,7 +72,7 @@ export class EnergyRegistersController {
 
       for (const cup of communityCups) {
         let registerToAdd = body
-        registerToAdd.communityGeneration = parseFloat(cup.surplusDistribution || '0' ) * registerToAdd.generation
+        registerToAdd.communityGeneration = (cup.surplusDistribution || 0 ) * registerToAdd.generation
         registerToAdd.cupsId = cup.id
         data.push(await this.prisma.energyRegister.create({ data: body }));
       }

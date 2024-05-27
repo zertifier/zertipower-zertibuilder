@@ -96,26 +96,40 @@ export class CommunitiesController {
   //@Auth(RESOURCE_NAME)
   async getByIdEnergy(@Param("id") id: number, @Param("date") date: string) {
 
-    let url = `SELECT MONTHNAME(info_dt) as month,
+    let importDataQuery = `SELECT MONTHNAME(info_dt) as month,
                       MONTH(info_dt)     as month_number,
-                      SUM(import)        AS import,
-                      SUM(export)        AS export
+                      SUM(import)        AS import
                FROM communities
                       LEFT join cups ON community_id = communities.id
                       LEFT join datadis_energy_registers ON cups_id = cups.id
                WHERE cups.community_id = ?
                  AND YEAR(info_dt) = ?
-               GROUP BY MONTH(info_dt)
+                 AND cups.type != 'community'
+               GROUP BY MONTH(info_dt);
+    `;
+
+      let productionDataQuery = `SELECT MONTHNAME(info_dt) as month,
+      MONTH(info_dt)     as month_number,
+      SUM(export)        AS export
+      FROM communities
+          LEFT join cups ON community_id = communities.id
+          LEFT join datadis_energy_registers ON cups_id = cups.id
+      WHERE cups.community_id = ?
+      AND YEAR(info_dt) = ?
+      AND cups.type = 'community'
+      GROUP BY MONTH(info_dt);
     `;
 
     let year = moment(date, 'YYYY-MM-DD').format('YYYY').toString()
 
-console.log(id,year)
+    console.log(id,year)
 
-    const [ROWS]: any[] = await this.conn.query(url, [id, year]);
+    let [ROWS]: any[] = await this.conn.query(importDataQuery, [id, year]);
+    let importData = ROWS;
+    [ROWS] = await this.conn.query(productionDataQuery, [id, year]);
+    let productionData = ROWS;
 
-
-    return HttpResponse.success("communities fetched successfully").withData(ROWS)
+    return HttpResponse.success("communities fetched successfully").withData({importData,productionData})
 
   }
 

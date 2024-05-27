@@ -9,7 +9,7 @@ import {
   ViewEncapsulation
 } from '@angular/core';
 import * as turf from '@turf/turf'
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, forkJoin, Subject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { ChangeDetectorRef } from '@angular/core';
@@ -386,7 +386,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         break;
 
       case 'community':
-        console.log("selected community", this.selectedCommunity)
+        //console.log("selected community", this.selectedCommunity)
         if (this.selectedCommunity == this.newCommunity) {
           this.communityEnergyData = [];
           this.updateCommunityChart();
@@ -408,29 +408,49 @@ export class SearchComponent implements OnInit, AfterViewInit {
   getCommunityCups(id:number){
     this.communitiesService.getCups(id).subscribe((res:any)=>{
       this.communityCups = res.data.filter((obj:any) => obj.type !== 'community');
-      console.log(this.communityCups.length,this.communityCups)
+      //console.log(this.communityCups.length,this.communityCups)
     })
   }
 
   getCommunityEnergy() {
     let date = moment().format('YYYY-MM-DD')
-    console.log("this.selectedCommunity.id",this.selectedCommunity.id)
-    this.communitiesService.getEnergy(this.selectedCommunity.id, date).subscribe((res: any) => {
-      this.communityEnergyData = res.data;
-      this.communitiesService.getEnergyActivesById(this.selectedCommunity.id).subscribe((res: any) => {
-        let communityActiveCups = res.data[0].total_actives
-        let communityCups = res.data[0].total_cups
-        //console.log("communityActiveCups",res)
-        for (const cupsMonthEnergy of this.communityEnergyData) {
 
-          let averageImport = cupsMonthEnergy.import/communityActiveCups;
-          cupsMonthEnergy.import = averageImport*communityCups;
-        }
+    //console.log("this.selectedCommunity.id",this.selectedCommunity.id)
 
-        //console.log("this.communityEnergyData",this.communityEnergyData)
-        this.updateCommunityChart();
-      })
+    forkJoin({
+      energyData: this.communitiesService.getEnergy(this.selectedCommunity.id, date),
+      energyActives : this.communitiesService.getEnergyActivesById(this.selectedCommunity.id)
+    }).subscribe(({ energyData, energyActives }: any) => {
+
+      //merge import and export data:
+      this.communityEnergyData = energyData.data.importData.map((importItem: any) => {
+
+        const productionItem = energyData.data.productionData.find((prodItem: any) => prodItem.month_number === importItem.month_number);
+        const mappedItem = {
+          month: importItem.month,
+          monthNumber: importItem.month_number,
+          import: importItem.import,
+          export: productionItem ? productionItem.export : 0
+        };
+        return mappedItem;
+      });
+
+      let communityActiveCups = energyActives.data[0].total_actives;
+      let communityCups = energyActives.data[0].total_cups;
+
+      //simulate total consumption:
+      this.communityEnergyData = this.communityEnergyData.map((cupsMonthEnergy:any) => {
+        let averageImport = cupsMonthEnergy.import / communityActiveCups;
+        cupsMonthEnergy.import = averageImport * communityCups;
+        return cupsMonthEnergy;
+      });
+
+      this.updateCommunityChart();
+
+    },error=>{
+      console.error("Error getting community energy or community actives",error)
     })
+
   }
 
   updateCommunityChart() {
@@ -479,7 +499,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         borderColor: 'rgb(255,255,255)'
       },
       {
-        label: 'Excedent (Kwh)',
+        label: 'Producció (Kwh)',
         data: exports,
         backgroundColor: 'rgb(52, 152, 219)',
         borderColor: 'rgb(255,255,255)'

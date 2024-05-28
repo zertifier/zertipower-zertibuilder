@@ -108,6 +108,19 @@ export class SharesController {
     return HttpResponse.success('proposals fetched successfully').withData(data.map(this.mapDataParticipants));
   }
 
+  @Get('/participants/community/:communityId/quantity')
+  @Auth(RESOURCE_NAME)
+  async getParticipantsPendingQuantity(@Param('communityId') communityId: string) {
+    const data: any = await this.prisma.$queryRaw`
+      SELECT COUNT(id) as qty
+      from shares
+      WHERE status = 'PENDING'
+        AND community_id = ${communityId}
+        
+    `
+    return HttpResponse.success('proposals fetched successfully').withData({qty: parseInt(data[0].qty) || 0});
+  }
+
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveSharesDto) {

@@ -161,6 +161,7 @@ model Customers {
   id            Int       @id @default(autoincrement())
   name          String?   @db.VarChar(50)
   dni           String?   @db.VarChar(50)
+  email         String?   @db.VarChar(50)
   walletAddress String?   @map("wallet_address") @db.VarChar(200)
   createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt     DateTime? @map("updated_at") @db.DateTime(0)
@@ -412,6 +413,7 @@ model Shares {
   communityId Int?     @map("community_id") @db.Int
   customerId  Int?     @map("customer_id") @db.Int
   shares      Float?   @map("shares")
+  status      String?  @map("status")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 

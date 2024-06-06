@@ -1,58 +1,28 @@
-<!-- <div class="container">
-  <h2>Login</h2>
+<div class="d-flex w-100" style="height: 100vh">
+  <div [ngClass]="{'w-100': hideImage, 'w-50': !hideImage}" class="w-50">
 
-  <div class="row justify-content-center">
-    <div class="col-12 col-lg-8">
-      <div class="card text-center">
-        <div class="card-header">
-          <ul class="nav nav-pills card-header-pills">
-            <li *ngIf="environment.web2" class="nav-item">
-              <a (click)="setWeb2()" [ngClass]="{'active': web2()}" class="nav-link">Web 2</a>
-            </li>
-            <li *ngIf="environment.web3" class="nav-item">
-              <a (click)="setWeb3()" [ngClass]="{'active': web3()}" class="nav-link">Web 3</a>
-            </li>
-          </ul>
-        </div>
-        <div class="card-body">
-          <app-web2-login-form *ngIf="environment.web2 && web2()"></app-web2-login-form>
-          <app-web3-login-form *ngIf="environment.web3 && web3()"></app-web3-login-form>
+    <div class="d-flex py-4 align-items-center flex-column w-100 h-100">
+
+      <div class="mt-5 mb-5">
+        <div class="d-flex justify-content-center w-100">
+          <img *ngIf="themeStoreService.getCurrentThemeHTML() == 'light'" src="assets/img/logos/zertipower_logo.png"
+            alt="zertifier-logo-black" style="width: 55%;">
+          <img *ngIf="themeStoreService.getCurrentThemeHTML() != 'light' "
+            src="assets/img/logos/zertipower_logo_white.png" 
+            alt="zertifier-logo-white" style="width: 55%;">
         </div>
       </div>
+
+      <div class="d-flex flex-column align-items-center">
+        <h3 class="text-center mb-4 fw-semibold mt-5" style="font-size: 45px">Iniciar sessió</h3>
+        <app-web2-login-form></app-web2-login-form>
+      </div>
+     
     </div>
 
   </div>
 
-</div> -->
-
-<div class="container-flex h-100 w-100">
-  <div class="row h-100 p-0 m-0">
-
-    <div class="col-12 col-lg-6">
-      <h2 class="text-center mb-5 fw-semibold mt-4" style="font-size: 45px">CALCULADORA <br> Comunitat Energètica Ciutadana</h2>
-      <div class="mt-2 w-100 text-center">
-        <img *ngIf="themeStoreService.getCurrentThemeHTML() == 'light'" src="assets/img/icons8-calculator-500.png" style="width: 50vw; max-width:250px !important">
-        <img *ngIf="themeStoreService.getCurrentThemeHTML() != 'light' " src="assets/img/icons8-calculator-white-500.png" style="width: 50vw; max-width:250px !important">
-<!--        <img src="assets/img/icons8-calculator-white-500.png" style="width: 50vw; max-width:250px !important">-->
-      </div>
-      <h3 class="text-center mb-4 fw-semibold mt-5" style="font-size: 45px">Inici de sessió</h3>
-      <app-web2-login-form></app-web2-login-form>
-
-    <!--  <div *ngIf="themeStoreService.getCurrentThemeHTML() == 'light'" class=" mt-4 pt-2 text-center">
-        <img class="mx-3" src="assets/img/logos/RIS3CAT_OK-dark.png">
-        <img class="mx-3" src="assets/img/logos/logo%20UE_OK-dark.png" style="width: 176px">
-      </div>
-      <div *ngIf="themeStoreService.getCurrentThemeHTML() != 'light'" class=" mt-4 pt-2 text-center">
-        <img class="mx-3" src="assets/img/logos/RIS3CAT_OK.png">
-        <img class="mx-3" src="assets/img/logos/logo%20UE_OK.png" style="width: 176px">
-      </div>-->
-
-    </div>
-
-    <div class="col-12 col-lg-6 d-none d-lg-block"  [ngStyle]="{'background-image': 'url(' + imgSource + ')'}" style=" background-image: url('assets/img/login-4.webp');background-repeat: no-repeat;background-size: cover;">
-      <!-- <img src="assets/img/solar-city.png" class="h-100" style="min-height: 100%; overflow: hidden;"> -->
-    </div>
-
-  </div>
+    <img class="w-50 h-100 d-sm-none d-none d-md-block" [src]="imgSource" alt="random image">
+    <!-- <div class="w-50 h-100 d-none d-lg-block"  [ngStyle]="{'background-image': 'url(' + imgSource + ')'}" style=" background-image: url('assets/img/login-4.webp');background-repeat: no-repeat;background-size: cover;"></div> -->
 
 </div>

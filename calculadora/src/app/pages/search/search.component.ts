@@ -927,6 +927,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
   }
 
+  optimizeSolarPanels(){
+    //TODO: change algorithm to insert solar panels or accept consumption
+  }
+
   async calculateSolarParams() {
 
     return new Promise((resolve, reject) => {

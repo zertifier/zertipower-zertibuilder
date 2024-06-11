@@ -31,6 +31,7 @@ import { LogsController } from "./features/logs.controller";
 import { DatadisEnergyController } from "./features/datadis-energy.controller";
 import {VotesController} from "./features/votes/votes.controller";
 import {SharesController} from "./features/shares/shares.controller";
+import { BlockchainEnergyDataController } from './features/blockchain-energy-data/blockchain-energy-data.controller';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import {SharesController} from "./features/shares/shares.controller";
     VotesController,
     ResponsesController,
     SharesController,
+    BlockchainEnergyDataController
 ],
 })
 export class AppModule implements NestModule {

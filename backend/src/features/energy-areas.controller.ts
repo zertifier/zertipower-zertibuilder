@@ -129,8 +129,8 @@ export class EnergyAreasController {
     const engineeringCost = 1623;
     const installationCost = [0.35, 0.3, 0.24];
     const invertersCost = [0.105, 0.087, 0.072];
-    const managementCost = [1000, 1200, 2000]; //const managementCost = [1500, 1500, 2000];
-    const panelsCost = 0.190; // const panelsCost = 0.265;
+    const managementCost = [1000, 1200, 2000]; // const managementCost = [1500, 1500, 2000];
+    const panelsCost = 0.190; //const panelsCost = 0.265;
     const structureCost = 0.07;
 
     try {

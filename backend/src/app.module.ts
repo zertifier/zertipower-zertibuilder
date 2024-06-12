@@ -31,6 +31,7 @@ import { LogsController } from "./features/logs.controller";
 import { DatadisEnergyController } from "./features/datadis-energy.controller";
 import {VotesController} from "./features/votes/votes.controller";
 import {SharesController} from "./features/shares/shares.controller";
+import { WeatherPredictionModule } from './features/weather-prediction/weather-prediction.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import {SharesController} from "./features/shares/shares.controller";
     ReportsModule,
     AuthServicesModule,
     AuthRepositoriesModule,
+    WeatherPredictionModule,
   ],
   // Do not remove controllers section cuz zertibuilder
   // can create it if it doesn't exist

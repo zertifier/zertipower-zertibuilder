@@ -57,7 +57,7 @@ export interface PredictionResponse {
 @Injectable()
 export class WeatherPredictionService {
   public async getPrediction(): Promise<PredictionResponse> {
-    const response = await axios.get<PredictionResponse>(`https://api.openweathermap.org/data/2.5/forecast?lat=42.1822177&lon=2.4890211&lang=ca&appid=6beb296f5450ed47e686b56bac297900`)
+    const response = await axios.get<PredictionResponse>(`https://api.openweathermap.org/data/2.5/forecast?units=metric&lat=42.1822177&lon=2.4890211&lang=ca&appid=6beb296f5450ed47e686b56bac297900`)
     return response.data;
   }
 }

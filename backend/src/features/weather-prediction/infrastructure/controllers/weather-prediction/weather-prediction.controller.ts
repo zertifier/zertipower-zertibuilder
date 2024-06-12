@@ -9,9 +9,8 @@ export class WeatherPredictionController {
   // A simple comment
   @Get()
   public async getPrediction(): Promise<HttpResponse> {
-    const response = HttpResponse.success("Weather fetched successfully").withData(
-      this.weatherPredictionService.getPrediction()
-    );
+    const prediction = await this.weatherPredictionService.getPrediction()
+    const response = HttpResponse.success("Weather fetched successfully").withData(prediction);
 
     return response
   }

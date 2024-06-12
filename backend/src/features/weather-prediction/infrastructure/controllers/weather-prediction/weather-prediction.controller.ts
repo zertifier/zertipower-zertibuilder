@@ -5,6 +5,7 @@ import {PredictionResponse, WeatherPredictionService} from "../../services/weath
 export class WeatherPredictionController {
   constructor(private weatherPredictionService: WeatherPredictionService) {
   }
+  // A simple comment
   @Get()
   public async getPrediction(): Promise<PredictionResponse> {
     return this.weatherPredictionService.getPrediction();

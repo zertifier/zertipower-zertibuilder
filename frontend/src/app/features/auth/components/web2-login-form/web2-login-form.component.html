@@ -1,28 +1,26 @@
 <form (ngSubmit)="login()" [formGroup]="formGroup" id="form" class="text-center">
-  <div class="my-2">
-    <app-google-signin-button></app-google-signin-button>
-  </div>
-  <div>
-    <label class="form-label" for="user">Usuari o email</label>
-    <div class="d-flex justify-content-center gap-2">
-    <input class="form-control px-2" formControlName="user" id="user" type="text" style="max-width: 70%">
-  </div>
-  </div>
-  <div>
-    <label class="form-label" for="user">Contrasenya</label>
-    <div class="d-flex justify-content-center gap-2" style="transform:translate(25px);">
-      <input appInputHide class="form-control px-2" formControlName="password" type="text" style="max-width: 70% ">
-    </div>
-  </div>
-  <div>
-    <button (click)="requestResetPassword()" class="btn btn-link" type="button">Has oblidat la teva contrasenya?</button>
+
+  <app-google-signin-button></app-google-signin-button>
+
+  <label class="form-label mt-4" for="user">Usuari o email</label>
+  <div class="d-flex justify-content-center gap-2">
+    <input class="form-control" formControlName="user" id="user" type="text">
   </div>
 
-  <div class="mt-4 row justify-content-center">
-    <div class="col-12 col-md-8 col-lg-4">
-      <button [disabled]="formGroup.invalid || loading" class="btn btn-primary px-5" form="form" type="submit">Iniciar sessió</button>
-    </div>
+  <div>
+    <label class="form-label mt-4" for="user">Contrasenya</label>
+    <input class="form-control" formControlName="password" type="text">
   </div>
+
+  <div>
+    <button (click)="requestResetPassword()" class="btn btn-link" type="button">Has oblidat la teva
+      contrasenya?</button>
+  </div>
+
+  <div>
+    <button [disabled]="formGroup.invalid || loading" class="btn btn-primary mt-5 w-100" form="form"
+      type="submit">Iniciar
+      sessió</button>
+  </div>
+
 </form>
-
-

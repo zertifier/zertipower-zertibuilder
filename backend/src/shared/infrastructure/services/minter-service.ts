@@ -5,9 +5,6 @@ import { MysqlService } from "src/shared/infrastructure/services/mysql-service/m
 import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
 const {ethers} = require("ethers");
 
-/**
- * Service used to interact with the datadis api
- */
 @Injectable()
 export class MinterService {
 

@@ -48,6 +48,8 @@ export class LoginPageComponent implements OnDestroy {
     'assets/img/login-4.webp',
   ]
 
+  public hideImage = false;
+
   constructor(
     private authStore: AuthStoreService,
     private router: Router, protected themeStoreService: ThemeStoreService,

@@ -14,8 +14,8 @@ jobs:
     steps:
       - name: Pull changes
         run: |
-          git switch dev
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+          git switch dev
           echo "Pulling and rebasing changes from github"
           git pull origin dev --rebase
 

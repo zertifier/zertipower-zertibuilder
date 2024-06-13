@@ -147,6 +147,18 @@ export class UserController {
 
   }
 
+  @Post('/wallet/email')
+  @Auth(RESOURCE_NAME)
+  async getWalletByEmail(@Body() body: {email: string}){
+    const data: any = await this.prisma.$queryRaw`
+      SELECT wallet_address walletAddress FROM users WHERE email LIKE ${body.email}
+    `
+
+    return HttpResponse.success("day energy fetched successfully").withData(
+      data[0] || []
+    );
+  }
+
   @Post("/")
   @Auth(RESOURCE_NAME)
   @ApiBearerAuth()

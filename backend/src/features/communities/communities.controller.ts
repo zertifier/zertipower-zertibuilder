@@ -11,7 +11,7 @@ import {HttpResponse} from "src/shared/infrastructure/http/HttpResponse";
 import {PrismaService} from "src/shared/infrastructure/services/prisma-service/prisma-service";
 import {MysqlService} from "src/shared/infrastructure/services/mysql-service/mysql.service";
 import {Datatable} from "src/shared/infrastructure/services/datatable/Datatable";
-import {SaveCommunitiesDTO} from "./save-communities-dto";
+import {SaveCommunitiesDTO, SaveDaoDTO} from "./save-communities-dto";
 import * as moment from "moment";
 import {ApiTags} from "@nestjs/swagger";
 import {Auth} from "src/features/auth/infrastructure/decorators";
@@ -457,8 +457,21 @@ export class CommunitiesController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCommunitiesDTO) {
-    console.log("post community", body);
     const data = await this.prisma.communities.create({data: body});
+    return HttpResponse.success("communities saved successfully").withData(
+      data
+    );
+  }
+
+  @Post(':id/dao')
+  @Auth(RESOURCE_NAME)
+  async createDao(@Param("id") id: string, @Body() body: SaveDaoDTO) {
+    const data = await this.prisma.communities.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: body
+    });
     return HttpResponse.success("communities saved successfully").withData(
       data
     );
@@ -524,6 +537,9 @@ export class CommunitiesController {
     mappedData.test = data.test;
     mappedData.geolocation = data.geolocation;
     mappedData.energyPrice = data.energyPrice;
+    mappedData.daoAddress = data.daoAddress || data.dao_address;
+    mappedData.daoName = data.daoName || data.dao_name;
+    mappedData.daoSymbol = data.daoSymbol || data.dao_symbol;
     mappedData.createdAt = data.createdAt;
     mappedData.updatedAt = data.updatedAt;
     return mappedData;

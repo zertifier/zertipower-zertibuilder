@@ -120,6 +120,9 @@ model Communities {
   energyPrice Float?    @map("energy_price")
   lat         Float?
   lng         Float?
+  daoAddress  String?   @map("dao_address") @db.VarChar(50)
+  daoName     String?   @map("dao_name") @db.VarChar(255)
+  daoSymbol   String?   @map("dao_symbol") @db.VarChar(50)
   locationId  Int?      @map("location_id")
   createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt   DateTime? @map("updated_at") @db.DateTime(0)

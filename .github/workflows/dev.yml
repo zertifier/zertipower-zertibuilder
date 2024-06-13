@@ -57,6 +57,7 @@ jobs:
         id: check_api-dev-ris3cat
         run: |
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+          cd backend
           echo "Getting api-dev-ris3cat diff"
           CHANGED_FILES=$(git diff --name-only HEAD HEAD~1 | grep "^backend/" || true)
           echo "Checking api-dev-ris3cat diff"

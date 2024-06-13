@@ -31,11 +31,8 @@ import { LogsController } from "./features/logs.controller";
 import { DatadisEnergyController } from "./features/datadis-energy.controller";
 import {VotesController} from "./features/votes/votes.controller";
 import {SharesController} from "./features/shares/shares.controller";
-<<<<<<< HEAD
 import { BlockchainEnergyDataController } from './features/blockchain-energy-data/blockchain-energy-data.controller';
-=======
 import { WeatherPredictionModule } from './features/weather-prediction/weather-prediction.module';
->>>>>>> c1363ca9ae520440c53517005b676d4985b31827
 
 @Module({
   imports: [

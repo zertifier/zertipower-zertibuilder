@@ -14,9 +14,10 @@ jobs:
     steps:
       - name: Pull changes
         run: |
+          git switch dev
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           echo "Pulling and rebasing changes from github"
-          git pull --rebase
+          git pull origin dev --rebase
 
       
       - name: Detect changes in dev-calculadora-ris3cat

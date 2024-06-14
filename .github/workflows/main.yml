@@ -85,7 +85,7 @@ jobs:
             cd /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
             echo "Deploying calculadora"
             cd frontend
-            npm i
+            npm i --legacy-peer-deps
             npm run build
             docker compose up -d calculadora-ris3cat --build --force-recreate
             echo "calculadora-ris3cat deployed"

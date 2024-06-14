@@ -106,15 +106,15 @@ export class BlockchainService {
                     types[i]=this.toKeccak256(types[i])
                     values[i] = ethers.parseUnits(values[i].toString())
                 }
-                console.log(cupsHash, timestamps, types, values)
                 const transaction = await this.smartContract.batchSetEnergyValue(cupsHash, timestamps, types, values)
-                await transaction.wait()
-                //console.log("batch transaction",transaction)
+                await transaction.wait(2);
                 resolve(transaction)
             } catch (e) {
                 if(e.reason){
                     reject(e.reason)
-                }else{
+                }else if(e.info){
+                    reject(e.info)
+                }else {
                     reject(e)
                 }
             }
@@ -134,6 +134,8 @@ export class BlockchainService {
                 let tx = await this.smartContract.setEnergyValue(cupsHash, timestamp, typeHash, value,{
                     gasPrice:gasPrice
                 })
+
+                await tx.wait(2);
 
                 console.log("setEnergyValue:", tx.hash)
 

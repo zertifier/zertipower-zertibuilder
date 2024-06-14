@@ -93,7 +93,7 @@ jobs:
       runs-on: self-hosted
       steps:
         - name: Deploy wiki-ris3cat if changed
-          if: needs.detect-changes.outputs.wiki-dev-ris3cat_changed == 'true'
+          if: needs.detect-changes.outputs.wiki-ris3cat_changed == 'true'
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying wiki-dev-ris3cat"
@@ -108,7 +108,7 @@ jobs:
       runs-on: self-hosted
       steps:
         - name: Deploy api-ris3cat if changed
-          if: needs.detect-changes.outputs.api-dev-ris3cat_changed == 'true'
+          if: needs.detect-changes.outputs.api-ris3cat_changed == 'true'
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying api-dev-ris3cat"

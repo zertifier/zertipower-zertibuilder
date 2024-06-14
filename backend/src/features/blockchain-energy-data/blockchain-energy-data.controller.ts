@@ -54,6 +54,20 @@ export class BlockchainEnergyDataController {
     }
   }
 
+  @Post(":cups/:type/:timestamp")
+  async postEnergyValue(@Param("cups") cups: string, @Param("type") type: string, @Param("timestamp") timestamp: string,@Body() body: any) {
+    console.log(cups, type, timestamp, body.kWh)
+    let energyData: any;
+    try {
+      energyData = await this.blockchainService.setEnergyValue(cups, type, timestamp,body.kWh)
+      return HttpResponse.success("Energy data registered successfully").withData(
+        energyData
+      );
+    } catch (e) {
+      return HttpResponse.failure(`Error registering energyData: ${e}`, ErrorCode.UNEXPECTED)
+    }
+  }
+
   @Post("timestamp-value-interval/:cups/:type")
   async setEnergyValueArray(@Param("cups") cups: string, @Param("type") type: string, @Body() body: any[]) {
     console.log("setEnergyValueArray")

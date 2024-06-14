@@ -88,7 +88,7 @@ jobs:
             docker compose up -d dev-calculadora-ris3cat --build --force-recreate
             echo "dev-calculadora-ris3cat deployed"
   
-  deploy-wiki-dev-ris3cat:
+  deploy-wiki-ris3cat:
       needs: detect-changes
       runs-on: self-hosted
       steps:
@@ -103,7 +103,7 @@ jobs:
             docker compose up -d wiki-dev-ris3cat --build --force-recreate
             echo "wiki-dev-ris3cat deployed"
   
-  deploy-api-dev-ris3cat:
+  deploy-api-ris3cat:
       needs: detect-changes
       runs-on: self-hosted
       steps:

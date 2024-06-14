@@ -31,3 +31,12 @@ export class SaveCommunitiesDTO {
   @IsOptional()
   updatedAt: Date;
 }
+
+export class SaveDaoDTO{
+  @IsOptional()
+  daoAddress: string;
+  @IsOptional()
+  daoName: string;
+  @IsOptional()
+  daoSymbol: string;
+}

@@ -19,6 +19,7 @@ jobs:
           LAST_COMMIT=$(git rev-parse HEAD) # Getting last commit before changes
           echo "Pulling and rebasing changes from github"
           git pull --rebase origin master
+          echo "LAST_COMMIT=${LAST_COMMIT}" >> $GITHUB_ENV
 
       
       - name: Detect changes in calculadora

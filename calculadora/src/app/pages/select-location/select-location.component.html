@@ -5,7 +5,7 @@
   <div class="row p-0 m-0 d-flex justify-content-center">
     <div class="bg-primary p-5 d-none d-md-block" style="max-width: 600px;">
       <div class="row d-flex justify-content-center align-items-center">
-        <img  src="assets/img/navbar/zertipower-logo-blanc.png" class="px-4" alt="zertipwoer-logo" style="width: 300px;">
+        <img  src="assets/img/navbar/zertipower-logo-white.png" class="px-4" alt="zertipower-logo" style="width: 510px;">
       </div>
 
       <div class="row p-0 m-0 d-flex justify-content-center align-items-center text-center">
@@ -22,12 +22,12 @@
 <!--    MOBILE-->
     <div class="bg-primary px-2 py-5 d-block d-md-none" >
       <div class="d-flex justify-content-center align-items-center">
-        <img  src="assets/img/navbar/zertipower-logo-blanc.png" class="px-4" alt="zertipwoer-logo" style="width: 300px;">
+        <img  src="assets/img/navbar/zertipower-logo-white.png" class="px-4" alt="zertipower-logo" style="width: 310px;">
       </div>
 
       <div class="p-0 m-0 d-flex justify-content-center align-items-center text-center">
         <div>
-          <label for="location" class="m-4 fs-4">Uneix-te a la transició energètica col·lectiva</label>
+          <label for="location" class="m-4 fs-4 text-light">Uneix-te a la transició energètica col·lectiva</label>
           <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
             <option></option>
             <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>

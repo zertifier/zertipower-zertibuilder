@@ -1,0 +1,119 @@
+name: Deploy dev
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  detect-changes:
+    runs-on: self-hosted
+    outputs:
+      calculadora-ris3cat_changed: ${{ steps.check_calculadora-ris3cat.outputs.changed }}
+      wiki-ris3cat_changed: ${{ steps.check_wiki-dev-ris3cat.outputs.changed }}
+      api-ris3cat_changed: ${{ steps.check_api-dev-ris3cat.outputs.changed }}
+    steps:
+      - name: Pull changes
+        run: |
+          cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+          git switch dev
+          echo "Pulling and rebasing changes from github"
+          git pull origin dev --rebase
+
+      
+      - name: Detect changes in dev-calculadora-ris3cat
+        id: check_calculadora-ris3cat
+        run: |
+          cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+          cd frontend
+          echo "Getting dev-calculadora-ris3cat diff"
+          CHANGED_FILES=$(git diff --name-only HEAD HEAD~1 | grep "^frontend/" || true)
+          echo "Checking dev-calculadora-ris3cat diff"
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Changes detected in dev-calculadora-ris3cat"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes in dev-calculadora-ris3cat"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      
+      - name: Detect changes in wiki-dev-ris3cat
+        id: check_wiki-dev-ris3cat
+        run: |
+          cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+          cd zertipower-hugo
+          echo "Getting wiki-dev-ris3cat diff"
+          CHANGED_FILES=$(git diff --name-only HEAD HEAD~1 | grep "^zertipower-hugo/" || true)
+          echo "Checking wiki-dev-ris3cat diff"
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Changes detected in wiki-dev-ris3cat"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes in wiki-dev-ris3cat"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      
+      - name: Detect changes in api-dev-ris3cat
+        id: check_api-dev-ris3cat
+        run: |
+          cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+          cd backend
+          echo "Getting api-dev-ris3cat diff"
+          CHANGED_FILES=$(git diff --name-only HEAD HEAD~1 | grep "^backend/" || true)
+          echo "Checking api-dev-ris3cat diff"
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Changes detected in api-dev-ris3cat"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes in api-dev-ris3cat"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      
+
+  
+  deploy-calculadora-ris3cat:
+      needs: detect-changes
+      runs-on: self-hosted
+      steps:
+        - name: Deploy calculadora-ris3cat if changed
+          if: needs.detect-changes.outputs.calculadora-ris3cat_changed == 'true'
+          run: |
+            cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+            echo "Deploying dev-calculadora-ris3cat"
+            cd frontend
+            npm i --legacy-peer-deps
+            npm run build
+            docker compose up -d dev-calculadora-ris3cat --build --force-recreate
+            echo "dev-calculadora-ris3cat deployed"
+  
+  deploy-wiki-ris3cat:
+      needs: detect-changes
+      runs-on: self-hosted
+      steps:
+        - name: Deploy wiki-ris3cat if changed
+          if: needs.detect-changes.outputs.wiki-dev-ris3cat_changed == 'true'
+          run: |
+            cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+            echo "Deploying wiki-dev-ris3cat"
+            cd zertipower-hugo
+            npm i
+            hugo
+            docker compose up -d wiki-dev-ris3cat --build --force-recreate
+            echo "wiki-dev-ris3cat deployed"
+  
+  deploy-api-ris3cat:
+      needs: detect-changes
+      runs-on: self-hosted
+      steps:
+        - name: Deploy api-ris3cat if changed
+          if: needs.detect-changes.outputs.api-dev-ris3cat_changed == 'true'
+          run: |
+            cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+            echo "Deploying api-dev-ris3cat"
+            cd backend
+            npm i
+            npx prisma generate
+            docker compose up -d api-dev-ris3cat --build --force-recreate
+            echo "api-dev-ris3cat deployed"

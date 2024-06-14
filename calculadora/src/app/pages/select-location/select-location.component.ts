@@ -17,13 +17,11 @@ export class SelectLocationComponent {
     selectedLocation:any;
 
     constructor(private locationService:LocationService,private router:Router){
-
         this.locationService.getLocations().subscribe(async (res:any)=>{
             this.locations= res.data;
         },(error:any)=>{
             console.log("error getting locations: ", error)
         })
-
     }
 
     selectLocation(selectedLocation:any){

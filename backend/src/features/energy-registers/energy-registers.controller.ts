@@ -16,6 +16,7 @@ import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import {ErrorCode} from "../../shared/domain/error";
+import { BlockchainService } from "src/shared/infrastructure/services/blockchain-service";
 
 export const RESOURCE_NAME = "energyRegisters";
 
@@ -46,6 +47,7 @@ export class EnergyRegistersController {
       "energy_registers fetched successfully"
     ).withData(data);
   }
+
 
 
   @Post()

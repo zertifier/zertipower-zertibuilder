@@ -530,7 +530,6 @@ export class CommunitiesController {
     );
   }
 
-
   mapData(data: any) {
     const mappedData: any = {};
     mappedData.id = data.id;

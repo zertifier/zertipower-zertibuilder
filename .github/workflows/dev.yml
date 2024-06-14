@@ -8,9 +8,9 @@ jobs:
   detect-changes:
     runs-on: self-hosted
     outputs:
-      dev-calculadora-ris3cat_changed: ${{ steps.check_calculadora-ris3cat.outputs.changed }}
-      wiki-dev-ris3cat_changed: ${{ steps.check_wiki-dev-ris3cat.outputs.changed }}
-      api-dev-ris3cat_changed: ${{ steps.check_api-dev-ris3cat.outputs.changed }}
+      calculadora-ris3cat_changed: ${{ steps.check_calculadora-ris3cat.outputs.changed }}
+      wiki-ris3cat_changed: ${{ steps.check_wiki-dev-ris3cat.outputs.changed }}
+      api-ris3cat_changed: ${{ steps.check_api-dev-ris3cat.outputs.changed }}
     steps:
       - name: Pull changes
         run: |
@@ -21,7 +21,7 @@ jobs:
 
       
       - name: Detect changes in dev-calculadora-ris3cat
-        id: check_dev-calculadora-ris3cat
+        id: check_calculadora-ris3cat
         run: |
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           cd frontend
@@ -77,8 +77,8 @@ jobs:
       needs: detect-changes
       runs-on: self-hosted
       steps:
-        - name: Deploy dev-calculadora-ris3cat if changed
-          if: needs.detect-changes.outputs.dev-calculadora-ris3cat_changed == 'true'
+        - name: Deploy calculadora-ris3cat if changed
+          if: needs.detect-changes.outputs.calculadora-ris3cat_changed == 'true'
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying dev-calculadora-ris3cat"
@@ -92,7 +92,7 @@ jobs:
       needs: detect-changes
       runs-on: self-hosted
       steps:
-        - name: Deploy wiki-dev-ris3cat if changed
+        - name: Deploy wiki-ris3cat if changed
           if: needs.detect-changes.outputs.wiki-dev-ris3cat_changed == 'true'
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
@@ -107,7 +107,7 @@ jobs:
       needs: detect-changes
       runs-on: self-hosted
       steps:
-        - name: Deploy api-dev-ris3cat if changed
+        - name: Deploy api-ris3cat if changed
           if: needs.detect-changes.outputs.api-dev-ris3cat_changed == 'true'
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder

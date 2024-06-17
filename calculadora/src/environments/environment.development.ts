@@ -1,6 +1,6 @@
 export const environment = {
-  production:true,
-	api_url: "https://api-dev-ris3cat.zertifier.com",
+  production:false,
+	api_url: "http://localhost:3000",
   datetime_format: 'YYYY-MM-DD HH:mm:ss',
   date_format: 'YYYY-MM-DD',
   time_format: 'HH:mm:ss',

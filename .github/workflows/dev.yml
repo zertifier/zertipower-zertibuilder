@@ -16,8 +16,10 @@ jobs:
         run: |
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           git switch dev
+          LAST_COMMIT=$(git rev-parse HEAD) # Getting last commit before changes
           echo "Pulling and rebasing changes from github"
           git pull origin dev --rebase
+          echo "LAST_COMMIT=${LAST_COMMIT}" >> $GITHUB_ENV
 
       
       - name: Detect changes in dev-calculadora-ris3cat
@@ -26,7 +28,7 @@ jobs:
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           cd frontend
           echo "Getting dev-calculadora-ris3cat diff"
-          CHANGED_FILES=$(git diff --name-only HEAD HEAD~1 | grep "^frontend/" || true)
+          CHANGED_FILES=$(git diff --name-only HEAD $LAST_COMMIT | grep "^frontend/" || true)
           echo "Checking dev-calculadora-ris3cat diff"
           if [ -n "$CHANGED_FILES" ]; then
             echo "Changes detected in dev-calculadora-ris3cat"
@@ -43,7 +45,7 @@ jobs:
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           cd zertipower-hugo
           echo "Getting wiki-dev-ris3cat diff"
-          CHANGED_FILES=$(git diff --name-only HEAD HEAD~1 | grep "^zertipower-hugo/" || true)
+          CHANGED_FILES=$(git diff --name-only HEAD $LAST_COMMIT | grep "^zertipower-hugo/" || true)
           echo "Checking wiki-dev-ris3cat diff"
           if [ -n "$CHANGED_FILES" ]; then
             echo "Changes detected in wiki-dev-ris3cat"
@@ -60,7 +62,7 @@ jobs:
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           cd backend
           echo "Getting api-dev-ris3cat diff"
-          CHANGED_FILES=$(git diff --name-only HEAD HEAD~1 | grep "^backend/" || true)
+          CHANGED_FILES=$(git diff --name-only HEAD $LAST_COMMIT | grep "^backend/" || true)
           echo "Checking api-dev-ris3cat diff"
           if [ -n "$CHANGED_FILES" ]; then
             echo "Changes detected in api-dev-ris3cat"
@@ -93,7 +95,7 @@ jobs:
       runs-on: self-hosted
       steps:
         - name: Deploy wiki-ris3cat if changed
-          if: needs.detect-changes.outputs.wiki-dev-ris3cat_changed == 'true'
+          if: needs.detect-changes.outputs.wiki-ris3cat_changed == 'true'
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying wiki-dev-ris3cat"
@@ -108,7 +110,7 @@ jobs:
       runs-on: self-hosted
       steps:
         - name: Deploy api-ris3cat if changed
-          if: needs.detect-changes.outputs.api-dev-ris3cat_changed == 'true'
+          if: needs.detect-changes.outputs.api-ris3cat_changed == 'true'
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying api-dev-ris3cat"

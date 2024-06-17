@@ -869,7 +869,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
    *  calculates the excedent energy price, the consumption saving price and the years to amortize the investment.
    */
   calculateMonthlySavings() {
-    console.log("HOLI")
+    
     let monthAverageGeneration: number = this.selectedCadastre.yearGeneration! / 12;
     let monthAverageConsumption: number = this.selectedCadastre.yearConsumption! / 12;
     let oldMonthAverageConsumption:number = monthAverageConsumption;

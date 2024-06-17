@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable, map } from 'rxjs';
-import {environment} from "../../environments/environment.prod";
 import moment from 'moment';
 import { HttpResponse } from '../interfaces/http-response';
+import { environment } from '../../environments/environment';
 
 export interface EnergyBlocksApiInterface {
   id: number;

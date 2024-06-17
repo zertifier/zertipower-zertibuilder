@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable, map } from 'rxjs';
-import {environment} from "../../environments/environment.prod";
 import { HttpResponse } from '../interfaces/http-response';
 import moment from 'moment';
+import { environment } from '../../environments/environment';
 
 export interface CommunitiesApiInterface {
   id: number;

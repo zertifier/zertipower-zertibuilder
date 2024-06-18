@@ -33,6 +33,8 @@ import {VotesController} from "./features/votes/votes.controller";
 import {SharesController} from "./features/shares/shares.controller";
 import { BlockchainEnergyDataController } from './features/blockchain-energy-data/blockchain-energy-data.controller';
 import { WeatherPredictionModule } from './features/weather-prediction/weather-prediction.module';
+import { EnergyPredictionModule } from './features/energy-prediction/energy-prediction.module';
+import { CommunitiesModule } from './features/communities/communities.module';
 
 @Module({
   imports: [
@@ -49,13 +51,14 @@ import { WeatherPredictionModule } from './features/weather-prediction/weather-p
     AuthServicesModule,
     AuthRepositoriesModule,
     WeatherPredictionModule,
+    EnergyPredictionModule,
+    CommunitiesModule,
   ],
   // Do not remove controllers section cuz zertibuilder
   // can create it if it doesn't exist
   controllers: [
     CalendarController,           
-    CommunitiesController,           
-    CupsController,           
+    CupsController,
     CustomersController,           
     EnergyBlocksController,           
     EnergyTransactionsController,           

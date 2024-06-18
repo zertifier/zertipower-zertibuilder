@@ -71,6 +71,17 @@
       "required": true,
       "type": "string",
       "default": "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"
+    },
+    {
+      "name": "RADIATION_API",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "RADIATION_API_CREDENTIALS",
+      "required": true,
+      "description": "the notation is the following RADIATION_API_CREDENTIALS=<user>:<password>",
+      "type": "string"
     }
   ]
 }

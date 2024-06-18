@@ -11,4 +11,6 @@ export interface EnvVariables {
   FRONTEND_URL: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
+  RADIATION_API: string;
+  RADIATION_API_CREDENTIALS: string;
 }

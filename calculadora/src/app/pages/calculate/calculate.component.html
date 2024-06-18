@@ -1,0 +1,505 @@
+<!-- HEADER CALCULATE -->
+
+<div class="header-calculate d-flex align-items-center w-100 px-1 px-md-5 row m-0">
+
+    <div class="col-12 col-md-6 logo-zertipower-container d-flexjustify-content-center py-3">
+        <img src="assets/img/navbar/zertipower-logo-white.png" class="w-100" alt="zertipower-logo"
+            style="max-width:300px;">
+    </div>
+
+    <div class="d-none d-md-block col-6 eslogan text-white text-end">
+        Uneix-te a la transició col·lectiva
+    </div>
+
+    <div class="d-block d-md-none col-12 eslogan text-white text-center pb-3">Uneix-te a la transició col·lectiva</div>
+</div>
+
+<div class="my-4 p-4">
+    <h4 class="h4 d-flex justify-content-center">Calcula el teu estalvi energètic en 6 passos</h4>
+    <span class="d-flex justify-content-center">Explora i edita les pestanyes. Recorda que pots saltar d'una pestanya a
+        una altre per a editar la informació abans de guardar</span>
+</div>
+
+<!-- END HEADER CALCULATE -->
+
+<div class="container">
+
+    <div class="card p-2 p-md-5 mb-5">
+
+        <!-- SELECT ZONE -->
+
+        <div class="d-flex align-items-center w-100 mb-2 mb-md-4" data-bs-toggle="collapse"
+            data-bs-target="#collapse-location-step" aria-expanded="false" aria-controls="collapse-location-step"
+            (click)="changeStep(1)">
+
+            <div class="p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    [ngClass]="stepActive!=1 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                </svg>
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    [ngClass]="stepActive==1 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+                </svg>
+            </div>
+
+            <div [ngClass]=getStepClasses(1)>
+
+                <div class="d-flex justify-content-between align-items-center w-100 ">
+
+                    <span>
+                        Seleccionar una població
+                    </span>
+
+                    <div [ngClass]="stepsCompleted[0] ? 'd-block d-flex align-items-center' : 'd-none'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#229954"
+                            class="bi bi-check-circle-fill success" viewBox="0 0 16 16">
+                            <path
+                                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                        </svg>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SELECT ZONE COLAPSE -->
+
+        <div class="collapse" [ngClass]="{'show':stepActive==1}" id="collapse-location-step">
+            <div class="section-content-padding">
+
+                <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
+                    <option></option>
+                    <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
+                  </select>
+
+                <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
+
+                    <a class="d-flex">
+                        <!-- <div class="arrow-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                            </svg>
+                        </div>
+                        <span class="ms-2">Enrere</span> -->
+                    </a>
+
+                    <a class="d-flex" (click)="changeStep(2)">
+                        <span class="me-2">Endavant</span>
+
+                        <div class="arrow-right">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+                            </svg>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- SELECT COMMUNITY -->
+
+        <div class="d-flex align-items-center w-100 mb-4" data-bs-toggle="collapse"
+            data-bs-target="#collapse-community-selection-step" aria-expanded="false"
+            aria-controls="collapse-community-selection-step" (click)="changeStep(2)">
+
+            <div class="p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                [ngClass]="stepActive!=2 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+            </svg>
+
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                [ngClass]="stepActive==2 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+            </svg>
+            </div>
+
+            <div [ngClass]="getStepClasses(2)">
+
+                <div class="d-flex justify-content-between align-items-center w-100">
+
+                    <span>
+                        Seleccionar una comunitat
+                    </span>
+
+                    <div [ngClass]="stepsCompleted[2] ? 'd-block d-flex align-items-center' : 'd-none'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#229954"
+                            class="bi bi-check-circle-fill success" viewBox="0 0 16 16">
+                            <path
+                                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                        </svg>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SELECT COMMUNITY COLAPSE -->
+
+        <div class="collapse" id="collapse-community-selection-step" [ngClass]="{'show':stepActive==2}">
+            <div class="section-content-padding">
+
+                SELECT COMMUNITY
+
+                <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
+
+                    <a class="d-flex" (click)="changeStep(1)">
+                        <div class="arrow-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                            </svg>
+                        </div>
+                        <span class="ms-2">Enrere</span>
+                    </a>
+
+                    <a class="d-flex" (click)="changeStep(3)">
+                        <span class="me-2">Endavant</span>
+
+                        <div class="arrow-right">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+                            </svg>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- COMMUNITY DATA -->
+
+        <div class="d-flex align-items-center w-100 mb-4" data-bs-toggle="collapse"
+            data-bs-target="#collapse-community-data-step" aria-expanded="false"
+            aria-controls="collapse-community-data-step" (click)="changeStep(3)">
+
+            <div class="p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                [ngClass]="stepActive!=3 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+            </svg>
+
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                [ngClass]="stepActive==3 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+            </svg>
+            </div>
+
+            <div [ngClass]="getStepClasses(3)">
+
+                <div class="d-flex justify-content-between align-items-center w-100">
+
+                    <span>
+                        Dades de la comunitat
+                    </span>
+
+                    <div [ngClass]="stepsCompleted[3] ? 'd-block d-flex align-items-center' : 'd-none'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#229954"
+                            class="bi bi-check-circle-fill success" viewBox="0 0 16 16">
+                            <path
+                                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                        </svg>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- COMMUNITY DATA COLAPSE -->
+
+        <div class="collapse" id="collapse-community-data-step" [ngClass]="{'show':stepActive==3}">
+            <div class="section-content-padding">
+
+                COMMUNITY DATA
+
+                <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
+
+                    <a class="d-flex" (click)="changeStep(2)">
+                        <div class="arrow-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                            </svg>
+                        </div>
+                        <span class="ms-2">Enrere</span>
+                    </a>
+
+                    <a class="d-flex" (click)="changeStep(4)">
+                        <span class="me-2">Endavant</span>
+
+                        <div class="arrow-right">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+                            </svg>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- SELECT AREA DATA -->
+
+        <div class="d-flex align-items-center w-100 mb-4" data-bs-toggle="collapse"
+            data-bs-target="#collapse-area-step" aria-expanded="false"
+            aria-controls="collapse-area-step" (click)="changeStep(4)">
+
+            <div class="p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    [ngClass]="stepActive!=4 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                </svg>
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    [ngClass]="stepActive==4 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+                </svg>
+            </div>
+
+            <div [ngClass]="getStepClasses(4)">
+
+                <div class="d-flex justify-content-between align-items-center w-100">
+
+                    <span>
+                       Seleccionar àrea
+                    </span>
+
+                    <div [ngClass]="stepsCompleted[4] ? 'd-block d-flex align-items-center' : 'd-none'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#229954"
+                            class="bi bi-check-circle-fill success" viewBox="0 0 16 16">
+                            <path
+                                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                        </svg>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SELECT AREA COLAPSE -->
+
+        <div class="collapse" id="collapse-area-step" [ngClass]="{'show':stepActive==4}">
+            <div class="section-content-padding">
+
+                Seleccionar àrea
+
+                <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
+
+                    <a class="d-flex" (click)="changeStep(3)">
+                        <div class="arrow-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                            </svg>
+                        </div>
+                        <span class="ms-2">Enrere</span>
+                    </a>
+
+                    <a class="d-flex" (click)="changeStep(5)">
+                        <span class="me-2">Endavant</span>
+
+                        <div class="arrow-right">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+                            </svg>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- CALCULATE AREA -->
+
+        <div class="d-flex align-items-center w-100 mb-4" data-bs-toggle="collapse"
+            data-bs-target="#collapse-calculate-step" aria-expanded="false"
+            aria-controls="collapse-calculate-step" (click)="changeStep(5)">
+
+            <div class="p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    [ngClass]="stepActive!=5 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                </svg>
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    [ngClass]="stepActive==5 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+                </svg>
+            </div>
+
+            <div [ngClass]="getStepClasses(5)">
+
+                <div class="d-flex justify-content-between align-items-center w-100">
+
+                    <span>
+                        Calcular producció de l'àrea selecionada
+                    </span>
+
+                    <div [ngClass]="stepsCompleted[5] ? 'd-block d-flex align-items-center' : 'd-none'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#229954"
+                            class="bi bi-check-circle-fill success" viewBox="0 0 16 16">
+                            <path
+                                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                        </svg>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CALCULATE AREA COLAPSE -->
+
+        <div class="collapse" id="collapse-calculate-step" [ngClass]="{'show':stepActive==5}">
+            <div class="section-content-padding">
+
+                calcular producció
+
+                <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
+
+                    <a class="d-flex" (click)="changeStep(4)">
+                        <div class="arrow-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                            </svg>
+                        </div>
+                        <span class="ms-2">Enrere</span>
+                    </a>
+
+                    <a class="d-flex" (click)="changeStep(6)">
+                        <span class="me-2">Endavant</span>
+
+                        <div class="arrow-right">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+                            </svg>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD COMMUNITY DATA -->
+
+        <div class="d-flex align-items-center w-100 mb-4" data-bs-toggle="collapse"
+            data-bs-target="#collapse-area-add-step" aria-expanded="false"
+            aria-controls="collapse-area-add-step" (click)="changeStep(6)">
+
+            <div class="p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                [ngClass]="stepActive!=6 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+            </svg>
+
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                [ngClass]="stepActive==6 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+            </svg>
+            </div>
+
+            <div [ngClass]="getStepClasses(6)">
+
+                <div class="d-flex justify-content-between align-items-center w-100">
+
+                    <span>
+                        Dades de la comunitat
+                    </span>
+
+                    <div [ngClass]="stepsCompleted[1] ? 'd-block d-flex align-items-center' : 'd-none'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#229954"
+                            class="bi bi-check-circle-fill success" viewBox="0 0 16 16">
+                            <path
+                                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                        </svg>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ADD COMMUNITY COLAPSE -->
+
+        <div class="collapse" id="collapse-area-add-step" [ngClass]="{'show':stepActive==6}">
+            <div class="section-content-padding">
+
+                SELECT COMMUNITY
+
+                <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
+
+                    <a class="d-flex" (click)="changeStep(5)">
+                        <div class="arrow-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                            </svg>
+                        </div>
+                        <span class="ms-2">Enrere</span>
+                    </a>
+
+                    <a class="d-flex">
+                       
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- end of colapse list -->
+
+    </div>
+</div>
+
+<div class="footer-calculate  w-100 p-3">
+    <div class="logo-zertifier-container d-flex justify-content-center">
+        <a [routerLink]="['/']" class="navbar-brand text-center">
+            <img src="assets/img/logos/zertifier-logo-white.svg" class="px-3" alt="zertipower-logo"
+                style="width: 265px;">
+        </a>
+    </div>
+    <div class="text-center text-white  d-flex justify-content-center mt-4">Zertifier 2024</div>
+</div>

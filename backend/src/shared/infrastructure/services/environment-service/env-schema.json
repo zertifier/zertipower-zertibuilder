@@ -67,6 +67,11 @@
       "default": "54427535362-qtrtkchvp819ap43s8gf19aiaglhfdvd.apps.googleusercontent.com"
     },
     {
+      "name": "RADIATION_API",
+      "required": true,
+      "type": "string"
+    },
+    {
       "name": "GOOGLE_CLIENT_SECRET",
       "required": true,
       "type": "string",

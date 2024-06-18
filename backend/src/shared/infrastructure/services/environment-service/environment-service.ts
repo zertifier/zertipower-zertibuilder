@@ -26,6 +26,7 @@ export class EnvironmentService implements OnModuleInit {
     FRONTEND_URL: "",
     GOOGLE_CLIENT_SECRET: "",
     GOOGLE_CLIENT_ID: "",
+    RADIATION_API: "",
   };
 
   onModuleInit(): any {

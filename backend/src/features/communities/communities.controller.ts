@@ -17,6 +17,7 @@ import {ApiTags} from "@nestjs/swagger";
 import {Auth} from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
 import { UnexpectedError } from "src/shared/domain/error/common";
+import {CommunitiesStatsService} from "./communities-stats/communities-stats.service";
 
 export const RESOURCE_NAME = "communities";
 
@@ -27,7 +28,12 @@ export class CommunitiesController {
 
   private conn: mysql.Pool;
 
-  constructor(private prisma: PrismaService, private datatable: Datatable, private mysql: MysqlService) {
+  constructor(
+    private prisma: PrismaService,
+    private datatable: Datatable,
+    private mysql: MysqlService,
+    private statsService: CommunitiesStatsService,
+  ) {
     this.conn = this.mysql.pool;
   }
 

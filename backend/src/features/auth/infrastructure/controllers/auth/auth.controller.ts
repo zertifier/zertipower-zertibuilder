@@ -117,9 +117,9 @@ export class AuthController {
       throw new MissingParameters("Register user error: missing parameters");
     }
 
-    if (!email.includes("gmail")) {
-      throw new MissingParameters("Register user error: a gmail address is needed");
-    }
+    // if (!email.includes("gmail")) {
+    //   throw new MissingParameters("Register user error: a 'gmail.com' address is needed");
+    // }
 
     try {
 

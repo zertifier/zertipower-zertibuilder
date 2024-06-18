@@ -2,7 +2,6 @@ import {Injectable} from '@nestjs/common';
 import {Axios} from "axios";
 import {EnvironmentService} from "../../../../shared/infrastructure/services";
 import {InfrastructureError} from "../../../../shared/domain/error/common";
-import * as http from "node:http";
 
 const VAR_CODES = {
   WEATHER_FORECAST_SOLAR_RAD: '',

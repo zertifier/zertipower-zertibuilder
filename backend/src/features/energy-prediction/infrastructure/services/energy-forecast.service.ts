@@ -26,6 +26,8 @@ export class EnergyForecastService {
   private solarRadiationForecastVarId = '';
   private solarRadiationVarId = '';
   private token = '';
+  private user = this.environment.getEnv().RADIATION_API_CREDENTIALS.split(":")[0];
+  private password = this.environment.getEnv().RADIATION_API_CREDENTIALS.split(":")[0];
 
   constructor(private environment: EnvironmentService) {
     this.httpClient.interceptors.request.use(async (config) => {
@@ -56,7 +58,10 @@ export class EnergyForecastService {
           timeZone: string
         }[]
       }[]
-    }>('/wthirdparty/v1/auth/login');
+    }>('/wthirdparty/v1/auth/login', {
+      User: this.user,
+      Password: this.password
+    });
 
     const project = response.data.projectList[0];
     if (!project) {

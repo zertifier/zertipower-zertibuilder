@@ -8,7 +8,7 @@ export class CommunitiesStatsService {
     private prisma: PrismaService,
   ) {
   }
-  public async statsDaily(id: number, start: Date, end: Date) {
+  public async statsDaily(id: number, start: Date, end: Date, origin = 'datadis') {
     const startDate = moment(start).format('YYYY-MM-DD');
     const endDate = moment(end).format('YYYY-MM-DD');
 
@@ -40,7 +40,7 @@ SELECT
 	WHERE
 		c.type != 'community'
 		AND (eh.info_dt BETWEEN '${startDate}' AND '${endDate}')
-		AND c.community_id = 7
+		AND c.community_id = ${id}
 	GROUP BY
 		eh.info_dt
 ), surplus AS (
@@ -57,8 +57,8 @@ SELECT
 	WHERE
 		c.type = 'community'
 		AND (info_dt BETWEEN '${startDate}' AND '${endDate}')
-		AND c.community_id = 7
-		AND origin = 'datadis'
+		AND c.community_id = ${id}
+		AND origin = '${origin}'
 	GROUP BY
 		eh.info_dt
 )

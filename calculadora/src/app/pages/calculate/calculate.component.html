@@ -2,7 +2,12 @@
 
 <div class="header-calculate d-flex align-items-center w-100 px-1 px-md-5 row m-0">
 
-    <div class="col-12 col-md-6 logo-zertipower-container d-flexjustify-content-center py-3">
+    <div class="d-none d-md-block col-12 col-md-6 logo-zertipower-container py-3">
+        <img src="assets/img/navbar/zertipower-logo-white.png" class="w-100" alt="zertipower-logo"
+            style="max-width:300px;">
+    </div>
+
+    <div class="d-block d-md-none col-12 logo-zertipower-container d-flex justify-content-center py-3">
         <img src="assets/img/navbar/zertipower-logo-white.png" class="w-100" alt="zertipower-logo"
             style="max-width:300px;">
     </div>
@@ -275,15 +280,16 @@
                 <div class="d-flex w-100">
                     <div class="custom-chart mb-4" style="width:95%; position:relative">
                         <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType"
-                          [labels]="monthChartLabels" [datasets]="communityMonthChartDatasets"
-                          [options]="communityMonthChartOptions"
-                          [updateSubject]="communityUpdateMonthChartSubject.asObservable()"></app-chart>
-                        <div *ngIf="!selectedCommunity || (!selectedCommunity.cups_number && !addedAreas.length)" class="chart-message">Agrega àrees per
-                          obtenir dades comunitàries
+                            [labels]="monthChartLabels" [datasets]="communityMonthChartDatasets"
+                            [options]="communityMonthChartOptions"
+                            [updateSubject]="communityUpdateMonthChartSubject.asObservable()"></app-chart>
+                        <div *ngIf="!selectedCommunity || (!selectedCommunity.cups_number && !addedAreas.length)"
+                            class="chart-message">Agrega àrees per
+                            obtenir dades comunitàries
                         </div>
-                      </div>
+                    </div>
                 </div>
-                
+
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
                     <a class="d-flex" (click)="changeStep(2)">
@@ -315,8 +321,9 @@
 
         <!-- SELECT AREA DATA -->
 
-        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" data-bs-toggle="collapse" data-bs-target="#collapse-area-step"
-            aria-expanded="false" aria-controls="collapse-area-step" (click)="changeStep(4)">
+        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" data-bs-toggle="collapse"
+            data-bs-target="#collapse-area-step" aria-expanded="false" aria-controls="collapse-area-step"
+            (click)="changeStep(4)">
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -360,15 +367,18 @@
         <div class="collapse" id="collapse-area-step" [ngClass]="{'show':stepActive==4}">
             <div class="section-content-padding row">
 
-                <span>Fes click en una àrea per veure les seves dades i simular que passaria si s'afegeix a la comunitat.</span>
+                <span>Fes click en una àrea per veure les seves dades i simular que passaria si s'afegeix a la
+                    comunitat.</span>
 
                 <div class="col-12 col-md-4 mt-2 mt-md-4 d-flex align-items-center">
-                    <span *ngIf="selectedLocation" >Població seleccionada: {{this.selectedLocation.municipality}}</span>
+                    <span *ngIf="selectedLocation">Població seleccionada: {{this.selectedLocation.municipality}}</span>
                 </div>
 
                 <div class="col-12 col-md-4 mt-2 mt-md-4 d-flex align-items-center">
-                    <span *ngIf="!this.selectedCommunity || !this.selectedCommunity.name">Comunitat seleccionada: Nova comunitat</span>
-                    <span *ngIf="this.selectedCommunity && this.selectedCommunity.name">Comunitat seleccionada: {{this.selectedCommunity.name}}</span>
+                    <span *ngIf="!this.selectedCommunity || !this.selectedCommunity.name">Comunitat seleccionada: Nova
+                        comunitat</span>
+                    <span *ngIf="this.selectedCommunity && this.selectedCommunity.name">Comunitat seleccionada:
+                        {{this.selectedCommunity.name}}</span>
                 </div>
 
                 <div class="w-100 mt-2 mt-md-4" style="height: 550px;">
@@ -452,7 +462,105 @@
         <div class="collapse" id="collapse-calculate-step" [ngClass]="{'show':stepActive==5}">
             <div class="section-content-padding">
 
-                calcular producció
+                <span>Tria el consum que vols veure</span>
+
+                <div class="container d-flex justify-content-center align-items-center">
+                    <div
+                        class="d-flex flex-column flex-md-row justify-content-center align-items-center btn-container w-100">
+                        <button type="button" class="btn w-md-auto  m-2 m-md-4 w-100"
+                            [ngClass]="activeIndividual?'bg-complement':'btn-secondary'" style="max-width: 300px;"
+                            (click)="activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()">Estalvi
+                            autoconsum</button>
+                        <button type="button" class="btn w-md-auto m-2 m-md-4 w-100"
+                            [ngClass]="activeCommunity?'bg-complement':'btn-secondary'" style="max-width: 300px;"
+                            (click)="activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()">Estalvi
+                            membre comunitari</button>
+                    </div>
+                </div>
+
+                <div class="row ps-0 m-0 pb-2 mt-4 ">
+
+                    <!-- metres quadrats -->
+                    <div class="col-6 col-md-4 col-lg-4">
+                        <div>
+                            <span>M² de l'àrea</span>
+                        </div>
+                        <div>
+                            <input type="number" class="form-select number-input" [(ngModel)]="this.selectedCadastre.m2"
+                                (change)="updateCadastreChart()" min="0" step="0">
+                        </div>
+
+                    </div>
+
+                    <!-- n plaques -->
+                    <div class="col-6 col-md-4 col-lg-4 mb-2 mb-md-4">
+                        <div>
+                            <span> Nº de plaques</span>
+                        </div>
+                        <div>
+                            <input type="number" class="form-control number-input disabled"
+                                [(ngModel)]="this.selectedCadastre.n_plaques" (change)="updateCadastreChart()" min="0"
+                                step="0" disabled>
+                        </div>
+                    </div>
+
+                    <!-- Anys per amortitzar -->
+                    <div class="col-6 col-md-4 col-lg-4 mb-2 mb-md-4">
+
+                        <div>
+                            <span>Anys per amortitzar</span>
+                        </div>
+
+                        <div>
+                            <input type="number" class="form-control number-input w-100" disabled readonly
+                                [value]="this.selectedCadastre.redeemYears">
+                        </div>
+
+                    </div>
+
+                    <!-- Cost inicial d'inversió -->
+                    <div class="col-6 col-md-4 col-lg-4 mb-2 mb-md-4">
+
+                        <div>
+                            <span>Cost d'inversió</span>
+                        </div>
+
+                        <div>
+                            <input type="number" class="form-control number-input w-100" readonly disabled
+                                [value]="this.selectedCadastre.totalCost">
+                        </div>
+
+                    </div>
+
+                    <!-- Estalvi mensual -->
+                    <div class="col-6 col-md-4 col-lg-4 mb-2 mb-md-4">
+
+                        <div>
+                            <span>Estalvi mensual</span>
+                        </div>
+
+                        <div>
+                            <input type="number" class="form-control number-input w-100" disabled readonly
+                                [value]="this.selectedCadastre.monthlySavings">
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div *ngIf="activeIndividual" class="d-flex w-100">
+                    <div class="custom-chart mb-4" style="width:95%; position:relative">
+                        <app-chart [chartId]="'selectedCadastre'" [chartType]="selectedCadastreMonthChartType"
+                            [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
+                            [options]="communityMonthChartOptions"
+                            [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()"></app-chart>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center mb-2 mb-md-4">
+                    <button class="btn mx-2 btn-primary"> Ajustar dades</button>
+                </div>
+
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 

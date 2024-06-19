@@ -143,19 +143,19 @@ export class CalculateComponent {
           labels: {
             usePointStyle: true,
             pointStyle: 'circle',
-            color: 'rgb(246,246,246)'
+            color: '#0E2B4C'
           }
         }
       },
       scales: {
         y: {
           ticks: {
-            color: 'rgb(246,246,246)'
+            color: '#0E2B4C'
           }
         },
         x: {
           ticks: {
-            color: 'rgb(246,246,246)'
+            color: '#0E2B4C'
           }
         }
       }
@@ -312,11 +312,11 @@ export class CalculateComponent {
       Swal.fire("Selecciona una comunitat",'Selecciona una comunitat per avançar al següent pas.','info')
       return;
     }
+    if(stepDestination==3){
+      this.stepsCompleted[2]=1;
+    }
     if(stepDestination==4){
       this.stepsCompleted[3]=1;
-    }
-    if(stepDestination==5){
-      this.stepsCompleted[4]=1;
     }
 
     this.stepActive = stepDestination;
@@ -1034,54 +1034,54 @@ export class CalculateComponent {
     return sizePx < 768;
   }
 
-  setMobileDesktopOptions() {
-    this.communityMonthChartOptions =
-    {
-      scales: {
-        y: {
-          ticks: {
-            color: 'rgb(246,246,246)'
-          }
-        },
-        x: {
-          ticks: {
-            color: 'rgb(246,246,246)'
-          }
-        }
-      },
-      interaction: {
-        // intersect: false,
-        intersect: true,
-        mode: 'index',
-        // mode: 'nearest',
-      },
-      indexAxis: this.isMobile ? 'y' : 'x',
-      aspectRatio: this.isMobile ? 1 : 1.5,
-      elements: {
-        bar: {
-          borderWidth: 0,
-        }
-      },
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: (ctx: any) => {
-            const { axis = 'y', intersect, mode = 'nearest' } = ctx.chart.options.interaction;
-            return 'Mode: ' + mode + ', axis: ' + axis + ', intersect: ' + intersect;
-          }
-        },
-        legend: {
-          position: 'bottom',
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'circle',
-            color: 'rgb(246,246,246)'
-          }
-        }
-      }
-    }
-  }
+  // setMobileDesktopOptions() {
+  //   this.communityMonthChartOptions =
+  //   {
+  //     scales: {
+  //       y: {
+  //         ticks: {
+  //           color: 'rgb(246,246,246)'
+  //         }
+  //       },
+  //       x: {
+  //         ticks: {
+  //           color: 'rgb(246,246,246)'
+  //         }
+  //       }
+  //     },
+  //     interaction: {
+  //       // intersect: false,
+  //       intersect: true,
+  //       mode: 'index',
+  //       // mode: 'nearest',
+  //     },
+  //     indexAxis: this.isMobile ? 'y' : 'x',
+  //     aspectRatio: this.isMobile ? 1 : 1.5,
+  //     elements: {
+  //       bar: {
+  //         borderWidth: 0,
+  //       }
+  //     },
+  //     responsive: true,
+  //     plugins: {
+  //       title: {
+  //         display: true,
+  //         text: (ctx: any) => {
+  //           const { axis = 'y', intersect, mode = 'nearest' } = ctx.chart.options.interaction;
+  //           return 'Mode: ' + mode + ', axis: ' + axis + ', intersect: ' + intersect;
+  //         }
+  //       },
+  //       legend: {
+  //         position: 'bottom',
+  //         labels: {
+  //           usePointStyle: true,
+  //           pointStyle: 'circle',
+  //           color: 'rgb(246,246,246)'
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   openChartModal(labels: any, datasets: any, options: any, updateSubject: any) {
     const modalRef = this.modalService.open(ChartModalComponent, { fullscreen: true })

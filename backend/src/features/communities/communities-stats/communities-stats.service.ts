@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {PrismaService} from "../../../shared/infrastructure/services";
 import moment from "moment";
+import {CommunityCupsStats} from "../communities.interface";
 
 @Injectable()
 export class CommunitiesStatsService {
@@ -8,11 +9,11 @@ export class CommunitiesStatsService {
     private prisma: PrismaService,
   ) {
   }
-  public async statsDaily(id: number, start: Date, end: Date, origin = 'datadis') {
+  public async statsDaily(id: number, start: Date, end: Date, origin = 'datadis'): Promise<CommunityCupsStats[]> {
     const startDate = moment(start).format('YYYY-MM-DD');
     const endDate = moment(end).format('YYYY-MM-DD');
 
-    let data: any = await this.prisma.$queryRaw`
+    let data: CommunityCupsStats[] = await this.prisma.$queryRaw`
       WITH stats AS (
 SELECT
 		SUM(kwh_in) AS kwh_in,
@@ -69,6 +70,8 @@ SELECT
 FROM stats b
 LEFT JOIN surplus a ON a.filter_dt = b.filter_dt;
     `;
+
+    return data;
   }
 
   public async statsMonthly(id: number, date: Date) {

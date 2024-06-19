@@ -325,7 +325,6 @@ export class CupsController {
   @Put(":id")
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: any) {
-    console.log("bodycups : ", body);
     if (body.datadisPassword) body.datadisPassword = PasswordUtils.encryptData(body.datadisPassword, process.env.JWT_SECRET!)
     const data = await this.prisma.cups.updateMany({
       where: {

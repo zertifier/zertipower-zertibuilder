@@ -40,4 +40,8 @@ export class Predictor {
 
     return radiation * range.coefficient;
   }
+
+  getRanges() {
+    return this.ranges;
+  }
 }

@@ -51,7 +51,7 @@
                 <div class="d-flex justify-content-between align-items-center w-100 ">
 
                     <span>
-                        Seleccionar una població
+                        {{steps[0]}}
                     </span>
 
                     <div [ngClass]="stepsCompleted[0] ? 'd-block d-flex align-items-center' : 'd-none'">
@@ -73,22 +73,19 @@
         <div class="collapse" [ngClass]="{'show':stepActive==1}" id="collapse-location-step">
             <div class="section-content-padding">
 
-                <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
-                    <option></option>
-                    <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
-                  </select>
+                <span> Selecciona una població dins de la comunitat energètica.</span>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2"
+                        (ngModelChange)="selectLocation($event)">
+                        <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}
+                        </option>
+                    </select>
+                </div>
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
                     <a class="d-flex">
-                        <!-- <div class="arrow-left">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-arrow-left" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
-                            </svg>
-                        </div>
-                        <span class="ms-2">Enrere</span> -->
                     </a>
 
                     <a class="d-flex" (click)="changeStep(2)">
@@ -109,22 +106,20 @@
 
         <!-- SELECT COMMUNITY -->
 
-        <div class="d-flex align-items-center w-100 mb-4" data-bs-toggle="collapse"
-            data-bs-target="#collapse-community-selection-step" aria-expanded="false"
-            aria-controls="collapse-community-selection-step" (click)="changeStep(2)">
+        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" (click)="changeStep(2)">
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                [ngClass]="stepActive!=2 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
-            </svg>
+                    [ngClass]="stepActive!=2 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                </svg>
 
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                [ngClass]="stepActive==2 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                    d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
-            </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    [ngClass]="stepActive==2 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+                </svg>
             </div>
 
             <div [ngClass]="getStepClasses(2)">
@@ -132,10 +127,10 @@
                 <div class="d-flex justify-content-between align-items-center w-100">
 
                     <span>
-                        Seleccionar una comunitat
+                        {{steps[1]}}
                     </span>
 
-                    <div [ngClass]="stepsCompleted[2] ? 'd-block d-flex align-items-center' : 'd-none'">
+                    <div [ngClass]="stepsCompleted[1] ? 'd-block d-flex align-items-center' : 'd-none'">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#229954"
                             class="bi bi-check-circle-fill success" viewBox="0 0 16 16">
                             <path
@@ -152,9 +147,42 @@
         <!-- SELECT COMMUNITY COLAPSE -->
 
         <div class="collapse" id="collapse-community-selection-step" [ngClass]="{'show':stepActive==2}">
-            <div class="section-content-padding">
+            <div class="section-content-padding row">
 
-                SELECT COMMUNITY
+                <span class="col-12">Tria una comunitat de la llista o fes clic en la ubicació del mapa. També podràs
+                    crear una nova comunitat.</span>
+
+                <div class="col-12 col-md-4 mt-2 mt-md-4 d-flex align-items-center">
+                    <span *ngIf="selectedLocation">Població seleccionada: {{this.selectedLocation.municipality}}</span>
+                </div>
+
+                <div class="col-12 col-md-4 mt-2 mt-md-4 d-flex align-items-center">
+                    <select *ngIf="selectedCommunity!=newCommunity" id="location-comunnity"
+                        [(ngModel)]="selectedCommunity" class="form-select px-2"
+                        (ngModelChange)="OnSelectorChange($event, 'community')">
+                        <option [ngValue]="null" disabled selected hidden>Triar comunitat</option>
+                        <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{ community.name }}
+                        </option>
+                    </select>
+
+                    <select *ngIf="selectedCommunity==newCommunity" id="location-comunnity"
+                        [(ngModel)]="selectedCommunity" class="form-select px-2"
+                        (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
+                        <option [ngValue]="newCommunity">Nova comunitat</option>
+                        <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{ community.name }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 mt-2 mt-md-4 d-flex align-items-center ">
+                    <button class="btn btn-primary" (click)="OnSelectorChange(newCommunity,'community')">Crear
+                        comunitat</button>
+                </div>
+
+                <!-- TODO DECIDIR QUE FER -->
+                <!-- <div class="w-100 mt-2 mt-md-4" style="height: 550px;">
+                    <app-map class="w-100 h-100"></app-map>
+                </div>  -->
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
@@ -187,22 +215,24 @@
 
         <!-- COMMUNITY DATA -->
 
-        <div class="d-flex align-items-center w-100 mb-4" data-bs-toggle="collapse"
+        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" data-bs-toggle="collapse"
             data-bs-target="#collapse-community-data-step" aria-expanded="false"
-            aria-controls="collapse-community-data-step" (click)="changeStep(3)">
+            aria-controls="collapse-community-data-step"
+            (click)="stepsCompleted[1] === 0 ? $event.stopPropagation() : changeStep(3)"
+            >
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                [ngClass]="stepActive!=3 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
-            </svg>
+                    [ngClass]="stepActive!=3 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                </svg>
 
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                [ngClass]="stepActive==3 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                    d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
-            </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    [ngClass]="stepActive==3 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+                </svg>
             </div>
 
             <div [ngClass]="getStepClasses(3)">
@@ -210,7 +240,7 @@
                 <div class="d-flex justify-content-between align-items-center w-100">
 
                     <span>
-                        Dades de la comunitat
+                        {{steps[2]}}
                     </span>
 
                     <div [ngClass]="stepsCompleted[3] ? 'd-block d-flex align-items-center' : 'd-none'">
@@ -232,8 +262,29 @@
         <div class="collapse" id="collapse-community-data-step" [ngClass]="{'show':stepActive==3}">
             <div class="section-content-padding">
 
-                COMMUNITY DATA
+                Aquestes son les estadístiques de la comunitat.
 
+                <div class="col-12 d-flex mt-2 mt-md-4">
+                    <span class="d-flex align-items-center me-2">Membres:</span>
+                    <span *ngIf="selectedCommunity">{{ communityCups.length || 0 }}</span>
+                </div>
+
+                <div class="col-12 d-flex mt-2 mt-md-4">
+                    <span class="d-flex align-items-center me-2">Membres simulats: {{ addedAreas.length }}</span>
+                </div>
+
+                <div class="d-flex w-100" style="height: 450px;">
+                    <div class="custom-chart mb-4" style="width:95%; position:relative">
+                        <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType"
+                          [labels]="monthChartLabels" [datasets]="communityMonthChartDatasets"
+                          [options]="communityMonthChartOptions"
+                          [updateSubject]="communityUpdateMonthChartSubject.asObservable()"></app-chart>
+                        <div *ngIf="!selectedCommunity || (!selectedCommunity.cups_number && !addedAreas.length)" class="chart-message">Agrega àrees per
+                          obtenir dades comunitàries
+                        </div>
+                      </div>
+                </div>
+                
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
                     <a class="d-flex" (click)="changeStep(2)">
@@ -265,9 +316,8 @@
 
         <!-- SELECT AREA DATA -->
 
-        <div class="d-flex align-items-center w-100 mb-4" data-bs-toggle="collapse"
-            data-bs-target="#collapse-area-step" aria-expanded="false"
-            aria-controls="collapse-area-step" (click)="changeStep(4)">
+        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" data-bs-toggle="collapse" data-bs-target="#collapse-area-step"
+            aria-expanded="false" aria-controls="collapse-area-step" (click)="changeStep(4)">
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -288,7 +338,7 @@
                 <div class="d-flex justify-content-between align-items-center w-100">
 
                     <span>
-                       Seleccionar àrea
+                        {{steps[3]}}
                     </span>
 
                     <div [ngClass]="stepsCompleted[4] ? 'd-block d-flex align-items-center' : 'd-none'">
@@ -308,9 +358,22 @@
         <!-- SELECT AREA COLAPSE -->
 
         <div class="collapse" id="collapse-area-step" [ngClass]="{'show':stepActive==4}">
-            <div class="section-content-padding">
+            <div class="section-content-padding row">
 
-                Seleccionar àrea
+                <span>Fes click en una àrea per veure les seves dades i simular que passaria si s'afegeix a la comunitat.</span>
+
+                <div class="col-12 col-md-4 mt-2 mt-md-4 d-flex align-items-center">
+                    <span *ngIf="selectedLocation" >Població seleccionada: {{this.selectedLocation.municipality}}</span>
+                </div>
+
+                <div class="col-12 col-md-4 mt-2 mt-md-4 d-flex align-items-center">
+                    <span *ngIf="!this.selectedCommunity || !this.selectedCommunity.name">Comunitat seleccionada: Nova comunitat</span>
+                    <span *ngIf="this.selectedCommunity && this.selectedCommunity.name">Comunitat seleccionada: {{this.selectedCommunity.name}}</span>
+                </div>
+
+                <div class="w-100 mt-2 mt-md-4" style="height: 550px;">
+                    <app-map [activeFeatures]="addedAreas" class="w-100 h-100"></app-map>
+                </div>
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
@@ -343,9 +406,9 @@
 
         <!-- CALCULATE AREA -->
 
-        <div class="d-flex align-items-center w-100 mb-4" data-bs-toggle="collapse"
-            data-bs-target="#collapse-calculate-step" aria-expanded="false"
-            aria-controls="collapse-calculate-step" (click)="changeStep(5)">
+        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" data-bs-toggle="collapse"
+            data-bs-target="#collapse-calculate-step" aria-expanded="false" aria-controls="collapse-calculate-step"
+            (click)="changeStep(5)">
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -366,7 +429,7 @@
                 <div class="d-flex justify-content-between align-items-center w-100">
 
                     <span>
-                        Calcular producció de l'àrea selecionada
+                        {{steps[4]}}
                     </span>
 
                     <div [ngClass]="stepsCompleted[5] ? 'd-block d-flex align-items-center' : 'd-none'">
@@ -421,22 +484,22 @@
 
         <!-- ADD COMMUNITY DATA -->
 
-        <div class="d-flex align-items-center w-100 mb-4" data-bs-toggle="collapse"
-            data-bs-target="#collapse-area-add-step" aria-expanded="false"
-            aria-controls="collapse-area-add-step" (click)="changeStep(6)">
+        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" data-bs-toggle="collapse"
+            data-bs-target="#collapse-area-add-step" aria-expanded="false" aria-controls="collapse-area-add-step"
+            (click)="changeStep(6)">
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                [ngClass]="stepActive!=6 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
-            </svg>
+                    [ngClass]="stepActive!=6 ? 'bi bi-chevron-right' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                </svg>
 
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                [ngClass]="stepActive==6 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                    d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
-            </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    [ngClass]="stepActive==6 ? 'bi bi-chevron-down' : 'd-none'" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+                </svg>
             </div>
 
             <div [ngClass]="getStepClasses(6)">
@@ -444,7 +507,7 @@
                 <div class="d-flex justify-content-between align-items-center w-100">
 
                     <span>
-                        Dades de la comunitat
+                        {{steps[5]}}
                     </span>
 
                     <div [ngClass]="stepsCompleted[1] ? 'd-block d-flex align-items-center' : 'd-none'">
@@ -466,7 +529,7 @@
         <div class="collapse" id="collapse-area-add-step" [ngClass]="{'show':stepActive==6}">
             <div class="section-content-padding">
 
-                SELECT COMMUNITY
+                add community collapse
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
@@ -482,7 +545,7 @@
                     </a>
 
                     <a class="d-flex">
-                       
+
                     </a>
 
                 </div>

@@ -73,182 +73,182 @@ export class CalculateComponent {
   stepsCompleted: number[] = [0, 0, 0, 0, 0, 0];
   steps: string[] = ['Seleccionar una població', 'Seleccionar una comunitat', 'Dades i estadístiques de la comunitat',
     'Seleccionar Àrea', `Calcular producció de l'àrea seleccionada`, 'Afegir comunitat']
-  
-    customers: any = [];
-    communities: any = [];
-    locations: any = [];
-    selectedCommunity: any;
-    newCommunity: any = {};
-    communityCups: any = [];
-    selectedCommunities: any;
-    selectedLocation: any = { municipality: '' };
-    cadastresMap: any;
-    energyAreas: any;
-    energyArea = { cadastral_reference: '', m2: 0, cups: '' };
-    selectedEnergyArea: any;
-    kwhMonth: any;
-    wp: number = 460; //potencia pico (potencia nominal)
-  
-    //chart variables
-    monthChartType: string = 'bar';
-    monthChartLabels: string[] = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
-    monthChartClientData: any[] = new Array(12).fill({ p1: 0, p2: 0, p3: 0, production: 0 });;
-    monthChartDatasets: any[] | undefined = undefined;
-    monthChartData: any[] = [];
-    monthChartBackgroundColor: string[] = [];
-    updateMonthChart: boolean = false;
-    updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-    sumMonthGeneration: number[] = [];
-    kwhMonth460wp = [20, 25, 35, 45, 55, 65, 75, 75, 60, 45, 35, 25];
-    selectedAreaM2: number | undefined;
-    paramsSub: any;
-    locationId: number | undefined;
-    orientations: any[] = [
-      { name: 'Sud', value: 0 },
-      //{ name: 'Sudest', value: 30 },
-      //{ name: 'Sudoest', value: 30 },
-      { name: 'Est', value: 90 },
-      { name: 'Oest', value: 90 }
-    ];
-    inclinations: any[] = [
-      { name: '0-5%', value: 2 },
-      { name: '10-15%', value: 13 },
-      { name: '20-30%', value: 25 },
-      { name: '30-40%', value: 35 }
-    ];
-    communityValoration: number = 0;
-    communityEnergyData: any = [];
-    communityMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
-    communityMonthChartDatasets: any = [];
-    communityMonthChartType = 'bar';
-    communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-    communityDeleteMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-    communityMonthChartOptions: any =
-      {
-        interaction: {
-          intersect: false,
-          mode: 'index',
-        },
-        // indexAxis: this.isMobile ? 'y' : 'x',
-        indexAxis: 'x',
-        elements: {
-          bar: {
-            borderWidth: 0,
-          }
-        },
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle',
-              color: 'rgb(246,246,246)'
-            }
-          }
-        },
-        scales: {
-          y: {
-            ticks: {
-              color: 'rgb(246,246,246)'
-            }
-          },
-          x: {
-            ticks: {
-              color: 'rgb(246,246,246)'
-            }
-          }
-        }
-      }
-  
-    cadastreValoration: number = 0;
-    selectedCadastreEnergyData: any;
-    selectedCadastreMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
-    selectedCadastreMonthChartDatasets: any = [];
-    selectedCadastreGenerationMonthChartDatasets: any = [];
-    selectedCadastreMonthChartType = 'bar';
-    updateSelectedCadastreMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-    selectedCadastreMonthChartOptions =
-      {
-        interaction: {
-          intersect: false,
-          mode: 'index',
-        },
-        //indexAxis: 'y',
-        // Elements options apply to all of the options unless overridden in a dataset
-        // In this case, we are setting the border of each horizontal bar to be 2px wide
-        elements: {
-          bar: {
-            borderWidth: 0,
-          }
-        },
-        responsive: true,
-        mantainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle'
-            }
-          }
-        }
-      }
-  
-    selectedCadastre: cadastre = {
-      totalConsumption: 200,
-      valle: 98,
-      llano: 52,
-      punta: 48,
-      vallePrice: 0.10,
-      llanoPrice: 0.13,
-      puntaPrice: 0.19,
-      generationPrice: 0.10,
-      orientation: 0,
-      inclination: 25
-    };
-  
-    cupsNumber: number = 0;
-    addedAreas: any[] = [];
-  
-    TooltipPosition: typeof TooltipPosition = TooltipPosition;
-    TooltipTheme: typeof TooltipTheme = TooltipTheme;
-  
-    @ViewChild(AppMapComponent) map!: AppMapComponent;
-  
-    folder: number = 1;
-    isShrunk: boolean = false;
-  
-    loading: Subject<boolean> = new Subject<boolean>;
-  
-    engineeringCost: number = 1623;
-    installationCost: number[] = [0.35, 0.3, 0.24];
-    invertersCost: number[] = [0.105, 0.087, 0.072];
-    managementCost: number[] = [1500, 1500, 2000];
-    panelsCost: number = 0.265;
-    structureCost: number = 0.07;
-    selectedCoords: any;
-  
-    activeSimulation: boolean = false;
-    activeIndividual: boolean = false;
-    activeCommunity: boolean = false;
-    activeAcc: boolean = true;
-    activeCce: boolean = false;
-  
-    isMobile = false;
-    private modalService = inject(NgbModal);
-  
 
-    constructor(
-      private communitiesService: CommunitiesApiService,
-      private energyAreasService: EnergyAreasService,
-      private energyBlocksService: EnergyBlocksApiService,
-      private locationService: LocationService,
-      private activatedRoute: ActivatedRoute,
-      private router: Router,
-      private cdr: ChangeDetectorRef,
-      private renderer: Renderer2,
-    ) {
+  customers: any = [];
+  communities: any = [];
+  locations: any = [];
+  selectedCommunity: any = null;
+  newCommunity: any = {};
+  communityCups: any = [];
+  selectedCommunities: any;
+  selectedLocation: any = { id : 0 ,municipality: '' , province: ''};
+  cadastresMap: any;
+  energyAreas: any;
+  energyArea = { cadastral_reference: '', m2: 0, cups: '' };
+  selectedEnergyArea: any;
+  kwhMonth: any;
+  wp: number = 460; //potencia pico (potencia nominal)
+
+  //chart variables
+  monthChartType: string = 'bar';
+  monthChartLabels: string[] = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  monthChartClientData: any[] = new Array(12).fill({ p1: 0, p2: 0, p3: 0, production: 0 });;
+  monthChartDatasets: any[] | undefined = undefined;
+  monthChartData: any[] = [];
+  monthChartBackgroundColor: string[] = [];
+  updateMonthChart: boolean = false;
+  updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  sumMonthGeneration: number[] = [];
+  kwhMonth460wp = [20, 25, 35, 45, 55, 65, 75, 75, 60, 45, 35, 25];
+  selectedAreaM2: number | undefined;
+  paramsSub: any;
+  selectedLocationId: number | undefined;
+  orientations: any[] = [
+    { name: 'Sud', value: 0 },
+    //{ name: 'Sudest', value: 30 },
+    //{ name: 'Sudoest', value: 30 },
+    { name: 'Est', value: 90 },
+    { name: 'Oest', value: 90 }
+  ];
+  inclinations: any[] = [
+    { name: '0-5%', value: 2 },
+    { name: '10-15%', value: 13 },
+    { name: '20-30%', value: 25 },
+    { name: '30-40%', value: 35 }
+  ];
+  communityValoration: number = 0;
+  communityEnergyData: any = [];
+  communityMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  communityMonthChartDatasets: any = [];
+  communityMonthChartType = 'bar';
+  communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  communityDeleteMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  communityMonthChartOptions: any =
+    {
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      // indexAxis: this.isMobile ? 'y' : 'x',
+      indexAxis: 'x',
+      elements: {
+        bar: {
+          borderWidth: 0,
+        }
+      },
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle',
+            color: 'rgb(246,246,246)'
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            color: 'rgb(246,246,246)'
+          }
+        },
+        x: {
+          ticks: {
+            color: 'rgb(246,246,246)'
+          }
+        }
+      }
+    }
+
+  cadastreValoration: number = 0;
+  selectedCadastreEnergyData: any;
+  selectedCadastreMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  selectedCadastreMonthChartDatasets: any = [];
+  selectedCadastreGenerationMonthChartDatasets: any = [];
+  selectedCadastreMonthChartType = 'bar';
+  updateSelectedCadastreMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  selectedCadastreMonthChartOptions =
+    {
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      //indexAxis: 'y',
+      // Elements options apply to all of the options unless overridden in a dataset
+      // In this case, we are setting the border of each horizontal bar to be 2px wide
+      elements: {
+        bar: {
+          borderWidth: 0,
+        }
+      },
+      responsive: true,
+      mantainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        }
+      }
+    }
+
+  selectedCadastre: cadastre = {
+    totalConsumption: 200,
+    valle: 98,
+    llano: 52,
+    punta: 48,
+    vallePrice: 0.10,
+    llanoPrice: 0.13,
+    puntaPrice: 0.19,
+    generationPrice: 0.10,
+    orientation: 0,
+    inclination: 25
+  };
+
+  cupsNumber: number = 0;
+  addedAreas: any[] = [];
+
+  TooltipPosition: typeof TooltipPosition = TooltipPosition;
+  TooltipTheme: typeof TooltipTheme = TooltipTheme;
+
+  @ViewChild(AppMapComponent) map!: AppMapComponent;
+
+  folder: number = 1;
+  isShrunk: boolean = false;
+
+  loading: Subject<boolean> = new Subject<boolean>;
+
+  engineeringCost: number = 1623;
+  installationCost: number[] = [0.35, 0.3, 0.24];
+  invertersCost: number[] = [0.105, 0.087, 0.072];
+  managementCost: number[] = [1500, 1500, 2000];
+  panelsCost: number = 0.265;
+  structureCost: number = 0.07;
+  selectedCoords: any;
+
+  activeSimulation: boolean = false;
+  activeIndividual: boolean = false;
+  activeCommunity: boolean = false;
+  activeAcc: boolean = true;
+  activeCce: boolean = false;
+
+  isMobile = false;
+  private modalService = inject(NgbModal);
+
+
+  constructor(
+    private communitiesService: CommunitiesApiService,
+    private energyAreasService: EnergyAreasService,
+    private energyBlocksService: EnergyBlocksApiService,
+    private locationService: LocationService,
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private renderer: Renderer2,
+  ) {
 
     this.locationService.getLocations().subscribe(async (res: any) => {
       this.locations = res.data;
@@ -257,8 +257,8 @@ export class CalculateComponent {
     })
 
     try {
-      this.selectedLocation = parseInt(localStorage.getItem("location")!)
-      if (this.selectedLocation) {
+      this.selectedLocationId = parseInt(localStorage.getItem("location")!)
+      if (this.selectedLocationId) {
         this.stepActive = 2;
         this.stepsCompleted[0] = 1;
       }
@@ -272,8 +272,12 @@ export class CalculateComponent {
 
     this.locations = await new Promise((resolve: any, reject: any) => {
       this.locationService.getLocations().subscribe(async (res: any) => {
-        this.selectedLocation = res.data.find((location: any) => location.id == this.locationId)
-        this.map.centerToAddress(`${this.selectedLocation.municipality}, España`)
+        this.selectedLocation = res.data.find((location: any) => location.id == this.selectedLocationId)
+        if(this.selectedLocation){
+          this.map.centerToAddress(`${this.selectedLocation.municipality}, España`)
+        } else {
+          console.log("Selected location not found")
+        }
         resolve(res.data)
       }, (error: any) => {
         console.log("error getting locations")
@@ -297,7 +301,27 @@ export class CalculateComponent {
   }
 
   changeStep(stepDestination: number) {
+    console.log("change step",stepDestination,"completed?",this.stepsCompleted)
+    console.log("select location",this.selectedLocation)
+
+    if(stepDestination==2 && !this.selectedLocation){
+      Swal.fire("Selecciona una localitat",'Selecciona una localitat per avançar al següent pas.','info')
+      return;
+    }
+    if(stepDestination==3 && !this.selectedCommunity){
+      Swal.fire("Selecciona una comunitat",'Selecciona una comunitat per avançar al següent pas.','info')
+      return;
+    }
+    if(stepDestination==4){
+      this.stepsCompleted[3]=1;
+    }
+    if(stepDestination==5){
+      this.stepsCompleted[4]=1;
+    }
+
     this.stepActive = stepDestination;
+    
+    this.cdr.detectChanges();
   }
 
   getStepClasses(stepActive: number) {
@@ -311,9 +335,10 @@ export class CalculateComponent {
   }
 
   selectLocation(selectedLocation: any) {
-    console.log(selectedLocation)
     localStorage.setItem("location", selectedLocation.id)
-
+    this.map.centerToAddress(`${this.selectedLocation.municipality}, España`)
+    this.stepsCompleted[0]=1;
+    this.OnSelectorChange(this.selectedLocation, 'location')
   }
 
   OnSelectorChange(element: any, attribute: string) {
@@ -321,20 +346,26 @@ export class CalculateComponent {
 
       case 'location':
 
-        //this.selectedLocation=element;
-        this.selectedCommunities = this.communities.map((community: any) => {
-          if (community.location_id == this.selectedLocation.id) {
-            return community;
-          }
-        }).filter((element: any) => element);
-
-        this.renderSelectedCommunities();
+        if(this.selectedLocation){
+          this.selectedCommunities = this.communities.map((community: any) => {
+            if (community.location_id == this.selectedLocation.id) {
+              return community;
+            }
+          }).filter((element: any) => element);
+  
+          this.renderSelectedCommunities();
+        }
+        
         //this.renderLocation();
         break;
 
       case 'community':
-        //console.log("selected community", this.selectedCommunity)
-        if (this.selectedCommunity == this.newCommunity) {
+
+        this.stepsCompleted[1] = 1;
+
+        if (this.newCommunity == element) {
+
+          this.selectedCommunity = this.newCommunity;
           this.communityEnergyData = [];
           this.updateCommunityChart();
         } else {
@@ -352,7 +383,7 @@ export class CalculateComponent {
 
   }
 
-  
+
   getCommunityCups(id: number) {
     this.communitiesService.getCups(id).subscribe((res: any) => {
       this.communityCups = res.data.filter((obj: any) => obj.type !== 'community');
@@ -699,7 +730,7 @@ export class CalculateComponent {
   featureSelected(selectedFeature: any) { }
 
   updateSelectedCadastreValoration() {
-    
+
     let consumption = this.selectedCadastre.yearConsumption!;
     let production = this.selectedCadastre.yearGeneration!;
 
@@ -781,7 +812,7 @@ export class CalculateComponent {
   }
 
   addArea() {
-    
+
     let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
     if (found) {
       this.addedAreas = [...this.addedAreas]
@@ -835,10 +866,10 @@ export class CalculateComponent {
    *  calculates the excedent energy price, the consumption saving price and the years to amortize the investment.
    */
   calculateMonthlySavings() {
-    
+
     let monthAverageGeneration: number = this.selectedCadastre.yearGeneration! / 12;
     let monthAverageConsumption: number = this.selectedCadastre.yearConsumption! / 12;
-    let oldMonthAverageConsumption:number = monthAverageConsumption;
+    let oldMonthAverageConsumption: number = monthAverageConsumption;
     let monthlyConsumedProduction: number = 0;
     let monthlyCosts = this.selectedCadastre.monthlyConsumptionCost; //monthAverageConsumption * this.selectedCadastre.llanoPrice;
     let communityMonthlyCosts: number;
@@ -863,14 +894,14 @@ export class CalculateComponent {
       this.selectedCadastre.surplusMonthlyProfits = 0;
     }
 
-    if(this.activeIndividual){
-        let communityMonthlyCosts= (monthAverageConsumption/oldMonthAverageConsumption)*this.selectedCadastre.monthlyConsumptionCost!;
-        this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts
+    if (this.activeIndividual) {
+      let communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
+      this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts
     } else {
       if (this.activeAcc) {
-        let communityMonthlyCosts= (monthAverageConsumption/oldMonthAverageConsumption)*this.selectedCadastre.monthlyConsumptionCost!;
+        let communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
         //communityMonthlyCosts = monthAverageConsumption * //this.selectedCadastre.llanoPrice;
-  
+
         //monthlySavings is the price of energy that you stop using from the company when you have generation
         this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts//monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
       }
@@ -893,7 +924,7 @@ export class CalculateComponent {
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
   }
 
-  optimizeSolarPanels(){
+  optimizeSolarPanels() {
     //TODO: change algorithm to insert solar panels or accept consumption
   }
 

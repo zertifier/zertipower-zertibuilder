@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import axios, {Axios} from "axios";
+import axios, {Axios, AxiosError} from "axios";
 import {EnvironmentService} from "../../../../shared/infrastructure/services";
 import {InfrastructureError} from "../../../../shared/domain/error/common";
 
@@ -45,14 +45,15 @@ export class EnergyForecastService {
       config.headers.set('Authorization', `Bearer ${this.token}`);
       return config;
     });
-    this.httpClient.interceptors.response.use((res) => {
+    this.httpClient.interceptors.response.use(async (res) => {
       if (res.status === 401) {
         this.token = '';
+        await this.login();
+        return res;
       }
 
       if (res.status >= 400) {
-        console.log(res.config);
-        console.log(res.data);
+        throw new InfrastructureError(JSON.stringify(res.data));
       }
 
       return res;

@@ -17,10 +17,9 @@ export class EnergyPredictionController {
 
     // Get historic energy and radiation
     const now = new Date();
-    const ago = moment(now).subtract(4, 'days').toDate();
+    const ago = moment(now).subtract(8, 'days').toDate();
 
     const historicRadiation = await this.energyForecastService.getRadiation(ago, now);
-    console.log('fetch radiation historic')
 
     for (const {value, time} of historicRadiation) {
       const date = moment(time).format('YYYY-MM-DD HH:00');
@@ -42,7 +41,6 @@ export class EnergyPredictionController {
         infoDt: true,
       }
     });
-    console.log('get energy hourly historic')
     for (const item of response) {
       const date = moment(item.infoDt).format("YYYY-MM-DD HH:00");
       const packet = packets.get(date) || {radiation: 0, production: 0, coefficient: 0};

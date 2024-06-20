@@ -68,6 +68,19 @@ export class CommunitiesController {
     );
   }
 
+  @Get("/locations/:id")
+  @Auth(RESOURCE_NAME)
+  async getByLocationId(@Param("id") id: string) {
+    const data = await this.prisma.communities.findMany({
+      where: {
+        locationId: parseInt(id),
+      },
+    });
+    return HttpResponse.success("communities fetched successfully").withData(
+      data.map(this.mapData)
+    );
+  }
+
   @Get("energy/actives/:id")
   //@Auth(RESOURCE_NAME)
   async getByIdEnergyActives(@Param("id") id: number, @Param("date") date: string) {

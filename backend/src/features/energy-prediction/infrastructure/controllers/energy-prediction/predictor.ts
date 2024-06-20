@@ -3,15 +3,14 @@ import {PredictionPacket} from "./prediction-packet";
 export class Predictor {
   private readonly ranges: { from: number, to: number, coefficient: number, sum: number, counter: number }[];
 
-  constructor(sample: Map<string, PredictionPacket>, ranges: { from: number, to: number }[]) {
+  constructor(sample: PredictionPacket[], ranges: { from: number, to: number }[]) {
     this.ranges = ranges.map(r => {
       return {...r, coefficient: 0, sum: 0, counter: 0}
     });
 
-    for (const val of sample.values()) {
+    for (const val of sample) {
       const index = this.ranges.findIndex(
-        r => r.from <= val.radiation
-          && val.radiation < r.to
+        r => r.from <= val.radiation && val.radiation < r.to
       );
       const range = this.ranges[index];
 

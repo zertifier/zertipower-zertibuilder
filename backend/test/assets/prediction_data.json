@@ -1,0 +1,1381 @@
+{
+    "ranges": [
+        {
+            "counter": 28,
+            "coefficient": 0.163664559772936,
+            "from": 50,
+            "to": 250
+        },
+        {
+            "counter": 21,
+            "coefficient": 0.0984412913612552,
+            "from": 250,
+            "to": 500
+        },
+        {
+            "counter": 19,
+            "coefficient": 0.102127891393373,
+            "from": 500,
+            "to": 750
+        },
+        {
+            "counter": 26,
+            "coefficient": 0.0892590691788221,
+            "from": 750,
+            "to": 1000
+        }
+    ],
+    "data": [
+        {
+            "time": "20/05/2024 00:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "20/05/2024 01:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "20/05/2024 02:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "20/05/2024 03:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "20/05/2024 04:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "20/05/2024 05:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "20/05/2024 06:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "20/05/2024 07:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "20/05/2024 08:00",
+            "production": 1.76,
+            "radiation": 138.1,
+            "coef": 0.0127443881245474,
+            "forecast": 22.6020757046425
+        },
+        {
+            "time": "20/05/2024 09:00",
+            "production": 18.1,
+            "radiation": 329,
+            "coef": 0.0550151975683891,
+            "forecast": 32.3871848578529
+        },
+        {
+            "time": "20/05/2024 10:00",
+            "production": 46.66,
+            "radiation": 525.3,
+            "coef": 0.0888254330858557,
+            "forecast": 53.6477813489389
+        },
+        {
+            "time": "20/05/2024 11:00",
+            "production": 65.51,
+            "radiation": 704,
+            "coef": 0.0930539772727273,
+            "forecast": 71.8980355409347
+        },
+        {
+            "time": "20/05/2024 12:00",
+            "production": 76.51,
+            "radiation": 848.1,
+            "coef": 0.0902134182289824,
+            "forecast": 75.700616570559
+        },
+        {
+            "time": "20/05/2024 13:00",
+            "production": 74.81,
+            "radiation": 751,
+            "coef": 0.0996138482023968,
+            "forecast": 67.0335609532954
+        },
+        {
+            "time": "20/05/2024 14:00",
+            "production": 59.45,
+            "radiation": 888.4,
+            "coef": 0.0669180549302116,
+            "forecast": 79.2977570584655
+        },
+        {
+            "time": "20/05/2024 15:00",
+            "production": 23.74,
+            "radiation": 573,
+            "coef": 0.0414310645724258,
+            "forecast": 58.5192817684029
+        },
+        {
+            "time": "20/05/2024 16:00",
+            "production": 42.28,
+            "radiation": 512.6,
+            "coef": 0.0824814670308233,
+            "forecast": 52.3507571282431
+        },
+        {
+            "time": "20/05/2024 17:00",
+            "production": 34.98,
+            "radiation": 439.3,
+            "coef": 0.0796266788071933,
+            "forecast": 43.2452592949994
+        },
+        {
+            "time": "20/05/2024 18:00",
+            "production": 32.92,
+            "radiation": 566.9,
+            "coef": 0.0580702063856059,
+            "forecast": 57.8963016309033
+        },
+        {
+            "time": "20/05/2024 19:00",
+            "production": 23.95,
+            "radiation": 359.4,
+            "coef": 0.0666388425153033,
+            "forecast": 35.3798001152351
+        },
+        {
+            "time": "20/05/2024 20:00",
+            "production": 16.04,
+            "radiation": 108.6,
+            "coef": 0.147697974217311,
+            "forecast": 17.7739711913409
+        },
+        {
+            "time": "20/05/2024 21:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "20/05/2024 22:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "20/05/2024 23:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 00:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 01:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 02:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 03:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 04:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 05:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 06:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 07:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 08:00",
+            "production": 3.4,
+            "radiation": 87.5,
+            "coef": 0.0388571428571429,
+            "forecast": 14.3206489801319
+        },
+        {
+            "time": "21/05/2024 09:00",
+            "production": 11.6,
+            "radiation": 231.3,
+            "coef": 0.0501513186338089,
+            "forecast": 37.8556126754801
+        },
+        {
+            "time": "21/05/2024 10:00",
+            "production": 33.06,
+            "radiation": 395.3,
+            "coef": 0.0836326840374399,
+            "forecast": 38.9138424751042
+        },
+        {
+            "time": "21/05/2024 11:00",
+            "production": 69.37,
+            "radiation": 483.4,
+            "coef": 0.143504344228382,
+            "forecast": 47.5865202440307
+        },
+        {
+            "time": "21/05/2024 12:00",
+            "production": 46.75,
+            "radiation": 797.1,
+            "coef": 0.0586501066365575,
+            "forecast": 71.1484040424391
+        },
+        {
+            "time": "21/05/2024 13:00",
+            "production": 73.63,
+            "radiation": 189.1,
+            "coef": 0.389370703331571,
+            "forecast": 30.9489682530622
+        },
+        {
+            "time": "21/05/2024 14:00",
+            "production": 63.14,
+            "radiation": 197.3,
+            "coef": 0.320020273694881,
+            "forecast": 32.2910176432003
+        },
+        {
+            "time": "21/05/2024 15:00",
+            "production": 44.92,
+            "radiation": 485.7,
+            "coef": 0.092485073090385,
+            "forecast": 47.8129352141616
+        },
+        {
+            "time": "21/05/2024 16:00",
+            "production": 21.05,
+            "radiation": 497.6,
+            "coef": 0.0423030546623794,
+            "forecast": 48.9843865813606
+        },
+        {
+            "time": "21/05/2024 17:00",
+            "production": 27.81,
+            "radiation": 453.3,
+            "coef": 0.0613500992720053,
+            "forecast": 44.623437374057
+        },
+        {
+            "time": "21/05/2024 18:00",
+            "production": 17.85,
+            "radiation": 250.9,
+            "coef": 0.071143882024711,
+            "forecast": 24.6989200025389
+        },
+        {
+            "time": "21/05/2024 19:00",
+            "production": 2.34,
+            "radiation": 143,
+            "coef": 0.0163636363636364,
+            "forecast": 23.4040320475299
+        },
+        {
+            "time": "21/05/2024 20:00",
+            "production": 6.11,
+            "radiation": 79,
+            "coef": 0.0773417721518987,
+            "forecast": 12.9295002220619
+        },
+        {
+            "time": "21/05/2024 21:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 22:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "21/05/2024 23:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 00:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 01:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 02:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 03:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 04:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 05:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 06:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 07:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 08:00",
+            "production": 2.53,
+            "radiation": 141.7,
+            "coef": 0.0178546224417784,
+            "forecast": 23.191268119825
+        },
+        {
+            "time": "22/05/2024 09:00",
+            "production": 18.4,
+            "radiation": 166.8,
+            "coef": 0.11031175059952,
+            "forecast": 27.2992485701257
+        },
+        {
+            "time": "22/05/2024 10:00",
+            "production": 45.94,
+            "radiation": 243.9,
+            "coef": 0.188355883558836,
+            "forecast": 39.9177861286191
+        },
+        {
+            "time": "22/05/2024 11:00",
+            "production": 65.24,
+            "radiation": 418.7,
+            "coef": 0.155815619775496,
+            "forecast": 41.2173686929575
+        },
+        {
+            "time": "22/05/2024 12:00",
+            "production": 71.68,
+            "radiation": 215.2,
+            "coef": 0.333085501858736,
+            "forecast": 35.2206132631358
+        },
+        {
+            "time": "22/05/2024 13:00",
+            "production": 65.78,
+            "radiation": 333.1,
+            "coef": 0.197478234764335,
+            "forecast": 32.7907941524341
+        },
+        {
+            "time": "22/05/2024 14:00",
+            "production": 55.66,
+            "radiation": 347.4,
+            "coef": 0.160218767990789,
+            "forecast": 34.1985046189
+        },
+        {
+            "time": "22/05/2024 15:00",
+            "production": 68.63,
+            "radiation": 193.8,
+            "coef": 0.354127966976264,
+            "forecast": 31.718191683995
+        },
+        {
+            "time": "22/05/2024 16:00",
+            "production": 60.73,
+            "radiation": 482.1,
+            "coef": 0.125969715826592,
+            "forecast": 47.4585465652611
+        },
+        {
+            "time": "22/05/2024 17:00",
+            "production": 74.41,
+            "radiation": 232.8,
+            "coef": 0.31963058419244,
+            "forecast": 38.1011095151395
+        },
+        {
+            "time": "22/05/2024 18:00",
+            "production": 42.35,
+            "radiation": 120,
+            "coef": 0.352916666666667,
+            "forecast": 19.6397471727523
+        },
+        {
+            "time": "22/05/2024 19:00",
+            "production": 32.77,
+            "radiation": 242.1,
+            "coef": 0.135357290375878,
+            "forecast": 39.6231899210278
+        },
+        {
+            "time": "22/05/2024 20:00",
+            "production": 21.52,
+            "radiation": 110.9,
+            "coef": 0.19404869251578,
+            "forecast": 18.1503996788186
+        },
+        {
+            "time": "22/05/2024 21:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 22:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "22/05/2024 23:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 00:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 01:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 02:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 03:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 04:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 05:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 06:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 07:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 08:00",
+            "production": 2.6,
+            "radiation": 143.4,
+            "coef": 0.0181311018131102,
+            "forecast": 23.469497871439
+        },
+        {
+            "time": "23/05/2024 09:00",
+            "production": 18.93,
+            "radiation": 334.1,
+            "coef": 0.0566596827297216,
+            "forecast": 32.8892354437954
+        },
+        {
+            "time": "23/05/2024 10:00",
+            "production": 46.99,
+            "radiation": 529.7,
+            "coef": 0.0887105909005097,
+            "forecast": 54.0971440710698
+        },
+        {
+            "time": "23/05/2024 11:00",
+            "production": 66.29,
+            "radiation": 707.8,
+            "coef": 0.0936564001130263,
+            "forecast": 72.2861215282296
+        },
+        {
+            "time": "23/05/2024 12:00",
+            "production": 77.41,
+            "radiation": 851.4,
+            "coef": 0.0909208362696735,
+            "forecast": 75.9951714988491
+        },
+        {
+            "time": "23/05/2024 13:00",
+            "production": 83.44,
+            "radiation": 947.7,
+            "coef": 0.0880447398965917,
+            "forecast": 84.5908198607697
+        },
+        {
+            "time": "23/05/2024 14:00",
+            "production": 85.51,
+            "radiation": 988.5,
+            "coef": 0.0865048052604957,
+            "forecast": 88.2325898832656
+        },
+        {
+            "time": "23/05/2024 15:00",
+            "production": 86.32,
+            "radiation": 970.3,
+            "coef": 0.088962176646398,
+            "forecast": 86.608074824211
+        },
+        {
+            "time": "23/05/2024 16:00",
+            "production": 85.88,
+            "radiation": 894.7,
+            "coef": 0.0959874818374874,
+            "forecast": 79.8600891942921
+        },
+        {
+            "time": "23/05/2024 17:00",
+            "production": 81.19,
+            "radiation": 768.1,
+            "coef": 0.105702382502278,
+            "forecast": 68.5598910362532
+        },
+        {
+            "time": "23/05/2024 18:00",
+            "production": 67.8,
+            "radiation": 601.7,
+            "coef": 0.112680737909257,
+            "forecast": 61.4503522513927
+        },
+        {
+            "time": "23/05/2024 19:00",
+            "production": 49.55,
+            "radiation": 410.7,
+            "coef": 0.120647674701729,
+            "forecast": 40.4298383620675
+        },
+        {
+            "time": "23/05/2024 20:00",
+            "production": 28.76,
+            "radiation": 215.1,
+            "coef": 0.133705253370525,
+            "forecast": 35.2042468071585
+        },
+        {
+            "time": "23/05/2024 21:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 22:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "23/05/2024 23:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 00:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 01:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 02:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 03:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 04:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 05:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 06:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 07:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 08:00",
+            "production": 2.67,
+            "radiation": 145,
+            "coef": 0.0184137931034483,
+            "forecast": 23.7313611670757
+        },
+        {
+            "time": "24/05/2024 09:00",
+            "production": 18.73,
+            "radiation": 335.6,
+            "coef": 0.0558104886769964,
+            "forecast": 33.0368973808372
+        },
+        {
+            "time": "24/05/2024 10:00",
+            "production": 45.98,
+            "radiation": 531,
+            "coef": 0.0865913370998117,
+            "forecast": 54.2299103298812
+        },
+        {
+            "time": "24/05/2024 11:00",
+            "production": 65.01,
+            "radiation": 708.9,
+            "coef": 0.0917054591620821,
+            "forecast": 72.3984622087623
+        },
+        {
+            "time": "24/05/2024 12:00",
+            "production": 76.03,
+            "radiation": 852.4,
+            "coef": 0.0891952135147818,
+            "forecast": 76.0844305680279
+        },
+        {
+            "time": "24/05/2024 13:00",
+            "production": 82.55,
+            "radiation": 948.6,
+            "coef": 0.087022981235505,
+            "forecast": 84.6711530230306
+        },
+        {
+            "time": "24/05/2024 14:00",
+            "production": 85.52,
+            "radiation": 987.9,
+            "coef": 0.0865674663427472,
+            "forecast": 88.1790344417583
+        },
+        {
+            "time": "24/05/2024 15:00",
+            "production": 86.21,
+            "radiation": 971.1,
+            "coef": 0.0887756152816394,
+            "forecast": 86.6794820795541
+        },
+        {
+            "time": "24/05/2024 16:00",
+            "production": 85.15,
+            "radiation": 894.5,
+            "coef": 0.0951928451648966,
+            "forecast": 79.8422373804563
+        },
+        {
+            "time": "24/05/2024 17:00",
+            "production": 80.51,
+            "radiation": 769.6,
+            "coef": 0.104612785862786,
+            "forecast": 68.6937796400215
+        },
+        {
+            "time": "24/05/2024 18:00",
+            "production": 68.15,
+            "radiation": 597.8,
+            "coef": 0.114001338240214,
+            "forecast": 61.0520534749585
+        },
+        {
+            "time": "24/05/2024 19:00",
+            "production": 49.6,
+            "radiation": 412.7,
+            "coef": 0.120184153137873,
+            "forecast": 40.62672094479
+        },
+        {
+            "time": "24/05/2024 20:00",
+            "production": 28.73,
+            "radiation": 179.1,
+            "coef": 0.160413176996092,
+            "forecast": 29.3123226553328
+        },
+        {
+            "time": "24/05/2024 21:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 22:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "24/05/2024 23:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 00:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 01:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 02:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 03:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 04:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 05:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 06:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 07:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 08:00",
+            "production": 2.41,
+            "radiation": 146.5,
+            "coef": 0.0164505119453925,
+            "forecast": 23.9768580067351
+        },
+        {
+            "time": "25/05/2024 09:00",
+            "production": 19.18,
+            "radiation": 336.3,
+            "coef": 0.0570324115373179,
+            "forecast": 33.1058062847901
+        },
+        {
+            "time": "25/05/2024 10:00",
+            "production": 46.4,
+            "radiation": 522.4,
+            "coef": 0.0888208269525268,
+            "forecast": 53.3516104638982
+        },
+        {
+            "time": "25/05/2024 11:00",
+            "production": 63.44,
+            "radiation": 707.9,
+            "coef": 0.089617177567453,
+            "forecast": 72.2963343173689
+        },
+        {
+            "time": "25/05/2024 12:00",
+            "production": 75.61,
+            "radiation": 853.3,
+            "coef": 0.0886089300363296,
+            "forecast": 76.1647637302889
+        },
+        {
+            "time": "25/05/2024 13:00",
+            "production": 81.06,
+            "radiation": 949.5,
+            "coef": 0.0853712480252765,
+            "forecast": 84.7514861852916
+        },
+        {
+            "time": "25/05/2024 14:00",
+            "production": 86.1,
+            "radiation": 973.9,
+            "coef": 0.0884074340281343,
+            "forecast": 86.9294074732548
+        },
+        {
+            "time": "25/05/2024 15:00",
+            "production": 85.8,
+            "radiation": 972.4,
+            "coef": 0.0882352941176471,
+            "forecast": 86.7955188694866
+        },
+        {
+            "time": "25/05/2024 16:00",
+            "production": 76.39,
+            "radiation": 531.6,
+            "coef": 0.14369826937547,
+            "forecast": 54.2911870647172
+        },
+        {
+            "time": "25/05/2024 17:00",
+            "production": 65.53,
+            "radiation": 771.1,
+            "coef": 0.0849824925431202,
+            "forecast": 68.8276682437897
+        },
+        {
+            "time": "25/05/2024 18:00",
+            "production": 63.55,
+            "radiation": 605.1,
+            "coef": 0.105023962981325,
+            "forecast": 61.7975870821301
+        },
+        {
+            "time": "25/05/2024 19:00",
+            "production": 52.33,
+            "radiation": 414.6,
+            "coef": 0.126218041485769,
+            "forecast": 40.8137593983764
+        },
+        {
+            "time": "25/05/2024 20:00",
+            "production": 30.59,
+            "radiation": 219.3,
+            "coef": 0.139489284085727,
+            "forecast": 35.8916379582049
+        },
+        {
+            "time": "25/05/2024 21:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 22:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "25/05/2024 23:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 00:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 01:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 02:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 03:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 04:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 05:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 06:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 07:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 08:00",
+            "production": 2.2,
+            "radiation": 147.9,
+            "coef": 0.0148749154834348,
+            "forecast": 24.2059883904172
+        },
+        {
+            "time": "26/05/2024 09:00",
+            "production": 19.33,
+            "radiation": 338.3,
+            "coef": 0.0571386343482116,
+            "forecast": 33.3026888675126
+        },
+        {
+            "time": "26/05/2024 10:00",
+            "production": 46.48,
+            "radiation": 533.3,
+            "coef": 0.087155447215451,
+            "forecast": 54.4648044800859
+        },
+        {
+            "time": "26/05/2024 11:00",
+            "production": 65.34,
+            "radiation": 710.9,
+            "coef": 0.0919116612744409,
+            "forecast": 72.602717991549
+        },
+        {
+            "time": "26/05/2024 12:00",
+            "production": 76.58,
+            "radiation": 854.1,
+            "coef": 0.0896616321273856,
+            "forecast": 76.2361709856319
+        },
+        {
+            "time": "26/05/2024 13:00",
+            "production": 82.98,
+            "radiation": 950.3,
+            "coef": 0.0873197937493423,
+            "forecast": 84.8228934406346
+        },
+        {
+            "time": "26/05/2024 14:00",
+            "production": 85.9,
+            "radiation": 991.2,
+            "coef": 0.0866626311541566,
+            "forecast": 88.4735893700484
+        },
+        {
+            "time": "26/05/2024 15:00",
+            "production": 85.82,
+            "radiation": 973.4,
+            "coef": 0.0881651941647832,
+            "forecast": 86.8847779386654
+        },
+        {
+            "time": "26/05/2024 16:00",
+            "production": 80.57,
+            "radiation": 561.8,
+            "coef": 0.143414026343895,
+            "forecast": 57.3754493847971
+        },
+        {
+            "time": "26/05/2024 17:00",
+            "production": 76.88,
+            "radiation": 470.6,
+            "coef": 0.163365915852104,
+            "forecast": 46.3264717146067
+        },
+        {
+            "time": "26/05/2024 18:00",
+            "production": 50.32,
+            "radiation": 566.8,
+            "coef": 0.0887791107974594,
+            "forecast": 57.8860888417639
+        },
+        {
+            "time": "26/05/2024 19:00",
+            "production": 49.19,
+            "radiation": 83.3,
+            "coef": 0.590516206482593,
+            "forecast": 13.6332578290856
+        },
+        {
+            "time": "26/05/2024 20:00",
+            "production": 24.28,
+            "radiation": 191.9,
+            "coef": 0.126524231370505,
+            "forecast": 31.4072290204264
+        },
+        {
+            "time": "26/05/2024 21:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 22:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "26/05/2024 23:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "27/05/2024 00:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "27/05/2024 01:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "27/05/2024 02:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "27/05/2024 03:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "27/05/2024 04:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "27/05/2024 05:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "27/05/2024 06:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "27/05/2024 07:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "27/05/2024 08:00",
+            "production": 3.58,
+            "radiation": 149.3,
+            "coef": 0.0239785666443403,
+            "forecast": 24.4351187740993
+        },
+        {
+            "time": "27/05/2024 09:00",
+            "production": 17.86,
+            "radiation": 286.1,
+            "coef": 0.0624257252708843,
+            "forecast": 28.1640534584551
+        },
+        {
+            "time": "27/05/2024 10:00",
+            "production": 43.83,
+            "radiation": 521.1,
+            "coef": 0.0841105354058722,
+            "forecast": 53.2188442050868
+        },
+        {
+            "time": "27/05/2024 11:00",
+            "production": 61.6,
+            "radiation": 674.1,
+            "coef": 0.0913811007268951,
+            "forecast": 68.8444115882729
+        },
+        {
+            "time": "27/05/2024 12:00",
+            "production": 77.14,
+            "radiation": 620.3,
+            "coef": 0.124359181041432,
+            "forecast": 63.3499310313094
+        },
+        {
+            "time": "27/05/2024 13:00",
+            "production": 77.88,
+            "radiation": 735.6,
+            "coef": 0.105872756933116,
+            "forecast": 75.1252769089653
+        },
+        {
+            "time": "27/05/2024 14:00",
+            "production": 81.97,
+            "radiation": 956.8,
+            "coef": 0.0856709866220736,
+            "forecast": 85.4030773902969
+        },
+        {
+            "time": "27/05/2024 15:00",
+            "production": 84.83,
+            "radiation": 974.3,
+            "coef": 0.0870676383044237,
+            "forecast": 86.9651111009263
+        },
+        {
+            "time": "27/05/2024 16:00",
+            "production": 83.15,
+            "radiation": 899.5,
+            "coef": 0.0924402445803224,
+            "forecast": 80.2885327263505
+        },
+        {
+            "time": "27/05/2024 17:00",
+            "production": 78.94,
+            "radiation": 773.9,
+            "coef": 0.102002842744541,
+            "forecast": 69.0775936374904
+        },
+        {
+            "time": "27/05/2024 18:00",
+            "production": 66.29,
+            "radiation": 608.5,
+            "coef": 0.108940016433854,
+            "forecast": 62.1448219128676
+        },
+        {
+            "time": "27/05/2024 19:00",
+            "production": 47.66,
+            "radiation": 418.5,
+            "coef": 0.113882915173238,
+            "forecast": 41.1976804346853
+        },
+        {
+            "time": "27/05/2024 20:00",
+            "production": 23.44,
+            "radiation": 212.4,
+            "coef": 0.110357815442561,
+            "forecast": 34.7623524957716
+        },
+        {
+            "time": "27/05/2024 21:00",
+            "production": 9.6,
+            "radiation": 52.1,
+            "coef": 0.18426103646833,
+            "forecast": 8.52692356416997
+        },
+        {
+            "time": "27/05/2024 22:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "27/05/2024 23:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        },
+        {
+            "time": "28/05/2024 00:00",
+            "production": 0,
+            "radiation": 0,
+            "coef": 0,
+            "forecast": 0
+        }
+    ]
+}

@@ -68,7 +68,7 @@ export class EnergyPredictionController {
     const future = moment(atThisMoment).add(2, "days").toDate();
     const radiationPrediction = await this.energyForecastService.getRadiationForecast(atThisMoment, future);
 
-    const predictor = new Predictor(packets, [
+    const predictor = new Predictor(Array.from(packets.values()), [
       {from: 50, to: 250},
       {from: 250, to: 500},
       {from: 500, to: 750},

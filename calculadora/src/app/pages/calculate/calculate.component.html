@@ -53,7 +53,7 @@
 
             <div [ngClass]=getStepClasses(1)>
 
-                <div class="d-flex justify-content-between align-items-center w-100 ">
+                <div class="d-flex justify-content-between align-items-center w-100">
 
                     <span>
                         {{steps[0]}}
@@ -80,6 +80,8 @@
             <div class="section-content-padding">
 
                 <span> Selecciona una població dins de la comunitat energètica.</span>
+
+                <!-- {{selectedLocation | json}} -->
 
                 <div class="col-12 col-md-6 mt-2">
                     <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2"
@@ -277,17 +279,20 @@
                     <span class="d-flex align-items-center me-2">Membres simulats: {{ addedAreas.length }}</span>
                 </div>
 
-                <div class="d-flex w-100">
-                    <div class="custom-chart mb-4" style="width:95%; position:relative">
+                <div class="d-flex w-100 mb-2 mb-md-2 mt-2 mt-md-4">
+
+                    <div *ngIf="!selectedCommunity || (!selectedCommunity.cups_number && !addedAreas.length)"
+                    class="chart-message">Agrega àrees per
+                    obtenir dades comunitàries
+                    </div>
+
+                    <div *ngIf="selectedCommunity && (selectedCommunity.cups_number || addedAreas.length)" class="custom-chart mx-auto" style="width:95%; position:relative">
                         <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType"
                             [labels]="monthChartLabels" [datasets]="communityMonthChartDatasets"
                             [options]="communityMonthChartOptions"
                             [updateSubject]="communityUpdateMonthChartSubject.asObservable()"></app-chart>
-                        <div *ngIf="!selectedCommunity || (!selectedCommunity.cups_number && !addedAreas.length)"
-                            class="chart-message">Agrega àrees per
-                            obtenir dades comunitàries
-                        </div>
                     </div>
+
                 </div>
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
@@ -462,38 +467,156 @@
         <div class="collapse" id="collapse-calculate-step" [ngClass]="{'show':stepActive==5}">
             <div class="section-content-padding">
 
-                <span>Tria el consum que vols veure</span>
+                <div class="w-100 d-flex mt-2 mt-md-4">
+                    <span>Tria el consum que vols veure</span>
+                    <a *ngIf="!editingArea" class="d-flex w-100 justify-content-end" (click)="editingArea=true">
+                        <span>Ajustar dades</span>
+                    </a>
+                </div>
 
                 <div class="container d-flex justify-content-center align-items-center">
-                    <div
-                        class="d-flex flex-column flex-md-row justify-content-center align-items-center btn-container w-100">
-                        <button type="button" class="btn w-md-auto  m-2 m-md-4 w-100"
-                            [ngClass]="activeIndividual?'bg-complement':'btn-secondary'" style="max-width: 300px;"
-                            (click)="activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()">Estalvi
-                            autoconsum</button>
+                    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center btn-container w-100">
+                        
                         <button type="button" class="btn w-md-auto m-2 m-md-4 w-100"
                             [ngClass]="activeCommunity?'bg-complement':'btn-secondary'" style="max-width: 300px;"
-                            (click)="activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()">Estalvi
+                            (click)="editingArea=false;activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()">Estalvi
                             membre comunitari</button>
+
+                        <button type="button" class="btn w-md-auto  m-2 m-md-4 w-100"
+                            [ngClass]="activeIndividual?'bg-complement':'btn-secondary'" style="max-width: 300px;"
+                            (click)="editingArea=false;activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()">Estalvi
+                            autoconsum</button>
+                        
                     </div>
                 </div>
 
-                <div class="row ps-0 m-0 pb-2 mt-4 ">
+                <div class="collapse" id="collapse-edit-area-step" [ngClass]="{'show':editingArea}">
+
+                    <div class="row">
+
+                        <!-- metres quadrats -->
+                        <div class="col-6 col-md-4 mt-2 mt-md-4">
+                            <div>
+                                <span>M² de l'àrea</span>
+                            </div>
+                            <div>
+                                <input type="number" class="form-select number-input"
+                                    [(ngModel)]="this.selectedCadastre.m2" (change)="updateCadastreChart()" min="0"
+                                    step="0">
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-md-4 mt-2 mt-md-4">
+                            <div>
+                                <span>Inclinació del sostre</span>
+                            </div>
+                            <select id="inclinationSelector" class="form-select w-100"
+                                [(ngModel)]="this.selectedCadastre.inclination">
+                                <option *ngFor="let inclination of inclinations" [ngValue]="inclination.value">
+                                    {{ inclination.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-6 col-md-4 mt-2 mt-md-4">
+                            <div>
+                                <span>Orientació</span>
+                            </div>
+                            <select id="orientationSelector" class="form-select w-100"
+                                [(ngModel)]="this.selectedCadastre.orientation">
+                                <option *ngFor="let orientation of orientations" [ngValue]="orientation.value">
+                                    {{ orientation.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col mt-2 mt-md-4">
+                            <div>
+                                <span>Preu de l'energia sobrant. €/Kwh.</span>
+                            </div>
+                            <input *ngIf="!selectedCommunity || !selectedCommunity.energy_price || activeIndividual" type="number"
+                                class="form-control number-input w-100" [(ngModel)]="selectedCadastre.generationPrice"
+                                min="0">
+                            <input *ngIf="selectedCommunity && selectedCommunity.energy_price && activeCommunity" type="number"
+                                class="form-control number-input w-100" [(ngModel)]="selectedCommunity.energy_price"
+                                min="0" disabled>
+                        </div>
+                    </div>
+
+                    <div class="row mt-2 mt-md-4">
+                        <span>Introdueix el consum mensual per periode. kWh.</span>
+                    </div>
+
+                    <div class="row mt-2 mt-md-4">
+                        <div class="col-4">
+                            <span class="form-label fs-6 smile-color">Vall</span>
+                            <input type="number" class="form-control number-input w-100"
+                                [(ngModel)]="selectedCadastre.valle" min="0" (change)="updateCadastreConsumption()">
+                        </div>
+
+                        <div class="col-4">
+                            <span class="form-label fs-6 meh-color">Pla</span>
+                            <input type="number" class="form-control number-input w-100"
+                                [(ngModel)]="selectedCadastre.llano" min="0" (change)="updateCadastreConsumption()">
+                        </div>
+
+                        <div class="col-4">
+                            <span class="form-label fs-6 frown-color">Punta</span>
+                            <input type="number" class="form-control number-input w-100"
+                                [(ngModel)]="selectedCadastre.punta" min="0" (change)="updateCadastreConsumption()">
+                        </div>
+                    </div>
+
+                    <div class="row mt-2 mt-md-4">
+                        <span>Introdueix el preu per periode. €/Kwh.</span>
+                    </div>
+
+                    <div class="row mt-2 mt-md-4">
+                        <div class="col-4">
+                            <span class="form-label smile-color fs-6">Vall</span>
+                            <input type="number" class="form-control number-input w-100"
+                                [(ngModel)]="selectedCadastre.vallePrice" (change)="updateConsumptions()">
+                        </div>
+                        <div class="col-4">
+                            <span class="form-label meh-color fs-6">Pla</span>
+                            <input type="number" class="form-control number-input w-100"
+                                [(ngModel)]="selectedCadastre.llanoPrice" (change)="updateConsumptions()">
+                        </div>
+                        <div class="col-4">
+                            <span class="form-label frown-color fs-6">Punta</span>
+                            <input type="number" class="form-control number-input w-100"
+                                [(ngModel)]="selectedCadastre.puntaPrice" (change)="updateConsumptions()">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-primary w-md-auto mt-2 mt-md-4 w-100"
+                            style="max-width: 300px;"
+                            (click)="editingArea=false; simulateGenerationConsumption()">Calcular </button>
+                    </div>
+
+                </div>
+
+                <div *ngIf="!editingArea" class="row ps-0 m-0 pb-2 mt-4 row-cols-2 row-cols-md-4 row-cols-xl-5">
 
                     <!-- metres quadrats -->
-                    <div class="col-6 col-md-4 col-lg-4">
+                    <div class="col mb-2 mb-md-4">
                         <div>
                             <span>M² de l'àrea</span>
                         </div>
                         <div>
-                            <input type="number" class="form-select number-input" [(ngModel)]="this.selectedCadastre.m2"
-                                (change)="updateCadastreChart()" min="0" step="0">
+                            <input type="number" class="form-select number-input disabled"
+                                [(ngModel)]="this.selectedCadastre.m2" (change)="updateCadastreChart()" min="0" step="0"
+                                readonly>
                         </div>
 
                     </div>
 
                     <!-- n plaques -->
-                    <div class="col-6 col-md-4 col-lg-4 mb-2 mb-md-4">
+                    <div class="col mb-2 mb-md-4">
                         <div>
                             <span> Nº de plaques</span>
                         </div>
@@ -505,7 +628,7 @@
                     </div>
 
                     <!-- Anys per amortitzar -->
-                    <div class="col-6 col-md-4 col-lg-4 mb-2 mb-md-4">
+                    <div class="col mb-2 mb-md-4">
 
                         <div>
                             <span>Anys per amortitzar</span>
@@ -519,7 +642,7 @@
                     </div>
 
                     <!-- Cost inicial d'inversió -->
-                    <div class="col-6 col-md-4 col-lg-4 mb-2 mb-md-4">
+                    <div class="col mb-2 mb-md-4">
 
                         <div>
                             <span>Cost d'inversió</span>
@@ -533,7 +656,7 @@
                     </div>
 
                     <!-- Estalvi mensual -->
-                    <div class="col-6 col-md-4 col-lg-4 mb-2 mb-md-4">
+                    <div class="col mb-2 mb-md-4">
 
                         <div>
                             <span>Estalvi mensual</span>
@@ -548,8 +671,8 @@
 
                 </div>
 
-                <div *ngIf="activeIndividual" class="d-flex w-100">
-                    <div class="custom-chart mb-4" style="width:95%; position:relative">
+                <div *ngIf="activeIndividual && !editingArea" class="w-100">
+                    <div class="custom-chart mx-auto mb-2 mb-md-4 " style="width:95%; position:relative">
                         <app-chart [chartId]="'selectedCadastre'" [chartType]="selectedCadastreMonthChartType"
                             [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
                             [options]="communityMonthChartOptions"
@@ -557,10 +680,14 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-center mb-2 mb-md-4">
-                    <button class="btn mx-2 btn-primary"> Ajustar dades</button>
+                <div *ngIf="activeCommunity && !editingArea" class="w-100">
+                    <div class="custom-chart mx-auto mb-2 mb-md-4 " style="width:95%; position:relative">
+                        <app-chart [chartId]="'selectedCadastreAcc'" [chartType]="selectedCadastreMonthChartType"
+                            [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
+                            [options]="communityMonthChartOptions"
+                            [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()"></app-chart>
+                    </div>
                 </div>
-
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 

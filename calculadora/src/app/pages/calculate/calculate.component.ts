@@ -238,6 +238,8 @@ export class CalculateComponent {
   isMobile = false;
   private modalService = inject(NgbModal);
 
+  editingArea = false;
+
 
   constructor(
     private communitiesService: CommunitiesApiService,
@@ -273,6 +275,7 @@ export class CalculateComponent {
     this.locations = await new Promise((resolve: any, reject: any) => {
       this.locationService.getLocations().subscribe(async (res: any) => {
         this.selectedLocation = res.data.find((location: any) => location.id == this.selectedLocationId)
+        //console.log("selected location",this.selectedLocation,this.selectedLocationId)
         if(this.selectedLocation){
           this.map.centerToAddress(`${this.selectedLocation.municipality}, España`)
         } else {
@@ -308,16 +311,23 @@ export class CalculateComponent {
       Swal.fire("Selecciona una localitat",'Selecciona una localitat per avançar al següent pas.','info')
       return;
     }
-    if(stepDestination==3 && !this.selectedCommunity){
+    if((stepDestination==3 || stepDestination==4) && !this.selectedCommunity){
       Swal.fire("Selecciona una comunitat",'Selecciona una comunitat per avançar al següent pas.','info')
       return;
     }
+    if(stepDestination==5 && !this.selectedCadastre.m2){
+      Swal.fire("Selecciona un àrea",'Seleccion un àrea per avançar al següent pas.','info')
+      return;
+    }
     if(stepDestination==3){
+      console.log("stepDestination",stepDestination)
       this.stepsCompleted[2]=1;
     }
     if(stepDestination==4){
-      this.stepsCompleted[3]=1;
+      console.log("stepDestination",stepDestination)
+      //this.stepsCompleted[3]=1;
     }
+    
 
     this.stepActive = stepDestination;
     
@@ -364,10 +374,10 @@ export class CalculateComponent {
         this.stepsCompleted[1] = 1;
 
         if (this.newCommunity == element) {
-
           this.selectedCommunity = this.newCommunity;
           this.communityEnergyData = [];
           this.updateCommunityChart();
+          this.communityCups = [];
         } else {
           this.getCommunityCups(this.selectedCommunity.id)
           this.getCommunityEnergy();
@@ -575,6 +585,7 @@ export class CalculateComponent {
         //if selected is false, the click was to deselect, so you don't have to do anything else
         let isSelectedArea = feature.getProperty('selected')
         if (!isSelectedArea) {
+          this.stepsCompleted[3]=0;
           this.cdr.detectChanges()
           return;
         }
@@ -593,16 +604,11 @@ export class CalculateComponent {
         this.selectedCadastre.feature = feature;
         this.selectedCadastre.id = cadastre;
 
-        if (this.isMobile) this.isShrunk = false
         let areaM2: any = feature.getProperty('areaM2');
         this.selectedCadastre.m2 = Math.floor(areaM2);
-
+        this.stepsCompleted[3]=1
+        this.simulateGenerationConsumption();
         this.cdr.detectChanges()
-
-        //this.selectedCadastre.n_plaques = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7) | 0;
-        //this.updateCadastreConsumptionM2();
-        //this.updateCadastreChart();
-        //this.updateSelectedCadastreValoration();
 
       });
 
@@ -694,7 +700,7 @@ export class CalculateComponent {
     this.selectedCadastre.yearConsumption = sumMonthConsumption;
     this.selectedCadastre.monthsConsumption = monthConsumptionArray;
 
-    this.calculateMonthlySavings(); //borrar de aqui? 
+    //this.calculateMonthlySavings(); //borrar de aqui? 
   }
 
   updateCadastreConsumptionM2() {
@@ -808,7 +814,7 @@ export class CalculateComponent {
       inclination: 25
     }
     this.activeIndividual = false;
-    this.activeCommunity = false;
+    this.activeCommunity = true;
   }
 
   addArea() {
@@ -898,18 +904,18 @@ export class CalculateComponent {
       let communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
       this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts
     } else {
-      if (this.activeAcc) {
-        let communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
+      //if (this.activeAcc) {
+        //let communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
         //communityMonthlyCosts = monthAverageConsumption * //this.selectedCadastre.llanoPrice;
 
         //monthlySavings is the price of energy that you stop using from the company when you have generation
-        this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts//monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
-      }
-      if (this.activeCce) {
+        //this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts//monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
+      //}
+      //if (this.activeCce) {
         communityMonthlyCosts = monthAverageConsumption * this.selectedCommunity.energy_price //this.selectedCadastre.generationPrice!;
         //monthlySavings is the price of energy that you stop using from the company when you have generation
         this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
-      }
+      //}
     }
 
     //TODO: temporal sum of savings and profits

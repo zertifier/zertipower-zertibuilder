@@ -1,23 +1,27 @@
-.header-calculate{
+.header-calculate {
     background-color: #0e2b4c;
 }
 
-.footer-calculate{
+.footer-calculate {
     background-color: #0e2b4c;
 }
 
-.section-content-padding{
+.section-content-padding {
     padding-left: 32px;
 }
 
-span{
-    font-size:14px;
+span {
+    font-size: 14px;
 }
 
 @media only screen and (min-width: 768px) {
-    
-span{
-    font-size:16px;
+
+    span {
+        font-size: 16px;
+    }
+
 }
 
+.custom-chart{
+    max-height: 300px;
 }

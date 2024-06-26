@@ -16,7 +16,7 @@ export class MysqlService {
       user: "root",
       password: "Meg@tr@IPFS_7a7s7d7f7g8h8j8k8l",
       // database: "zertipowerv2",
-      database: "zertipower-dev",
+      database: "zertipower-prod",
       connectionLimit: 25,
     });
   }

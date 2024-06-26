@@ -646,7 +646,7 @@ export class DatadisService {
             // const consumption = (production && datadisRegister.import) ? production + datadisRegister.import : datadisRegister.import;
             let consumption = null;
 
-            if (production && datadisRegister.import){
+            /*if (production && datadisRegister.import){
               consumption = production + datadisRegister.import
             }else{
               if (production && datadisRegister.export){
@@ -654,11 +654,11 @@ export class DatadisService {
               }else{
                 consumption = datadisRegister.import
               }
-            }
+            }*/
 
 
             query +=
-              `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${consumption} , ${datadisRegister.export}, ${production} , ${datadisRegister.cups_id} , 'datadis', 0, ${datadisRegister.surplus_distribution || null}),`;
+              `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${datadisRegister.import} , ${datadisRegister.export}, ${production} , ${datadisRegister.cups_id} , 'datadis', 0, ${datadisRegister.surplus_distribution || null}),`;
           } else {
             query +=
               `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${datadisRegister.import} , ${datadisRegister.export}, ${null} , ${datadisRegister.cups_id} , 'datadis', ${null}, ${null}),`;

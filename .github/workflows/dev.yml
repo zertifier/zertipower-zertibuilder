@@ -8,6 +8,7 @@ jobs:
   detect-changes:
     runs-on: self-hosted
     outputs:
+      front_changed: ${{ steps.check_front.outputs.changed }}
       calculadora-ris3cat_changed: ${{ steps.check_calculadora-ris3cat.outputs.changed }}
       wiki-ris3cat_changed: ${{ steps.check_wiki-dev-ris3cat.outputs.changed }}
       api-ris3cat_changed: ${{ steps.check_api-dev-ris3cat.outputs.changed }}
@@ -21,14 +22,13 @@ jobs:
           git pull origin dev --rebase
           echo "LAST_COMMIT=${LAST_COMMIT}" >> $GITHUB_ENV
 
-      
       - name: Detect changes in dev-calculadora-ris3cat
         id: check_calculadora-ris3cat
         run: |
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
-          cd frontend
+          cd calculadora
           echo "Getting dev-calculadora-ris3cat diff"
-          CHANGED_FILES=$(git diff --name-only HEAD $LAST_COMMIT | grep "^frontend/" || true)
+          CHANGED_FILES=$(git diff --name-only HEAD $LAST_COMMIT | grep "^calculadora/" || true)
           echo "Checking dev-calculadora-ris3cat diff"
           if [ -n "$CHANGED_FILES" ]; then
             echo "Changes detected in dev-calculadora-ris3cat"
@@ -38,6 +38,20 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
+      # - name: Detect changes in frontend
+      #   id: check_front
+      #   run: |
+      #     cd /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
+      #     cd frontend
+      #     echo "Getting frontend diff"
+      #     CHANGED_FILES=$(git diff --name-only HEAD $LAST_COMMIT | grep "^frontend/" || true)
+      #     echo "Checking frontend diff"
+      #     if [ -n "$CHANGED_FILES" ]; then
+      #       echo "Changes detected in dev-frontend"
+      #       echo "changed=true" >> $GITHUB_OUTPUT
+      #     else
+      #       echo "No changes in frontend"
+      #       echo "changed=false" >> $GITHUB_OUTPUT
       
       - name: Detect changes in wiki-dev-ris3cat
         id: check_wiki-dev-ris3cat
@@ -72,9 +86,7 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
-      
 
-  
   deploy-calculadora-ris3cat:
       needs: detect-changes
       runs-on: self-hosted
@@ -84,12 +96,27 @@ jobs:
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying dev-calculadora-ris3cat"
-            cd frontend
+            cd calculadora
             npm i --legacy-peer-deps
             npm run build
             docker compose up -d dev-calculadora-ris3cat --build --force-recreate
             echo "dev-calculadora-ris3cat deployed"
   
+  deploy-frontend:
+      needs: detect-changes
+      runs-on: self-hosted
+      steps:
+        - name: Deploy frontend if changed
+          if: needs.detect-changes.outputs.front_changed == 'true'
+          run: |
+            cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+            echo "Deploying api"
+            cd frontend
+            npm i
+            npm run build
+            docker compose up -d dev-app-ris3cat --build --force-recreate
+            echo "frontend deployed"
+
   deploy-wiki-ris3cat:
       needs: detect-changes
       runs-on: self-hosted

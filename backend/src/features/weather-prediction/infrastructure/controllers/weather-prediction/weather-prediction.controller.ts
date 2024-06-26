@@ -1,6 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
-import { PredictionResponse, WeatherPredictionService } from "../../services/weather-prediction.service";
-import { HttpResponse } from 'src/shared/infrastructure/http/HttpResponse';
+import {Controller, Get} from '@nestjs/common';
+import {WeatherPredictionService} from "../../services/weather-prediction.service";
+import {HttpResponse} from 'src/shared/infrastructure/http/HttpResponse';
 
 @Controller('weather-prediction')
 export class WeatherPredictionController {
@@ -10,8 +10,6 @@ export class WeatherPredictionController {
   @Get()
   public async getPrediction(): Promise<HttpResponse> {
     const prediction = await this.weatherPredictionService.getPrediction()
-    const response = HttpResponse.success("Weather fetched successfully").withData(prediction);
-
-    return response
+    return HttpResponse.success("Weather fetched successfully").withData(prediction)
   }
 }

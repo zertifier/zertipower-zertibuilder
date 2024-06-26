@@ -3,7 +3,7 @@ import { AppModule } from "./app.module";
 import { AllExceptionsFilter } from "./shared/AllExceptionsFilter";
 import { ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { WinstonLogger } from "./shared/infrastructure/services";
+import {EnvironmentService, WinstonLogger} from "./shared/infrastructure/services";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { join } from "path";
 
@@ -13,6 +13,7 @@ async function bootstrap() {
   });
 
   app.useLogger(app.get(WinstonLogger));
+  const environment = app.get(EnvironmentService);
 
   const config = new DocumentBuilder()
     .setTitle("Web2 errors login API")
@@ -34,7 +35,7 @@ async function bootstrap() {
   );
   app.setViewEngine("hbs");
 
-  await app.listen(3000);
+  await app.listen(environment.getEnv().PORT);
 }
 
 bootstrap();

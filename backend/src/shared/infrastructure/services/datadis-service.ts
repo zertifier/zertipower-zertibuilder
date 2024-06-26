@@ -72,7 +72,7 @@ export class DatadisService {
     let startDate = moment().subtract(1, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM'); //moment().format('YYYY/MM');
 
-    //this.run(startDate, endDate)
+    this.run(startDate, endDate)
 
     setInterval(() => {
       startDate = moment().subtract(1, 'months').format('YYYY/MM');
@@ -641,12 +641,14 @@ export class DatadisService {
           const datadisRegister = batch[i];
 
           if (datadisRegister.surplus_distribution) {
-            const communityExport = communityCups.find(obj => moment(obj.info_dt).format('YYYY-MM-DD HH:mm') == moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm'));
+            const communityExport = communityCups.find(obj =>
+              moment(obj.info_dt).format('YYYY-MM-DD HH:mm') == moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm'));
+
             const production = communityExport ? datadisRegister.surplus_distribution * communityExport.export : null;
             // const consumption = (production && datadisRegister.import) ? production + datadisRegister.import : datadisRegister.import;
             let consumption = null;
 
-            if (production && datadisRegister.import){
+            /*if (production && datadisRegister.import){
               consumption = production + datadisRegister.import
             }else{
               if (production && datadisRegister.export){
@@ -654,11 +656,11 @@ export class DatadisService {
               }else{
                 consumption = datadisRegister.import
               }
-            }
+            }*/
 
 
             query +=
-              `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${consumption} , ${datadisRegister.export}, ${production} , ${datadisRegister.cups_id} , 'datadis', 0, ${datadisRegister.surplus_distribution || null}),`;
+              `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${datadisRegister.import} , ${datadisRegister.export}, ${production} , ${datadisRegister.cups_id} , 'datadis', 0, ${datadisRegister.surplus_distribution || null}),`;
           } else {
             query +=
               `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${datadisRegister.import} , ${datadisRegister.export}, ${null} , ${datadisRegister.cups_id} , 'datadis', ${null}, ${null}),`;

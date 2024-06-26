@@ -72,7 +72,7 @@ export class CalculateComponent {
   stepActive: number = 1;
   stepsCompleted: number[] = [0, 0, 0, 0, 0, 0];
   steps: string[] = ['Seleccionar una població', 'Seleccionar una comunitat', 'Dades i estadístiques de la comunitat',
-    'Seleccionar Àrea', `Calcular producció de l'àrea seleccionada`, 'Afegir comunitat']
+    'Seleccionar Àrea', `Calcular generació de l'àrea seleccionada`, 'Afegir comunitat']
 
   customers: any = [];
   communities: any = [];
@@ -232,7 +232,7 @@ export class CalculateComponent {
   activeSimulation: boolean = false;
   activeIndividual: boolean = false;
   activeCommunity: boolean = false;
-  activeAcc: boolean = true;
+  activeAcc: boolean = false;
   activeCce: boolean = false;
 
   isMobile = false;
@@ -316,9 +316,15 @@ export class CalculateComponent {
       return;
     }
     if(stepDestination==5 && !this.selectedCadastre.m2){
-      Swal.fire("Selecciona un àrea",'Seleccion un àrea per avançar al següent pas.','info')
+      Swal.fire("Selecciona un àrea",'Selecciona un àrea per avançar al següent pas.','info')
       return;
     }
+
+    if(stepDestination==6 && !this.selectedCadastre.m2){
+      Swal.fire("Selecciona un àrea",'Selecciona un àrea per avançar al següent pas.','info')
+      return;
+    }
+
     if(stepDestination==3){
       console.log("stepDestination",stepDestination)
       this.stepsCompleted[2]=1;
@@ -327,11 +333,25 @@ export class CalculateComponent {
       console.log("stepDestination",stepDestination)
       //this.stepsCompleted[3]=1;
     }
-    
 
+    if(stepDestination==5){
+      console.log("stepDestination",stepDestination)
+      this.stepsCompleted[4]=1;
+    }
+    
     this.stepActive = stepDestination;
     
+    this.scrollToElement(`collapser-${stepDestination}`)
+
     this.cdr.detectChanges();
+  }
+
+  scrollToElement(elementId: string) {
+    const element = document.getElementById(elementId);
+    console.log(elementId, element)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   getStepClasses(stepActive: number) {
@@ -352,6 +372,7 @@ export class CalculateComponent {
   }
 
   OnSelectorChange(element: any, attribute: string) {
+    console.log(element,attribute)
     switch (attribute) {
 
       case 'location':
@@ -488,7 +509,7 @@ export class CalculateComponent {
         borderColor: 'rgb(255,255,255)'
       },
       {
-        label: 'Producció (Kwh)',
+        label: 'Generació comunitària (Kwh)',
         data: exports,
         backgroundColor: 'rgb(52, 152, 219)',
         borderColor: 'rgb(255,255,255)'
@@ -699,8 +720,6 @@ export class CalculateComponent {
     })
     this.selectedCadastre.yearConsumption = sumMonthConsumption;
     this.selectedCadastre.monthsConsumption = monthConsumptionArray;
-
-    //this.calculateMonthlySavings(); //borrar de aqui? 
   }
 
   updateCadastreConsumptionM2() {
@@ -765,8 +784,6 @@ export class CalculateComponent {
 
   updateCadastreChart() {
 
-    this.cdr.detectChanges();
-
     this.selectedCadastreMonthChartDatasets = [
       {
         label: 'Consum (Kwh)',
@@ -799,6 +816,7 @@ export class CalculateComponent {
   }
 
   resetCadastre() {
+    console.log("reset cadastre")
     this.selectedCadastreGenerationMonthChartDatasets = [];
     this.selectedCadastreMonthChartDatasets = [];
     this.selectedCadastre = {
@@ -818,8 +836,8 @@ export class CalculateComponent {
   }
 
   addArea() {
-
     let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
+    console.log("add Area found", found)
     if (found) {
       this.addedAreas = [...this.addedAreas]
     } else {
@@ -828,7 +846,8 @@ export class CalculateComponent {
       this.map.activeArea(this.selectedCadastre)
     }
     this.resetCadastre();
-
+    this.cdr.detectChanges();
+    console.log(this.addedAreas)
   }
 
   deleteArea(index: number) {
@@ -874,8 +893,9 @@ export class CalculateComponent {
   calculateMonthlySavings() {
 
     let monthAverageGeneration: number = this.selectedCadastre.yearGeneration! / 12;
-    let monthAverageConsumption: number = this.selectedCadastre.yearConsumption! / 12;
-    let oldMonthAverageConsumption: number = monthAverageConsumption;
+    let oldMonthAverageConsumption: number = this.selectedCadastre.yearConsumption! / 12; 
+    //this will be the consumption without production
+    let monthAverageConsumption: number = oldMonthAverageConsumption;
     let monthlyConsumedProduction: number = 0;
     let monthlyCosts = this.selectedCadastre.monthlyConsumptionCost; //monthAverageConsumption * this.selectedCadastre.llanoPrice;
     let communityMonthlyCosts: number;
@@ -888,8 +908,10 @@ export class CalculateComponent {
       //surplusMonthlyProfits is the price of excedent from generation that is sold to the company or to community
       if (this.activeIndividual) { // if it's sold to the company
         this.selectedCadastre.surplusMonthlyProfits = monthAverageSurplus * this.selectedCadastre.generationPrice!;
+        //console.log("surplus individual profits",this.selectedCadastre.surplusMonthlyProfits);
       } else if (this.activeCommunity) { //if it's sold to the community
         this.selectedCadastre.surplusMonthlyProfits = monthAverageSurplus * this.selectedCommunity.energy_price!;
+        //console.log("surplus community profits",this.selectedCadastre.surplusMonthlyProfits);
       }
       monthAverageConsumption = 0;  //the generation convalidates consumption
     } else {
@@ -901,27 +923,22 @@ export class CalculateComponent {
     }
 
     if (this.activeIndividual) {
+      //el cost es igual al consum dividit pel consum base i multiplicat pel preu mensual 
       let communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
       this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts
-    } else {
-      //if (this.activeAcc) {
-        //let communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
-        //communityMonthlyCosts = monthAverageConsumption * //this.selectedCadastre.llanoPrice;
 
-        //monthlySavings is the price of energy that you stop using from the company when you have generation
-        //this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts//monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
-      //}
-      //if (this.activeCce) {
+    } else {
+      
         communityMonthlyCosts = monthAverageConsumption * this.selectedCommunity.energy_price //this.selectedCadastre.generationPrice!;
         //monthlySavings is the price of energy that you stop using from the company when you have generation
         this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
-      //}
+      
     }
 
-    //TODO: temporal sum of savings and profits
     this.selectedCadastre.monthlySavings! += this.selectedCadastre.surplusMonthlyProfits!;
+
     //in acc, the savings cannot overcome the costs
-    if (this.activeAcc && this.selectedCadastre.monthlySavings! > monthlyCosts!) {
+    if ((this.activeAcc || this.activeIndividual) && this.selectedCadastre.monthlySavings! > monthlyCosts!) {
       //console.log("this.selectedCadastre.monthlySavings!, monthlyCosts!", this.selectedCadastre.monthlySavings!, monthlyCosts!)
       this.selectedCadastre.monthlySavings = monthlyCosts!;
     }
@@ -960,7 +977,6 @@ export class CalculateComponent {
               prodByMonth[key] = Math.floor(prodByMonth[key]);
             });
             this.selectedCadastre.monthsGeneration = Object.values(prodByMonth);
-
             // console.log('Installed power', kWp, 'kWp');
             // console.log('Number panels:', numberPanels);
             // console.log('Cost:', totalCost.toFixed(2), '€');
@@ -1035,59 +1051,6 @@ export class CalculateComponent {
     this.selectedCadastre.oldInclination = this.selectedCadastre.inclination
     this.selectedCadastre.oldOrientation = this.selectedCadastre.orientation
   }
-
-  setMobileStatus(sizePx: number) {
-    return sizePx < 768;
-  }
-
-  // setMobileDesktopOptions() {
-  //   this.communityMonthChartOptions =
-  //   {
-  //     scales: {
-  //       y: {
-  //         ticks: {
-  //           color: 'rgb(246,246,246)'
-  //         }
-  //       },
-  //       x: {
-  //         ticks: {
-  //           color: 'rgb(246,246,246)'
-  //         }
-  //       }
-  //     },
-  //     interaction: {
-  //       // intersect: false,
-  //       intersect: true,
-  //       mode: 'index',
-  //       // mode: 'nearest',
-  //     },
-  //     indexAxis: this.isMobile ? 'y' : 'x',
-  //     aspectRatio: this.isMobile ? 1 : 1.5,
-  //     elements: {
-  //       bar: {
-  //         borderWidth: 0,
-  //       }
-  //     },
-  //     responsive: true,
-  //     plugins: {
-  //       title: {
-  //         display: true,
-  //         text: (ctx: any) => {
-  //           const { axis = 'y', intersect, mode = 'nearest' } = ctx.chart.options.interaction;
-  //           return 'Mode: ' + mode + ', axis: ' + axis + ', intersect: ' + intersect;
-  //         }
-  //       },
-  //       legend: {
-  //         position: 'bottom',
-  //         labels: {
-  //           usePointStyle: true,
-  //           pointStyle: 'circle',
-  //           color: 'rgb(246,246,246)'
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 
   openChartModal(labels: any, datasets: any, options: any, updateSubject: any) {
     const modalRef = this.modalService.open(ChartModalComponent, { fullscreen: true })

@@ -29,7 +29,6 @@ const routes: Routes = [
         CommonModule,
         FormsModule,
         GoogleMap,
-        TooltipModule,
         NgbModule,
         ComponentsModule,
         RouterModule.forChild(routes)

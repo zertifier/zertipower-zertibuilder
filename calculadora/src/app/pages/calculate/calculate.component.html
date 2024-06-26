@@ -33,7 +33,7 @@
 
         <!-- SELECT ZONE -->
 
-        <div class="d-flex align-items-center w-100 mb-2 mb-md-4" data-bs-toggle="collapse"
+        <div id="collapser-1" class="d-flex align-items-center w-100 mb-2 mb-md-4 collapser" data-bs-toggle="collapse"
             data-bs-target="#collapse-location-step" aria-expanded="false" aria-controls="collapse-location-step"
             (click)="changeStep(1)">
 
@@ -96,7 +96,7 @@
                     <a class="d-flex">
                     </a>
 
-                    <a class="d-flex" (click)="changeStep(2)">
+                    <a class="d-flex" (click)="changeStep(2)" role="button">
                         <span class="me-2">Endavant</span>
 
                         <div class="arrow-right">
@@ -114,7 +114,7 @@
 
         <!-- SELECT COMMUNITY -->
 
-        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" (click)="changeStep(2)">
+        <div id="collapser-2" class="d-flex align-items-center w-100  mb-2 mb-md-4 collapser" (click)="changeStep(2)">
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -195,7 +195,7 @@
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
-                    <a class="d-flex" (click)="changeStep(1)">
+                    <a class="d-flex" (click)="changeStep(1)" role="button">
                         <div class="arrow-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-arrow-left" viewBox="0 0 16 16">
@@ -206,7 +206,7 @@
                         <span class="ms-2">Enrere</span>
                     </a>
 
-                    <a class="d-flex" (click)="changeStep(3)">
+                    <a class="d-flex" (click)="changeStep(3)" role="button">
                         <span class="me-2">Endavant</span>
 
                         <div class="arrow-right">
@@ -224,7 +224,7 @@
 
         <!-- COMMUNITY DATA -->
 
-        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" (click)="changeStep(3)">
+        <div id="collapser-3" class="d-flex align-items-center w-100  mb-2 mb-md-4 collapser" (click)="changeStep(3)">
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -282,11 +282,12 @@
                 <div class="d-flex w-100 mb-2 mb-md-2 mt-2 mt-md-4">
 
                     <div *ngIf="!selectedCommunity || (!selectedCommunity.cups_number && !addedAreas.length)"
-                    class="chart-message">Agrega àrees per
-                    obtenir dades comunitàries
+                        class="chart-message">Agrega àrees per
+                        obtenir dades comunitàries
                     </div>
 
-                    <div *ngIf="selectedCommunity && (selectedCommunity.cups_number || addedAreas.length)" class="custom-chart mx-auto" style="width:95%; position:relative">
+                    <div *ngIf="selectedCommunity && (selectedCommunity.cups_number || addedAreas.length)"
+                        class="custom-chart mx-auto" style="width:95%; position:relative">
                         <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType"
                             [labels]="monthChartLabels" [datasets]="communityMonthChartDatasets"
                             [options]="communityMonthChartOptions"
@@ -297,7 +298,7 @@
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
-                    <a class="d-flex" (click)="changeStep(2)">
+                    <a class="d-flex" (click)="changeStep(2)" role="button">
                         <div class="arrow-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-arrow-left" viewBox="0 0 16 16">
@@ -308,7 +309,7 @@
                         <span class="ms-2">Enrere</span>
                     </a>
 
-                    <a class="d-flex" (click)="changeStep(4)">
+                    <a class="d-flex" (click)="changeStep(4)" role="button">
                         <span class="me-2">Endavant</span>
 
                         <div class="arrow-right">
@@ -326,9 +327,7 @@
 
         <!-- SELECT AREA DATA -->
 
-        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" data-bs-toggle="collapse"
-            data-bs-target="#collapse-area-step" aria-expanded="false" aria-controls="collapse-area-step"
-            (click)="changeStep(4)">
+        <div id="collapser-4" class="d-flex align-items-center w-100  mb-2 mb-md-4 collapser" (click)="changeStep(4)">
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -392,7 +391,7 @@
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
-                    <a class="d-flex" (click)="changeStep(3)">
+                    <a class="d-flex" (click)="changeStep(3)" role="button">
                         <div class="arrow-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-arrow-left" viewBox="0 0 16 16">
@@ -403,7 +402,7 @@
                         <span class="ms-2">Enrere</span>
                     </a>
 
-                    <a class="d-flex" (click)="changeStep(5)">
+                    <a class="d-flex" (click)="changeStep(5)" role="button">
                         <span class="me-2">Endavant</span>
 
                         <div class="arrow-right">
@@ -421,9 +420,7 @@
 
         <!-- CALCULATE AREA -->
 
-        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" data-bs-toggle="collapse"
-            data-bs-target="#collapse-calculate-step" aria-expanded="false" aria-controls="collapse-calculate-step"
-            (click)="changeStep(5)">
+        <div id="collapser-5" class="d-flex align-items-center w-100  mb-2 mb-md-4 collapser" (click)="changeStep(5)">
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -475,8 +472,9 @@
                 </div>
 
                 <div class="container d-flex justify-content-center align-items-center">
-                    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center btn-container w-100">
-                        
+                    <div
+                        class="d-flex flex-column flex-md-row justify-content-center align-items-center btn-container w-100">
+
                         <button type="button" class="btn w-md-auto m-2 m-md-4 w-100"
                             [ngClass]="activeCommunity?'bg-complement':'btn-secondary'" style="max-width: 300px;"
                             (click)="editingArea=false;activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()">Estalvi
@@ -486,7 +484,7 @@
                             [ngClass]="activeIndividual?'bg-complement':'btn-secondary'" style="max-width: 300px;"
                             (click)="editingArea=false;activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()">Estalvi
                             autoconsum</button>
-                        
+
                     </div>
                 </div>
 
@@ -537,12 +535,12 @@
                             <div>
                                 <span>Preu de l'energia sobrant. €/Kwh.</span>
                             </div>
-                            <input *ngIf="!selectedCommunity || !selectedCommunity.energy_price || activeIndividual" type="number"
-                                class="form-control number-input w-100" [(ngModel)]="selectedCadastre.generationPrice"
-                                min="0">
-                            <input *ngIf="selectedCommunity && selectedCommunity.energy_price && activeCommunity" type="number"
-                                class="form-control number-input w-100" [(ngModel)]="selectedCommunity.energy_price"
-                                min="0" disabled>
+                            <input *ngIf="!selectedCommunity || !selectedCommunity.energy_price || activeIndividual"
+                                type="number" class="form-control number-input w-100"
+                                [(ngModel)]="selectedCadastre.generationPrice" min="0">
+                            <input *ngIf="selectedCommunity && selectedCommunity.energy_price && activeCommunity"
+                                type="number" class="form-control number-input w-100"
+                                [(ngModel)]="selectedCommunity.energy_price" min="0" disabled>
                         </div>
                     </div>
 
@@ -671,17 +669,16 @@
 
                 </div>
 
-                <div *ngIf="activeIndividual && !editingArea" class="w-100">
-                    <div class="custom-chart mx-auto mb-2 mb-md-4 " style="width:95%; position:relative">
+                <div class="d-flex w-100 mb-2 mb-md-2 mt-2 mt-md-4">
+                    <div *ngIf="activeIndividual && !editingArea" class="custom-chart mx-auto"
+                        style="width:95%; position:relative">
                         <app-chart [chartId]="'selectedCadastre'" [chartType]="selectedCadastreMonthChartType"
                             [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
                             [options]="communityMonthChartOptions"
                             [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()"></app-chart>
                     </div>
-                </div>
-
-                <div *ngIf="activeCommunity && !editingArea" class="w-100">
-                    <div class="custom-chart mx-auto mb-2 mb-md-4 " style="width:95%; position:relative">
+                    <div *ngIf="activeCommunity && !editingArea" class="custom-chart mx-auto"
+                        style="width:95%; position:relative">
                         <app-chart [chartId]="'selectedCadastreAcc'" [chartType]="selectedCadastreMonthChartType"
                             [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
                             [options]="communityMonthChartOptions"
@@ -691,7 +688,7 @@
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
-                    <a class="d-flex" (click)="changeStep(4)">
+                    <a class="d-flex" (click)="changeStep(4)" role="button">
                         <div class="arrow-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-arrow-left" viewBox="0 0 16 16">
@@ -702,7 +699,7 @@
                         <span class="ms-2">Enrere</span>
                     </a>
 
-                    <a class="d-flex" (click)="changeStep(6)">
+                    <a class="d-flex" (click)="changeStep(6)" role="button">
                         <span class="me-2">Endavant</span>
 
                         <div class="arrow-right">
@@ -720,9 +717,7 @@
 
         <!-- ADD COMMUNITY DATA -->
 
-        <div class="d-flex align-items-center w-100  mb-2 mb-md-4" data-bs-toggle="collapse"
-            data-bs-target="#collapse-area-add-step" aria-expanded="false" aria-controls="collapse-area-add-step"
-            (click)="changeStep(6)">
+        <div id="collapser-6" class="d-flex align-items-center w-100  mb-2 mb-md-4 collapser" (click)="changeStep(6)">
 
             <div class="p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -766,11 +761,105 @@
         <div class="collapse" id="collapse-area-add-step" [ngClass]="{'show':stepActive==6}">
             <div class="section-content-padding">
 
-                add community collapse
+                <!-- <div *ngIf="!this.addedAreas.includes(this.selectedCadastre)"> -->
+                <div *ngIf="this.selectedCadastre.monthlySavings">
+
+                    <span class="mb-2 mb-md-4">Dades completades! Fes clic a <b>Afegir comunitat</b> per a finalitzar.
+                        Edita dades i
+                        estadístiques més tard fent clic en <b>Dades i
+                            estadístiques de la comunitat</b> o <b>Seleccionar àrea</b>.</span>
+
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-4 col-lg-4 d-flex">
+                            <button class="btn btn-secondary mt-4 w-100" (click)="addArea()">Afegir a la comunitat
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div *ngIf="!this.selectedCadastre.monthlySavings">
+
+                    <span class="mb-2 mb-md-4"> Resum de dades afegides. Edita'ls sempre que vulguis fent clic a
+                        <b>Seleccionar
+                            àrea</b>.</span>
+
+                    <div class="row">
+
+                        <div class="col-12 col-md-4">
+
+                            <div>
+                                <span class="mb-2 mb-md-4" *ngIf="selectedLocation">Població:
+                                    {{this.selectedLocation.municipality}}</span>
+                            </div>
+
+                            <div>
+                                <span class="mb-2 mb-md-4"
+                                    *ngIf="!this.selectedCommunity || !this.selectedCommunity.name">Comunitat:
+                                    Nova
+                                    comunitat</span>
+
+                                <span class="mb-2 mb-md-4"
+                                    *ngIf="this.selectedCommunity && this.selectedCommunity.name">Comunitat:
+                                    {{this.selectedCommunity.name}}</span>
+                            </div>
+
+
+                            <!-- Add area name ? -->
+
+                        </div>
+
+                        <div class="col-12 col-md-4">
+
+                            <div>
+                                <span class="mb-2 mb-md-4" *ngIf="this.addedAreas.length"> M² de l'àrea:
+                                    {{this.addedAreas[this.addedAreas.length-1].m2}} </span>
+                            </div>
+
+                            <div>
+                                <span class="mb-2 mb-md-4" *ngIf="this.addedAreas.length">Nº de plaques:
+                                    {{this.addedAreas[this.addedAreas.length-1].n_plaques}}</span>
+                            </div>
+
+                        </div>
+
+                        <div class="col-12 col-md-4">
+
+                            <div>
+                                <span class="mb-2 mb-md-4" *ngIf="this.addedAreas.length"> Estalvi mensual (€/mes):
+                                    {{this.addedAreas[this.addedAreas.length-1].monthlySavings}} </span>
+                            </div>
+
+                            <div>
+                                <span class="mb-2 mb-md-4" *ngIf="this.addedAreas.length"> Cost inicial d'inversió (€):
+                                    {{this.addedAreas[this.addedAreas.length-1].totalCost}} </span>
+                            </div>
+
+                            <div>
+                                <span class="mb-2 mb-md-4" *ngIf="this.addedAreas.length"> Anys per amortitzar:
+                                    {{this.addedAreas[this.addedAreas.length-1].redeemYears}} </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex w-100 mb-2 mb-md-2 mt-2 mt-md-4">
+                        <div *ngIf="selectedCommunity && (selectedCommunity.cups_number || addedAreas.length)"
+                            class="custom-chart mx-auto" style="width:95%; position:relative">
+                            <app-chart [chartId]="'communityChart2'" [chartType]="communityMonthChartType"
+                                [labels]="monthChartLabels" [datasets]="communityMonthChartDatasets"
+                                [options]="communityMonthChartOptions"
+                                [updateSubject]="communityUpdateMonthChartSubject.asObservable()"></app-chart>
+                        </div>
+                    </div>
+
+                </div>
+
 
                 <div class="d-flex justify-content-between mt-2 mt-md-4 mb-2 mb-md-4 ">
 
-                    <a class="d-flex" (click)="changeStep(5)">
+                    <a class="d-flex" (click)="changeStep(5)" role="button">
                         <div class="arrow-left">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-arrow-left" viewBox="0 0 16 16">

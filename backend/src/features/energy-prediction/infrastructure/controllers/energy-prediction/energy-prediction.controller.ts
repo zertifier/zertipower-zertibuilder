@@ -30,12 +30,10 @@ export class EnergyPredictionController {
 
 
     const response = await this.prisma.energyHourly.findMany({
-      where: {
-        infoDt: {
-          gte: ago,
-          lt: now,
-        }
+      orderBy: {
+        infoDt: 'desc'
       },
+      take: 192, // The result of taking 8 days and taking 24 registries by day
       select: {
         production: true,
         infoDt: true,

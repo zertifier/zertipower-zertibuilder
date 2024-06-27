@@ -1,6 +1,11 @@
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./assets/fonts/montserrat/Montserrat-VariableFont_wght.ttf');
+}
+
 @import "@ng-select/ng-select/themes/default.theme.css";
 
-html, body { height: 100%; width: 100%; margin: 0; }
+html, body { height: 100%; width: 100%; margin: 0; font-family:'Montserrat'!important ; }
 
 // Colors
 $primary: #0e2b4c;
@@ -8,7 +13,7 @@ $secondary: #5f7187;
 $text-primary: #101828;
 $text-secondary: #34393E;
 $text-titles: #667085;
-$success: #198754;
+$success: #229954;
 $danger: #DC3545;
 $bg-page-light-color: #f4f6f6;
 $navbar-link-light: #E9E9E9;

@@ -262,7 +262,8 @@ export class CalculateComponent {
       this.selectedLocationId = parseInt(localStorage.getItem("location")!)
       if (this.selectedLocationId) {
         this.stepActive = 2;
-        this.stepsCompleted[0] = 1;
+        //this.stepsCompleted[0] = 1;
+        this.updateCompleteSteps(0);
       }
     } catch {
       console.log("location unselected")
@@ -305,6 +306,16 @@ export class CalculateComponent {
 
   resetSteps(){
     this.stepsCompleted=[0, 0, 0, 0, 0, 0];
+  }
+
+  updateCompleteSteps(stepCompleted:number){
+    for(let i = 0;i<this.stepsCompleted.length;i++){
+      if(i<=stepCompleted){
+        this.stepsCompleted[i]=1;
+      } else {
+        this.stepsCompleted[i]=0;
+      }
+    }
   }
 
   changeStep(stepDestination: number) {
@@ -397,13 +408,14 @@ export class CalculateComponent {
           this.renderSelectedCommunities();
         }
         this.selectedCommunity = null;
-      
+        this.updateCompleteSteps(0);
         //this.renderLocation();
         break;
 
       case 'community':
 
-        this.stepsCompleted[1] = 1;
+      this.updateCompleteSteps(1);
+        //this.stepsCompleted[1] = 1;
 
         if (this.newCommunity == element) {
           this.selectedCommunity = this.newCommunity;

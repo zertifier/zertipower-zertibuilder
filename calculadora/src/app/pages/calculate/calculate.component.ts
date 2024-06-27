@@ -303,7 +303,17 @@ export class CalculateComponent {
 
   }
 
+  resetSteps(){
+    this.stepsCompleted=[0, 0, 0, 0, 0, 0];
+  }
+
   changeStep(stepDestination: number) {
+
+    //todo: no puede haber un tick más avanzado que stepActive. ¿?
+    // for(let i = this.stepsCompleted.length;i>=this.stepActive;i--){
+    //   this.stepsCompleted[i]=0;
+    // }
+
     console.log("change step",stepDestination,"completed?",this.stepsCompleted)
     console.log("select location",this.selectedLocation)
 
@@ -376,7 +386,7 @@ export class CalculateComponent {
     switch (attribute) {
 
       case 'location':
-
+        console.log(this.selectedLocation,element)
         if(this.selectedLocation){
           this.selectedCommunities = this.communities.map((community: any) => {
             if (community.location_id == this.selectedLocation.id) {
@@ -386,7 +396,8 @@ export class CalculateComponent {
   
           this.renderSelectedCommunities();
         }
-        
+        this.selectedCommunity = null;
+      
         //this.renderLocation();
         break;
 

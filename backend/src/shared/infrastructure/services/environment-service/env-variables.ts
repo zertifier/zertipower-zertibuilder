@@ -13,4 +13,5 @@ export interface EnvVariables {
   GOOGLE_CLIENT_SECRET: string;
   RADIATION_API: string;
   RADIATION_API_CREDENTIALS: string;
+  DATADIS_MONTHS:number;
 }

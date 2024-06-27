@@ -33,10 +33,15 @@ export class BlockchainEnergyDataController {
   async getEnergyHistoricInterval(@Param("cups") cups: string, @Param("type") type: string, @Param("timestampStart") timestampStart: string, @Param("timestampEnd") timestampEnd: string) {
     let energyData: any;
     console.log(cups, type, timestampStart, timestampEnd)
-    energyData = await this.blockchainService.getEnergyHistoricInterval(cups, type, timestampStart, timestampEnd)
-    return HttpResponse.success("Energy data fetched successfully").withData(
-      energyData
-    );
+    try{
+      energyData = await this.blockchainService.getEnergyHistoricInterval(cups, type, timestampStart, timestampEnd)
+      return HttpResponse.success("Energy data fetched successfully").withData(
+        energyData
+      );
+    } catch (e) {
+      return HttpResponse.failure(`Error getting interval energyData: ${e}`, ErrorCode.UNEXPECTED)
+    }
+    
   }
 
 

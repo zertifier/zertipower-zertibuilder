@@ -17,7 +17,7 @@ export class BlockchainService {
     private conn: mysql.Pool;
 
     smartContract: any;
-    provider:any;
+    provider: any;
 
     constructor(private mysql: MysqlService, private prisma: PrismaService) {
         this.conn = this.mysql.pool;
@@ -51,7 +51,7 @@ export class BlockchainService {
 
     async obtainSmartContract(contractAddress: any, privateKey: any, abi: any, chainId: any, rpcUrl: any) {
         //console.log(batchContractAddress, contractAddresses, walletReceivers, amounts, privateKey, chainId, rpcUrl)
-        
+
         return new Promise(async (resolve, reject) => {
             try {
                 let networkChainUrl = await this.getRpc(chainId)
@@ -74,14 +74,34 @@ export class BlockchainService {
         })
     }
 
+    async getEnergyValue(cups: string, type: string, timestamp: string) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                cups = this.toKeccak256(cups)
+                type = this.toKeccak256(type)
+                console.log(cups, type, timestamp)
+                let energyValue = await this.smartContract.getEnergyValue(cups, type, timestamp)
+                console.log(energyValue)
+                energyValue = ethers.formatEther(energyValue)
+                resolve(energyValue)
+            } catch (e) {
+                if (e.reason) {
+                    reject(e.reason)
+                } else {
+                    reject(e)
+                }
+            }
+        })
+    }
+
     async getEnergyHistoricInterval(cups: string, type: string, timestampStart: string, timestampEnd: string) {
         return new Promise(async (resolve, reject) => {
             try {
                 const cupsHash = this.toKeccak256(cups)
                 const typeHash = this.toKeccak256(type)
                 let energyHistoricInterval = await this.smartContract.getEnergyHistoricInterval(cupsHash, typeHash, timestampStart, timestampEnd)
-                 // Itera sobre cada par de timestamp y valor
-                const formattedEnergyHistoricInterval = energyHistoricInterval.map(([timestamp, value]:any) => {
+                // Itera sobre cada par de timestamp y valor
+                const formattedEnergyHistoricInterval = energyHistoricInterval.map(([timestamp, value]: any) => {
                     const formattedTimestamp = timestamp.toString();
                     const formattedValue = ethers.formatEther(value);
                     return { timestamp: formattedTimestamp, value: formattedValue };
@@ -89,32 +109,36 @@ export class BlockchainService {
                 console.log("energyHistoricInterval", formattedEnergyHistoricInterval);
                 resolve(formattedEnergyHistoricInterval)
             } catch (e) {
-                if(e.reason){
+                console.log(e)
+                if (e.reason) {
                     reject(e.reason)
-                }else{
+                } else if(e.info && e.info.error && e.info.error.message) {
+                    const errorMessage = e.info.error.message;
+                    reject(errorMessage)
+                } else {
                     reject(e)
                 }
             }
         })
     }
 
-    async setEnergyHistoricInterval(cups:string,types:string[],timestamps:string[],values:string[]){
+    async setEnergyHistoricInterval(cups: string, types: string[], timestamps: string[], values: number[]) {
         return new Promise(async (resolve, reject) => {
             try {
                 const cupsHash = this.toKeccak256(cups)
-                for(let i = 0;i<types.length;i++){
-                    types[i]=this.toKeccak256(types[i])
-                    values[i] = ethers.parseUnits(values[i].toString())
+                for (let i = 0; i < types.length; i++) {
+                    types[i] = this.toKeccak256(types[i])
+                    values[i] = ethers.parseUnits(values[i].toFixed(2), 2)
                 }
                 const transaction = await this.smartContract.batchSetEnergyValue(cupsHash, timestamps, types, values)
                 await transaction.wait(2);
                 resolve(transaction)
             } catch (e) {
-                if(e.reason){
+                if (e.reason) {
                     reject(e.reason)
-                }else if(e.info){
+                } else if (e.info) {
                     reject(e.info)
-                }else {
+                } else {
                     reject(e)
                 }
             }
@@ -125,14 +149,14 @@ export class BlockchainService {
         return new Promise(async (resolve, reject) => {
             try {
 
-                value = ethers.parseUnits(value.toString())
+                value = ethers.parseUnits(value.toFixed(2), 2)
                 const cupsHash = this.toKeccak256(cups)
                 const typeHash = this.toKeccak256(type)
 
                 let gasPrice = (await this.provider.getFeeData()).gasPrice;
-                 
-                let tx = await this.smartContract.setEnergyValue(cupsHash, timestamp, typeHash, value,{
-                    gasPrice:gasPrice
+
+                let tx = await this.smartContract.setEnergyValue(cupsHash, timestamp, typeHash, value, {
+                    gasPrice: gasPrice
                 })
 
                 await tx.wait(2);
@@ -142,28 +166,9 @@ export class BlockchainService {
                 resolve(tx)
 
             } catch (e) {
-                if(e.reason){
+                if (e.reason) {
                     reject(e.reason)
-                }else{
-                    reject(e)
-                }
-            }
-        })
-    }
-
-    async getEnergyValue(cups: string, type: string, timestamp: string) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                cups = this.toKeccak256(cups)
-                type = this.toKeccak256(type)
-                console.log(cups,type,timestamp)
-                let energyValue = await this.smartContract.getEnergyValue(cups, type, timestamp)
-                energyValue = ethers.formatEther(energyValue)
-                resolve(energyValue)
-            } catch (e) {
-                if(e.reason){
-                    reject(e.reason)
-                }else{
+                } else {
                     reject(e)
                 }
             }
@@ -179,9 +184,9 @@ export class BlockchainService {
                 value = ethers.formatEther(value)
                 resolve(value)
             } catch (e) {
-                if(e.reason){
+                if (e.reason) {
                     reject(e.reason)
-                }else{
+                } else {
                     reject(e)
                 }
             }

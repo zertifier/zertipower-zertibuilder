@@ -6,7 +6,7 @@ import * as moment from 'moment';
 import { PasswordUtils } from "src/features/users/domain/Password/PasswordUtils";
 import { LocationUtils } from "src/shared/domain/utils/locationUtils";
 import { PrismaService } from "./prisma-service";
-
+import { EnvironmentService } from "./environment-service";
 
 interface supply {
   address: string
@@ -65,11 +65,13 @@ export class DatadisService {
 
   private conn: mysql.Pool;
 
-  constructor(private mysql: MysqlService, private prisma: PrismaService) {
+  constructor(private mysql: MysqlService, private prisma: PrismaService, private environmentService: EnvironmentService) {
 
     this.conn = this.mysql.pool;
 
-    let startDate = moment().subtract(1, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM');
+    let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
+
+    let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM'); //moment().format('YYYY/MM');
 
     this.run(startDate, endDate)

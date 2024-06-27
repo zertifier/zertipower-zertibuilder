@@ -26,9 +26,13 @@ export class SelectLocationComponent {
 
     selectLocation(selectedLocation:any){
         console.log(selectedLocation)
+        // this.router.navigate(
+        //     ['/search/', selectedLocation.id] 
+        // ); 
+        localStorage.setItem("location",selectedLocation.id)
         this.router.navigate(
-            ['/search/', selectedLocation.id] 
-        ); 
+            ['/calculate'] 
+        );
 
     }
 

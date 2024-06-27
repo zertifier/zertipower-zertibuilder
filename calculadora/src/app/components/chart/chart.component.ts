@@ -120,7 +120,7 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
       datasets: this.datasets || [{
         data: this.data,
         backgroundColor: this.backgroundColor,
-        color: '#fff'
+        color: '#0E2B4C'
       }],
       options:this.options
     }

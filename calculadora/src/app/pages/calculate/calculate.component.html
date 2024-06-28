@@ -762,7 +762,7 @@
             <div class="section-content-padding">
 
                 <!-- <div *ngIf="!this.addedAreas.includes(this.selectedCadastre)"> -->
-                <div *ngIf="this.selectedCadastre.monthlySavings">
+                <div *ngIf="this.selectedCadastre.monthlySavings && !this.addedAreas.includes(this.selectedCadastre)">
 
                     <span class="mb-2 mb-md-4">Dades completades! Fes clic a <b>Afegir comunitat</b> per a finalitzar.
                         Edita dades i
@@ -778,46 +778,55 @@
 
                 </div>
 
+
+                <!-- todo: if selectedArea is addedArea : update button -->
+                <div class="w-100 d-flex" *ngIf="this.addedAreas.includes(this.selectedCadastre)">
+                    <button class="btn btn-secondary mt-4 w-100" (click)="addArea()">Actualitzar</button>
+                </div>
+
                 <div *ngIf="!this.selectedCadastre.monthlySavings">
 
-                    <span class="mb-2 mb-md-4"> Resum de dades afegides. Edita'ls sempre que vulguis fent clic a
-                        <b>Seleccionar
-                            àrea</b>.</span>
+                    <div class="mb-2 mb-md-4">
+                        <span> Resum de dades afegides. Edita'ls sempre que vulguis fent clic a
+                            <b>Seleccionar
+                                àrea</b>.</span>
+                    </div>
 
-                    <div class="row">
+                    <div class="row mb-2 mb-md-4">
 
                         <div class="col-12 col-md-4">
 
-                            <div>
-                                <span class="mb-2 mb-md-4" *ngIf="selectedLocation">Població:
+                            <div class="mb-2 mb-md-4">
+                                <span *ngIf="selectedLocation">Població:
                                     {{this.selectedLocation.municipality}}</span>
                             </div>
 
-                            <div>
-                                <span class="mb-2 mb-md-4"
-                                    *ngIf="!this.selectedCommunity || !this.selectedCommunity.name">Comunitat:
+                            <div class="mb-2 mb-md-4">
+                                <span *ngIf="!this.selectedCommunity || !this.selectedCommunity.name">Comunitat:
                                     Nova
                                     comunitat</span>
 
-                                <span class="mb-2 mb-md-4"
-                                    *ngIf="this.selectedCommunity && this.selectedCommunity.name">Comunitat:
+                                <span *ngIf="this.selectedCommunity && this.selectedCommunity.name">Comunitat:
                                     {{this.selectedCommunity.name}}</span>
                             </div>
 
-
+                            <div class="mb-2 mb-md-4">
+                                <span *ngIf="selectedLocation">Àrea :
+                                    Àrea {{this.addedAreas.length}}</span>
+                            </div>
                             <!-- Add area name ? -->
 
                         </div>
 
                         <div class="col-12 col-md-4">
 
-                            <div>
-                                <span class="mb-2 mb-md-4" *ngIf="this.addedAreas.length"> M² de l'àrea:
+                            <div class="mb-2 mb-md-4">
+                                <span *ngIf="this.addedAreas.length"> M² de l'àrea:
                                     {{this.addedAreas[this.addedAreas.length-1].m2}} </span>
                             </div>
 
-                            <div>
-                                <span class="mb-2 mb-md-4" *ngIf="this.addedAreas.length">Nº de plaques:
+                            <div class="mb-2 mb-md-4">
+                                <span *ngIf="this.addedAreas.length">Nº de plaques:
                                     {{this.addedAreas[this.addedAreas.length-1].n_plaques}}</span>
                             </div>
 
@@ -825,18 +834,18 @@
 
                         <div class="col-12 col-md-4">
 
-                            <div>
-                                <span class="mb-2 mb-md-4" *ngIf="this.addedAreas.length"> Estalvi mensual (€/mes):
+                            <div class="mb-2 mb-md-4">
+                                <span *ngIf="this.addedAreas.length"> Estalvi mensual (€/mes):
                                     {{this.addedAreas[this.addedAreas.length-1].monthlySavings}} </span>
                             </div>
 
-                            <div>
-                                <span class="mb-2 mb-md-4" *ngIf="this.addedAreas.length"> Cost inicial d'inversió (€):
+                            <div class="mb-2 mb-md-4">
+                                <span *ngIf="this.addedAreas.length"> Cost inicial d'inversió (€):
                                     {{this.addedAreas[this.addedAreas.length-1].totalCost}} </span>
                             </div>
 
-                            <div>
-                                <span class="mb-2 mb-md-4" *ngIf="this.addedAreas.length"> Anys per amortitzar:
+                            <div class="mb-2 mb-md-4">
+                                <span *ngIf="this.addedAreas.length"> Anys per amortitzar:
                                     {{this.addedAreas[this.addedAreas.length-1].redeemYears}} </span>
                             </div>
 
@@ -851,6 +860,18 @@
                                 [labels]="monthChartLabels" [datasets]="communityMonthChartDatasets"
                                 [options]="communityMonthChartOptions"
                                 [updateSubject]="communityUpdateMonthChartSubject.asObservable()"></app-chart>
+                        </div>
+                    </div>
+
+                    <span class="fs-6 my-2" *ngIf="addedAreas.length">Llista d'agregats</span>
+                    <div class="btn-light" style="max-height: 283px; overflow-y: auto; overflow-x: hidden;">
+                        <div class="fs-6 my-2 row mt-3" *ngFor="let area of addedAreas; index as i"
+                            style="max-height: 50px; overflow: hidden;">
+                            <span class="col-3">area {{ i+1 }}</span>
+                            <button class="col-3 btn btn-secondary ms-2" type="button" (click)="editArea(i)">
+                                Editar</button>
+                            <button class="col-3 btn btn-danger ms-2" type="button" (click)="deleteArea(i)">
+                                Esborrar</button>
                         </div>
                     </div>
 

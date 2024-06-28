@@ -5,7 +5,7 @@ import {PrismaService} from "../../../../../shared/infrastructure/services";
 import {PredictionPacket} from "./prediction-packet";
 import {Predictor} from "./predictor";
 import {HttpResponse} from "../../../../../shared/infrastructure/http/HttpResponse";
-import {BadRequestError} from "../../../../../shared/domain/error/common";
+import {BadRequestError, InfrastructureError} from "../../../../../shared/domain/error/common";
 
 @Controller('energy-prediction')
 export class EnergyPredictionController {
@@ -23,18 +23,20 @@ export class EnergyPredictionController {
     if (cupsId) {
       response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} order by info_dt desc limit 192`;
     } else if(communityId) {
-      response = await this.prisma.$queryRaw`select sum(production), info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != community and community_id = ${communityId} group by info_dt order by info_dt desc limit 192`;
+      response = await this.prisma.$queryRaw`select sum(production) as production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} group by info_dt order by info_dt desc limit 192`;
     } else {
       throw new BadRequestError('must specify cups or community')
     }
 
-
     const now = response[0].infoDt;
     const ago = response[response.length - 1].infoDt;
 
-    console.log({now, ago});
-
-    const historicRadiation = await this.energyForecastService.getRadiation(ago, now);
+    let historicRadiation;
+    try {
+      historicRadiation = await this.energyForecastService.getRadiation(ago, now);
+    } catch (err) {
+      throw new InfrastructureError('Error happened while getting historic radiation');
+    }
 
     for (const {value, time} of historicRadiation) {
       const date = moment(time).format('YYYY-MM-DD HH:00');

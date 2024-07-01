@@ -24,10 +24,6 @@ const SKIP_LOGIN_INTERCEPTOR = "X-Skip-Login-Interceptor";
 export class EnergyForecastService {
   private httpClient = axios.create({
     baseURL: this.environment.getEnv().RADIATION_API,
-    proxy: {
-      host: 'localhost',
-      port: 8080,
-    },
     httpsAgent: new https.Agent({ rejectUnauthorized: false }),
   });
   private projectId = '';

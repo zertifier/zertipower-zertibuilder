@@ -6,6 +6,7 @@ import {PredictionPacket} from "./prediction-packet";
 import {Predictor} from "./predictor";
 import {HttpResponse} from "../../../../../shared/infrastructure/http/HttpResponse";
 import {BadRequestError, InfrastructureError} from "../../../../../shared/domain/error/common";
+import {AxiosError} from "axios";
 
 @Controller('energy-prediction')
 export class EnergyPredictionController {
@@ -38,8 +39,12 @@ export class EnergyPredictionController {
 
     let historicRadiation;
     try {
+      console.log(ago, now)
       historicRadiation = await this.energyForecastService.getRadiation(ago, now);
     } catch (err) {
+      if (err instanceof AxiosError) {
+        console.log(err.response?.data);
+      }
       throw new InfrastructureError('Error happened while getting historic radiation');
     }
 

@@ -465,7 +465,7 @@
             <div class="section-content-padding">
 
                 <div class="w-100 d-flex mt-2 mt-md-4">
-                    <span>Tria el consum que vols veure</span>
+                    <span>Tria el tipus de consum que vols afegir</span>
                     <a *ngIf="!editingArea" class="d-flex w-100 justify-content-end" (click)="editingArea=true">
                         <span>Ajustar dades</span>
                     </a>
@@ -810,15 +810,27 @@
                                     {{this.selectedCommunity.name}}</span>
                             </div>
 
-                            <div class="mb-2 mb-md-4">
+                            <!-- <div class="mb-2 mb-md-4">
                                 <span *ngIf="selectedLocation">Àrea :
                                     Àrea {{this.addedAreas.length}}</span>
-                            </div>
-                            <!-- Add area name ? -->
+                            </div> -->
 
                         </div>
 
+
                         <div class="col-12 col-md-4">
+
+                            <div class="mb-2 mb-md-4">
+                                <span *ngIf="selectedCommunity">Membres: {{ communityCups.length || 0 }}</span>
+                            </div>
+
+                            <div class="mb-2 mb-md-4">
+                                <span class="">Membres simulats: {{ addedAreas.length }}</span>
+                            </div>
+
+                        </div>
+
+                        <!-- <div class="col-12 col-md-4">
 
                             <div class="mb-2 mb-md-4">
                                 <span *ngIf="this.addedAreas.length"> M² de l'àrea:
@@ -849,7 +861,7 @@
                                     {{this.addedAreas[this.addedAreas.length-1].redeemYears}} </span>
                             </div>
 
-                        </div>
+                        </div> -->
 
                     </div>
 
@@ -867,7 +879,7 @@
                     <div class="btn-light" style="max-height: 283px; overflow-y: auto; overflow-x: hidden;">
                         <div class="fs-6 my-2 row mt-3" *ngFor="let area of addedAreas; index as i"
                             style="max-height: 50px; overflow: hidden;">
-                            <span class="col-3">area {{ i+1 }}</span>
+                            <span class="col-3">Àrea {{ i+1 }}</span>
                             <button class="col-3 btn btn-secondary ms-2" type="button" (click)="editArea(i)">
                                 Editar</button>
                             <button class="col-3 btn btn-danger ms-2" type="button" (click)="deleteArea(i)">

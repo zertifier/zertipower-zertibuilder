@@ -3,6 +3,7 @@ import {
   Component,
   HostListener,
   inject,
+  NgZone,
   OnInit,
   Renderer2,
   ViewChild,
@@ -78,12 +79,12 @@ export class CalculateComponent {
   selectedLocation: any = { id: 0, municipality: '', province: '' };
   selectedLocationId: number | undefined;
 
-  communities: any = [];  
+  communities: any = [];
   selectedCommunity: any = null;
   selectedCommunities: any;
   newCommunity: any = {};
   communityCups: any = [];
-  
+
   cadastresMap: any;
   energyAreas: any;
   //energyArea = { cadastral_reference: '', m2: 0, cups: '' };
@@ -104,7 +105,7 @@ export class CalculateComponent {
   //kwhMonth460wp = [20, 25, 35, 45, 55, 65, 75, 75, 60, 45, 35, 25];
   //selectedAreaM2: number | undefined;
   //paramsSub: any;
-  
+
   orientations: any[] = [
     { name: 'Sud', value: 0 },
     //{ name: 'Sudest', value: 30 },
@@ -250,6 +251,7 @@ export class CalculateComponent {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private renderer: Renderer2,
+    private ngZone: NgZone
   ) {
 
     this.locationService.getLocations().subscribe(async (res: any) => {
@@ -320,7 +322,7 @@ export class CalculateComponent {
 
   changeStep(stepDestination: number) {
 
-    console.log("changeStep",stepDestination)
+    console.log("changeStep", stepDestination)
     //todo: no puede haber un tick más avanzado que stepActive. ¿?
     // for(let i = this.stepsCompleted.length;i>=this.stepActive;i--){
     //   this.stepsCompleted[i]=0;
@@ -339,7 +341,7 @@ export class CalculateComponent {
       return;
     }
 
-    if (stepDestination == 5 && !this.selectedCadastre.m2) {
+    if (stepDestination == 5 && !this.selectedCadastre.m2 && this.stepActive < 6) {
       Swal.fire("Selecciona un àrea", 'Selecciona un àrea per avançar al següent pas.', 'info')
       return;
     }
@@ -633,53 +635,57 @@ export class CalculateComponent {
 
       this.loading.next(false);
 
-      const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
+      this.ngZone.run(() => {
 
-        this.resetCadastre();
+        const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
 
-        let latLng: any = event.latLng;
+          this.resetCadastre();
 
-        this.selectedCoords = { lat: latLng.lat(), lng: latLng.lng() }
+          let latLng: any = event.latLng;
 
-        const feature = event.feature;
+          this.selectedCoords = { lat: latLng.lat(), lng: latLng.lng() }
 
-        //if selected is false, the click was to deselect, so you don't have to do anything else
-        let isSelectedArea = feature.getProperty('selected')
-        if (!isSelectedArea) {
-          this.stepsCompleted[3] = 0;
-          this.cdr.detectChanges()
-          return;
-        }
+          const feature = event.feature;
 
-        let cadastre: any = feature.getProperty('localId')
+          //if selected is false, the click was to deselect, so you don't have to do anything else
+          let isSelectedArea = feature.getProperty('selected')
+          if (!isSelectedArea) {
+            this.stepsCompleted[3] = 0;
+            //this.cdr.detectChanges()
+            return;
+          }
 
-        //check if selected area is an already added area
-        let foundArea = this.addedAreas.find((addedArea) => addedArea.id == cadastre)
-        if (foundArea) {
-          this.selectedCadastre = foundArea;
-          this.restoreCadastre();
-          this.cdr.detectChanges();
-          return;
-        }
+          let cadastre: any = feature.getProperty('localId')
 
-        this.selectedCadastre.feature = feature;
-        this.selectedCadastre.id = cadastre;
+          //check if selected area is an already added area
+          let foundArea = this.addedAreas.find((addedArea) => addedArea.id == cadastre)
+          if (foundArea) {
+            this.selectedCadastre = foundArea;
+            this.restoreCadastre();
+            //his.cdr.detectChanges();
+            return;
+          }
 
-        let areaM2: any = feature.getProperty('areaM2');
-        this.selectedCadastre.m2 = Math.floor(areaM2);
-        this.stepsCompleted[3] = 1
-        this.simulateGenerationConsumption();
-        this.cdr.detectChanges()
+          this.selectedCadastre.feature = feature;
+          this.selectedCadastre.id = cadastre;
 
-      });
+          let areaM2: any = feature.getProperty('areaM2');
+          this.selectedCadastre.m2 = Math.floor(areaM2);
+          this.stepsCompleted[3] = 1
+          this.simulateGenerationConsumption();
+          //this.cdr.detectChanges()
 
-    }, error => {
-      this.loading.next(false),
-        Swal.fire({
-          title: 'Error getting areas',
-          icon: "error"
-        })
-    })
+        });
+
+      }, (error: any) => {
+        this.loading.next(false),
+          Swal.fire({
+            title: 'Error getting areas',
+            icon: "error"
+          })
+      })
+
+    });
 
   }
 
@@ -876,18 +882,19 @@ export class CalculateComponent {
   }
 
   addArea() {
-    let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
-    console.log("add Area found", found)
-    if (found) {
-      this.addedAreas = [...this.addedAreas]
-    } else {
-      this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
-      this.updateCommunityChart()
-      this.map.activeArea(this.selectedCadastre)
-    }
-    this.resetCadastre();
-    this.cdr.detectChanges();
-    console.log(this.addedAreas)
+    this.ngZone.run(() => {
+      let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
+      console.log("add Area found", found)
+      if (found) {
+        this.addedAreas = [...this.addedAreas]
+      } else {
+        this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
+        this.updateCommunityChart()
+        this.map.activeArea(this.selectedCadastre)
+      }
+      this.resetCadastre();
+      //this.cdr.detectChanges(); 
+    })
   }
 
   deleteArea(index: number) {
@@ -901,16 +908,15 @@ export class CalculateComponent {
   unselectArea(feature: any) {
     this.map.unselectArea(feature)
     this.resetCadastre();
-    this.cdr.detectChanges();
+    // this.cdr.detectChanges();
   }
 
   editArea(index: number) {
-    console.log("editArea");
     this.map.selectArea(this.addedAreas[index])
     this.selectedCadastre = this.addedAreas[index];
-    this.stepActive=5;
+    this.stepActive = 5;
     this.changeStep(5);
-    
+
   }
 
   calculateSurplus() {

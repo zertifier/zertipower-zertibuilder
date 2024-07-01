@@ -66,15 +66,15 @@ export class DatadisService {
 
   private conn: mysql.Pool;
 
-  constructor(private mysql: MysqlService, private prisma: PrismaService, private environmentService:EnvironmentService) {
+  constructor(private mysql: MysqlService, private prisma: PrismaService, private environmentService: EnvironmentService) {
 
     this.conn = this.mysql.pool;
 
     let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM'); //moment().format('YYYY/MM');
-
-    //this.run(startDate, endDate)
+    
+    this.run(startDate, endDate)
 
     setInterval(() => {
       startDate = moment().subtract(1, 'months').format('YYYY/MM');
@@ -94,6 +94,9 @@ export class DatadisService {
     this.dbCups = await this.getCups()
     this.dbCustomers = await this.getCustomers();
     this.dbCommunities = await this.getCommunities();
+
+    let authorizedSuppliesPromises : Promise<supply[]>[];
+
     for (let cups of this.dbCups) {
       if (!cups.datadis_active || !cups.datadis_user || !cups.datadis_password) {
         continue;
@@ -146,10 +149,21 @@ export class DatadisService {
         })
       }
 
-      //get authorized community datadis cups
-      const authorizedSuppliesPromises = this.communityCups.map(communityCupsElement => this.getAuthorizedSupplies(this.token, communityCupsElement.dni));
       try {
-        await Promise.all(authorizedSuppliesPromises);
+        //get authorized community datadis cups
+        authorizedSuppliesPromises = this.communityCups.map(communityCupsElement => this.getAuthorizedSupplies(this.token, communityCupsElement.dni));
+      } catch (e){
+        console.log("Error getting authorized supplies",e)
+        status = 'error';
+        errorType = 'Error getting authorized supplies';
+        operation = 'Get authorized supplies'
+        await this.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
+      }
+      
+      try {
+        if(authorizedSuppliesPromises!){
+          await Promise.all(authorizedSuppliesPromises);
+        }
       } catch (e) {
         status = 'error';
         errorType = 'Error getting authorized supplies';
@@ -632,7 +646,7 @@ export class DatadisService {
 
       // Iterate over the filteredCups array in batches
       for (let start = 0; start < filteredCups.length; start += batchSize) {
-      // for (let start = 0; start < 100; start += batchSize) {
+        // for (let start = 0; start < 100; start += batchSize) {
         // Extract a slice of batchSize from filteredCups
         const batch = filteredCups.slice(start, start + batchSize);
 
@@ -648,12 +662,12 @@ export class DatadisService {
             // const consumption = (production && datadisRegister.import) ? production + datadisRegister.import : datadisRegister.import;
             let consumption = null;
 
-            if (production && datadisRegister.import){
+            if (production && datadisRegister.import) {
               consumption = production + datadisRegister.import
-            }else{
-              if (production && datadisRegister.export){
+            } else {
+              if (production && datadisRegister.export) {
                 consumption = production - datadisRegister.export
-              }else{
+              } else {
                 consumption = datadisRegister.import
               }
             }
@@ -671,7 +685,7 @@ export class DatadisService {
         query = query.slice(0, -1);
         // console.log(query)
 
-        if (filteredCups.length){
+        if (filteredCups.length) {
           // Execute the query for this batch
           let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
           const insertedRows = result.affectedRows;
@@ -802,7 +816,7 @@ export class DatadisService {
     let lastCheckedDate = null
 
     for (const existentCups of existentDatadisCups) {
-      if (lastCheckedDate != moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss')){
+      if (lastCheckedDate != moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss')) {
         formattedNewCups.push(...this.formatNewCups(newCups, existentCups))
         lastCheckedDate = moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss')
       }

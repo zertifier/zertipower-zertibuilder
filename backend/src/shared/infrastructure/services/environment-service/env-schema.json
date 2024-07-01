@@ -71,6 +71,12 @@
       "required": true,
       "type": "string",
       "default": "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"
+    },
+    {
+      "name": "DATADIS_MONTHS",
+      "required": true,
+      "type": "int",
+      "default": "1"
     }
   ]
 }

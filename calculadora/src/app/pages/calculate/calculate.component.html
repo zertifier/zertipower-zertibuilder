@@ -166,18 +166,12 @@
                 </div>
 
                 <div class="col-12 col-md-4 mt-2 mt-md-4 d-flex align-items-center">
-                    <select *ngIf="selectedCommunity!=newCommunity" id="location-comunnity"
+                   
+                    <select  id="location-comunnity"
                         [(ngModel)]="selectedCommunity" class="form-select px-2"
-                        (ngModelChange)="OnSelectorChange($event, 'community')">
+                        (change)="OnSelectorChange(selectedCommunity,'community')">
                         <option [ngValue]="null" disabled selected hidden>Triar comunitat</option>
-                        <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{ community.name }}
-                        </option>
-                    </select>
-
-                    <select *ngIf="selectedCommunity==newCommunity" id="location-comunnity"
-                        [(ngModel)]="selectedCommunity" class="form-select px-2"
-                        (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
-                        <option [ngValue]="newCommunity">Nova comunitat</option>
+                        <option  *ngIf="selectedCommunity==newCommunity" [ngValue]="newCommunity">Nova comunitat</option>
                         <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{ community.name }}
                         </option>
                     </select>

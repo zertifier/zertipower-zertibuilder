@@ -26,8 +26,11 @@ export class EnvironmentService implements OnModuleInit {
     FRONTEND_URL: "",
     GOOGLE_CLIENT_SECRET: "",
     GOOGLE_CLIENT_ID: "",
+<<<<<<< HEAD
     RADIATION_API: "",
     RADIATION_API_CREDENTIALS: "",
+=======
+>>>>>>> fabra
     DATADIS_MONTHS:0
   };
 

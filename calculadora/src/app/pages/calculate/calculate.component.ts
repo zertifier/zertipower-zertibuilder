@@ -3,6 +3,7 @@ import {
   Component,
   HostListener,
   inject,
+  NgZone,
   OnInit,
   Renderer2,
   ViewChild,
@@ -74,20 +75,22 @@ export class CalculateComponent {
   steps: string[] = ['Seleccionar una població', 'Seleccionar una comunitat', 'Dades i estadístiques de la comunitat',
     'Seleccionar Àrea', `Calcular generació de l'àrea seleccionada`, 'Afegir comunitat']
 
-  customers: any = [];
-  communities: any = [];
   locations: any = [];
+  selectedLocation: any = { id: 0, municipality: '', province: '' };
+  selectedLocationId: number | undefined;
+
+  communities: any = [];
   selectedCommunity: any = null;
+  selectedCommunities: any;
   newCommunity: any = {};
   communityCups: any = [];
-  selectedCommunities: any;
-  selectedLocation: any = { id : 0 ,municipality: '' , province: ''};
+
   cadastresMap: any;
   energyAreas: any;
-  energyArea = { cadastral_reference: '', m2: 0, cups: '' };
-  selectedEnergyArea: any;
-  kwhMonth: any;
-  wp: number = 460; //potencia pico (potencia nominal)
+  //energyArea = { cadastral_reference: '', m2: 0, cups: '' };
+  //selectedEnergyArea: any;
+  //kwhMonth: any;
+  //wp: number = 460; //potencia pico (potencia nominal)
 
   //chart variables
   monthChartType: string = 'bar';
@@ -99,10 +102,10 @@ export class CalculateComponent {
   updateMonthChart: boolean = false;
   updateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   sumMonthGeneration: number[] = [];
-  kwhMonth460wp = [20, 25, 35, 45, 55, 65, 75, 75, 60, 45, 35, 25];
-  selectedAreaM2: number | undefined;
-  paramsSub: any;
-  selectedLocationId: number | undefined;
+  //kwhMonth460wp = [20, 25, 35, 45, 55, 65, 75, 75, 60, 45, 35, 25];
+  //selectedAreaM2: number | undefined;
+  //paramsSub: any;
+
   orientations: any[] = [
     { name: 'Sud', value: 0 },
     //{ name: 'Sudest', value: 30 },
@@ -211,33 +214,31 @@ export class CalculateComponent {
   cupsNumber: number = 0;
   addedAreas: any[] = [];
 
-  TooltipPosition: typeof TooltipPosition = TooltipPosition;
-  TooltipTheme: typeof TooltipTheme = TooltipTheme;
+  //TooltipPosition: typeof TooltipPosition = TooltipPosition;
+  //TooltipTheme: typeof TooltipTheme = TooltipTheme;
 
   @ViewChild(AppMapComponent) map!: AppMapComponent;
 
-  folder: number = 1;
-  isShrunk: boolean = false;
+  //folder: number = 1;
+  //isShrunk: boolean = false;
 
   loading: Subject<boolean> = new Subject<boolean>;
 
-  engineeringCost: number = 1623;
-  installationCost: number[] = [0.35, 0.3, 0.24];
-  invertersCost: number[] = [0.105, 0.087, 0.072];
-  managementCost: number[] = [1500, 1500, 2000];
-  panelsCost: number = 0.265;
-  structureCost: number = 0.07;
+  //engineeringCost: number = 1623;
+  //installationCost: number[] = [0.35, 0.3, 0.24];
+  //invertersCost: number[] = [0.105, 0.087, 0.072];
+  //managementCost: number[] = [1500, 1500, 2000];
+  //panelsCost: number = 0.265;
+  //structureCost: number = 0.07;
   selectedCoords: any;
 
   activeSimulation: boolean = false;
   activeIndividual: boolean = false;
   activeCommunity: boolean = false;
-  activeAcc: boolean = false;
-  activeCce: boolean = false;
-
-  isMobile = false;
-  private modalService = inject(NgbModal);
-
+  //activeAcc: boolean = false;
+  //activeCce: boolean = false;
+  //isMobile = false;
+  //private modalService = inject(NgbModal);
   editingArea = false;
 
 
@@ -250,6 +251,7 @@ export class CalculateComponent {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private renderer: Renderer2,
+    private ngZone: NgZone
   ) {
 
     this.locationService.getLocations().subscribe(async (res: any) => {
@@ -262,7 +264,8 @@ export class CalculateComponent {
       this.selectedLocationId = parseInt(localStorage.getItem("location")!)
       if (this.selectedLocationId) {
         this.stepActive = 2;
-        this.stepsCompleted[0] = 1;
+        //this.stepsCompleted[0] = 1;
+        this.updateCompleteSteps(0);
       }
     } catch {
       console.log("location unselected")
@@ -276,7 +279,7 @@ export class CalculateComponent {
       this.locationService.getLocations().subscribe(async (res: any) => {
         this.selectedLocation = res.data.find((location: any) => location.id == this.selectedLocationId)
         //console.log("selected location",this.selectedLocation,this.selectedLocationId)
-        if(this.selectedLocation){
+        if (this.selectedLocation) {
           this.map.centerToAddress(`${this.selectedLocation.municipality}, España`)
         } else {
           console.log("Selected location not found")
@@ -303,54 +306,67 @@ export class CalculateComponent {
 
   }
 
-  resetSteps(){
-    this.stepsCompleted=[0, 0, 0, 0, 0, 0];
+  resetSteps() {
+    this.stepsCompleted = [0, 0, 0, 0, 0, 0];
+  }
+
+  updateCompleteSteps(stepCompleted: number) {
+    for (let i = 0; i < this.stepsCompleted.length; i++) {
+      if (i <= stepCompleted) {
+        this.stepsCompleted[i] = 1;
+      } else {
+        this.stepsCompleted[i] = 0;
+      }
+    }
   }
 
   changeStep(stepDestination: number) {
 
+    console.log("changeStep", stepDestination)
     //todo: no puede haber un tick más avanzado que stepActive. ¿?
     // for(let i = this.stepsCompleted.length;i>=this.stepActive;i--){
     //   this.stepsCompleted[i]=0;
     // }
 
-    console.log("change step",stepDestination,"completed?",this.stepsCompleted)
-    console.log("select location",this.selectedLocation)
+    console.log("change step", stepDestination, "completed?", this.stepsCompleted)
+    console.log("select location", this.selectedLocation)
 
-    if(stepDestination==2 && !this.selectedLocation){
-      Swal.fire("Selecciona una localitat",'Selecciona una localitat per avançar al següent pas.','info')
-      return;
-    }
-    if((stepDestination==3 || stepDestination==4) && !this.selectedCommunity){
-      Swal.fire("Selecciona una comunitat",'Selecciona una comunitat per avançar al següent pas.','info')
-      return;
-    }
-    if(stepDestination==5 && !this.selectedCadastre.m2){
-      Swal.fire("Selecciona un àrea",'Selecciona un àrea per avançar al següent pas.','info')
+    if (stepDestination == 2 && !this.selectedLocation) {
+      Swal.fire("Selecciona una localitat", 'Selecciona una localitat per avançar al següent pas.', 'info')
       return;
     }
 
-    if(stepDestination==6 && !this.selectedCadastre.m2){
-      Swal.fire("Selecciona un àrea",'Selecciona un àrea per avançar al següent pas.','info')
+    if ((stepDestination == 3 || stepDestination == 4) && !this.selectedCommunity) {
+      Swal.fire("Selecciona una comunitat", 'Selecciona una comunitat per avançar al següent pas.', 'info')
       return;
     }
 
-    if(stepDestination==3){
-      console.log("stepDestination",stepDestination)
-      this.stepsCompleted[2]=1;
+    if (stepDestination == 5 && !this.selectedCadastre.m2 && this.stepActive < 6) {
+      Swal.fire("Selecciona un àrea", 'Selecciona un àrea per avançar al següent pas.', 'info')
+      return;
     }
-    if(stepDestination==4){
-      console.log("stepDestination",stepDestination)
+
+    if (stepDestination == 6 && !this.selectedCadastre.m2) {
+      Swal.fire("Selecciona un àrea", 'Selecciona un àrea per avançar al següent pas.', 'info')
+      return;
+    }
+
+    if (stepDestination == 3) {
+      console.log("stepDestination", stepDestination)
+      this.stepsCompleted[2] = 1;
+    }
+    if (stepDestination == 4) {
+      console.log("stepDestination", stepDestination)
       //this.stepsCompleted[3]=1;
     }
 
-    if(stepDestination==5){
-      console.log("stepDestination",stepDestination)
-      this.stepsCompleted[4]=1;
+    if (stepDestination == 5) {
+      console.log("stepDestination", stepDestination)
+      this.stepsCompleted[4] = 1;
     }
-    
+
     this.stepActive = stepDestination;
-    
+
     this.scrollToElement(`collapser-${stepDestination}`)
 
     this.cdr.detectChanges();
@@ -377,33 +393,45 @@ export class CalculateComponent {
   selectLocation(selectedLocation: any) {
     localStorage.setItem("location", selectedLocation.id)
     this.map.centerToAddress(`${this.selectedLocation.municipality}, España`)
-    this.stepsCompleted[0]=1;
+    this.stepsCompleted[0] = 1;
     this.OnSelectorChange(this.selectedLocation, 'location')
   }
 
   OnSelectorChange(element: any, attribute: string) {
-    console.log(element,attribute)
+    console.log(element, attribute)
     switch (attribute) {
 
       case 'location':
-        console.log(this.selectedLocation,element)
-        if(this.selectedLocation){
+
+        this.resetCadastre();
+        this.map.unselect();
+        this.map.deleteMarkers();
+
+        console.log(this.selectedLocation, element)
+        if (this.selectedLocation) {
           this.selectedCommunities = this.communities.map((community: any) => {
             if (community.location_id == this.selectedLocation.id) {
               return community;
             }
           }).filter((element: any) => element);
-  
+
           this.renderSelectedCommunities();
         }
         this.selectedCommunity = null;
-      
+
+        this.updateCompleteSteps(0);
+
         //this.renderLocation();
         break;
 
       case 'community':
 
-        this.stepsCompleted[1] = 1;
+        this.updateCompleteSteps(1);
+        //this.stepsCompleted[1] = 1;
+
+        this.resetCadastre();
+        this.map.unselect();
+        this.map.deleteMarkers();
 
         if (this.newCommunity == element) {
           this.selectedCommunity = this.newCommunity;
@@ -416,7 +444,10 @@ export class CalculateComponent {
           //this.getCommunityPrices();
           this.map.selectMarker(this.selectedCommunity.lat, this.selectedCommunity.lng);
         }
-        this.renderLocation()
+        this.renderLocation();
+
+        this.updateCompleteSteps(1);
+
         break;
 
       default:
@@ -604,53 +635,57 @@ export class CalculateComponent {
 
       this.loading.next(false);
 
-      const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
+      this.ngZone.run(() => {
 
-        this.resetCadastre();
+        const clickListener = this.cadastresMap.addListener('click', (event: google.maps.Data.MouseEvent) => {
 
-        let latLng: any = event.latLng;
+          this.resetCadastre();
 
-        this.selectedCoords = { lat: latLng.lat(), lng: latLng.lng() }
+          let latLng: any = event.latLng;
 
-        const feature = event.feature;
+          this.selectedCoords = { lat: latLng.lat(), lng: latLng.lng() }
 
-        //if selected is false, the click was to deselect, so you don't have to do anything else
-        let isSelectedArea = feature.getProperty('selected')
-        if (!isSelectedArea) {
-          this.stepsCompleted[3]=0;
-          this.cdr.detectChanges()
-          return;
-        }
+          const feature = event.feature;
 
-        let cadastre: any = feature.getProperty('localId')
+          //if selected is false, the click was to deselect, so you don't have to do anything else
+          let isSelectedArea = feature.getProperty('selected')
+          if (!isSelectedArea) {
+            this.stepsCompleted[3] = 0;
+            //this.cdr.detectChanges()
+            return;
+          }
 
-        //check if selected area is an already added area
-        let foundArea = this.addedAreas.find((addedArea) => addedArea.id == cadastre)
-        if (foundArea) {
-          this.selectedCadastre = foundArea;
-          this.restoreCadastre();
-          this.cdr.detectChanges();
-          return;
-        }
+          let cadastre: any = feature.getProperty('localId')
 
-        this.selectedCadastre.feature = feature;
-        this.selectedCadastre.id = cadastre;
+          //check if selected area is an already added area
+          let foundArea = this.addedAreas.find((addedArea) => addedArea.id == cadastre)
+          if (foundArea) {
+            this.selectedCadastre = foundArea;
+            this.restoreCadastre();
+            //his.cdr.detectChanges();
+            return;
+          }
 
-        let areaM2: any = feature.getProperty('areaM2');
-        this.selectedCadastre.m2 = Math.floor(areaM2);
-        this.stepsCompleted[3]=1
-        this.simulateGenerationConsumption();
-        this.cdr.detectChanges()
+          this.selectedCadastre.feature = feature;
+          this.selectedCadastre.id = cadastre;
 
-      });
+          let areaM2: any = feature.getProperty('areaM2');
+          this.selectedCadastre.m2 = Math.floor(areaM2);
+          this.stepsCompleted[3] = 1
+          this.simulateGenerationConsumption();
+          //this.cdr.detectChanges()
 
-    }, error => {
-      this.loading.next(false),
-        Swal.fire({
-          title: 'Error getting areas',
-          icon: "error"
-        })
-    })
+        });
+
+      }, (error: any) => {
+        this.loading.next(false),
+          Swal.fire({
+            title: 'Error getting areas',
+            icon: "error"
+          })
+      })
+
+    });
 
   }
 
@@ -822,9 +857,9 @@ export class CalculateComponent {
 
   }
 
-  changeShrinkState() {
-    this.isShrunk = !this.isShrunk;
-  }
+  // changeShrinkState() {
+  //   this.isShrunk = !this.isShrunk;
+  // }
 
   resetCadastre() {
     console.log("reset cadastre")
@@ -847,18 +882,19 @@ export class CalculateComponent {
   }
 
   addArea() {
-    let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
-    console.log("add Area found", found)
-    if (found) {
-      this.addedAreas = [...this.addedAreas]
-    } else {
-      this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
-      this.updateCommunityChart()
-      this.map.activeArea(this.selectedCadastre)
-    }
-    this.resetCadastre();
-    this.cdr.detectChanges();
-    console.log(this.addedAreas)
+    this.ngZone.run(() => {
+      let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
+      console.log("add Area found", found)
+      if (found) {
+        this.addedAreas = [...this.addedAreas]
+      } else {
+        this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
+        this.updateCommunityChart()
+        this.map.activeArea(this.selectedCadastre)
+      }
+      this.resetCadastre();
+      //this.cdr.detectChanges(); 
+    })
   }
 
   deleteArea(index: number) {
@@ -872,12 +908,15 @@ export class CalculateComponent {
   unselectArea(feature: any) {
     this.map.unselectArea(feature)
     this.resetCadastre();
-    this.cdr.detectChanges();
+    // this.cdr.detectChanges();
   }
 
   editArea(index: number) {
     this.map.selectArea(this.addedAreas[index])
     this.selectedCadastre = this.addedAreas[index];
+    this.stepActive = 5;
+    this.changeStep(5);
+
   }
 
   calculateSurplus() {
@@ -904,7 +943,7 @@ export class CalculateComponent {
   calculateMonthlySavings() {
 
     let monthAverageGeneration: number = this.selectedCadastre.yearGeneration! / 12;
-    let oldMonthAverageConsumption: number = this.selectedCadastre.yearConsumption! / 12; 
+    let oldMonthAverageConsumption: number = this.selectedCadastre.yearConsumption! / 12;
     //this will be the consumption without production
     let monthAverageConsumption: number = oldMonthAverageConsumption;
     let monthlyConsumedProduction: number = 0;
@@ -939,17 +978,17 @@ export class CalculateComponent {
       this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts
 
     } else {
-      
-        communityMonthlyCosts = monthAverageConsumption * this.selectedCommunity.energy_price //this.selectedCadastre.generationPrice!;
-        //monthlySavings is the price of energy that you stop using from the company when you have generation
-        this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
-      
+
+      communityMonthlyCosts = monthAverageConsumption * this.selectedCommunity.energy_price //this.selectedCadastre.generationPrice!;
+      //monthlySavings is the price of energy that you stop using from the company when you have generation
+      this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
+
     }
 
     this.selectedCadastre.monthlySavings! += this.selectedCadastre.surplusMonthlyProfits!;
 
     //in acc, the savings cannot overcome the costs
-    if ((this.activeAcc || this.activeIndividual) && this.selectedCadastre.monthlySavings! > monthlyCosts!) {
+    if (this.activeIndividual && this.selectedCadastre.monthlySavings! > monthlyCosts!) {//if ((this.activeAcc || this.activeIndividual) && this.selectedCadastre.monthlySavings! > monthlyCosts!) {
       //console.log("this.selectedCadastre.monthlySavings!, monthlyCosts!", this.selectedCadastre.monthlySavings!, monthlyCosts!)
       this.selectedCadastre.monthlySavings = monthlyCosts!;
     }
@@ -1063,15 +1102,15 @@ export class CalculateComponent {
     this.selectedCadastre.oldOrientation = this.selectedCadastre.orientation
   }
 
-  openChartModal(labels: any, datasets: any, options: any, updateSubject: any) {
-    const modalRef = this.modalService.open(ChartModalComponent, { fullscreen: true })
-    modalRef.componentInstance.labels = this.monthChartLabels
-    modalRef.componentInstance.datasets = this.communityMonthChartDatasets
-    let customModalOptions = { ... this.communityMonthChartOptions }
-    customModalOptions.aspectRatio = 0.5
-    // modalRef.componentInstance.options = this.communityMonthChartOptions
-    modalRef.componentInstance.options = customModalOptions
-    modalRef.componentInstance.updateSubject = this.communityUpdateMonthChartSubject
-  }
+  // openChartModal(labels: any, datasets: any, options: any, updateSubject: any) {
+  //   const modalRef = this.modalService.open(ChartModalComponent, { fullscreen: true })
+  //   modalRef.componentInstance.labels = this.monthChartLabels
+  //   modalRef.componentInstance.datasets = this.communityMonthChartDatasets
+  //   let customModalOptions = { ... this.communityMonthChartOptions }
+  //   customModalOptions.aspectRatio = 0.5
+  //   // modalRef.componentInstance.options = this.communityMonthChartOptions
+  //   modalRef.componentInstance.options = customModalOptions
+  //   modalRef.componentInstance.updateSubject = this.communityUpdateMonthChartSubject
+  // }
 
 }

@@ -35,6 +35,7 @@ import { BlockchainEnergyDataController } from './features/blockchain-energy-dat
 import { WeatherPredictionModule } from './features/weather-prediction/weather-prediction.module';
 import { EnergyPredictionModule } from './features/energy-prediction/energy-prediction.module';
 import { CommunitiesModule } from './features/communities/communities.module';
+import {EnergyHourlyController} from "./features/energy-hourly/energy-hourly.controller";
 
 @Module({
   imports: [
@@ -75,7 +76,8 @@ import { CommunitiesModule } from './features/communities/communities.module';
     VotesController,
     ResponsesController,
     SharesController,
-    BlockchainEnergyDataController
+    BlockchainEnergyDataController,
+    EnergyHourlyController
 ],
 })
 export class AppModule implements NestModule {

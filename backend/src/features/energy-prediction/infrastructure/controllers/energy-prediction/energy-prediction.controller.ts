@@ -1,10 +1,11 @@
-import {Controller, Get} from '@nestjs/common';
+import {Controller, Get, Query} from '@nestjs/common';
 import {EnergyForecastService} from "../../services/energy-forecast.service";
 import * as moment from "moment";
 import {PrismaService} from "../../../../../shared/infrastructure/services";
 import {PredictionPacket} from "./prediction-packet";
 import {Predictor} from "./predictor";
 import {HttpResponse} from "../../../../../shared/infrastructure/http/HttpResponse";
+import {BadRequestError, InfrastructureError} from "../../../../../shared/domain/error/common";
 
 @Controller('energy-prediction')
 export class EnergyPredictionController {
@@ -12,14 +13,30 @@ export class EnergyPredictionController {
   }
 
   @Get()
-  async getPrediction() {
+  async getPrediction(@Query("cups") cupsId: number, @Query("community") communityId: number) {
     const packets: Map<string, PredictionPacket> = new Map();
 
-    // Get historic energy and radiation
-    const now = new Date();
-    const ago = moment(now).subtract(8, 'days').toDate();
 
-    const historicRadiation = await this.energyForecastService.getRadiation(ago, now);
+
+
+    let response: {production: number, infoDt: Date}[];
+    if (cupsId) {
+      response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} order by info_dt desc limit 192`;
+    } else if(communityId) {
+      response = await this.prisma.$queryRaw`select sum(production) as production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} group by info_dt order by info_dt desc limit 192`;
+    } else {
+      throw new BadRequestError('must specify cups or community')
+    }
+
+    const now = response[0].infoDt;
+    const ago = response[response.length - 1].infoDt;
+
+    let historicRadiation;
+    try {
+      historicRadiation = await this.energyForecastService.getRadiation(ago, now);
+    } catch (err) {
+      throw new InfrastructureError('Error happened while getting historic radiation');
+    }
 
     for (const {value, time} of historicRadiation) {
       const date = moment(time).format('YYYY-MM-DD HH:00');
@@ -28,19 +45,6 @@ export class EnergyPredictionController {
       packets.set(date, packet);
     }
 
-
-    const response = await this.prisma.energyHourly.findMany({
-      where: {
-        infoDt: {
-          gte: ago,
-          lt: now,
-        }
-      },
-      select: {
-        production: true,
-        infoDt: true,
-      }
-    });
     for (const item of response) {
       const date = moment(item.infoDt).format("YYYY-MM-DD HH:00");
       const packet = packets.get(date) || {radiation: 0, production: 0, coefficient: 0};

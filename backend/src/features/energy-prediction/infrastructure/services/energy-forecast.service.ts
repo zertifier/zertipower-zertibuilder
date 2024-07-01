@@ -2,6 +2,7 @@ import {Injectable} from '@nestjs/common';
 import axios, {Axios, AxiosError} from "axios";
 import {EnvironmentService} from "../../../../shared/infrastructure/services";
 import {InfrastructureError} from "../../../../shared/domain/error/common";
+import * as https from "node:https";
 
 const VAR_CODES = {
   WEATHER_FORECAST_SOLAR_RAD: 'WEATHER_FORECAST_SOLAR_RAD',
@@ -22,7 +23,12 @@ const SKIP_LOGIN_INTERCEPTOR = "X-Skip-Login-Interceptor";
 @Injectable()
 export class EnergyForecastService {
   private httpClient = axios.create({
-    baseURL: this.environment.getEnv().RADIATION_API
+    baseURL: this.environment.getEnv().RADIATION_API,
+    proxy: {
+      host: 'localhost',
+      port: 8080,
+    },
+    httpsAgent: new https.Agent({ rejectUnauthorized: false }),
   });
   private projectId = '';
   private plantId = '';

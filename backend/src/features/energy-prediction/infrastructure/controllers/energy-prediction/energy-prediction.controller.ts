@@ -9,21 +9,26 @@ import {BadRequestError, InfrastructureError} from "../../../../../shared/domain
 
 @Controller('energy-prediction')
 export class EnergyPredictionController {
-  constructor(private energyForecastService: EnergyForecastService, private prisma: PrismaService) {
-  }
+  constructor(
+    private energyForecastService: EnergyForecastService,
+    private prisma: PrismaService
+  ) {}
 
   @Get()
   async getPrediction(@Query("cups") cupsId: number, @Query("community") communityId: number) {
     const packets: Map<string, PredictionPacket> = new Map();
 
-
-
-
     let response: {production: number, infoDt: Date}[];
     if (cupsId) {
-      response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} order by info_dt desc limit 192`;
+      const dateResponse: { lastDate: Date }[] = await this.prisma.$queryRaw`select info_dt as lastDate from energy_hourly eh where cups_id = ${cupsId} order by info_dt desc limit 1`;
+      const lastDate = moment(moment(dateResponse[0].lastDate).subtract(1, 'day').format('YYYY-MM-DD 00:00')).toDate();
+      const endDate = moment(lastDate).add(2, 'day').toDate();
+      response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} and info_dt between ${lastDate} and ${endDate} order by info_dt desc`;
     } else if(communityId) {
-      response = await this.prisma.$queryRaw`select sum(production) as production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} group by info_dt order by info_dt desc limit 192`;
+      const dateResponse: { lastDate: Date }[] = await this.prisma.$queryRaw`select info_dt as lastDate from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} group by info_dt order by info_dt desc limit 1`;
+      const lastDate = moment(moment(dateResponse[0].lastDate).subtract(1, 'day').format('YYYY-MM-DD 00:00')).toDate();
+      const endDate = moment(lastDate).add(2, 'day').toDate();
+      response = await this.prisma.$queryRaw`select sum(production), info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} and info_dt between ${lastDate} and ${endDate} group by info_dt order by info_dt desc`;
     } else {
       throw new BadRequestError('must specify cups or community')
     }
@@ -69,7 +74,7 @@ export class EnergyPredictionController {
 
     // Get radiation prediction
     const atThisMoment = new Date();
-    const future = moment(atThisMoment).add(2, "days").toDate();
+    const future = moment(moment(atThisMoment).format('YYYY-MM-DD 00:00')).add(2, "days").toDate();
     const radiationPrediction = await this.energyForecastService.getRadiationForecast(atThisMoment, future);
 
     const predictor = new Predictor(Array.from(packets.values()), [
@@ -79,7 +84,7 @@ export class EnergyPredictionController {
       {from: 750, to: 1000},
     ]);
 
-    const data = radiationPrediction.map(v => {
+    let data = radiationPrediction.map(v => {
       return {time: v.time, value: predictor.getPrediction(v.value)};
     });
 

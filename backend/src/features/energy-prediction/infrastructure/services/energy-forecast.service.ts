@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import axios, {Axios, AxiosError} from "axios";
+import axios from "axios";
 import {EnvironmentService} from "../../../../shared/infrastructure/services";
 import {InfrastructureError} from "../../../../shared/domain/error/common";
 import * as https from "node:https";

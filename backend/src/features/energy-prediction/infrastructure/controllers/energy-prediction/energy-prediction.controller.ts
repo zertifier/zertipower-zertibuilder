@@ -78,8 +78,9 @@ export class EnergyPredictionController {
 
 
     // Get radiation prediction
-    const atThisMoment = new Date();
-    const future = moment(moment(atThisMoment).format('YYYY-MM-DD 00:00')).add(2, "days").toDate();
+    const atThisMoment = moment(moment().format('YYYY-MM-DD 00:00')).toDate();
+    const future = moment(moment(atThisMoment).add(1, "days").format('YYYY-MM-DD 23:59')).toDate();
+    console.log({atThisMoment, future});
     const radiationPrediction = await this.energyForecastService.getRadiationForecast(atThisMoment, future);
 
     const predictor = new Predictor(Array.from(packets.values()), [

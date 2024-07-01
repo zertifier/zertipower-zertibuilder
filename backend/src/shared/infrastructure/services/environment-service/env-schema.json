@@ -82,6 +82,12 @@
       "required": true,
       "description": "the notation is the following RADIATION_API_CREDENTIALS=<user>:<password>",
       "type": "string"
+    },
+    {
+      "name": "DATADIS_MONTHS",
+      "required": true,
+      "type": "int",
+      "default": "1"
     }
   ]
 }

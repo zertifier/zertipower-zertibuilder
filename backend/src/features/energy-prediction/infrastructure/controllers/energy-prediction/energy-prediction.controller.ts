@@ -1,25 +1,52 @@
-import {Controller, Get} from '@nestjs/common';
+import {Controller, Get, Query} from '@nestjs/common';
 import {EnergyForecastService} from "../../services/energy-forecast.service";
 import * as moment from "moment";
 import {PrismaService} from "../../../../../shared/infrastructure/services";
 import {PredictionPacket} from "./prediction-packet";
 import {Predictor} from "./predictor";
 import {HttpResponse} from "../../../../../shared/infrastructure/http/HttpResponse";
+import {BadRequestError, InfrastructureError} from "../../../../../shared/domain/error/common";
+import {AxiosError} from "axios";
 
 @Controller('energy-prediction')
 export class EnergyPredictionController {
-  constructor(private energyForecastService: EnergyForecastService, private prisma: PrismaService) {
-  }
+  constructor(
+    private energyForecastService: EnergyForecastService,
+    private prisma: PrismaService
+  ) {}
 
   @Get()
-  async getPrediction() {
+  async getPrediction(@Query("cups") cupsId: number, @Query("community") communityId: number) {
     const packets: Map<string, PredictionPacket> = new Map();
 
-    // Get historic energy and radiation
-    const now = new Date();
-    const ago = moment(now).subtract(8, 'days').toDate();
+    let response: {production: number, infoDt: Date}[];
+    if (cupsId) {
+      const dateResponse: { lastDate: Date }[] = await this.prisma.$queryRaw`select info_dt as lastDate from energy_hourly eh where cups_id = ${cupsId} order by info_dt desc limit 1`;
+      const lastDate = moment(moment(dateResponse[0].lastDate).subtract(1, 'day').format('YYYY-MM-DD 00:00')).toDate();
+      const endDate = moment(lastDate).add(2, 'day').toDate();
+      response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} and info_dt between ${lastDate} and ${endDate} order by info_dt desc`;
+    } else if(communityId) {
+      const dateResponse: { lastDate: Date }[] = await this.prisma.$queryRaw`select info_dt as lastDate from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} group by info_dt order by info_dt desc limit 1`;
+      const lastDate = moment(moment(dateResponse[0].lastDate).subtract(1, 'day').format('YYYY-MM-DD 00:00')).toDate();
+      const endDate = moment(lastDate).add(2, 'day').toDate();
+      response = await this.prisma.$queryRaw`select sum(production), info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} and info_dt between ${lastDate} and ${endDate} group by info_dt order by info_dt desc`;
+    } else {
+      throw new BadRequestError('must specify cups or community')
+    }
 
-    const historicRadiation = await this.energyForecastService.getRadiation(ago, now);
+    const now = response[0].infoDt;
+    const ago = response[response.length - 1].infoDt;
+
+    let historicRadiation;
+    try {
+      console.log(ago, now)
+      historicRadiation = await this.energyForecastService.getRadiation(ago, now);
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        console.log(err.response?.data);
+      }
+      throw new InfrastructureError('Error happened while getting historic radiation');
+    }
 
     for (const {value, time} of historicRadiation) {
       const date = moment(time).format('YYYY-MM-DD HH:00');
@@ -28,19 +55,6 @@ export class EnergyPredictionController {
       packets.set(date, packet);
     }
 
-
-    const response = await this.prisma.energyHourly.findMany({
-      where: {
-        infoDt: {
-          gte: ago,
-          lt: now,
-        }
-      },
-      select: {
-        production: true,
-        infoDt: true,
-      }
-    });
     for (const item of response) {
       const date = moment(item.infoDt).format("YYYY-MM-DD HH:00");
       const packet = packets.get(date) || {radiation: 0, production: 0, coefficient: 0};
@@ -64,8 +78,9 @@ export class EnergyPredictionController {
 
 
     // Get radiation prediction
-    const atThisMoment = new Date();
-    const future = moment(atThisMoment).add(2, "days").toDate();
+    const atThisMoment = moment(moment().format('YYYY-MM-DD 00:00')).toDate();
+    const future = moment(moment(atThisMoment).add(1, "days").format('YYYY-MM-DD 23:59')).toDate();
+    console.log({atThisMoment, future});
     const radiationPrediction = await this.energyForecastService.getRadiationForecast(atThisMoment, future);
 
     const predictor = new Predictor(Array.from(packets.values()), [
@@ -75,7 +90,7 @@ export class EnergyPredictionController {
       {from: 750, to: 1000},
     ]);
 
-    const data = radiationPrediction.map(v => {
+    let data = radiationPrediction.map(v => {
       return {time: v.time, value: predictor.getPrediction(v.value)};
     });
 

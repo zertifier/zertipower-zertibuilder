@@ -47,6 +47,44 @@ import {
         "energy hourly fetched successfully"
       ).withData(this.mapData(data));
     }
+
+    @Get("/ranking/consumption/:communityId/:date")
+    // @Auth(RESOURCE_NAME)
+    async getRankingConsumption(@Param("communityId") communityId: string, @Param("date") date: string) {
+      date = `${date}%`
+
+      const data: any = await this.prisma.$queryRaw`
+        SELECT c.customer_id, users.wallet_address, SUM(kwh_in) consumption FROM energy_hourly eh
+          LEFT JOIN cups c ON eh.cups_id = c.id
+          LEFT JOIN users ON c.customer_id = users.customer_id
+        WHERE c.type != 'community' AND info_dt LIKE ${date} AND c.community_id = ${communityId} AND kwh_in IS NOT NULL
+        GROUP BY c.customer_id
+        ORDER BY consumption ASC
+      `
+
+      return HttpResponse.success(
+        "energy hourly fetched successfully"
+      ).withData(data.map(this.mapRanking));
+    }
+
+    @Get("/ranking/surplus/:communityId/:date")
+    // @Auth(RESOURCE_NAME)
+    async getRankingSurplus(@Param("communityId") communityId: string, @Param("date") date: string) {
+      date = `${date}%`
+
+      const data: any = await this.prisma.$queryRaw`
+        SELECT c.customer_id, users.wallet_address, SUM(kwh_out) surplus FROM energy_hourly eh
+          LEFT JOIN cups c ON eh.cups_id = c.id
+          LEFT JOIN users ON c.customer_id = users.customer_id
+        WHERE c.type != 'community' AND info_dt LIKE ${date} AND c.community_id = ${communityId} AND kwh_out IS NOT NULL
+        GROUP BY c.customer_id
+        ORDER BY surplus DESC
+      `
+
+      return HttpResponse.success(
+        "energy hourly fetched successfully"
+      ).withData(data.map(this.mapRanking));
+    }
   
     mapData(data: any) {
       const mappedData: any = {};
@@ -68,6 +106,18 @@ import {
       mappedData.type=data.type
 
       return mappedData;
+    }
+
+    mapRanking(data: any){
+      const mappedData: any = {};
+
+      mappedData.customerId = data.customer_id
+      mappedData.walletAddress = data.wallet_address
+      mappedData.consumption = data.consumption
+      mappedData.surplus = data.surplus
+
+      return mappedData;
+
     }
 
 }

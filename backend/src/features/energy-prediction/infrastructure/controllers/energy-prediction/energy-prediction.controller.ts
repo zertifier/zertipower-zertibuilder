@@ -29,7 +29,7 @@ export class EnergyPredictionController {
       const dateResponse: { lastDate: Date }[] = await this.prisma.$queryRaw`select info_dt as lastDate from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} group by info_dt order by info_dt desc limit 1`;
       const lastDate = moment(moment(dateResponse[0].lastDate).subtract(1, 'day').format('YYYY-MM-DD 00:00')).toDate();
       const endDate = moment(lastDate).add(2, 'day').toDate();
-      response = await this.prisma.$queryRaw`select sum(production), info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} and info_dt between ${lastDate} and ${endDate} group by info_dt order by info_dt desc`;
+      response = await this.prisma.$queryRaw`select sum(production) production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} and info_dt between ${lastDate} and ${endDate} group by info_dt order by info_dt desc`;
     } else {
       throw new BadRequestError('must specify cups or community')
     }
@@ -39,7 +39,6 @@ export class EnergyPredictionController {
 
     let historicRadiation;
     try {
-      console.log(ago, now)
       historicRadiation = await this.energyForecastService.getRadiation(ago, now);
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -80,7 +79,6 @@ export class EnergyPredictionController {
     // Get radiation prediction
     const atThisMoment = moment(moment().format('YYYY-MM-DD 00:00')).toDate();
     const future = moment(moment(atThisMoment).add(1, "days").format('YYYY-MM-DD 23:59')).toDate();
-    console.log({atThisMoment, future});
     const radiationPrediction = await this.energyForecastService.getRadiationForecast(atThisMoment, future);
 
     const predictor = new Predictor(Array.from(packets.values()), [

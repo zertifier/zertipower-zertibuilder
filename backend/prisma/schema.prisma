@@ -313,7 +313,7 @@ model DatadisEnergyRegister {
   txImport         String?    @map("tx_import")
   txExport         String?    @map("tx_export")
   updatesCounter   Int?      @map("updates_counter")
-  updateshistoric  json?     @map("updates_historic") @db.Json
+  updateshistoric  Json?     @map("updates_historic") @db.Json
   createdAt         DateTime? @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt         DateTime? @map("updated_at") @db.DateTime(0)
 

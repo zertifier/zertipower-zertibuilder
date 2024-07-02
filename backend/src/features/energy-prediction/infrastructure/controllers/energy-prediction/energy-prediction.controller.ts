@@ -21,15 +21,9 @@ export class EnergyPredictionController {
 
     let response: {production: number, infoDt: Date}[];
     if (cupsId) {
-      const dateResponse: { lastDate: Date }[] = await this.prisma.$queryRaw`select info_dt as lastDate from energy_hourly eh where cups_id = ${cupsId} order by info_dt desc limit 1`;
-      const lastDate = moment(moment(dateResponse[0].lastDate).subtract(1, 'day').format('YYYY-MM-DD 00:00')).toDate();
-      const endDate = moment(lastDate).add(2, 'day').toDate();
-      response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} and info_dt between ${lastDate} and ${endDate} order by info_dt desc`;
+      response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} order by info_dt desc limit 192`;
     } else if(communityId) {
-      const dateResponse: { lastDate: Date }[] = await this.prisma.$queryRaw`select info_dt as lastDate from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} group by info_dt order by info_dt desc limit 1`;
-      const lastDate = moment(moment(dateResponse[0].lastDate).subtract(1, 'day').format('YYYY-MM-DD 00:00')).toDate();
-      const endDate = moment(lastDate).add(2, 'day').toDate();
-      response = await this.prisma.$queryRaw`select sum(production) production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} and info_dt between ${lastDate} and ${endDate} group by info_dt order by info_dt desc`;
+      response = await this.prisma.$queryRaw`select sum(production) as production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} and production IS not NULL group by info_dt order by info_dt desc LIMIT 192`;
     } else {
       throw new BadRequestError('must specify cups or community')
     }

@@ -304,14 +304,18 @@ model SmartContract {
 }
 
 model DatadisEnergyRegister {
-  id            Int       @id @default(autoincrement())
-  infoDt        DateTime? @map("info_dt") @db.DateTime(0)
-  cupsId        Int?      @map("cups_id")
-  transactionId Int?      @map("transaction_id")
-  import        Float?
-  export        Float?
-  createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt     DateTime? @map("updated_at") @db.DateTime(0)
+  id                Int       @id @default(autoincrement())
+  infoDt            DateTime? @map("info_dt") @db.DateTime(0)
+  cupsId            Int?      @map("cups_id")
+  transactionId     Int?      @map("transaction_id")
+  import            Float?    @map("import")
+  export            Float?    @map("export")
+  txImport         String?    @map("tx_import")
+  txExport         String?    @map("tx_export")
+  updatesCounter   Int?      @map("updates_counter")
+  updateshistoric  json?     @map("updates_historic") @db.Json
+  createdAt         DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt         DateTime? @map("updated_at") @db.DateTime(0)
 
   @@index([cupsId], map: "cups_id")
   @@index([infoDt], map: "info_dt")

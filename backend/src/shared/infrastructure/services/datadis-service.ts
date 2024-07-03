@@ -74,7 +74,9 @@ export class DatadisService {
     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM'); //moment().format('YYYY/MM');
 
-    this.run(startDate, endDate)
+    
+    this.testRun()
+    //this.run(startDate, endDate)
 
     setInterval(() => {
       startDate = moment().subtract(1, 'months').format('YYYY/MM');
@@ -82,6 +84,11 @@ export class DatadisService {
       this.run(startDate, endDate)
     }, 86400000) //24 h => ms
 
+  }
+
+  async testRun(){
+    let datadisCupsEnergyData:any[] = await this.getCupsEnergyDataTest()
+    await this.updateCupsEnergyData(68,datadisCupsEnergyData);
   }
 
   async run(startDate: any, endDate: any) {
@@ -157,7 +164,6 @@ export class DatadisService {
         })
       }
 
-
       //get authorized community datadis cups
       for (const communityCupsElement of this.communityCups) {
         try {
@@ -214,7 +220,7 @@ export class DatadisService {
         let getDatadisEndingDate = moment().format("DD-MM-YYYY HH:mm:ss");
 
         //get cups energy hours db registers
-        let insertedEnergyDataNumber: number = await this.postCupsEnergyData(cupsData, datadisCupsEnergyData, startDate, endDate).catch(e => {
+        let insertedEnergyDataNumber: number = await this.postCupsEnergyData(cupsData, datadisCupsEnergyData).catch(e => {
           status = 'error';
           errorType = "post datadis data error";
           errorMessage = e.toString().substring(0, 200);
@@ -226,7 +232,7 @@ export class DatadisService {
         await this.postLogs(supply.cups, cupsData.id, operation, insertedEnergyDataNumber, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
 
         try{
-          await this.updateCupsEnergyData(cupsData, datadisCupsEnergyData, startDate, endDate);
+          await this.updateCupsEnergyData(cupsData.id, datadisCupsEnergyData);
         } catch(error){
           status = 'error';
           errorType = "update datadis data error";
@@ -537,10 +543,21 @@ export class DatadisService {
     })
   }
 
-  async updateCupsEnergyData(cupsData: any, datadisCupsEnergyData: any[], startDate: string, endDate: string) {
+  async getCupsEnergyDataTest(){
+    let selectQuery = `SELECT 
+    DATE_FORMAT(info_dt, '%Y/%m/%d') AS date, 
+    DATE_FORMAT(info_dt, '%H:%i') AS time,
+    import AS consumptionKWh,
+    export AS surplusEnergyKWh
+     from datadis_energy_registers WHERE info_dt LIKE '2024-07-01%' AND cups_id = 68`
+    const [ROWS]:any = await this.conn.execute(selectQuery);
+    let res:any[] = ROWS;
+    return res
+  }
+
+  async updateCupsEnergyData(cupsId: any, datadisCupsEnergyData: any[]) {
 
     try {
-
       let dataToSearchQueryPart = ''
       let values: any = []
       let firstEnergyDate = datadisCupsEnergyData[0]
@@ -552,20 +569,17 @@ export class DatadisService {
       let consumption = firstEnergyDate.consumptionKWh;
       let generation = firstEnergyDate.surplusEnergyKWh;
 
-      let startDateFormat = moment(startDate, 'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
-      let endDateFormat = moment(endDate, 'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
-
       dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as import, ? as export, ? as cups_id`)
 
-      pushToValues(infoDt, consumption, generation, cupsData)
+      pushToValues(infoDt, consumption, generation, cupsId)
 
       for (const energy of datadisCupsEnergyData) {
         let day = moment(energy.date, 'YYYY/MM/DD').format('YYYY-MM-DD')
         let hour = moment(energy.time, 'HH:mm').format('HH:mm:ss')
         let datetime = `${day} ${hour}`;
-        let energyImport = energy.consumptionKWh;
-        let energyExport = energy.surplusEnergyKWh;
-        pushToValues(datetime, energyImport, energyExport, cupsData)
+        let energyImport = 600 //energy.consumptionKWh; //TODO: borrar update test !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        let energyExport =  600 //energy.surplusEnergyKWh; //TODO: borrar update test !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        pushToValues(datetime, energyImport, energyExport, cupsId)
         dataToSearchQueryPart = dataToSearchQueryPart.concat(` UNION ALL SELECT ?,?,?,? `)
       }
 
@@ -579,7 +593,7 @@ export class DatadisService {
           target.updates_counter = IF(target.import <> source.import OR target.export <> source.export, target.updates_counter + 1, target.updates_counter),
           target.updates_historic = IF(
             target.import <> source.import OR target.export <> source.export,
-            JSON_ARRAY_APPEND(target.updates_historic, '$', JSON_OBJECT('info_dt', target.info_dt, 'import', target.import, 'export', target.export, 'timestamp', NOW())),
+            JSON_ARRAY_APPEND(COALESCE(target.updates_historic, '[]'), '$', JSON_OBJECT('info_dt', target.info_dt, 'import', target.import, 'export', target.export, 'timestamp', NOW())),
             target.updates_historic
           )
         WHERE target.import <> source.import OR target.export <> source.export
@@ -588,11 +602,11 @@ export class DatadisService {
       // Update existing records
       await this.conn.execute(updateQuery, values);
 
-      function pushToValues(infoDt: string, consumption: number, generation: number, cupsData: any) {
+      function pushToValues(infoDt: string, consumption: number, generation: number, cupsId: any) {
         values.push(infoDt);
         values.push(consumption);
         values.push(generation);
-        values.push(cupsData.id)
+        values.push(cupsId)
       }
 
     } catch (error) {
@@ -601,7 +615,7 @@ export class DatadisService {
 
   }
 
-  async postCupsEnergyData(cupsData: any, datadisCupsEnergyData: any[], startDate: string, endDate: string): Promise<number> {
+  async postCupsEnergyData(cupsData: any, datadisCupsEnergyData: any[]): Promise<number> {
 
     //create get not inserted energy per cups query
 
@@ -615,9 +629,6 @@ export class DatadisService {
     let infoDt = `${day} ${hour}`;
     let consumption = firstEnergyDate.consumptionKWh;
     let generation = firstEnergyDate.surplusEnergyKWh;
-
-    let startDateFormat = moment(startDate, 'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
-    let endDateFormat = moment(endDate, 'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
 
     dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as import, ? as export, ? as cups_id`)
 

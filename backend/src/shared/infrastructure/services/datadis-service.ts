@@ -71,12 +71,10 @@ export class DatadisService {
     this.conn = this.mysql.pool;
 
     let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
-    let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM');
-    let endDate = moment().format('YYYY/MM'); //moment().format('YYYY/MM');
+    let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
+    let endDate = moment().format('YYYY/MM');
 
-    
-    this.testRun()
-    //this.run(startDate, endDate)
+    this.run(startDate, endDate)
 
     setInterval(() => {
       startDate = moment().subtract(1, 'months').format('YYYY/MM');
@@ -84,11 +82,6 @@ export class DatadisService {
       this.run(startDate, endDate)
     }, 86400000) //24 h => ms
 
-  }
-
-  async testRun(){
-    let datadisCupsEnergyData:any[] = await this.getCupsEnergyDataTest()
-    await this.updateCupsEnergyData(68,datadisCupsEnergyData);
   }
 
   async run(startDate: any, endDate: any) {
@@ -130,7 +123,7 @@ export class DatadisService {
         await this.getSupplies(this.token)
       } catch (error) {
         console.log("Get supplies error", this.loginData.username, typeof error, error.message);
-        errorMessage = error;
+        errorMessage = error.message;
         status = 'error';
         errorType = 'Error getting supplies';
         operation = 'Get supplies'
@@ -543,18 +536,6 @@ export class DatadisService {
     })
   }
 
-  async getCupsEnergyDataTest(){
-    let selectQuery = `SELECT 
-    DATE_FORMAT(info_dt, '%Y/%m/%d') AS date, 
-    DATE_FORMAT(info_dt, '%H:%i') AS time,
-    import AS consumptionKWh,
-    export AS surplusEnergyKWh
-     from datadis_energy_registers WHERE info_dt LIKE '2024-07-01%' AND cups_id = 68`
-    const [ROWS]:any = await this.conn.execute(selectQuery);
-    let res:any[] = ROWS;
-    return res
-  }
-
   async updateCupsEnergyData(cupsId: any, datadisCupsEnergyData: any[]) {
 
     try {
@@ -577,8 +558,8 @@ export class DatadisService {
         let day = moment(energy.date, 'YYYY/MM/DD').format('YYYY-MM-DD')
         let hour = moment(energy.time, 'HH:mm').format('HH:mm:ss')
         let datetime = `${day} ${hour}`;
-        let energyImport = 600 //energy.consumptionKWh; //TODO: borrar update test !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        let energyExport =  600 //energy.surplusEnergyKWh; //TODO: borrar update test !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        let energyImport = energy.consumptionKWh;
+        let energyExport =  energy.surplusEnergyKWh; 
         pushToValues(datetime, energyImport, energyExport, cupsId)
         dataToSearchQueryPart = dataToSearchQueryPart.concat(` UNION ALL SELECT ?,?,?,? `)
       }
@@ -966,4 +947,22 @@ export class DatadisService {
   orderArrByInfoDt(array: any[]) {
     return array.sort((a: any, b: any) => a.info_dt - b.info_dt);
   }
+
+  async testRun(){
+    let datadisCupsEnergyData:any[] = await this.getCupsEnergyDataTest()
+    await this.updateCupsEnergyData(68,datadisCupsEnergyData);
+  }
+
+  async getCupsEnergyDataTest(){
+    let selectQuery = `SELECT 
+    DATE_FORMAT(info_dt, '%Y/%m/%d') AS date, 
+    DATE_FORMAT(info_dt, '%H:%i') AS time,
+    import AS consumptionKWh,
+    export AS surplusEnergyKWh
+     from datadis_energy_registers WHERE info_dt LIKE '2024-07-01%' AND cups_id = 68`
+    const [ROWS]:any = await this.conn.execute(selectQuery);
+    let res:any[] = ROWS;
+    return res
+  }
+
 }

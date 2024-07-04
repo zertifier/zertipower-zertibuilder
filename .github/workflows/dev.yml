@@ -41,7 +41,7 @@ jobs:
       - name: Detect changes in frontend
         id: check_front
         run: |
-           cd /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
+           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
            cd frontend
            echo "Getting frontend diff"
            CHANGED_FILES=$(git diff --name-only HEAD $LAST_COMMIT | grep "^frontend/" || true)
@@ -111,7 +111,7 @@ jobs:
           if: needs.detect-changes.outputs.front_changed == 'true'
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
-            echo "Deploying api"
+            echo "Deploying admin frontend"
             cd frontend
             npm i --legacy--peer-deps
             npm run build

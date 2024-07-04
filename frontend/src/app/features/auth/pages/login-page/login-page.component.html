@@ -1,7 +1,6 @@
-<div class="d-flex w-100" style="height: 100vh">
-  <div [ngClass]="{'w-100': hideImage, 'w-50': !hideImage}" class="w-50">
+<div class="d-flex w-100 mx-auto" style="height: 100vh">
 
-    <div class="d-flex py-4 align-items-center flex-column w-100 h-100">
+    <div class="w-100 h-100 w-md-50 d-flex py-4 align-items-center flex-column">
 
       <div class="mt-5 mb-5">
         <div class="d-flex justify-content-center w-100">
@@ -20,9 +19,8 @@
      
     </div>
 
-  </div>
 
-    <img class="w-50 h-100 d-sm-none d-none d-md-block" [src]="imgSource" alt="random image">
+    <img class="w-50 h-100 d-sm-none d-none d-md-block" [src]="imgSource" alt="random image" style="object-fit: cover;">
     <!-- <div class="w-50 h-100 d-none d-lg-block"  [ngStyle]="{'background-image': 'url(' + imgSource + ')'}" style=" background-image: url('assets/img/login-4.webp');background-repeat: no-repeat;background-size: cover;"></div> -->
 
 </div>

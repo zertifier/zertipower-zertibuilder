@@ -74,13 +74,13 @@ export class ResponsesController {
       SELECT resp.id,
              resp.proposal_id,
              proposal_option_id,
-             user_id,
+             resp.user_id,
              email,
              po.option,
              proposals.proposal
       FROM responses resp
              LEFT JOIN users
-                       ON user_id = users.id
+                       ON resp.user_id = users.id
              LEFT JOIN proposals
                        ON resp.proposal_id = proposals.id
              LEFT JOIN proposals_options po

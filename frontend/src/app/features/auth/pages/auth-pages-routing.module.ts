@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { LoginPageComponent } from "./login-page/login-page.component";
-import { loggedOut } from "../guards/session-guards";
+import { loggedOut as ifNotLoggedIn } from "../guards/session-guards";
 import { ResetPasswordComponent } from "./reset-password/reset-password.component";
 import { WebWalletPageComponent } from "./web-wallet-page/web-wallet-page.component";
 import { web3Enabled } from "../guards/login-type-guards";
@@ -11,7 +11,7 @@ const routes: Routes = [
 	{
 		path: "",
 		component: LoginPageComponent,
-		canActivate: [loggedOut],
+		canActivate: [ifNotLoggedIn],
 	},
   {
     path: "oauth-callback",

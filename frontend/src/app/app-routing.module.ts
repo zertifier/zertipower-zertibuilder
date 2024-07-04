@@ -73,6 +73,11 @@ const routes: Routes = [
     canActivate: [loggedIn, pageAccess('energyRegistersHourly')],
   },
   {
+    path: 'energy-hourly',
+    loadChildren: () => import('./features/energy-hourly/energy-hourly.module').then(m => m.EnergyHourlyModule),
+    canActivate: [loggedIn, pageAccess('energyHourly')],
+  },
+  {
     path: 'providers',
     loadChildren: () => import('./features/providers/providers.module').then(m => m.ProvidersModule),
     canActivate: [loggedIn, pageAccess('providers')],
@@ -85,7 +90,7 @@ const routes: Routes = [
   {
     path: 'dashboard',
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
-    canActivate: [loggedIn, pageAccess('dashboard')],
+    canActivate: [loggedIn],
   },
   {
     path: 'proposals',
@@ -125,7 +130,7 @@ const routes: Routes = [
   {
     path: "**",
     pathMatch: "full",
-    redirectTo: "auth"
+    redirectTo: "dashboard"
   },
 ];
 

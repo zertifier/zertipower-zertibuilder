@@ -1,0 +1,55 @@
+<div class="modal-header">
+  <h2>energy_registers form</h2>
+</div>
+<div class="modal-body">
+  <form id="form" [formGroup]="form" (ngSubmit)="save()">
+    <div>
+      <label for="id-display">ID</label>
+      <p id="id-display">{{ form.get('id')?.value }}</p>
+    </div>
+    <div>
+      <label for="info-dt-display">Info Datetime</label>
+      <p id="info-dt-display">{{ form.get('infoDt')?.value | date:'yyyy-MM-dd HH:mm' }}</p>
+    </div>
+    <div>
+      <label for="cups-display">CUPS</label>
+      <p id="cups-display">{{ form.get('cups')?.value }}</p>
+    </div>
+    <div>
+      <label for="kwh-in-display">Consum</label>
+      <p id="kwh-in-display">{{ form.get('kwhIn')?.value }}</p>
+    </div>
+    <div>
+      <label for="kwh-out-display">Excedent</label>
+      <p id="kwh-out-display">{{ form.get('kwhOut')?.value }}</p>
+    </div>
+    <div>
+      <label for="kwh-out-virtual-display">Excedent Virtual</label>
+      <p id="kwh-out-virtual-display">{{ form.get('kwhOutVirtual')?.value }}</p>
+    </div>
+    <div>
+      <label for="kwh-in-price-display">Preu Consum</label>
+      <p id="kwh-in-price-display">{{ form.get('kwhInPrice')?.value }}</p>
+    </div>
+    <div>
+      <label for="kwh-out-price-display">Preu Excedent</label>
+      <p id="kwh-out-price-display">{{ form.get('kwhOutPrice')?.value }}</p>
+    </div>
+    <div>
+      <label for="shares-display">Compartició</label>
+      <p id="shares-display">{{ form.get('shares')?.value }}</p>
+    </div>
+    <div>
+      <label for="type-display">Tram</label>
+      <p id="type-display">{{ form.get('type')?.value }}</p>
+    </div>
+    <div>
+      <label for="origin-display">Origen</label>
+      <p id="origin-display">{{ form.get('origin')?.value }}</p>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <!-- <button type="submit" class="btn btn-primary" form="form">Save</button> -->
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

@@ -62,7 +62,7 @@ export class PrismaPermissionsRepository implements OnModuleInit {
             action: fetchedPermission.action,
             allow: rolePermission.allow,
           })
-        );
+        );  
       });
     }
 

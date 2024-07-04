@@ -59,11 +59,6 @@ export class ProposalsTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'ID Dao',
-      data: 'dao_id',
-      width: '100px',
-    },
-    {
       title: '',
       data: 'id',
       width: '100px'
@@ -110,15 +105,7 @@ export class ProposalsTableComponent implements OnDestroy {
         type: 0,
         defaultData: 0,
         options: [],
-      },
-      {
-        title: 'dao_id',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
+      }
   ];
 
   columnDefs:any[] = [

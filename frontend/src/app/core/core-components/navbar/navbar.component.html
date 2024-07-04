@@ -22,7 +22,7 @@
           </li>
         </div>
 
-        <div *ngIf="authStore.user()!.role == 'ADMIN'" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+        <div *ngIf="hasAuth" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
 <!--        <div  class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">-->
           <button class="nav-link navbar-dropdown text-start fs-5 w-100" ngbDropdownToggle>
             <i class="fa-solid fa-leaf" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
@@ -45,10 +45,14 @@
               <a [routerLinkActive]="'active'" [routerLink]="['/energy-registers-hourly']" class="nav-link">Registres
                 per hora</a>
             </button>
+            <button ngbDropdownItem>
+              <a [routerLinkActive]="'active'" [routerLink]="['/energy-hourly']" class="nav-link">Registres / costos
+                per hora</a>
+            </button>
           </div>
         </div>
 
-        <div *ngIf="authStore.user()!.role == 'ADMIN'" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+        <div *ngIf="hasAuth" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
           <button class="nav-link navbar-dropdown text-start fs-5 w-100" ngbDropdownToggle>
             <i class="fa-solid fa-users" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
                placement="end" [ngbTooltip]="isShrunk ? 'Participants'.toUpperCase() + 'Participants'.slice(1) : ''"></i>
@@ -73,7 +77,7 @@
           </div>
         </div>
 
-        <div *ngIf="authStore.user()!.role == 'ADMIN'" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+        <div *ngIf="hasAuth" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
           <button class="nav-link text-start fs-5 w-100" ngbDropdownToggle>
             <i class="fa-solid fa-circle-info" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
                placement="end" [ngbTooltip]="isShrunk ? 'Més info'.toUpperCase() + 'Més info'.slice(1) : ''"></i>
@@ -92,7 +96,7 @@
           </div>
         </div>
 
-        <div *ngIf="authStore.user()!.role == 'ADMIN'" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
+        <div *ngIf="hasAuth" class="mx-3 my-2 navbar-dropdown" ngbDropdown placement="end-top">
           <button class="nav-link navbar-dropdown text-start fs-5 w-100" ngbDropdownToggle>
             <i class="fa-solid fa-building-columns" [ngClass]="!isShrunk ? 'icon--small' : 'icon--big'"
                placement="end" [ngbTooltip]="isShrunk ? 'Participants'.toUpperCase() + 'Participants'.slice(1) : ''"></i>
@@ -102,12 +106,12 @@
             <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/proposals']" class="nav-link">Propostes</a>
             </button>
-            <button ngbDropdownItem>
+            <!-- <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/proposals-options']" class="nav-link">Opcions de propostes</a>
-            </button>
+            </button> -->
             <button ngbDropdownItem>
               <a [routerLinkActive]="'active'" [routerLink]="['/responses']" class="nav-link">Respostes</a>
-            </button>
+            </button> 
           </div>
         </div>
 

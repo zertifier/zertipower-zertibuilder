@@ -165,7 +165,8 @@ export class EnergyTransactionsController {
               et.created_at,
               et.updated_at,
               cups,
-              reference
+              eb.reference,
+              cups.reference as cups_name
        FROM energy_transactions et
               LEFT JOIN cups ON cups.id = cups_id
               LEFT JOIN energy_blocks eb ON eb.id = et.block_id`

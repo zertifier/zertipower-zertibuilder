@@ -235,7 +235,7 @@ export class ProposalsController {
   @Auth(RESOURCE_NAME)
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(body, `
-      SELECT proposals.id, proposal, description, community_id, expiration_dt, status, dao_id, name
+      SELECT proposals.id, proposal, description, community_id, expiration_dt, status, name
       FROM proposals
         LEFT JOIN communities
             ON community_id = communities.id`);

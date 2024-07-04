@@ -85,6 +85,34 @@ import {
         "energy hourly fetched successfully"
       ).withData(data.map(this.mapRanking));
     }
+
+  @Post("datatable")
+  @Auth(RESOURCE_NAME)
+  async datatables(@Body() body: any) {
+    const data = await this.datatable.getData(
+      body,
+      `SELECT energy_hourly.id,
+              cups.cups,
+              origin,
+              info_dt,
+              kwh_in,
+              kwh_out,
+              kwh_out_virtual,
+              kwh_in_price,
+              kwh_out_price,
+              kwh_in_price_community,
+              kwh_out_price_community,
+              shares,
+              energy_hourly.type,
+              cups.reference as cups_name
+       FROM energy_hourly
+              LEFT JOIN cups ON cups.id = cups_id
+              `
+    );
+    return HttpResponse.success("Datatables fetched successfully").withData(
+      data
+    );
+  }
   
     mapData(data: any) {
       const mappedData: any = {};

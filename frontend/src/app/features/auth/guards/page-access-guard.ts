@@ -9,6 +9,7 @@ export function pageAccess(page: string): () => Promise<boolean> {
   return async () => {
     const permissionsStore = inject(PermissionsStoreService);
     const authStore = inject(AuthStoreService);
+    const router = inject(Router);
 
     const user = authStore.user();
     if (!user) {
@@ -19,8 +20,13 @@ export function pageAccess(page: string): () => Promise<boolean> {
     await permissionsStore.fetchPermissions();
     const permissions = permissionsStore.permissions();
 
-    if (user.role !== 'ADMIN' && !permissions[user.role][page]['pageAccess'])
-      window.location.href = '/auth';
-    return user.role === 'ADMIN' || permissions[user.role][page]['pageAccess'];
+    console.log('error?',permissions[user.role][page]['pageAccess'],permissions[user.role][page],permissions[user.role]);
+
+    if (user.role !== 'ADMIN' && user.role !== 'PRESIDENT' && !permissions[user.role][page]['pageAccess']){
+      console.log("Not permitted" , permissions[user.role][page]['pageAccess'])
+      router.navigate(["auth"]); //todo: no funciona?
+    }
+      
+    return user.role === 'ADMIN' ||user.role === 'PRESIDENT' || permissions[user.role][page]['pageAccess'];
   }
 }

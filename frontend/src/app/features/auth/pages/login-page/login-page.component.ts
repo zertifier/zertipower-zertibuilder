@@ -61,7 +61,7 @@ export class LoginPageComponent implements OnDestroy {
     this.imgSource = this.images[randNum]
     effect(() => {
       if (this.authStore.user() && this.authStore.user()?.role != 'ADMIN') {
-        this.router.navigate(["/"]);
+        //this.router.navigate(["/"]);
       }else {
         this.router.navigate(["/dashboard"]);
       }
@@ -122,6 +122,7 @@ export class LoginPageComponent implements OnDestroy {
               const refresh_token = response.refresh_token;
               this.authStore.setTokens(access_token, refresh_token);
               this.loading.next(false);
+              this.router.navigate(["/dashboard"]);
             })
           },
           error: (error) => {

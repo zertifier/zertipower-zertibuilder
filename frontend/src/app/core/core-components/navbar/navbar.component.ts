@@ -16,8 +16,8 @@ import {
 export class NavbarComponent {
 	firstname = computed(() => this.authStore.user()?.firstname);
 	navbarCollapsed = true;
-  isShrunk = false
-
+  isShrunk = false;
+  hasAuth=false;
 
   pages = [
     {
@@ -27,14 +27,6 @@ export class NavbarComponent {
       url: '/dashboard',
       status: false
      } 
-     //,
-    // {
-    //   text: 'Mapa',
-    //   dbName: 'search',
-    //   iconClass: 'fa-solid fa-map',
-    //   url: '/search',
-    //   status: false
-    // }
   ]
 
 	constructor(
@@ -50,9 +42,11 @@ export class NavbarComponent {
       const user = authStore.user();
       if (user) {
         const permissions = this.permissionsStoreService.permissions()[user.role]
-        if (user.role == 'ADMIN') this.pages[0].status = true
-        if (user.role == 'ADMIN') this.pages[1].status = true
-
+        if (user.role == 'ADMIN' || user.role == 'PRESIDENT'){
+          this.pages[0].status = true;
+          this.hasAuth=true;
+        } 
+        
         this.setPermmittedPages(permissions)
       }
 

@@ -55,7 +55,7 @@ interface dbCups {
 @Injectable()
 export class DatadisService {
 
-  loginData = { username: 'g67684878', password: 'acEM2020!' }
+  loginData: { username: string, password: string } = { username: '', password: '' };
   token: any = undefined;
   supplies: supply[];
   dbCups: dbCups[] = [];
@@ -71,8 +71,8 @@ export class DatadisService {
     this.conn = this.mysql.pool;
 
     let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
-    let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM'); //moment().subtract(1, 'weeks').format('YYYY/MM');
-    let endDate = moment().format('YYYY/MM'); //moment().format('YYYY/MM');
+    let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
+    let endDate = moment().format('YYYY/MM');
 
     //this.run(startDate, endDate)
 
@@ -84,6 +84,24 @@ export class DatadisService {
 
   }
 
+  /** The run method is the core logic that:
+    Fetches cups data from the database.
+    Loops through each cups entry:
+    Checks if Datadis access is enabled for the cups entry.
+    Logs in if necessary using the stored credentials.
+    Retrieves supplies data from Datadis.
+    Checks if all cups are already registered in the database.
+    Identifies community cups entries.
+    Retrieves authorized community supplies data (if applicable).
+    Loops through each supply:
+    Finds the corresponding entry in the database.
+    Retrieves energy data from Datadis for the specified date range.
+    Inserts or updates the retrieved energy data in the database.
+    Logs the success or failure of data retrieval and insertion.
+   * 
+   * @param startDate 
+   * @param endDate 
+   */
   async run(startDate: any, endDate: any) {
 
     let status = 'success';
@@ -95,7 +113,7 @@ export class DatadisService {
     this.dbCustomers = await this.getCustomers();
     this.dbCommunities = await this.getCommunities();
 
-    let authorizedSuppliesPromises : Promise<supply[]>[];
+    let authorizedSuppliesPromises: Promise<supply[]>[];
 
     for (let cups of this.dbCups) {
       if (!cups.datadis_active || !cups.datadis_user || !cups.datadis_password) {
@@ -106,32 +124,40 @@ export class DatadisService {
       this.loginData.password = PasswordUtils.decryptData(cups.datadis_password, process.env.JWT_SECRET!);
 
       //get auth token
-      await this.login(this.loginData.username, this.loginData.password).catch(async e => {
-        console.log(e)
+
+      try {
+        await this.login(this.loginData.username, this.loginData.password)
+      } catch (error) {
+        console.log("Login error", this.loginData.username, error)
         status = 'error';
         errorType = 'Error getting token';
         operation = 'Get token';
-        await this.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
-        return;
-      });
+        await this.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, error);
+        continue;
+      }
 
-      //get datadis cups
-      await this.getSupplies(this.token).catch(async e => {
+      //get datadis cups supplies
+      try {
+        await this.getSupplies(this.token)
+      } catch (error) {
+        console.log("Get supplies error", this.loginData.username, typeof error, error.message);
+        errorMessage = error.message;
         status = 'error';
         errorType = 'Error getting supplies';
         operation = 'Get supplies'
         await this.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
-      });
+      }
 
-      if (!this.supplies) {
+      if (!this.supplies || !this.supplies.length) {
         continue;
       }
 
       //check if all cups are in database already
       await this.checkCups();
 
-      //get community authorized cups
+      //community authorized cups
       this.communityCups = [];
+
       if (cups.type == 'community') {
 
         this.dbCups.map((dbCupsElement) => {
@@ -149,26 +175,18 @@ export class DatadisService {
         })
       }
 
-      try {
-        //get authorized community datadis cups
-        authorizedSuppliesPromises = this.communityCups.map(communityCupsElement => this.getAuthorizedSupplies(this.token, communityCupsElement.dni));
-      } catch (e){
-        console.log("Error getting authorized supplies",e)
-        status = 'error';
-        errorType = 'Error getting authorized supplies';
-        operation = 'Get authorized supplies'
-        await this.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
-      }
-      
-      try {
-        if(authorizedSuppliesPromises!){
-          await Promise.all(authorizedSuppliesPromises);
+      //get authorized community datadis cups
+      for (const communityCupsElement of this.communityCups) {
+        try {
+          await this.getAuthorizedSupplies(this.token, communityCupsElement.dni);
+        } catch (error) {
+          console.log("Error getting authorized supplies", typeof error, error.message)
+          errorMessage = error.message;
+          status = 'error';
+          errorType = 'Error getting authorized supplies';
+          operation = 'Get authorized supplies'
+          await this.postLogs(communityCupsElement.cups, communityCupsElement.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
         }
-      } catch (e) {
-        status = 'error';
-        errorType = 'Error getting authorized supplies';
-        operation = 'Get authorized supplies'
-        await this.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
       }
 
       //go across cups:
@@ -192,30 +210,28 @@ export class DatadisService {
 
         let getDatadisBegginningDate = moment().format("DD-MM-YYYY HH:mm:ss");
 
-        //obtain datadis hour energy:
-        let datadisCupsEnergyData: any = await this.getConsumptionData(supply.cups, supply.distributorCode, startDate, endDate, 0, supply.pointType, supply.authorizedNif).catch(async (e) => {
+
+        let datadisCupsEnergyData: any;
+
+        try {
+          datadisCupsEnergyData = await this.getConsumptionData(supply.cups, supply.distributorCode, startDate, endDate, 0, supply.pointType, supply.authorizedNif)
+          if (!datadisCupsEnergyData) {
+            continue;
+          }
+        } catch (error: any) {
           let getDatadisEndingDate = moment().format("DD-MM-YYYY HH:mm:ss");
           status = 'error';
           errorType = "datadis request error";
-          errorMessage = e.toString().substring(0, 200)
-          operation = "get datadis hourly energy registers"
+          errorMessage = error.message.substring(0, 200);
+          operation = "get datadis hourly energy registers (https://datadis.es/api-private/api/get-consumption-data)";
           await this.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
-          return null;
-        })
-
-        if (!datadisCupsEnergyData) {
-          console.log("no datadisCupsEnergyData ", datadisCupsEnergyData, ". Continue")
-          status = 'error';
-          errorType = 'no datadis cups energy data';
-          operation = 'Get energy data from datadis (https://datadis.es/api-private/api/get-consumption-data)'
-          await this.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage)
           continue;
         }
 
         let getDatadisEndingDate = moment().format("DD-MM-YYYY HH:mm:ss");
 
         //get cups energy hours db registers
-        let insertedEnergyDataNumber: number = await this.postCupsEnergyData(cupsData, datadisCupsEnergyData, startDate, endDate).catch(e => {
+        let insertedEnergyDataNumber: number = await this.postCupsEnergyData(cupsData, datadisCupsEnergyData).catch(e => {
           status = 'error';
           errorType = "post datadis data error";
           errorMessage = e.toString().substring(0, 200);
@@ -225,6 +241,16 @@ export class DatadisService {
 
         //insert readed cups energy hours
         await this.postLogs(supply.cups, cupsData.id, operation, insertedEnergyDataNumber, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
+
+        try {
+          await this.updateCupsEnergyData(cupsData.id, datadisCupsEnergyData);
+        } catch (error) {
+          status = 'error';
+          errorType = "update datadis data error";
+          errorMessage = error.message.substring(0, 200);
+          operation = "update datadis hourly energy registers data into database (datadis table)";
+          await this.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
+        }
 
       }
     }
@@ -243,18 +269,30 @@ export class DatadisService {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       data: this.loginData
     }
+
     return new Promise(async (resolve, reject) => {
-      let response: any = await axios.request(config).catch((e: any) => {
-        console.log('error logging in', e)
-        reject(e);
-      });
-      console.log("login success, token obtained")
-      if (response) {
+      try {
+        let response: any = await axios.request(config)
+        //console.log("login success, token obtained");
+        //console.log("possible login error: ", response.data.status, response.data.error, response.data.message);
         this.token = response.data;
         resolve(this.token);
-      } else {
-        reject("error getting token");
+      } catch (error: any) {
+        if (error.response) {
+          // El servidor respondió con un estatus diferente a 2xx
+          const { data } = error.response;
+          reject(`${data.status} ${data.error} : ${data.message}`);
+        } else if (error.request) {
+          // La petición fue hecha pero no hubo respuesta
+          console.log(error.request);
+          reject({ message: 'No response received from server' });
+        } else {
+          // Algo ocurrió al configurar la petición que desencadenó un error
+          console.log('Error', error.message);
+          reject({ message: error.message });
+        }
       }
+
     })
   }
 
@@ -269,29 +307,38 @@ export class DatadisService {
       headers: { 'Authorization': `Bearer ${this.token}` },
       timeout: 20000
     }
+
     try {
+
       let response: any = await axios.request(config)
       this.supplies = response.data
       return this.supplies;
+
     } catch (error) {
+
       if (axios.isAxiosError(error)) {
         const axiosError: any = error;
-
         if (axiosError.response) {
-          console.error('Respuesta recibida con estado:', axiosError.response.status);
-          console.error('Datos de respuesta:', axiosError.response.data);
+          //console.log("GET SUPPLIES",axiosError.response)
+          if (axiosError.response.data) {
+            console.log("supplies", axiosError.response.data)
+            throw new Error(`${axiosError.response.data.status} ${axiosError.response.data.error} : ${axiosError.response.data.message}`);
+          } else {
+            console.log("supplies", axiosError.response.status)
+            throw new Error(`${axiosError.response.status}`);
+          }
         } else if (axiosError.request) {
           // El error ocurrió durante la solicitud, pero no se recibió respuesta
-          console.error('La solicitud no recibió respuesta');
+          //console.error('La solicitud no recibió respuesta');
+          throw new Error(`La solicitud no recibió respuesta`);
         } else {
           // Error al configurar la solicitud
-          console.error('Error al configurar la solicitud:', axiosError.message);
+          //console.error('Error al configurar la solicitud:', axiosError.message);
+          throw new Error(`Error al configurar la solicitud: ${axiosError.message}`);
         }
       } else {
-
-        console.error('Ocurrió un error:', error.message);
+        throw new Error(`${error.message}`);
       }
-      throw new Error('No se pudieron obtener los suministros');
     }
   }
 
@@ -304,8 +351,9 @@ export class DatadisService {
       maxBodyLength: Infinity,
       url: `https://datadis.es/api-private/api/get-supplies?authorizedNif=${dni}`,
       headers: { 'Authorization': `Bearer ${this.token}` },
-      timeout: 20000
+      timeout: 40000
     }
+
     try {
       let response: any = await axios.request(config)
       //add authorized nif to supplies:
@@ -319,20 +367,29 @@ export class DatadisService {
       if (axios.isAxiosError(error)) {
         const axiosError: any = error;
         if (axiosError.response) {
-          console.error('Respuesta recibida con estado:', axiosError.response.status);
-          console.error('Datos de respuesta:', axiosError.response.data);
+          if (axiosError.response.data) {
+            if (typeof axiosError.response.data === 'object') {
+              axiosError.response.data = axiosError.response.data.message;
+            }
+            console.log("Get auth supplies error response", axiosError.response.data)
+            throw new Error(`${axiosError.response.data}`);
+          } else {
+            console.log("Get auth supplies error response", axiosError.response)
+            throw new Error(`${axiosError.response.status}`);
+          }
         } else if (axiosError.request) {
           // El error ocurrió durante la solicitud, pero no se recibió respuesta
-          console.error('La solicitud no recibió respuesta',);
+          //console.error('La solicitud no recibió respuesta');
+          throw new Error(`La solicitud no recibió respuesta`);
         } else {
           // Error al configurar la solicitud
-          console.error('Error al configurar la solicitud:', axiosError.message);
+          //console.error('Error al configurar la solicitud:', axiosError.message);
+          throw new Error(`Error al configurar la solicitud: ${axiosError.message}`);
         }
       } else {
-        console.error('Ocurrió un error:', error.message);
+        console.log("Get auth supplies UNKNOWN error response", error.message)
+        throw new Error(`${error.message}`);
       }
-      console.log("error obteniendo suministros autorizados")
-      throw new Error('No se pudieron obtener los suministros');
     }
   }
 
@@ -347,51 +404,47 @@ export class DatadisService {
    */
   async getConsumptionData(cups: string, distributorCode: number, startDate: string, endDate: string, measurementType: number, pointType: number, authorizedNif?: string) {
 
-    //console.log("try to get datadis data: ",cups,distributorCode,startDate,endDate,0,pointType,authorizedNif)
+    try {
 
-    return new Promise(async (resolve, reject) => {
+      const baseUrl = authorizedNif ?
+        `https://datadis.es/api-private/api/get-consumption-data?authorizedNif=${authorizedNif}&`
+        : 'https://datadis.es/api-private/api/get-consumption-data?';
 
-      try {
+      let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: `${baseUrl}cups=${cups}&distributorCode=${distributorCode}&startDate=${startDate}&endDate=${endDate}&measurementType=${measurementType}&pointType=${pointType}`,
+        headers: {
+          'Authorization': `Bearer ${this.token}`,
+          'Accept-Encoding': 'gzip, deflate, br, zlib',
+          'Accept': '*/*'
+        },
+        timeout: 20000
+      };
 
-        const baseUrl = authorizedNif ?
-          `https://datadis.es/api-private/api/get-consumption-data?authorizedNif=${authorizedNif}&`
-          : 'https://datadis.es/api-private/api/get-consumption-data?';
+      const response = await axios.request(config);
 
-        let config = {
-          method: 'get',
-          maxBodyLength: Infinity,
-          url: `${baseUrl}cups=${cups}&distributorCode=${distributorCode}&startDate=${startDate}&endDate=${endDate}&measurementType=${measurementType}&pointType=${pointType}`,
-          headers: {
-            'Authorization': `Bearer ${this.token}`,
-            'Accept-Encoding': 'gzip, deflate, br, zlib',
-            'Accept': '*/*'
-          },
-          timeout: 20000
-        };
-
-        let response = await axios.request(config);
-
-        if (!response) {
-          console.log("Get consumption data unknown error. Undefined response.");
-          reject('Unknown error occurred');
-        } else {
-          console.log("response get consumption data from cups ", cups, " : ", response);
-          resolve(response.data);
-        }
-      } catch (error) {
-        if (error.response) {
-          console.error("Error getting consumption data from cups ", cups, " (data): ", error.response.data);
-          reject(error.response.data);
-        } else if (error.request) {
-          console.error("Error getting consumption data from cups ", cups, " (request)", error.code);
-          reject(error.code);
-        } else {
-          console.error("Error getting consumption data from cups ", cups, " (error): ", error);
-          reject(error);
-        }
+      if (!response) {
+        console.log("Get consumption data unknown error. Undefined response.");
+        throw new Error('Unknown error occurred');
+      } else {
+        //console.log("response get consumption data from cups ", cups, " : ", response);
+        return response.data
       }
 
-    })
+    } catch (error) {
+      if (error.response) {
+        console.error("Error getting consumption data from cups", cups, " (data): ", error.response.data, error.response.status);
+        throw new Error(error.response.data);
+      } else if (error.request) {
+        console.error("Error getting consumption data from cups", cups, " (request)", error.code);
+        throw new Error(error.code);
+      } else {
+        console.error("Error getting consumption data from cups", cups, " (error): ", error);
+        throw new Error(error);
+      }
+    }
+
   }
 
   async getCups(): Promise<any> {
@@ -437,6 +490,8 @@ export class DatadisService {
   }
 
 
+  /** The checkCups method checks if cups are registered in the database and inserts missing ones along with their location data.
+   */
   async checkCups(): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -487,9 +542,6 @@ export class DatadisService {
           }
         })
 
-        //update dbCups during dbCups iteration is  problem,
-        //we can push new values or wait to next iteration
-
         //this.dbCups = await this.getCups()
 
         resolve(this.dbCups);
@@ -501,7 +553,67 @@ export class DatadisService {
     })
   }
 
-  async postCupsEnergyData(cupsData: any, datadisCupsEnergyData: any[], startDate: string, endDate: string): Promise<number> {
+  async updateCupsEnergyData(cupsId: any, datadisCupsEnergyData: any[]) {
+
+    try {
+      let dataToSearchQueryPart = ''
+      let values: any = []
+      let firstEnergyDate = datadisCupsEnergyData[0]
+      datadisCupsEnergyData = datadisCupsEnergyData.slice(1)
+
+      let day = moment(firstEnergyDate.date, 'YYYY/MM/DD').format('YYYY-MM-DD')
+      let hour = moment(firstEnergyDate.time, 'HH:mm').format('HH:mm:ss')
+      let infoDt = `${day} ${hour}`;
+      let consumption = firstEnergyDate.consumptionKWh;
+      let generation = firstEnergyDate.surplusEnergyKWh;
+
+      dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as import, ? as export, ? as cups_id`)
+
+      pushToValues(infoDt, consumption, generation, cupsId)
+
+      for (const energy of datadisCupsEnergyData) {
+        let day = moment(energy.date, 'YYYY/MM/DD').format('YYYY-MM-DD')
+        let hour = moment(energy.time, 'HH:mm').format('HH:mm:ss')
+        let datetime = `${day} ${hour}`;
+        let energyImport = energy.consumptionKWh;
+        let energyExport = energy.surplusEnergyKWh;
+        pushToValues(datetime, energyImport, energyExport, cupsId)
+        dataToSearchQueryPart = dataToSearchQueryPart.concat(` UNION ALL SELECT ?,?,?,? `)
+      }
+
+      let updateQuery = `
+        UPDATE datadis_energy_registers AS target
+        JOIN (${dataToSearchQueryPart}) AS source
+        ON target.info_dt = source.info_dt AND target.cups_id = source.cups_id
+        SET 
+          target.import = IF(target.import <> source.import, source.import, target.import),
+          target.export = IF(target.export <> source.export, source.export, target.export),
+          target.updates_counter = IF(target.import <> source.import OR target.export <> source.export, target.updates_counter + 1, target.updates_counter),
+          target.updates_historic = IF(
+            target.import <> source.import OR target.export <> source.export,
+            JSON_ARRAY_APPEND(COALESCE(target.updates_historic, '[]'), '$', JSON_OBJECT('info_dt', target.info_dt, 'import', target.import, 'export', target.export, 'timestamp', NOW())),
+            target.updates_historic
+          )
+        WHERE target.import <> source.import OR target.export <> source.export
+    `;
+
+      // Update existing records
+      await this.conn.execute(updateQuery, values);
+
+      function pushToValues(infoDt: string, consumption: number, generation: number, cupsId: any) {
+        values.push(infoDt);
+        values.push(consumption);
+        values.push(generation);
+        values.push(cupsId)
+      }
+
+    } catch (error) {
+      throw new Error(error)
+    }
+
+  }
+
+  async postCupsEnergyData(cupsData: any, datadisCupsEnergyData: any[]): Promise<number> {
 
     //create get not inserted energy per cups query
 
@@ -515,9 +627,6 @@ export class DatadisService {
     let infoDt = `${day} ${hour}`;
     let consumption = firstEnergyDate.consumptionKWh;
     let generation = firstEnergyDate.surplusEnergyKWh;
-
-    let startDateFormat = moment(startDate, 'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
-    let endDateFormat = moment(endDate, 'YYYY/MM').format('YYYY-MM-DD HH:mm:ss');
 
     dataToSearchQueryPart = dataToSearchQueryPart.concat(`SELECT ? as info_dt, ? as import, ? as export, ? as cups_id`)
 
@@ -583,7 +692,9 @@ export class DatadisService {
 
   }
 
-  postLogs(cups: string, cupsId: number, operation: string, n_registers: number, startDate: any, endDate: any, getDatadisBegginningDate: any, getDatadisEndingDate: any, status: string, errorType: string, errorMessage: string) {
+  async postLogs(cups: string, cupsId: number, operation: string, n_registers: number, startDate: any, endDate: any, getDatadisBegginningDate: any, getDatadisEndingDate: any, status: string, errorType: string, errorMessage: string) {
+
+    console.log("Error message: ", typeof errorMessage, JSON.stringify(errorMessage))
 
     const log = {
       cups,
@@ -600,15 +711,13 @@ export class DatadisService {
     const insertLogQuery = `INSERT INTO logs (origin, log, cups, cups_id, status, operation, n_affected_registers,
                                               error_message)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-    return new Promise(async (resolve, reject) => {
-      try {
-        let [ROWS] = await this.conn.query(insertLogQuery, ['datadis', JSON.stringify(log), cups, cupsId, status, operation, n_registers, errorMessage]);
-        resolve(ROWS);
-      } catch (e: any) {
-        console.log("error inserting logs energy data", e);
-        reject(e)
-      }
-    })
+
+    try {
+      let [ROWS] = await this.conn.query(insertLogQuery, ['datadis', JSON.stringify(log), cups, cupsId, status, operation, n_registers, errorMessage]);
+    } catch (e: any) {
+      console.log("error inserting logs energy data", e);
+    }
+
   }
 
   async getNewDatadisRegisters() {
@@ -853,4 +962,22 @@ export class DatadisService {
   orderArrByInfoDt(array: any[]) {
     return array.sort((a: any, b: any) => a.info_dt - b.info_dt);
   }
+
+  async testRun() {
+    let datadisCupsEnergyData: any[] = await this.getCupsEnergyDataTest()
+    await this.updateCupsEnergyData(68, datadisCupsEnergyData);
+  }
+
+  async getCupsEnergyDataTest() {
+    let selectQuery = `SELECT 
+    DATE_FORMAT(info_dt, '%Y/%m/%d') AS date, 
+    DATE_FORMAT(info_dt, '%H:%i') AS time,
+    import AS consumptionKWh,
+    export AS surplusEnergyKWh
+     from datadis_energy_registers WHERE info_dt LIKE '2024-07-01%' AND cups_id = 68`
+    const [ROWS]: any = await this.conn.execute(selectQuery);
+    let res: any[] = ROWS;
+    return res
+  }
+
 }

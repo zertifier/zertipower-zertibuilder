@@ -52,6 +52,7 @@ jobs:
            else
              echo "No changes in frontend"
              echo "changed=false" >> $GITHUB_OUTPUT
+           fi
       
       - name: Detect changes in wiki-dev-ris3cat
         id: check_wiki-dev-ris3cat

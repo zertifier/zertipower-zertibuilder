@@ -113,7 +113,7 @@ jobs:
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying api"
             cd frontend
-            npm i
+            npm i --legacy--peer-deps
             npm run build
             docker compose up -d dev-app-ris3cat --build --force-recreate
             echo "frontend deployed"

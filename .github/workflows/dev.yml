@@ -115,7 +115,7 @@ jobs:
             cd frontend
             npm i --legacy--peer-deps
             npm run build
-            docker compose up -d dev-app-ris3cat --build --force-recreate
+            docker compose up -d app-dev-ris3cat --build --force-recreate
             echo "frontend deployed"
 
   deploy-wiki-ris3cat:

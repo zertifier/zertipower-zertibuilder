@@ -67,6 +67,7 @@ model Token {
   token           String   @db.VarChar(500)
   expiration_time DateTime
   user_id         Int
+  permanent       Int
 
   @@map("user_tokens")
 }

@@ -7,6 +7,7 @@ import { PasswordUtils } from "src/features/users/domain/Password/PasswordUtils"
 import { LocationUtils } from "src/shared/domain/utils/locationUtils";
 import { PrismaService } from "./prisma-service";
 import { EnvironmentService } from "./environment-service";
+import {ShareService} from "./share/share.service";
 
 
 interface supply {
@@ -66,7 +67,8 @@ export class DatadisService {
 
   private conn: mysql.Pool;
 
-  constructor(private mysql: MysqlService, private prisma: PrismaService, private environmentService: EnvironmentService) {
+
+  constructor(private mysql: MysqlService, private prisma: PrismaService, private environmentService: EnvironmentService, ) {
 
     this.conn = this.mysql.pool;
 
@@ -74,7 +76,7 @@ export class DatadisService {
     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM');
 
-    this.run(startDate, endDate)
+    // this.run(startDate, endDate)
 
     setInterval(() => {
       startDate = moment().subtract(1, 'months').format('YYYY/MM');

@@ -8,31 +8,16 @@ import {ApiTags} from "@nestjs/swagger";
 import {Auth} from "src/features/auth/infrastructure/decorators";
 import {CSVNonWorkingConverter} from "src/shared/domain/utils/CSVNonWorkingConverter"
 import {ErrorCode} from "../../shared/domain/error";
+import {ShareService} from "../../shared/infrastructure/services/share/share.service";
 
 export const RESOURCE_NAME = "energyTransactions";
 
 @ApiTags(RESOURCE_NAME)
 @Controller("energy-transactions")
 export class EnergyTransactionsController {
-  constructor(private prisma: PrismaService, private datatable: Datatable) {
+  constructor(private prisma: PrismaService, private datatable: Datatable, private shareService: ShareService) {
     CSVNonWorkingConverter.convertCsvNonWorking()
-    /*this.getTransactionsWithNullPrice().then(async (transactions) => {
-      console.log("Updating",transactions.length, "transactions...")
-      for (const transaction of transactions) {
-        const energyData = await this.getEnergyPrice(new Date(transaction.infoDt!), transaction.providerId)
-        // transaction.kwhInPrice = energyData.price * transaction.kwhIn
-        transaction.kwhInPrice = energyData.price
-        // transaction.kwhOutPrice = energyData.price * transaction.kwhOut
-        transaction.kwhOutPrice = 0.06
-        transaction.kwhInPriceCommunity = 0.09
-        transaction.kwhOutPriceCommunity = 0.09
-        transaction.type = energyData.rate
-
-        this.updatePrices(transaction)
-      }
-    })*/
-    // this.getEnergyPrice(new Date('2024-04-05'), 1)
-    // this.getEnergyPrice(new Date('2024-11-07 17:00:00'), 9)
+    this.shareService.redistribute()
   }
 
   @Get()

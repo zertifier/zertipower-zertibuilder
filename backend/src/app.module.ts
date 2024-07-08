@@ -79,6 +79,7 @@ import {EnergyHourlyController} from "./features/energy-hourly/energy-hourly.con
     BlockchainEnergyDataController,
     EnergyHourlyController
 ],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

@@ -17,7 +17,6 @@ export const RESOURCE_NAME = "energyTransactions";
 export class EnergyTransactionsController {
   constructor(private prisma: PrismaService, private datatable: Datatable, private shareService: ShareService) {
     CSVNonWorkingConverter.convertCsvNonWorking()
-    this.shareService.redistribute()
   }
 
   @Get()

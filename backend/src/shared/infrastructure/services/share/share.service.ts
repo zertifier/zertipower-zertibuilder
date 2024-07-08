@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import mysql from "mysql2/promise";
 import {MysqlService} from "../mysql-service";
+import * as moment from "moment";
 
 
 export interface RedistributeObject {
@@ -13,6 +14,15 @@ export interface RedistributePartner{
   consumption: number,
   resultConsumption: number
   wallet: string,
+}
+
+export interface RegistersFromDb{
+  id: number,
+  kwh_in: number,
+  kwh_out: number,
+  info_dt: Date,
+  type: 'consumer' | 'community',
+  community_id: number
 }
 @Injectable()
 export class ShareService {
@@ -28,9 +38,20 @@ export class ShareService {
   private conn: mysql.Pool;
   constructor(private mysql: MysqlService) {
     this.conn = this.mysql.pool;
+    this.redistribute()
 
   }
-  redistribute(redistributeObject: RedistributeObject = this.redistributeObject){
+  async redistribute(){
+    const surplusRegisters = await this.getNewSurplusRegisters()
+    const newRegisters = await this.getNewRegisters()
+
+    for (const surplusRegister of surplusRegisters) {
+      this.getRegistersByDate(surplusRegister.info_dt, newRegisters)
+    }
+    return this.redistributeObject
+  }
+
+  calculateRedistribution(redistributeObject: RedistributeObject = this.redistributeObject){
     let total = redistributeObject.totalSurplus;
     let partners = redistributeObject.redisitributePartners;
     let activePartners = partners.length;
@@ -67,26 +88,45 @@ export class ShareService {
     }
 
     redistributeObject.resultTotalSurplus = total
-    console.log(this.redistributeObject)
-    this.getNewRegisters().then((res) => {
-      console.log(res, "RES")
-    })
-    return this.redistributeObject
+
+  }
+  getRegistersByDate(surplusRegisterDate: Date, newRegisters: RegistersFromDb[]){
+    console.log(surplusRegisterDate, "surplusRegisterDate")
+    const date = moment(surplusRegisterDate).format('YYYY-MM-DD HH')
+    const filteredRegisters =newRegisters.filter((register) => moment(register.info_dt).format('YYYY-MM-DD HH') == date)
+
+    console.log(date)
+    console.log(filteredRegisters)
+    console.log('---------------------')
+
   }
 
-  getNewRegisters(){
-    console.log("aaaaaaaaaaaaaaaa")
-    return new Promise(async resolve => {
+  getNewSurplusRegisters(): Promise<RegistersFromDb[]>{
+    return new Promise(async (resolve) => {
       let query = `
-        SELECT e.id, e.kwh_in, e.kwh_out, e.production, e.info_dt, cups.type, cups.surplus_distribution, cups.community_id
+        SELECT e.id, e.kwh_in, e.kwh_out, e.info_dt, cups.community_id
         FROM energy_hourly e
                LEFT JOIN trades t ON e.info_dt = t.info_dt
                LEFT JOIN cups ON e.cups_id = cups.id
         WHERE t.info_dt IS NULL AND kwh_out > 0 AND cups.type != 'community'
         ORDER BY e.info_dt DESC, kwh_out DESC LIMIT 10;
       `
-      console.log(query)
-      let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
+      let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
+      resolve(result);
+    })
+  }
+
+  getNewRegisters(): Promise<RegistersFromDb[]>{
+    return new Promise(async resolve => {
+      let query = `
+        SELECT e.id, e.kwh_in, e.kwh_out, e.info_dt, cups.community_id
+        FROM energy_hourly e
+               LEFT JOIN trades t ON e.info_dt = t.info_dt
+               LEFT JOIN cups ON e.cups_id = cups.id
+        WHERE t.info_dt IS NULL AND kwh_in > 0 AND cups.type != 'community'
+        ORDER BY e.info_dt DESC, kwh_in DESC;
+      `
+      let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
       resolve(result);
     })
   }

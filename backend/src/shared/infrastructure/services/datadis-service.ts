@@ -98,9 +98,9 @@ export class DatadisService {
     Retrieves energy data from Datadis for the specified date range.
     Inserts or updates the retrieved energy data in the database.
     Logs the success or failure of data retrieval and insertion.
-   * 
-   * @param startDate 
-   * @param endDate 
+   *
+   * @param startDate
+   * @param endDate
    */
   async run(startDate: any, endDate: any) {
 
@@ -242,9 +242,9 @@ export class DatadisService {
         //insert readed cups energy hours
         await this.postLogs(supply.cups, cupsData.id, operation, insertedEnergyDataNumber, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
 
-        try {
+        try{
           await this.updateCupsEnergyData(cupsData.id, datadisCupsEnergyData);
-        } catch (error) {
+        } catch(error){
           status = 'error';
           errorType = "update datadis data error";
           errorMessage = error.message.substring(0, 200);
@@ -490,8 +490,6 @@ export class DatadisService {
   }
 
 
-  /** The checkCups method checks if cups are registered in the database and inserts missing ones along with their location data.
-   */
   async checkCups(): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -542,6 +540,9 @@ export class DatadisService {
           }
         })
 
+        //update dbCups during dbCups iteration is  problem,
+        //we can push new values or wait to next iteration
+
         //this.dbCups = await this.getCups()
 
         resolve(this.dbCups);
@@ -576,7 +577,7 @@ export class DatadisService {
         let hour = moment(energy.time, 'HH:mm').format('HH:mm:ss')
         let datetime = `${day} ${hour}`;
         let energyImport = energy.consumptionKWh;
-        let energyExport = energy.surplusEnergyKWh;
+        let energyExport =  energy.surplusEnergyKWh; 
         pushToValues(datetime, energyImport, energyExport, cupsId)
         dataToSearchQueryPart = dataToSearchQueryPart.concat(` UNION ALL SELECT ?,?,?,? `)
       }
@@ -965,20 +966,20 @@ export class DatadisService {
     return array.sort((a: any, b: any) => a.info_dt - b.info_dt);
   }
 
-  async testRun() {
-    let datadisCupsEnergyData: any[] = await this.getCupsEnergyDataTest()
-    await this.updateCupsEnergyData(68, datadisCupsEnergyData);
+  async testRun(){
+    let datadisCupsEnergyData:any[] = await this.getCupsEnergyDataTest()
+    await this.updateCupsEnergyData(68,datadisCupsEnergyData);
   }
 
-  async getCupsEnergyDataTest() {
+  async getCupsEnergyDataTest(){
     let selectQuery = `SELECT 
     DATE_FORMAT(info_dt, '%Y/%m/%d') AS date, 
     DATE_FORMAT(info_dt, '%H:%i') AS time,
     import AS consumptionKWh,
     export AS surplusEnergyKWh
      from datadis_energy_registers WHERE info_dt LIKE '2024-07-01%' AND cups_id = 68`
-    const [ROWS]: any = await this.conn.execute(selectQuery);
-    let res: any[] = ROWS;
+    const [ROWS]:any = await this.conn.execute(selectQuery);
+    let res:any[] = ROWS;
     return res
   }
 

@@ -7,13 +7,15 @@ import {Predictor} from "./predictor";
 import {HttpResponse} from "../../../../../shared/infrastructure/http/HttpResponse";
 import {BadRequestError, InfrastructureError} from "../../../../../shared/domain/error/common";
 import {AxiosError} from "axios";
+import {ShareService} from "../../../../../shared/infrastructure/services/share/share.service";
 
 @Controller('energy-prediction')
 export class EnergyPredictionController {
   constructor(
     private energyForecastService: EnergyForecastService,
-    private prisma: PrismaService
-  ) {}
+    private prisma: PrismaService,
+  ) {
+  }
 
   @Get()
   async getPrediction(@Query("cups") cupsId: number, @Query("community") communityId: number) {

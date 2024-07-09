@@ -322,46 +322,40 @@ export class CalculateComponent {
 
   changeStep(stepDestination: number) {
 
-    console.log("changeStep", stepDestination)
+    //console.log("changeStep", stepDestination)
     //todo: no puede haber un tick más avanzado que stepActive. ¿?
     // for(let i = this.stepsCompleted.length;i>=this.stepActive;i--){
     //   this.stepsCompleted[i]=0;
     // }
 
-    console.log("change step", stepDestination, "completed?", this.stepsCompleted)
-    console.log("select location", this.selectedLocation)
-
     if (stepDestination == 2 && !this.selectedLocation) {
-      Swal.fire("Selecciona una localitat", 'Selecciona una localitat per avançar al següent pas.', 'info')
+      Swal.fire({text:'Selecciona una localitat per avançar al següent pas.', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
       return;
     }
 
     if ((stepDestination == 3 || stepDestination == 4) && !this.selectedCommunity) {
-      Swal.fire("Selecciona una comunitat", 'Selecciona una comunitat per avançar al següent pas.', 'info')
+      Swal.fire({text:`Selecciona una comunitat \n per avançar al següent pas.`, iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
       return;
     }
 
     if (stepDestination == 5 && !this.selectedCadastre.m2 && this.stepActive < 6) {
-      Swal.fire("Selecciona un àrea", 'Selecciona un àrea per avançar al següent pas.', 'info')
+      Swal.fire({text:'Selecciona un àrea per avançar al següent pas.', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
       return;
     }
 
     if (stepDestination == 6 && !this.selectedCadastre.m2) {
-      Swal.fire("Selecciona un àrea", 'Selecciona un àrea per avançar al següent pas.', 'info')
+      Swal.fire({text:'Selecciona un àrea per avançar al següent pas.', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
       return;
     }
 
     if (stepDestination == 3) {
-      console.log("stepDestination", stepDestination)
       this.stepsCompleted[2] = 1;
     }
     if (stepDestination == 4) {
-      console.log("stepDestination", stepDestination)
       //this.stepsCompleted[3]=1;
     }
 
     if (stepDestination == 5) {
-      console.log("stepDestination", stepDestination)
       this.stepsCompleted[4] = 1;
     }
 
@@ -374,7 +368,6 @@ export class CalculateComponent {
 
   scrollToElement(elementId: string) {
     const element = document.getElementById(elementId);
-    console.log(elementId, element)
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -382,7 +375,7 @@ export class CalculateComponent {
 
   getStepClasses(stepActive: number) {
     if (this.stepActive === stepActive) {
-      return 'card d-flex w-100 py-2 px-4 border-primary text-light bg-primary';
+      return 'd-flex w-100 py-2 px-4 border-primary text-light bg-primary rounded-top';
     } else if (this.stepsCompleted[stepActive - 1]) {
       return 'card d-flex w-100 py-2 px-4 border-success text-success';
     } else {
@@ -398,7 +391,7 @@ export class CalculateComponent {
   }
 
   OnSelectorChange(element: any, attribute: string) {
-    console.log(element, attribute)
+    //console.log(element, attribute)
     switch (attribute) {
 
       case 'location':
@@ -407,7 +400,7 @@ export class CalculateComponent {
         this.map.unselect();
         this.map.deleteMarkers();
 
-        console.log(this.selectedLocation, element)
+        //console.log(this.selectedLocation, element)
         if (this.selectedLocation) {
           this.selectedCommunities = this.communities.map((community: any) => {
             if (community.location_id == this.selectedLocation.id) {
@@ -862,7 +855,6 @@ export class CalculateComponent {
   // }
 
   resetCadastre() {
-    console.log("reset cadastre")
     this.selectedCadastreGenerationMonthChartDatasets = [];
     this.selectedCadastreMonthChartDatasets = [];
     this.selectedCadastre = {
@@ -884,25 +876,34 @@ export class CalculateComponent {
   addArea() {
     this.ngZone.run(() => {
       let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
-      console.log("add Area found", found)
+      //console.log("add Area found", found)
       if (found) {
         this.addedAreas = [...this.addedAreas]
+        Swal.fire({text:'Àrea actualitzada', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
       } else {
         this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
         this.updateCommunityChart()
         this.map.activeArea(this.selectedCadastre)
+        Swal.fire({text:'Àrea afegida', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
       }
-      this.resetCadastre();
-      //this.cdr.detectChanges(); 
+      //console.log(this.addedAreas)
+
+      //this.resetCadastre(); //TO RESET SELECTED AREA WHEN AREA ADDED.
     })
   }
 
   deleteArea(index: number) {
-    this.map.deleteArea(this.addedAreas[index])
-    this.addedAreas.splice(index, 1);
-    this.resetCadastre();
-    this.updateCommunityChart();
-    this.cdr.detectChanges();
+    Swal.fire({title:`Estàs a punt d'esborrar l'àrea`,text:'Segur que vols fer-ho?', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5',cancelButton:'btn btn-danger'}})
+    .then((result)=>{
+      if (result.isConfirmed) {
+        this.map.deleteArea(this.addedAreas[index])
+        this.addedAreas.splice(index, 1);
+        this.resetCadastre();
+        this.updateCommunityChart();
+        this.cdr.detectChanges();        
+      } else if (result.isDenied) {
+      }
+    })
   }
 
   unselectArea(feature: any) {
@@ -916,7 +917,6 @@ export class CalculateComponent {
     this.selectedCadastre = this.addedAreas[index];
     this.stepActive = 5;
     this.changeStep(5);
-
   }
 
   calculateSurplus() {
@@ -995,6 +995,9 @@ export class CalculateComponent {
     this.selectedCadastre.monthlySavings = parseFloat(this.selectedCadastre.monthlySavings!.toFixed(2))
     //the redeem years are the profits earned month by month:
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
+
+    console.log(this.selectedCadastre)
+
   }
 
   optimizeSolarPanels() {

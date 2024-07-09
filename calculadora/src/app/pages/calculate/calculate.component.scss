@@ -7,7 +7,8 @@
 }
 
 .section-content-padding {
-    padding-left: 32px;
+    margin-left: 32px;
+    margin-right: 0px;
 }
 
 span {
@@ -20,12 +21,22 @@ span {
         font-size: 16px;
     }
 
+    .w-md-50 {
+        width: 50% !important;
+    }
+
 }
 
-.custom-chart{
+.custom-chart {
     max-height: 300px;
 }
 
-.collapser{
-    cursor:pointer;
+
+
+.collapser {
+    cursor: pointer;
+}
+
+.container-body {
+    background-color: #f4f6f6;
 }

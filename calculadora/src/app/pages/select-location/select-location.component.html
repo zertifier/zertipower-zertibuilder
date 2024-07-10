@@ -10,11 +10,13 @@
 
       <div class="row p-0 m-0 d-flex justify-content-center align-items-center text-center">
         <div style="max-width: 500px;">
-          <label for="location" class="m-4 text-light">Uneix-te a la transició energètica col·lectiva</label>
-          <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
+          <label for="location" class="m-4  fs-5 text-light">Uneix-te a la transició energètica col·lectiva</label>
+          <label class="m-0 fs-6 text-light">Utilitza la calculadora energètica de Zerti Power per esbrinar la millor forma d'estalviar en la teva factura d'electricitat.</label>
+          <label class="mt-4 btn btn-light"  [routerLink]="'/calculate'">Calculadora energètica</label>
+          <!-- <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
             <option></option>
             <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
-          </select>
+          </select> -->
       </div>
       </div>
     </div>
@@ -28,10 +30,12 @@
       <div class="p-0 m-0 d-flex justify-content-center align-items-center text-center">
         <div>
           <label for="location" class="m-4 fs-4 text-light">Uneix-te a la transició energètica col·lectiva</label>
-          <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
+          <label class="m-2 fs-6 text-light">Utilitza la calculadora energètica de Zerti Power per esbrinar la millor forma d'estalviar en la teva factura d'electricitat.</label>
+          <!-- <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
             <option></option>
             <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
-          </select>
+          </select> -->
+          <label class="mt-2 btn btn-light" [routerLink]="'/calculate'">Calculadora energètica</label>
         </div>
       </div>
     </div>

@@ -537,7 +537,7 @@
 
                     <div class="w-100 d-flex mt-2 mt-md-4">
                         <span class="w-50">Tria el tipus de consum que vols afegir</span>
-                        <a *ngIf="!editingArea" class="d-flex w-50 justify-content-end" (click)="editingArea=true">
+                        <a *ngIf="!editingArea" class="d-flex w-50 justify-content-end" (click)="editingArea=true"  role="button">
                             <span>Ajustar dades</span>
                         </a>
                     </div>
@@ -573,9 +573,9 @@
                                         [(ngModel)]="this.selectedCadastre.m2" (change)="updateCadastreChart()" min="0"
                                         step="0"> -->
 
-                                    <input type="number" class="form-control disabled number-input"
-                                        [(ngModel)]="this.selectedCadastre.m2" (change)="updateCadastreChart()"
-                                        disabled>
+                                    <input type="number" class="form-control number-input"
+                                        [(ngModel)]="this.selectedCadastre.m2" (change)="simulateGenerationConsumption()"
+                                        >
                                 </div>
                             </div>
 
@@ -686,8 +686,8 @@
                                     [(ngModel)]="this.selectedCadastre.m2" (change)="updateCadastreChart()" min="0"
                                     step="0" readonly> -->
 
-                                <input type="number" class="form-control disabled number-input"
-                                    [(ngModel)]="this.selectedCadastre.m2" (change)="updateCadastreChart()" disabled>
+                                <input type="number" class="form-control number-input"
+                                    [(ngModel)]="this.selectedCadastre.m2" (change)="simulateGenerationConsumption()">
                             </div>
 
                         </div>
@@ -736,7 +736,7 @@
                         <div class="col mb-2 mb-md-4">
 
                             <div>
-                                <span>Estalvi mensual</span>
+                                <span>ROI/Estalvi mensual</span>
                             </div>
 
                             <div>

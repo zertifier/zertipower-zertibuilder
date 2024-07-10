@@ -4,3 +4,14 @@
     flex-direction: column;
     height: 100vh;
 }
+
+.form-select {
+    cursor: pointer;
+}
+
+select {
+    -webkit-appearance:button !important;
+        -moz-appearance:button !important;
+            appearance:button !important;
+    cursor: pointer;
+}

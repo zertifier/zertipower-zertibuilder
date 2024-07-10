@@ -14,4 +14,5 @@ export interface EnvVariables {
   RADIATION_API: string;
   RADIATION_API_CREDENTIALS: string;
   DATADIS_MONTHS:number;
+  TRADE_UPDATE_DAYS:number;
 }

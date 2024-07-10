@@ -978,25 +978,34 @@
                             </div>
                         </div>
 
-                        <div class="btn-light" style="max-height: 283px; overflow-y: auto; overflow-x: hidden;">
-                            <div class="fs-6 my-2 row mt-3" *ngFor="let area of addedAreas; index as i"
+                        <div>
+
+                            <div class="fs-6 my-2 row mt-3 p-0" *ngFor="let area of addedAreas; index as i"
                                 style="max-height: 50px; overflow: hidden;">
 
-                                <span class="col-3 col-md-2 text-end" style="vertical-align: middle;">Àrea {{ i+1
-                                    }}</span>
+                                <div class="col-3 col-md-2 col-lg-1 d-flex justify-content-end align-items-center">
+                                    <span class="text-end" style="vertical-align: middle;">Àrea {{ i+1
+                                        }}</span>
+                                </div>
 
-                                <button class="col-3 col-md-2 btn btn-secondary ms-3" type="button"
-                                    (click)="editArea(i)">Editar</button>
+                                <div class="col-3 col-md-2 px-1">
+                                    <button class="btn btn-secondary w-100 mx-md-2 col-lg-1" type="button"
+                                        (click)="editArea(i)">Editar</button>
+                                </div>
 
-                                <button *ngIf="this.selectedCadastre.id == area.id"
-                                    class="col-3 col-md-2 btn btn-secondary ms-3"
-                                    (click)="addArea()">Actualitzar</button>
+                                <div *ngIf="this.selectedCadastre.id == area.id" class="col-3 col-md-2 col-lg-1 px-1">
+                                    <button class=" btn btn-secondary w-100"
+                                        (click)="addArea()">Actualitzar</button>
+                                </div>
 
-                                <button *ngIf="this.selectedCadastre.id !== area.id"
-                                    class="col-3 col-md-2 btn btn-secondary ms-3 disabled" disabled>Actualitzar</button>
+                                <div *ngIf="this.selectedCadastre.id !== area.id" class="col-3 col-md-2 col-lg-1 px-1">
+                                    <button class=" btn btn-secondary disabled w-100" disabled>Actualitzar</button>
+                                </div>
 
-                                <button class="col-3 col-md-2 btn btn-danger ms-3" type="button"
-                                    (click)="deleteArea(i)">Esborrar</button>
+                                <div class="col-3 col-md-2 col-lg-1 px-1">
+                                    <button class="btn btn-danger w-100" type="button"
+                                        (click)="deleteArea(i)">Esborrar</button>
+                                </div>
 
                             </div>
                         </div>

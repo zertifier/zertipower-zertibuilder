@@ -329,22 +329,22 @@ export class CalculateComponent {
     // }
 
     if (stepDestination == 2 && !this.selectedLocation) {
-      Swal.fire({text:'Selecciona una localitat per avançar al següent pas.', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+      Swal.fire({ text: 'Selecciona una localitat per avançar al següent pas.', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       return;
     }
 
     if ((stepDestination == 3 || stepDestination == 4) && !this.selectedCommunity) {
-      Swal.fire({text:`Selecciona una comunitat \n per avançar al següent pas.`, iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+      Swal.fire({ text: `Selecciona una comunitat \n per avançar al següent pas.`, iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       return;
     }
 
     if (stepDestination == 5 && !this.selectedCadastre.m2 && this.stepActive < 6) {
-      Swal.fire({text:'Selecciona un àrea per avançar al següent pas.', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+      Swal.fire({ text: 'Selecciona un àrea per avançar al següent pas.', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       return;
     }
 
     if (stepDestination == 6 && !this.selectedCadastre.m2) {
-      Swal.fire({text:'Selecciona un àrea per avançar al següent pas.', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+      Swal.fire({ text: 'Selecciona un àrea per avançar al següent pas.', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       return;
     }
 
@@ -668,6 +668,8 @@ export class CalculateComponent {
           this.simulateGenerationConsumption();
           //this.cdr.detectChanges()
 
+          Swal.fire({ text: `Àrea seleccionada: ${this.selectedCadastre.m2} m²`, showConfirmButton: false, timerProgressBar: false , timer: 1500, loaderHtml:'' })
+
         });
 
       }, (error: any) => {
@@ -879,12 +881,12 @@ export class CalculateComponent {
       //console.log("add Area found", found)
       if (found) {
         this.addedAreas = [...this.addedAreas]
-        Swal.fire({text:'Àrea actualitzada', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+        Swal.fire({ text: 'Àrea actualitzada', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>', timer: 2000, customClass: { icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       } else {
         this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
         this.updateCommunityChart()
         this.map.activeArea(this.selectedCadastre)
-        Swal.fire({text:'Àrea afegida', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+        Swal.fire({ text: 'Àrea afegida', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>', timer: 2000, customClass: { icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       }
       //console.log(this.addedAreas)
 
@@ -893,17 +895,17 @@ export class CalculateComponent {
   }
 
   deleteArea(index: number) {
-    Swal.fire({title:`Estàs a punt d'esborrar l'àrea`,text:'Segur que vols fer-ho?', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5',cancelButton:'btn btn-danger'}})
-    .then((result)=>{
-      if (result.isConfirmed) {
-        this.map.deleteArea(this.addedAreas[index])
-        this.addedAreas.splice(index, 1);
-        this.resetCadastre();
-        this.updateCommunityChart();
-        this.cdr.detectChanges();        
-      } else if (result.isDenied) {
-      }
-    })
+    Swal.fire({ title: `Estàs a punt d'esborrar l'àrea`, text: 'Segur que vols fer-ho?', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5', cancelButton: 'btn btn-danger' } })
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.map.deleteArea(this.addedAreas[index])
+          this.addedAreas.splice(index, 1);
+          this.resetCadastre();
+          this.updateCommunityChart();
+          this.cdr.detectChanges();
+        } else if (result.isDenied) {
+        }
+      })
   }
 
   unselectArea(feature: any) {
@@ -973,12 +975,13 @@ export class CalculateComponent {
     }
 
     if (this.activeIndividual) {
+      //if activeIndividual, imported consumption divided by consumption from generation 
       //el cost es igual al consum dividit pel consum base i multiplicat pel preu mensual 
       let communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
       this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts
 
     } else {
-
+      //if activeCommunity, the energy to consume is bought to the community, with the price of the community
       communityMonthlyCosts = monthAverageConsumption * this.selectedCommunity.energy_price //this.selectedCadastre.generationPrice!;
       //monthlySavings is the price of energy that you stop using from the company when you have generation
       this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;

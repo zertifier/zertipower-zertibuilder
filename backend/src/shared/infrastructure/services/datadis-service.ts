@@ -74,7 +74,7 @@ export class DatadisService {
     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM');
 
-    //this.run(startDate, endDate)
+    this.run(startDate, endDate)
 
     setInterval(() => {
       startDate = moment().subtract(1, 'months').format('YYYY/MM');
@@ -747,6 +747,7 @@ export class DatadisService {
       if (datadisNewRegisters) datadisRegistersByCommunity = this.orderArrByInfoDt(datadisNewRegisters)
 
       const allCupsOfCommunity = await this.getCupsByCommunity(community.id)
+      // Merge and order the new and existing CUPS, adding any missing CUPS
       const filteredCups = allCupsOfCommunity.length > 0 ?
         this.orderArrByInfoDt(datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity))) : []
 
@@ -784,7 +785,6 @@ export class DatadisService {
               }
             }*/
 
-
             query +=
               `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${datadisRegister.import} , ${datadisRegister.export}, ${production} , ${datadisRegister.cups_id} , 'datadis', 0, ${datadisRegister.surplus_distribution || null}),`;
           } else {
@@ -801,7 +801,7 @@ export class DatadisService {
           // Execute the query for this batch
           let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
           const insertedRows = result.affectedRows;
-          console.log(`Energy hourly of community ${community.id} updated with a total of ${insertedRows} rows for batch starting at index ${start}`);
+          console.log(`Energy hourly of community ${community.id} inserted with a total of ${insertedRows} rows for batch starting at index ${start}`);
         }
 
       }
@@ -912,13 +912,20 @@ export class DatadisService {
     })
   }
 
-
+/**
+ * Adds CUPS (metering points) that are not provided in the new registers but exist in the database.
+ *
+ * @param {any[]} existentDatadisCups - An array of existing registers from the new data.
+ * @param {any[]} allDbCups - An array of all CUPS from the database.
+ * @returns {any[]} - An array of formatted new CUPS to be added.
+ */
   addNotProvidedCups(existentDatadisCups: any[], allDbCups: any[]) {
     if (allDbCups.length === 0) {
       return [];
     }
-
+    // Extract the IDs of existing CUPS from the new registers
     const existingCupsIds = existentDatadisCups.map(cup => cup.cups_id);
+    // Filter out the CUPS that are already in the existing registers
     const newCups = allDbCups.filter(cup => !existingCupsIds.includes(cup.id));
 
     if (!newCups.length) return []
@@ -927,8 +934,11 @@ export class DatadisService {
 
     let lastCheckedDate = null
 
+    // Iterate over each existing CUPS register
     for (const existentCups of existentDatadisCups) {
+      // Check if the date has changed
       if (lastCheckedDate != moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss')) {
+        // Format the new CUPS for the changed date
         formattedNewCups.push(...this.formatNewCups(newCups, existentCups))
         lastCheckedDate = moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss')
       }

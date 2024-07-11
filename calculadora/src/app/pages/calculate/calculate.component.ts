@@ -68,7 +68,7 @@ interface cadastre {
   templateUrl: './calculate.component.html',
   styleUrl: './calculate.component.scss'
 })
-export class CalculateComponent {
+export class CalculateComponent implements OnInit, AfterViewInit{
 
   stepActive: number = 1;
   stepsCompleted: number[] = [0, 0, 0, 0, 0, 0];
@@ -125,7 +125,6 @@ export class CalculateComponent {
   communityMonthChartDatasets: any = [];
   communityMonthChartType = 'bar';
   communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  communityDeleteMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   communityMonthChartOptions: any =
     {
       interaction: {
@@ -171,7 +170,7 @@ export class CalculateComponent {
   selectedCadastreGenerationMonthChartDatasets: any = [];
   selectedCadastreMonthChartType = 'bar';
   updateSelectedCadastreMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  selectedCadastreMonthChartOptions =
+  selectedCadastreMonthChartOptions: any =
     {
       interaction: {
         intersect: false,
@@ -240,7 +239,7 @@ export class CalculateComponent {
   //isMobile = false;
   //private modalService = inject(NgbModal);
   editingArea = false;
-
+  isMobile = false;
 
   constructor(
     private communitiesService: CommunitiesApiService,
@@ -271,6 +270,32 @@ export class CalculateComponent {
       console.log("location unselected")
     }
 
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.customizeChartSize(window.innerWidth);
+  }
+
+  setMobileStatus(sizePx: number) {
+    return sizePx < 768;
+  }
+
+  customizeChartSize(windowWidth:number){
+    if (this.setMobileStatus(window.innerWidth) != this.isMobile) {
+      this.isMobile = this.setMobileStatus(windowWidth)
+      this.communityMonthChartOptions.indexAxis= this.isMobile ? 'y' : 'x'
+      this.communityMonthChartOptions.aspectRatio = this.isMobile ? 1 : 1.5,
+      this.selectedCadastreMonthChartOptions.indexAxis= this.isMobile ? 'y' : 'x'
+      this.selectedCadastreMonthChartOptions.aspectRatio = this.isMobile ? 1 : 1.5,
+      this.communityUpdateMonthChartSubject.next(true)
+    }
+  }
+
+  async ngOnInit(){
+    if (this.setMobileStatus(window.innerWidth) != this.isMobile) {
+      this.customizeChartSize(window.innerWidth);
+    }
   }
 
   async ngAfterViewInit() {
@@ -480,6 +505,8 @@ export class CalculateComponent {
         return mappedItem;
       });
 
+      console.log("Energy data",energyData,"Energy actives",energyActives)
+
       let communityActiveCups = energyActives.data[0].total_actives;
       let communityCups = energyActives.data[0].total_cups;
 
@@ -544,16 +571,16 @@ export class CalculateComponent {
         borderColor: 'rgb(255,255,255)'
       },
       {
-        label: 'Generació comunitària (Kwh)',
+        label: 'Producció comunitària (Kwh)',
         data: exports,
-        backgroundColor: 'rgb(52, 152, 219)',
+        backgroundColor: '#229954',
         borderColor: 'rgb(255,255,255)'
       }
     ]
 
     this.communityUpdateMonthChartSubject.next(true);
 
-    this.updateCommunityValoration(exports, imports)
+    this.updateCommunityValoration(exports, imports);
 
   }
 
@@ -814,7 +841,7 @@ export class CalculateComponent {
     this.cdr.detectChanges();
     this.selectedCadastreGenerationMonthChartDatasets = [
       {
-        label: 'Generació',
+        label: 'Producció',
         data: this.selectedCadastre.monthsGeneration,
         backgroundColor: '#229954',
         borderColor: 'rgb(255,255,255)'
@@ -833,7 +860,7 @@ export class CalculateComponent {
         borderColor: 'rgb(255,255,255)'
       },
       {
-        label: 'Generació (Kwh)',
+        label: 'Producció (Kwh)',
         data: this.selectedCadastre.monthsGeneration,
         backgroundColor: '#229954',
         borderColor: 'rgb(255,255,255)'
@@ -1065,10 +1092,10 @@ export class CalculateComponent {
       this.showLoading()
 
       try {
-        await this.calculateSolarParams()
+        await this.calculateSolarParams();
       } catch (error) {
         this.loading.next(false);
-        Swal.fire('Error', 'Error calculant la simulació', 'error')
+        Swal.fire('Error', 'Error calculant la simulació', 'error');
         return;
       }
 

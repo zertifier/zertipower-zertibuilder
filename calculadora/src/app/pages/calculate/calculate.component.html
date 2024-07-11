@@ -993,7 +993,7 @@
                                 </div>
 
                                 <div class="">
-                                    <button class="btn btn-secondary mx-0 md-mx-2 my-1 btn-default" type="button"
+                                    <button class="btn btn-secondary mx-0 mx-md-2 my-1 btn-default" type="button"
                                         (click)="editArea(i)">
                                         <span class="">Editar</span>
                                         <!-- <i class="fas fa-edit d-block d-md-none"></i> -->
@@ -1001,7 +1001,7 @@
                                 </div>
 
                                 <div *ngIf="this.selectedCadastre.id == area.id">
-                                    <button class=" btn btn-secondary btn-default mx-0 md-mx-2 my-1"
+                                    <button class=" btn btn-secondary btn-default mx-0 mx-md-2 my-1"
                                         (click)="addArea()">
                                         <span class="">Actualitzar</span>
                                         <!-- <i class="fa-solid fa-floppy-disk d-block d-md-none"></i> -->
@@ -1009,14 +1009,14 @@
                                 </div>
 
                                 <div *ngIf="this.selectedCadastre.id !== area.id">
-                                    <button class=" btn btn-secondary disabled btn-default mx-0 md-mx-2 my-1" disabled>
+                                    <button class=" btn btn-secondary disabled btn-default mx-0 mx-md-2 my-1" disabled>
                                         <span class="">Actualitzar</span>
                                         <!-- <i class="fa-solid fa-floppy-disk d-block d-md-none"></i> -->
                                     </button>
                                 </div>
 
                                 <div class="">
-                                    <button class="btn btn-danger btn-default mx-0 md-mx-2 my-1" type="button"
+                                    <button class="btn btn-danger btn-default mx-0 mx-md-2 my-1" type="button"
                                         (click)="deleteArea(i)">
                                         <span class="">Esborrar</span>
                                         <!-- <i class="fa-solid fa-trash d-block d-md-none"></i> -->

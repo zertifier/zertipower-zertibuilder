@@ -871,10 +871,10 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     //   console.log("backup igual")
     //   return;
     // }
-    
-    console.log("backup diferent", this.selectedCadastreBackup.monthsConsumption, this.selectedCadastre.monthsConsumption,
-      this.selectedCadastreBackup.monthsGeneration,this.selectedCadastre.monthsGeneration,
-      this.selectedCadastreBackup.monthsSurplus,this.selectedCadastre.monthsSurplus)
+
+    // console.log("backup diferent", this.selectedCadastreBackup.monthsConsumption, this.selectedCadastre.monthsConsumption,
+    //   this.selectedCadastreBackup.monthsGeneration,this.selectedCadastre.monthsGeneration,
+    //   this.selectedCadastreBackup.monthsSurplus,this.selectedCadastre.monthsSurplus)
 
     this.selectedCadastreMonthChartDatasets = [
       {

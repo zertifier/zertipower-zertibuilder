@@ -15,6 +15,19 @@ span {
     font-size: 14px;
 }
 
+
+.btn-default {
+    width: 115px;
+}
+
+.area-default {
+    width: 115px;
+}
+
+.custom-chart {
+    max-height: 300px;
+}
+
 @media only screen and (min-width: 768px) {
 
     span {
@@ -27,8 +40,13 @@ span {
 
 }
 
-.custom-chart {
-    max-height: 300px;
+@media only screen and (max-width: 768px) {
+    .btn-default {
+        width: 100%;
+    }
+    .custom-chart {
+        max-height: 500px;
+    }
 }
 
 

@@ -68,7 +68,7 @@ interface cadastre {
   templateUrl: './calculate.component.html',
   styleUrl: './calculate.component.scss'
 })
-export class CalculateComponent {
+export class CalculateComponent implements OnInit, AfterViewInit {
 
   stepActive: number = 1;
   stepsCompleted: number[] = [0, 0, 0, 0, 0, 0];
@@ -125,7 +125,6 @@ export class CalculateComponent {
   communityMonthChartDatasets: any = [];
   communityMonthChartType = 'bar';
   communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  communityDeleteMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   communityMonthChartOptions: any =
     {
       interaction: {
@@ -171,7 +170,7 @@ export class CalculateComponent {
   selectedCadastreGenerationMonthChartDatasets: any = [];
   selectedCadastreMonthChartType = 'bar';
   updateSelectedCadastreMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  selectedCadastreMonthChartOptions =
+  selectedCadastreMonthChartOptions: any =
     {
       interaction: {
         intersect: false,
@@ -211,6 +210,19 @@ export class CalculateComponent {
     inclination: 25
   };
 
+  selectedCadastreBackup: cadastre = {
+    totalConsumption: 0,
+    valle: 0,
+    llano: 0,
+    punta: 0,
+    vallePrice: 0,
+    llanoPrice: 0,
+    puntaPrice: 0,
+    generationPrice: 0,
+    orientation: 0,
+    inclination: 0
+  };
+
   cupsNumber: number = 0;
   addedAreas: any[] = [];
 
@@ -240,7 +252,7 @@ export class CalculateComponent {
   //isMobile = false;
   //private modalService = inject(NgbModal);
   editingArea = false;
-
+  isMobile = false;
 
   constructor(
     private communitiesService: CommunitiesApiService,
@@ -271,6 +283,32 @@ export class CalculateComponent {
       console.log("location unselected")
     }
 
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.customizeChartSize(window.innerWidth);
+  }
+
+  setMobileStatus(sizePx: number) {
+    return sizePx < 768;
+  }
+
+  customizeChartSize(windowWidth: number) {
+    if (this.setMobileStatus(window.innerWidth) != this.isMobile) {
+      this.isMobile = this.setMobileStatus(windowWidth)
+      this.communityMonthChartOptions.indexAxis = this.isMobile ? 'y' : 'x';
+      this.communityMonthChartOptions.aspectRatio = this.isMobile ? 1 : 1.5;
+      this.selectedCadastreMonthChartOptions.indexAxis = this.isMobile ? 'y' : 'x';
+      this.selectedCadastreMonthChartOptions.aspectRatio = this.isMobile ? 1 : 1.5;
+      this.communityUpdateMonthChartSubject.next(true)
+    }
+  }
+
+  async ngOnInit() {
+    if (this.setMobileStatus(window.innerWidth) != this.isMobile) {
+      this.customizeChartSize(window.innerWidth);
+    }
   }
 
   async ngAfterViewInit() {
@@ -329,22 +367,22 @@ export class CalculateComponent {
     // }
 
     if (stepDestination == 2 && !this.selectedLocation) {
-      Swal.fire({text:'Selecciona una localitat per avançar al següent pas.', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+      Swal.fire({ text: 'Selecciona una localitat per avançar al següent pas.', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       return;
     }
 
     if ((stepDestination == 3 || stepDestination == 4) && !this.selectedCommunity) {
-      Swal.fire({text:`Selecciona una comunitat \n per avançar al següent pas.`, iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+      Swal.fire({ text: `Selecciona una comunitat \n per avançar al següent pas.`, iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       return;
     }
 
     if (stepDestination == 5 && !this.selectedCadastre.m2 && this.stepActive < 6) {
-      Swal.fire({text:'Selecciona un àrea per avançar al següent pas.', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+      Swal.fire({ text: 'Selecciona un àrea per avançar al següent pas.', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       return;
     }
 
     if (stepDestination == 6 && !this.selectedCadastre.m2) {
-      Swal.fire({text:'Selecciona un àrea per avançar al següent pas.', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+      Swal.fire({ text: 'Selecciona un àrea per avançar al següent pas.', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       return;
     }
 
@@ -480,6 +518,8 @@ export class CalculateComponent {
         return mappedItem;
       });
 
+      //console.log("Energy data", energyData, "Energy actives", energyActives)
+
       let communityActiveCups = energyActives.data[0].total_actives;
       let communityCups = energyActives.data[0].total_cups;
 
@@ -544,16 +584,16 @@ export class CalculateComponent {
         borderColor: 'rgb(255,255,255)'
       },
       {
-        label: 'Generació comunitària (Kwh)',
+        label: 'Producció comunitària (Kwh)',
         data: exports,
-        backgroundColor: 'rgb(52, 152, 219)',
+        backgroundColor: '#229954',
         borderColor: 'rgb(255,255,255)'
       }
     ]
 
     this.communityUpdateMonthChartSubject.next(true);
 
-    this.updateCommunityValoration(exports, imports)
+    this.updateCommunityValoration(exports, imports);
 
   }
 
@@ -667,6 +707,8 @@ export class CalculateComponent {
           this.stepsCompleted[3] = 1
           this.simulateGenerationConsumption();
           //this.cdr.detectChanges()
+
+          Swal.fire({ text: `Àrea seleccionada: ${this.selectedCadastre.m2} m²`, showConfirmButton: false, timerProgressBar: false, timer: 1500, loaderHtml: '' })
 
         });
 
@@ -812,7 +854,7 @@ export class CalculateComponent {
     this.cdr.detectChanges();
     this.selectedCadastreGenerationMonthChartDatasets = [
       {
-        label: 'Generació',
+        label: 'Producció',
         data: this.selectedCadastre.monthsGeneration,
         backgroundColor: '#229954',
         borderColor: 'rgb(255,255,255)'
@@ -823,6 +865,17 @@ export class CalculateComponent {
 
   updateCadastreChart() {
 
+    // if (this.selectedCadastreBackup.monthsConsumption == this.selectedCadastre.monthsConsumption &&
+    //   this.selectedCadastreBackup.monthsGeneration == this.selectedCadastre.monthsGeneration &&
+    //   this.selectedCadastreBackup.monthsSurplus == this.selectedCadastre.monthsSurplus) {
+    //   console.log("backup igual")
+    //   return;
+    // }
+
+    // console.log("backup diferent", this.selectedCadastreBackup.monthsConsumption, this.selectedCadastre.monthsConsumption,
+    //   this.selectedCadastreBackup.monthsGeneration,this.selectedCadastre.monthsGeneration,
+    //   this.selectedCadastreBackup.monthsSurplus,this.selectedCadastre.monthsSurplus)
+
     this.selectedCadastreMonthChartDatasets = [
       {
         label: 'Consum (Kwh)',
@@ -831,7 +884,7 @@ export class CalculateComponent {
         borderColor: 'rgb(255,255,255)'
       },
       {
-        label: 'Generació (Kwh)',
+        label: 'Producció (Kwh)',
         data: this.selectedCadastre.monthsGeneration,
         backgroundColor: '#229954',
         borderColor: 'rgb(255,255,255)'
@@ -846,7 +899,11 @@ export class CalculateComponent {
 
     this.updateSelectedCadastreMonthChartSubject.next(true);
 
-    this.updateSelectedCadastreValoration()
+    this.updateSelectedCadastreValoration();
+
+    this.selectedCadastreBackup.monthsConsumption = this.selectedCadastre.monthsConsumption;
+    this.selectedCadastreBackup.monthsGeneration = this.selectedCadastre.monthsGeneration;
+    this.selectedCadastreBackup.monthsSurplus = this.selectedCadastre.monthsSurplus;
 
   }
 
@@ -879,12 +936,12 @@ export class CalculateComponent {
       //console.log("add Area found", found)
       if (found) {
         this.addedAreas = [...this.addedAreas]
-        Swal.fire({text:'Àrea actualitzada', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+        Swal.fire({ text: 'Àrea actualitzada', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>', timer: 2000, customClass: { icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       } else {
         this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
         this.updateCommunityChart()
         this.map.activeArea(this.selectedCadastre)
-        Swal.fire({text:'Àrea afegida', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5'}})
+        Swal.fire({ text: 'Àrea afegida', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>', timer: 2000, customClass: { icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       }
       //console.log(this.addedAreas)
 
@@ -893,17 +950,17 @@ export class CalculateComponent {
   }
 
   deleteArea(index: number) {
-    Swal.fire({title:`Estàs a punt d'esborrar l'àrea`,text:'Segur que vols fer-ho?', iconHtml:'<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',customClass:{confirmButton:'btn btn-secondary',icon:'border-0',htmlContainer:'d-flow justify-content-center px-md-5',cancelButton:'btn btn-danger'}})
-    .then((result)=>{
-      if (result.isConfirmed) {
-        this.map.deleteArea(this.addedAreas[index])
-        this.addedAreas.splice(index, 1);
-        this.resetCadastre();
-        this.updateCommunityChart();
-        this.cdr.detectChanges();        
-      } else if (result.isDenied) {
-      }
-    })
+    Swal.fire({ title: `Estàs a punt d'esborrar l'àrea`, text: 'Segur que vols fer-ho?', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5', cancelButton: 'btn btn-danger' } })
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.map.deleteArea(this.addedAreas[index])
+          this.addedAreas.splice(index, 1);
+          this.resetCadastre();
+          this.updateCommunityChart();
+          this.cdr.detectChanges();
+        } else if (result.isDenied) {
+        }
+      })
   }
 
   unselectArea(feature: any) {
@@ -973,12 +1030,13 @@ export class CalculateComponent {
     }
 
     if (this.activeIndividual) {
+      //if activeIndividual, imported consumption divided by consumption from generation 
       //el cost es igual al consum dividit pel consum base i multiplicat pel preu mensual 
       let communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
       this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts
 
     } else {
-
+      //if activeCommunity, the energy to consume is bought to the community, with the price of the community
       communityMonthlyCosts = monthAverageConsumption * this.selectedCommunity.energy_price //this.selectedCadastre.generationPrice!;
       //monthlySavings is the price of energy that you stop using from the company when you have generation
       this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
@@ -996,7 +1054,7 @@ export class CalculateComponent {
     //the redeem years are the profits earned month by month:
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
 
-    console.log(this.selectedCadastre)
+    //console.log(this.selectedCadastre)
 
   }
 
@@ -1062,10 +1120,10 @@ export class CalculateComponent {
       this.showLoading()
 
       try {
-        await this.calculateSolarParams()
+        await this.calculateSolarParams();
       } catch (error) {
         this.loading.next(false);
-        Swal.fire('Error', 'Error calculant la simulació', 'error')
+        Swal.fire('Error', 'Error calculant la simulació', 'error');
         return;
       }
 

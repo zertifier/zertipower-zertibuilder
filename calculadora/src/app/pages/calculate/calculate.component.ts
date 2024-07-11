@@ -68,7 +68,7 @@ interface cadastre {
   templateUrl: './calculate.component.html',
   styleUrl: './calculate.component.scss'
 })
-export class CalculateComponent implements OnInit, AfterViewInit{
+export class CalculateComponent implements OnInit, AfterViewInit {
 
   stepActive: number = 1;
   stepsCompleted: number[] = [0, 0, 0, 0, 0, 0];
@@ -210,6 +210,19 @@ export class CalculateComponent implements OnInit, AfterViewInit{
     inclination: 25
   };
 
+  selectedCadastreBackup: cadastre = {
+    totalConsumption: 0,
+    valle: 0,
+    llano: 0,
+    punta: 0,
+    vallePrice: 0,
+    llanoPrice: 0,
+    puntaPrice: 0,
+    generationPrice: 0,
+    orientation: 0,
+    inclination: 0
+  };
+
   cupsNumber: number = 0;
   addedAreas: any[] = [];
 
@@ -281,18 +294,18 @@ export class CalculateComponent implements OnInit, AfterViewInit{
     return sizePx < 768;
   }
 
-  customizeChartSize(windowWidth:number){
+  customizeChartSize(windowWidth: number) {
     if (this.setMobileStatus(window.innerWidth) != this.isMobile) {
       this.isMobile = this.setMobileStatus(windowWidth)
-      this.communityMonthChartOptions.indexAxis= this.isMobile ? 'y' : 'x'
-      this.communityMonthChartOptions.aspectRatio = this.isMobile ? 1 : 1.5,
-      this.selectedCadastreMonthChartOptions.indexAxis= this.isMobile ? 'y' : 'x'
-      this.selectedCadastreMonthChartOptions.aspectRatio = this.isMobile ? 1 : 1.5,
+      this.communityMonthChartOptions.indexAxis = this.isMobile ? 'y' : 'x';
+      this.communityMonthChartOptions.aspectRatio = this.isMobile ? 1 : 1.5;
+      this.selectedCadastreMonthChartOptions.indexAxis = this.isMobile ? 'y' : 'x';
+      this.selectedCadastreMonthChartOptions.aspectRatio = this.isMobile ? 1 : 1.5;
       this.communityUpdateMonthChartSubject.next(true)
     }
   }
 
-  async ngOnInit(){
+  async ngOnInit() {
     if (this.setMobileStatus(window.innerWidth) != this.isMobile) {
       this.customizeChartSize(window.innerWidth);
     }
@@ -505,7 +518,7 @@ export class CalculateComponent implements OnInit, AfterViewInit{
         return mappedItem;
       });
 
-      console.log("Energy data",energyData,"Energy actives",energyActives)
+      //console.log("Energy data", energyData, "Energy actives", energyActives)
 
       let communityActiveCups = energyActives.data[0].total_actives;
       let communityCups = energyActives.data[0].total_cups;
@@ -695,7 +708,7 @@ export class CalculateComponent implements OnInit, AfterViewInit{
           this.simulateGenerationConsumption();
           //this.cdr.detectChanges()
 
-          Swal.fire({ text: `Àrea seleccionada: ${this.selectedCadastre.m2} m²`, showConfirmButton: false, timerProgressBar: false , timer: 1500, loaderHtml:'' })
+          Swal.fire({ text: `Àrea seleccionada: ${this.selectedCadastre.m2} m²`, showConfirmButton: false, timerProgressBar: false, timer: 1500, loaderHtml: '' })
 
         });
 
@@ -852,6 +865,17 @@ export class CalculateComponent implements OnInit, AfterViewInit{
 
   updateCadastreChart() {
 
+    // if (this.selectedCadastreBackup.monthsConsumption == this.selectedCadastre.monthsConsumption &&
+    //   this.selectedCadastreBackup.monthsGeneration == this.selectedCadastre.monthsGeneration &&
+    //   this.selectedCadastreBackup.monthsSurplus == this.selectedCadastre.monthsSurplus) {
+    //   console.log("backup igual")
+    //   return;
+    // }
+    
+    console.log("backup diferent", this.selectedCadastreBackup.monthsConsumption, this.selectedCadastre.monthsConsumption,
+      this.selectedCadastreBackup.monthsGeneration,this.selectedCadastre.monthsGeneration,
+      this.selectedCadastreBackup.monthsSurplus,this.selectedCadastre.monthsSurplus)
+
     this.selectedCadastreMonthChartDatasets = [
       {
         label: 'Consum (Kwh)',
@@ -875,7 +899,11 @@ export class CalculateComponent implements OnInit, AfterViewInit{
 
     this.updateSelectedCadastreMonthChartSubject.next(true);
 
-    this.updateSelectedCadastreValoration()
+    this.updateSelectedCadastreValoration();
+
+    this.selectedCadastreBackup.monthsConsumption = this.selectedCadastre.monthsConsumption;
+    this.selectedCadastreBackup.monthsGeneration = this.selectedCadastre.monthsGeneration;
+    this.selectedCadastreBackup.monthsSurplus = this.selectedCadastre.monthsSurplus;
 
   }
 
@@ -1026,7 +1054,7 @@ export class CalculateComponent implements OnInit, AfterViewInit{
     //the redeem years are the profits earned month by month:
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
 
-    console.log(this.selectedCadastre)
+    //console.log(this.selectedCadastre)
 
   }
 

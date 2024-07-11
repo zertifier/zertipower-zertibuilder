@@ -536,24 +536,28 @@
                 <div class="row m-0 py-2 py-md-4">
 
                     <div class="w-100 d-flex mt-2 mt-md-4">
-                        <span class="w-50">Tria el tipus de consum que vols afegir</span>
+                        <span *ngIf="!editingArea" class="w-50">Tria el tipus de consum que vols afegir</span>
+                        <span *ngIf="editingArea" class="w-50">Ajusta les dades</span>
                         <a *ngIf="!editingArea" class="d-flex w-50 justify-content-end" (click)="editingArea=true"  role="button">
                             <span>Ajustar dades</span>
                         </a>
+                        <a *ngIf="editingArea" class="d-flex w-50 justify-content-end" (click)="editingArea=false"  role="button">
+                            <span>Tornar</span>
+                        </a>
                     </div>
 
-                    <div class="container d-flex justify-content-center align-items-center">
+                    <div *ngIf="!editingArea" class="container d-flex justify-content-center align-items-center">
                         <div
                             class="d-flex flex-column flex-md-row justify-content-center align-items-center btn-container w-100">
 
                             <button type="button" class="btn w-md-auto m-2 m-md-4 w-100"
                                 [ngClass]="activeCommunity?'btn-secondary':'btn-inactive'" style="max-width: 300px;"
-                                (click)="editingArea=false;activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()">Estalvi
+                                (click)="activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()">Estalvi
                                 membre comunitari</button>
 
                             <button type="button" class="btn w-md-auto  m-2 m-md-4 w-100"
                                 [ngClass]="activeIndividual?'btn-secondary':'btn-inactive'" style="max-width: 300px;"
-                                (click)="editingArea=false;activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()">Estalvi
+                                (click)="activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()">Estalvi
                                 autoconsum</button>
 
                         </div>
@@ -749,20 +753,21 @@
                     </div>
 
                     <div class="d-flex w-100 mb-2 mb-md-2 mt-2 mt-md-4">
-                        <div *ngIf="activeIndividual && !editingArea" class="custom-chart mx-auto"
+                        <!-- *ngIf="activeIndividual && !editingArea" -->
+                        <div *ngIf="!editingArea" class="custom-chart mx-auto"
                             style="width:95%; position:relative">
                             <app-chart [chartId]="'selectedCadastre'" [chartType]="selectedCadastreMonthChartType"
                                 [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
                                 [options]="communityMonthChartOptions"
                                 [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()"></app-chart>
                         </div>
-                        <div *ngIf="activeCommunity && !editingArea" class="custom-chart mx-auto"
+                        <!-- <div *ngIf="activeCommunity && !editingArea" class="custom-chart mx-auto"
                             style="width:95%; position:relative">
                             <app-chart [chartId]="'selectedCadastreAcc'" [chartType]="selectedCadastreMonthChartType"
                                 [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
                                 [options]="communityMonthChartOptions"
                                 [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()"></app-chart>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="d-flex justify-content-between mt-2 mt-md-4">
@@ -980,15 +985,15 @@
 
                             <div class="fs-6 my-2 row mt-3 p-0" *ngFor="let area of addedAreas; index as i">
 
-                                <div class="align-items-center w-100">
+                                <div class="align-items-center w-100 d-md-flex">
 
-                                <div class="d-flex align-items-center me-4 area-default">
+                                <div class="d-flex align-items-center me-3 area-default">
                                     <span style="vertical-align: middle;">Àrea {{ i+1
                                         }}</span>
                                 </div>
 
                                 <div class="">
-                                    <button class="btn btn-secondary mx-0 md-mx-1 my-1 btn-default" type="button"
+                                    <button class="btn btn-secondary mx-0 md-mx-2 my-1 btn-default" type="button"
                                         (click)="editArea(i)">
                                         <span class="">Editar</span>
                                         <!-- <i class="fas fa-edit d-block d-md-none"></i> -->
@@ -996,7 +1001,7 @@
                                 </div>
 
                                 <div *ngIf="this.selectedCadastre.id == area.id">
-                                    <button class=" btn btn-secondary btn-default mx-0 md-mx-1 my-1"
+                                    <button class=" btn btn-secondary btn-default mx-0 md-mx-2 my-1"
                                         (click)="addArea()">
                                         <span class="">Actualitzar</span>
                                         <!-- <i class="fa-solid fa-floppy-disk d-block d-md-none"></i> -->
@@ -1004,14 +1009,14 @@
                                 </div>
 
                                 <div *ngIf="this.selectedCadastre.id !== area.id">
-                                    <button class=" btn btn-secondary disabled btn-default mx-0 md-mx-1 my-1" disabled>
+                                    <button class=" btn btn-secondary disabled btn-default mx-0 md-mx-2 my-1" disabled>
                                         <span class="">Actualitzar</span>
                                         <!-- <i class="fa-solid fa-floppy-disk d-block d-md-none"></i> -->
                                     </button>
                                 </div>
 
                                 <div class="">
-                                    <button class="btn btn-danger btn-default mx-0 md-mx-1 my-1" type="button"
+                                    <button class="btn btn-danger btn-default mx-0 md-mx-2 my-1" type="button"
                                         (click)="deleteArea(i)">
                                         <span class="">Esborrar</span>
                                         <!-- <i class="fa-solid fa-trash d-block d-md-none"></i> -->

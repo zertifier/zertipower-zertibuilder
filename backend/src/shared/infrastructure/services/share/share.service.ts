@@ -153,7 +153,7 @@ export class ShareService {
 
   getNewSurplusRegisters(): Promise<RegistersFromDb[]> {
     return new Promise(async (resolve) => {
-      console.log(`
+      /*let query = `
         SELECT e.id eh_id, e.kwh_in, e.kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id
         FROM energy_hourly e
                LEFT JOIN trades t ON e.info_dt = t.info_dt
@@ -163,16 +163,16 @@ export class ShareService {
           AND kwh_out > 0
           AND cups.type != 'community'
         ORDER BY e.info_dt DESC, kwh_out DESC;
-      `)
+      `*/
       let query = `
-        SELECT e.id eh_id, e.kwh_in, e.kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id
+        SELECT e.id eh_id, e.kwh_in, (e.kwh_out - e.kwh_in) kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id
         FROM energy_hourly e
                LEFT JOIN trades t ON e.info_dt = t.info_dt
                LEFT JOIN cups ON e.cups_id = cups.id
                LEFT JOIN users ON cups.customer_id = users.customer_id
         WHERE t.info_dt IS NULL
-          AND kwh_out > 0
           AND cups.type != 'community'
+        HAVING kwh_out > 0
         ORDER BY e.info_dt DESC, kwh_out DESC;
       `
 
@@ -184,14 +184,14 @@ export class ShareService {
   getNewRegisters(): Promise<RegistersFromDb[]> {
     return new Promise(async resolve => {
       let query = `
-        SELECT e.id eh_id, e.kwh_in, e.kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id
+        SELECT e.id eh_id, (e.kwh_in - e.kwh_out) kwh_in,e.kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id
         FROM energy_hourly e
                LEFT JOIN trades t ON e.info_dt = t.info_dt
                LEFT JOIN cups ON e.cups_id = cups.id
                LEFT JOIN users ON cups.customer_id = users.customer_id
         WHERE t.info_dt IS NULL
-          AND kwh_in > 0
           AND cups.type != 'community'
+        HAVING kwh_in > 0
         ORDER BY e.info_dt DESC, kwh_in DESC;
       `
       let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);

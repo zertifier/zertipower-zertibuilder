@@ -77,7 +77,7 @@ export class DatadisService {
     this.run(startDate, endDate)
 
     setInterval(() => {
-      startDate = moment().subtract(1, 'months').format('YYYY/MM');
+      startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
       endDate = moment().format('YYYY/MM');
       this.run(startDate, endDate)
     }, 86400000) //24 h => ms
@@ -556,6 +556,7 @@ export class DatadisService {
 
   async updateCupsEnergyData(cupsId: any, datadisCupsEnergyData: any[]) {
 
+  
     try {
       let dataToSearchQueryPart = ''
       let values: any = []
@@ -577,29 +578,42 @@ export class DatadisService {
         let hour = moment(energy.time, 'HH:mm').format('HH:mm:ss')
         let datetime = `${day} ${hour}`;
         let energyImport = energy.consumptionKWh;
-        let energyExport =  energy.surplusEnergyKWh; 
+        let energyExport = energy.surplusEnergyKWh;
         pushToValues(datetime, energyImport, energyExport, cupsId)
         dataToSearchQueryPart = dataToSearchQueryPart.concat(` UNION ALL SELECT ?,?,?,? `)
       }
 
       let updateQuery = `
-        UPDATE datadis_energy_registers AS target
-        JOIN (${dataToSearchQueryPart}) AS source
-        ON target.info_dt = source.info_dt AND target.cups_id = source.cups_id
-        SET 
-          target.import = IF(target.import <> source.import, source.import, target.import),
-          target.export = IF(target.export <> source.export, source.export, target.export),
-          target.updates_counter = IF(target.import <> source.import OR target.export <> source.export, target.updates_counter + 1, target.updates_counter),
-          target.updates_historic = IF(
-            target.import <> source.import OR target.export <> source.export,
-            JSON_ARRAY_APPEND(COALESCE(target.updates_historic, '[]'), '$', JSON_OBJECT('info_dt', target.info_dt, 'import', target.import, 'export', target.export, 'timestamp', NOW())),
-            target.updates_historic
-          )
-        WHERE target.import <> source.import OR target.export <> source.export
+      UPDATE datadis_energy_registers AS target
+      JOIN (${dataToSearchQueryPart}) AS source
+      ON target.info_dt = source.info_dt AND target.cups_id = source.cups_id
+      SET 
+        target.import = IF(ROUND(target.import, 3) <> ROUND(source.import, 3), source.import, target.import),
+        target.export = IF(ROUND(target.export, 3) <> ROUND(source.export, 3), source.export, target.export),
+        target.updates_counter = IF(ROUND(target.import, 3) <> ROUND(source.import, 3) OR ROUND(target.export, 3) <> ROUND(source.export, 3), target.updates_counter + 1, target.updates_counter),
+        target.updates_historic = IF(
+          ROUND(target.import, 3) <> ROUND(source.import, 3) OR ROUND(target.export, 3) <> ROUND(source.export, 3),
+          JSON_ARRAY_APPEND(COALESCE(target.updates_historic, '[]'), '$', JSON_OBJECT('info_dt', target.info_dt, 'import', target.import, 'export', target.export, 'timestamp', NOW())),
+          target.updates_historic
+        )
+      WHERE ROUND(target.import, 3) <> ROUND(source.import, 3) OR ROUND(target.export, 3) <> ROUND(source.export, 3)
     `;
 
-      // Update existing records
-      await this.conn.execute(updateQuery, values);
+      // Execute the update query and capture the result
+      const [result]: any = await this.conn.execute(updateQuery, values)
+
+      // Check the number of affected rows
+      if (result.affectedRows > 0) {
+        console.log(`Updated ${result.affectedRows} datadis_energy_registers rows`)
+        let cups = '';
+        let cupsId = 0;
+        let nRegisters = result.affectedRows;
+        let operation = 'Automatic update of datadis registers'
+        let status = 'success'
+        let errorMessage = ''
+        let errorType = ''
+        this.postLogs(cups, cupsId, operation, nRegisters, values[0].info_dt, values[values.length - 1].info_dt, values[0].info_dt, values[values.length - 1].info_dt, status, errorType, errorMessage)
+      }
 
       function pushToValues(infoDt: string, consumption: number, generation: number, cupsId: any) {
         values.push(infoDt);
@@ -611,7 +625,6 @@ export class DatadisService {
     } catch (error) {
       throw new Error(error)
     }
-
   }
 
   async postCupsEnergyData(cupsData: any, datadisCupsEnergyData: any[]): Promise<number> {
@@ -694,8 +707,6 @@ export class DatadisService {
   }
 
   async postLogs(cups: string, cupsId: number, operation: string, n_registers: number, startDate: any, endDate: any, getDatadisBegginningDate: any, getDatadisEndingDate: any, status: string, errorType: string, errorMessage: string) {
-
-    console.log("Error message: ", typeof errorMessage, JSON.stringify(errorMessage))
 
     const log = {
       cups,

@@ -531,39 +531,127 @@
 
             <!-- CALCULATE AREA COLAPSE -->
 
-            <div class="collapse section-content-padding row border border-primary border-1 rounded-bottom"
+            <div class="collapse section-content-padding row border border-primary border-1 rounded-bottom px-3"
                 id="collapse-calculate-step" [ngClass]="{'show':stepActive==5}">
-                <div class="row m-0 py-2 py-md-4">
+                <div class="row m-0 py-2 py-md-4 px-4 px-md-2">
 
-                    <div class="w-100 d-flex mt-2 mt-md-4">
+                    <div class="w-100 d-flex mt-2 mt-md-4 p-0">
                         <span *ngIf="!editingArea" class="w-50">Tria el tipus de consum que vols afegir</span>
                         <span *ngIf="editingArea" class="w-50">Ajusta les dades</span>
-                        <a *ngIf="!editingArea" class="d-flex w-50 justify-content-end" (click)="editingArea=true"  role="button">
+                        <a *ngIf="!editingArea" class="d-flex w-50 justify-content-end" (click)="editingArea=true"
+                            role="button">
                             <span>Ajustar dades</span>
                         </a>
-                        <a *ngIf="editingArea" class="d-flex w-50 justify-content-end" (click)="editingArea=false"  role="button">
+                        <a *ngIf="editingArea" class="d-flex w-50 justify-content-end" (click)="editingArea=false"
+                            role="button">
                             <span>Tornar</span>
                         </a>
                     </div>
 
-                    <div *ngIf="!editingArea" class="container d-flex justify-content-center align-items-center">
-                        <div
-                            class="d-flex flex-column flex-md-row justify-content-center align-items-center btn-container w-100">
+                    <div class="border border-primary border-1 rounded my-3" *ngIf="!editingArea">
 
-                            <button type="button" class="btn w-md-auto m-2 m-md-4 w-100"
-                                [ngClass]="activeCommunity?'btn-secondary':'btn-inactive'" style="max-width: 300px;"
-                                (click)="activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()">Estalvi
-                                membre comunitari</button>
+                        <div class="container d-flex justify-content-center align-items-center">
+                            <div
+                                class="d-flex flex-column flex-md-row justify-content-center align-items-center btn-container w-100">
 
-                            <button type="button" class="btn w-md-auto  m-2 m-md-4 w-100"
-                                [ngClass]="activeIndividual?'btn-secondary':'btn-inactive'" style="max-width: 300px;"
-                                (click)="activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()">Estalvi
-                                autoconsum</button>
+                                <button type="button" class="btn w-md-auto m-2 m-md-4 w-100"
+                                    [ngClass]="activeCommunity?'btn-secondary':'btn-inactive'" style="max-width: 300px;"
+                                    (click)="activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()">Estalvi
+                                    membre comunitari</button>
+
+                                <button type="button" class="btn w-md-auto  m-2 m-md-4 w-100"
+                                    [ngClass]="activeIndividual?'btn-secondary':'btn-inactive'"
+                                    style="max-width: 300px;"
+                                    (click)="activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()">Estalvi
+                                    autoconsum</button>
+
+                            </div>
+                        </div>
+
+                        <div class="row ps-0 m-0 pb-2 mt-4 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5">
+
+                            <!-- metres quadrats -->
+                            <div class="col mb-2 mb-md-4">
+                                <div>
+                                    <span>M² de l'àrea</span>
+                                </div>
+                                <div>
+                                    <!-- <input type="number" class="form-select number-input disabled"
+                                [(ngModel)]="this.selectedCadastre.m2" (change)="updateCadastreChart()" min="0"
+                                step="0" readonly> -->
+
+                                    <div class="input-group mb-3">
+                                        <input type="number" class="form-control number-input"
+                                            [(ngModel)]="this.selectedCadastre.m2"
+                                            (change)="simulateGenerationConsumption()">
+                                        <button class="btn btn-outline-secondary" type="button" (click)="startSpin()">
+                                            <i class="fa-solid fa-arrows-rotate" [ngClass]="{'fa-spin': isSpinning}"
+                                                id="updateM2Icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- n plaques -->
+                            <div class="col mb-2 mb-md-4">
+                                <div>
+                                    <span> Nº de plaques</span>
+                                </div>
+                                <div>
+                                    <input type="number" class="form-control number-input disabled"
+                                        [(ngModel)]="this.selectedCadastre.n_plaques" (change)="updateCadastreChart()"
+                                        min="0" step="0" disabled>
+                                </div>
+                            </div>
+
+                            <!-- Anys per amortitzar -->
+                            <div class="col mb-2 mb-md-4">
+
+                                <div>
+                                    <span>Anys per amortitzar</span>
+                                </div>
+
+                                <div>
+                                    <input type="number" class="form-control number-input w-100" disabled readonly
+                                        [value]="this.selectedCadastre.redeemYears">
+                                </div>
+
+                            </div>
+
+                            <!-- Cost inicial d'inversió -->
+                            <div class="col mb-2 mb-md-4">
+
+                                <div>
+                                    <span>Cost d'inversió</span>
+                                </div>
+
+                                <div>
+                                    <input type="number" class="form-control number-input w-100" readonly disabled
+                                        [value]="this.selectedCadastre.totalCost">
+                                </div>
+
+                            </div>
+
+                            <!-- Estalvi mensual -->
+                            <div class="col mb-2 mb-md-4">
+
+                                <div>
+                                    <span>ROI/Estalvi mensual</span>
+                                </div>
+
+                                <div>
+                                    <input type="number" class="form-control number-input w-100" disabled readonly
+                                        [value]="this.selectedCadastre.monthlySavings">
+                                </div>
+
+                            </div>
 
                         </div>
+
                     </div>
 
-                    <div class="collapse" id="collapse-edit-area-step" [ngClass]="{'show':editingArea}">
+                    <div class="collapse" id="collapse-edit-area-step p-0" [ngClass]="{'show':editingArea}">
 
                         <div class="row">
 
@@ -578,8 +666,8 @@
                                         step="0"> -->
 
                                     <input type="number" class="form-control number-input"
-                                        [(ngModel)]="this.selectedCadastre.m2" (change)="simulateGenerationConsumption()"
-                                        >
+                                        [(ngModel)]="this.selectedCadastre.m2"
+                                        (change)="simulateGenerationConsumption()">
                                 </div>
                             </div>
 
@@ -677,85 +765,9 @@
 
                     </div>
 
-                    <div *ngIf="!editingArea"
-                        class="row ps-0 m-0 pb-2 mt-4 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5">
-
-                        <!-- metres quadrats -->
-                        <div class="col mb-2 mb-md-4">
-                            <div>
-                                <span>M² de l'àrea</span>
-                            </div>
-                            <div>
-                                <!-- <input type="number" class="form-select number-input disabled"
-                                    [(ngModel)]="this.selectedCadastre.m2" (change)="updateCadastreChart()" min="0"
-                                    step="0" readonly> -->
-
-                                <input type="number" class="form-control number-input"
-                                    [(ngModel)]="this.selectedCadastre.m2" (change)="simulateGenerationConsumption()">
-                            </div>
-
-                        </div>
-
-                        <!-- n plaques -->
-                        <div class="col mb-2 mb-md-4">
-                            <div>
-                                <span> Nº de plaques</span>
-                            </div>
-                            <div>
-                                <input type="number" class="form-control number-input disabled"
-                                    [(ngModel)]="this.selectedCadastre.n_plaques" (change)="updateCadastreChart()"
-                                    min="0" step="0" disabled>
-                            </div>
-                        </div>
-
-                        <!-- Anys per amortitzar -->
-                        <div class="col mb-2 mb-md-4">
-
-                            <div>
-                                <span>Anys per amortitzar</span>
-                            </div>
-
-                            <div>
-                                <input type="number" class="form-control number-input w-100" disabled readonly
-                                    [value]="this.selectedCadastre.redeemYears">
-                            </div>
-
-                        </div>
-
-                        <!-- Cost inicial d'inversió -->
-                        <div class="col mb-2 mb-md-4">
-
-                            <div>
-                                <span>Cost d'inversió</span>
-                            </div>
-
-                            <div>
-                                <input type="number" class="form-control number-input w-100" readonly disabled
-                                    [value]="this.selectedCadastre.totalCost">
-                            </div>
-
-                        </div>
-
-                        <!-- Estalvi mensual -->
-                        <div class="col mb-2 mb-md-4">
-
-                            <div>
-                                <span>ROI/Estalvi mensual</span>
-                            </div>
-
-                            <div>
-                                <input type="number" class="form-control number-input w-100" disabled readonly
-                                    [value]="this.selectedCadastre.monthlySavings">
-                            </div>
-
-                        </div>
-
-                    </div>
-
                     <div class="d-flex w-100 mb-2 mb-md-2 mt-2 mt-md-4">
                         <!-- *ngIf="activeIndividual && !editingArea" -->
-                        <div *ngIf="!editingArea" class="custom-chart mx-auto"
-                            style="width:95%; position:relative">
+                        <div *ngIf="!editingArea" class="custom-chart mx-auto" style="width:95%; position:relative">
                             <app-chart [chartId]="'selectedCadastre'" [chartType]="selectedCadastreMonthChartType"
                                 [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
                                 [options]="communityMonthChartOptions"
@@ -770,7 +782,7 @@
                         </div> -->
                     </div>
 
-                    <div class="d-flex justify-content-between mt-2 mt-md-4">
+                    <div class="d-flex justify-content-between mt-2 mt-md-4 p-0">
 
                         <a class="d-flex" (click)="changeStep(4)" role="button">
                             <div class="arrow-left">
@@ -983,9 +995,9 @@
                             </div>
                         </div>
 
-                            <div class="fs-6 my-2 row mt-3 p-0" *ngFor="let area of addedAreas; index as i">
+                        <div class="fs-6 my-2 row mt-3 p-0" *ngFor="let area of addedAreas; index as i">
 
-                                <div class="align-items-center w-100 d-md-flex">
+                            <div class="align-items-center w-100 d-md-flex">
 
                                 <div class="d-flex align-items-center me-3 area-default">
                                     <span style="vertical-align: middle;">Àrea {{ i+1
@@ -1043,7 +1055,8 @@
                         </a>
 
                         <a class="d-flex" (click)="changeStep(4)" role="button" (click)="resetCadastre()">
-                            <span *ngIf="addedAreas.length && selectedCadastre.m2" class="ms-2 text-end">Afegir una altra àrea</span>
+                            <span *ngIf="addedAreas.length && selectedCadastre.m2" class="ms-2 text-end">Afegir una
+                                altra àrea</span>
                         </a>
 
                     </div>

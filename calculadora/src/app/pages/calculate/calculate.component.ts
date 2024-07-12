@@ -235,6 +235,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   //isShrunk: boolean = false;
 
   loading: Subject<boolean> = new Subject<boolean>;
+  isSpinning:boolean=false;
 
   //engineeringCost: number = 1623;
   //installationCost: number[] = [0.35, 0.3, 0.24];
@@ -1117,7 +1118,8 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       this.selectedCadastre.oldOrientation !== this.selectedCadastre.orientation
     ) {
 
-      this.showLoading()
+      this.startSpin();
+      this.showLoading();
 
       try {
         await this.calculateSolarParams();
@@ -1173,5 +1175,12 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   //   modalRef.componentInstance.options = customModalOptions
   //   modalRef.componentInstance.updateSubject = this.communityUpdateMonthChartSubject
   // }
+
+  startSpin() {
+    this.isSpinning = true;
+    setTimeout(() => {
+      this.isSpinning = false;
+    }, 2000); // 2 segundos
+  }
 
 }

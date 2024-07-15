@@ -77,7 +77,7 @@ export class DatadisService {
     //this.run(startDate, endDate)
 
     setInterval(() => {
-      startDate = moment().subtract(1, 'months').format('YYYY/MM');
+      startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
       endDate = moment().format('YYYY/MM');
       this.run(startDate, endDate)
     }, 86400000) //24 h => ms

@@ -536,9 +536,9 @@
 
                 <div class="row m-0 py-2 py-md-4 px-2 px-md-2">
 
-                    <div class="row mt-2 mt-md-4 m-0 p-0">
+                    <div class="row mt-2 mt-md-4 m-0 p-0 mb-2">
                         <div class="col-12 col-md-6 p-0">
-                            <span *ngIf="!editingArea" class="">Tria el tipus de consum que vols afegir</span>
+                            <!-- <span *ngIf="!editingArea" class="">Tria el tipus de consum que vols afegir</span> -->
                             <span *ngIf="editingArea" class="">Ajusta les dades</span>
                         </div>
                         <div class="col-12 col-md-6 col-6 p-0">
@@ -553,7 +553,7 @@
                         </div>
                     </div>
 
-                    <div class="border border-primary border-1 rounded my-3 p-0 p-md-2" *ngIf="!editingArea">
+                    <!-- <div class="border border-primary border-1 rounded my-3 p-0 p-md-2" *ngIf="!editingArea">
 
                         <div class="container d-flex justify-content-center align-items-center">
                             <div
@@ -573,7 +573,11 @@
                             </div>
                         </div>
 
-                        <div class="row ps-0 m-0 pb-2 mt-4 row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 row-cols-xl-5">
+                    </div> -->
+
+                    <div class="p-0 m-0" *ngIf="!editingArea">
+
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 row-cols-xl-4">
 
                             <!-- metres quadrats -->
                             <div class="col mb-2 mb-md-4">
@@ -610,20 +614,6 @@
                                 </div>
                             </div>
 
-                            <!-- Anys per amortitzar -->
-                            <div class="col mb-2 mb-md-4">
-
-                                <div>
-                                    <span>Anys per amortitzar</span>
-                                </div>
-
-                                <div>
-                                    <input type="number" class="form-control number-input w-100" disabled readonly
-                                        [value]="this.selectedCadastre.redeemYears">
-                                </div>
-
-                            </div>
-
                             <!-- Cost inicial d'inversió -->
                             <div class="col mb-2 mb-md-4">
 
@@ -638,21 +628,93 @@
 
                             </div>
 
-                            <!-- Estalvi mensual -->
-                            <div class="col mb-2 mb-md-4">
+                        </div>
 
-                                <div>
-                                    <span>ROI/Estalvi mensual</span>
+                        <div class="row">
+                            <div class="col col-12 col-lg-6">
+                                <!-- Estalvi comunitari -->
+
+                                <div class="mb-2">
+                                    <span class="fs-6 fw-bold">Estalvi comunitari</span>
                                 </div>
 
-                                <div>
-                                    <input type="number" class="form-control number-input w-100" disabled readonly
-                                        [value]="this.selectedCadastre.monthlySavings">
+                                <div class=" row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+
+                                    <!-- Estalvi mensual -->
+                                    <div class="col mb-2 mb-md-4">
+
+                                        <div>
+                                            <span>ROI/Estalvi mensual</span>
+                                        </div>
+
+                                        <div>
+                                            <input type="number" class="form-control number-input w-100" disabled
+                                                readonly [value]="this.selectedCadastre.monthlySavings">
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Anys per amortitzar -->
+
+                                    <div class="col mb-2 mb-md-4">
+
+                                        <div>
+                                            <span>Anys per amortitzar</span>
+                                        </div>
+
+                                        <div>
+                                            <input type="number" class="form-control number-input w-100" disabled
+                                                readonly [value]="this.selectedCadastre.redeemYears">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col col-12 col-lg-6">
+                                <!-- Estalvi autoconsum -->
+
+                                <div class="mb-2">
+                                    <span class="fs-6 fw-bold">Estalvi autoconsum</span>
+                                </div>
+
+                                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+
+                                    <!-- Estalvi mensual -->
+                                    <div class="col mb-2 mb-md-4">
+
+                                        <div>
+                                            <span>ROI/Estalvi mensual</span>
+                                        </div>
+
+                                        <div>
+                                            <input type="number" class="form-control number-input w-100" disabled
+                                                readonly [value]="this.selectedCadastre.selfConsumption.monthlySavings">
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Anys per amortitzar -->
+                                    <div class="col mb-2 mb-md-4">
+
+                                        <div>
+                                            <span>Anys per amortitzar</span>
+                                        </div>
+
+                                        <div>
+                                            <input type="number" class="form-control number-input w-100" disabled
+                                                readonly [value]="this.selectedCadastre.selfConsumption.redeemYears">
+                                        </div>
+
+                                    </div>
+
                                 </div>
 
                             </div>
 
                         </div>
+
+
 
                     </div>
 
@@ -702,15 +764,21 @@
 
                         </div>
 
-                        <div class="row">
-                            <div class="col mt-2 mt-md-4 px-0">
+                        <div class="row mt-2 mt-md-4">
+                            <div class="col-12 col-lg-6 ps-0">
                                 <div>
-                                    <span>Preu de l'energia sobrant. €/Kwh.</span>
+                                    <span>Preu de l'energia sobrant individual. €/Kwh.</span>
                                 </div>
-                                <input *ngIf="!selectedCommunity || !selectedCommunity.energy_price || activeIndividual"
+                                <input
                                     type="number" class="form-control number-input w-100"
                                     [(ngModel)]="selectedCadastre.generationPrice" min="0">
-                                <input *ngIf="selectedCommunity && selectedCommunity.energy_price && activeCommunity"
+                            </div>
+                        
+                            <div class="col-12 col-lg-6 ps-0">
+                                <div>
+                                    <span>Preu de l'energia sobrant comunitària. €/Kwh.</span>
+                                </div>
+                                <input *ngIf="selectedCommunity && selectedCommunity.energy_price"
                                     type="number" class="form-control number-input w-100"
                                     [(ngModel)]="selectedCommunity.energy_price" min="0" disabled>
                             </div>

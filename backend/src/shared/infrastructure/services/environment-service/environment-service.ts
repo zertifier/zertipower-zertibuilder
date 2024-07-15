@@ -29,7 +29,9 @@ export class EnvironmentService implements OnModuleInit {
     RADIATION_API: "",
     RADIATION_API_CREDENTIALS: "",
     DATADIS_MONTHS:0,
-    TRADE_UPDATE_DAYS: 0
+    TRADE_UPDATE_DAYS: 0,
+    EMAIL:"",
+    EMAIL_PASSWORD:""
   };
 
   onModuleInit(): any {

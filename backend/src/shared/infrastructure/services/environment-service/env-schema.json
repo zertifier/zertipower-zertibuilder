@@ -28,7 +28,7 @@
       "name": "SMTP_USER",
       "required": true,
       "type": "string",
-      "default": "example_user"
+      "default": "ris3catzertifier@gmail.com"
     },
     {
       "name": "SMTP_PASSWORD",
@@ -40,7 +40,7 @@
       "name": "SMTP_SERVER",
       "required": true,
       "type": "string",
-      "default": "smtp.example_server.com"
+      "default": "smtp.gmail.com"
     },
     {
       "name": "SMTP_PORT",
@@ -95,5 +95,6 @@
       "type": "int",
       "default": "30"
     }
+    
   ]
 }

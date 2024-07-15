@@ -15,4 +15,6 @@ export interface EnvVariables {
   RADIATION_API_CREDENTIALS: string;
   DATADIS_MONTHS:number;
   TRADE_UPDATE_DAYS:number;
+  EMAIL:string;
+  EMAIL_PASSWORD:string;
 }

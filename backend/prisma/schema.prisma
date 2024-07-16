@@ -486,6 +486,7 @@ model NotificationCategory {
   category              String?   @db.VarChar(50)
   createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
   updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+ // notificationCategory  NotificationCategory? @relation(fields: [notificationCategoryId], references: [id])
 
   @@map("notifications_categories")
 }
@@ -497,6 +498,8 @@ model UsersNotification {
   active                Int?      @db.TinyInt
   createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
   updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+  //notification          Notification? @relation(fields: [notificationId], references: [id])
+//  notifications         Notification[]
 
   @@map("users_notifications")
 }
@@ -508,6 +511,7 @@ model UsersNotificationCategory {
   active                Int?      @db.TinyInt
   createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
   updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+//  notificationCategory  NotificationCategory? @relation(fields: [notificationCategoryId], references: [id])
 
   @@map("users_notifications_categories")
 }
@@ -520,6 +524,7 @@ model UsersNotificationHistoric {
   subject               String?   @db.VarChar(50)
   createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
   updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+  //notification          Notification? @relation(fields: [notificationId], references: [id])
 
   @@map("users_notifications_historic")
 }

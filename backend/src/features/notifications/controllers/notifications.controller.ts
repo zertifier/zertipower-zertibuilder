@@ -36,6 +36,21 @@ export class NotificationsController {
     ).withData(mappedData);
   }
 
+  @Get("categorized")
+  @Auth(RESOURCE_NAME)
+  async getCategorized() {
+    const notifications = await this.prisma.$queryRaw`
+    SELECT * from notifications LEFT JOIN notifications_categories ON notifications.notification_category_id = notifications_categories.id
+    `;
+    const categories = await this.prisma.$queryRaw`
+    SELECT * from notifications_categories
+    `;
+    //const mappedData = data.map(this.mapData);
+    return HttpResponse.success(
+      "notifications fetched successfully"
+    ).withData({notifications,categories});
+  }
+
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: string) {

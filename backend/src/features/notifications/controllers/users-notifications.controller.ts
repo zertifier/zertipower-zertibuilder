@@ -31,37 +31,56 @@ export class UsersNotificationsController {
         const data = await this.prisma.usersNotification.findMany({
             where: {
                 userId: parseInt(userId),
-            },
+            }
         });
         return HttpResponse.success(
             "users_notifications fetched successfully"
         ).withData(data);
     }
 
+    @Get("categorized")
+    @Auth(RESOURCE_NAME)
+    async getWithCategoriesByUserId(@Req() req: Request | any) {
+        let userId = req.decodedToken.user.id;
+        const notifications = await this.prisma.usersNotification.findMany({
+            where: {
+                userId: parseInt(userId),
+            }
+        });
+        const categories = await this.prisma.usersNotificationCategory.findMany({
+            where: {
+                userId: parseInt(userId),
+            }
+        });
+        return HttpResponse.success(
+            "users_notifications and user_notifications_categories fetched successfully"
+        ).withData({notifications,categories});
+    }
+
     @Put()
     @Auth(RESOURCE_NAME)
-    async updateByUserId(@Req() req: Request | any, @Body() body: any[]) {
+    async updateByUserId(@Req() req: Request | any, @Body() body: any) {
         let userId = req.decodedToken.user.id;
-        let promises: any = []
-        console.log("userId",userId)
-        for (const userNotification of body) {
-            
-            if (!userNotification.id) {
-                return HttpResponse.failure("id not provided.",ErrorCode.BAD_REQUEST);
-            }
+        let promises: any = [];
 
-            if (!userNotification.userId) {
-                return HttpResponse.failure("userId not provided.",ErrorCode.BAD_REQUEST);
-            }
+        if (!body.notifications && !body.notificationCategories) {
+            return HttpResponse.failure("check if body has notifications or notificationsCategories", ErrorCode.BAD_REQUEST);
+        }
 
-            if (userNotification.active !== 0 && userNotification.active !== 1) {
-                return HttpResponse.failure("Invalid 'active' value. Must be 0 or 1.",ErrorCode.BAD_REQUEST);
-            }
-            
-            if (userId == userNotification.userId) {
+        console.log(body)
+
+        if (body.notifications) {
+            for (const userNotification of body.notifications) {
+                if (!userNotification.id) {
+                    return HttpResponse.failure("notification id not provided.", ErrorCode.BAD_REQUEST);
+                }
+                if (userNotification.active !== 0 && userNotification.active !== 1) {
+                    return HttpResponse.failure("Invalid 'active' value. Must be 0 or 1.", ErrorCode.BAD_REQUEST);
+                }
                 let promise = this.prisma.usersNotification.update({
                     where: {
                         id: parseInt(userNotification.id),
+                        userId: userId
                     },
                     data: {
                         active: userNotification.active,
@@ -71,8 +90,29 @@ export class UsersNotificationsController {
             }
         }
 
+        if (body.notificationCategories) {
+            for (const userNotificationCategory of body.notificationCategories) {
+                if (!userNotificationCategory.id) {
+                    return HttpResponse.failure("notification category id not provided.", ErrorCode.BAD_REQUEST);
+                }
+                if (userNotificationCategory.active !== 0 && userNotificationCategory.active !== 1) {
+                    return HttpResponse.failure("Invalid 'active' value. Must be 0 or 1.", ErrorCode.BAD_REQUEST);
+                }
+                let promise = this.prisma.usersNotificationCategory.update({
+                    where: {
+                        id: parseInt(userNotificationCategory.id),
+                        userId: userId
+                    },
+                    data: {
+                        active: userNotificationCategory.active,
+                    }
+                });
+                promises.push(promise)
+            }
+        }
+
         if (promises.length === 0) {
-            return HttpResponse.failure("No valid user notifications to update.",ErrorCode.UNEXPECTED);
+            return HttpResponse.failure("No valid user notifications to update.", ErrorCode.UNEXPECTED);
         }
 
         await Promise.all(promises)

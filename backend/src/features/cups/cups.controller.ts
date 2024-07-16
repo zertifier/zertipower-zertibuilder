@@ -212,25 +212,65 @@ export class CupsController {
   //@Auth(RESOURCE_NAME)
   async datadisActive(@Param("id") id: string) {
 
+    let datadisToken:string;
+    let loginData: { username: string, password: string } = { username: '', password: '' };
+    let supplies:any[];
+
     try {
 
-      const datadisRows: any = await this.prisma.$queryRaw
-        `
-    SELECT EXISTS (
-      SELECT 1
-      FROM datadis_energy_registers
-      WHERE cups_id = ${id}
-    ) AS datadis_active;
-    `;
+      const cupsInfo: any = await this.prisma.$queryRaw
+          `
+      SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id, cups.datadis_active, customers.dni
+        FROM cups LEFT JOIN customers ON customers.id = cups.customer_id
+        WHERE cups.id = ${id}
+      `;
 
-      if (datadisRows[0].datadis_active) {
+      const communityInfo: any = await this.prisma.$queryRaw
+          `
+      SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id
+        FROM cups
+        WHERE community_id = ${cupsInfo[0].community_id} and type = 'community'
+      `;
+
+      if(cupsInfo[0].datadis_active){
+        //user login
+        loginData.username=cupsInfo[0].datadis_user;
+        loginData.password = PasswordUtils.decryptData(cupsInfo[0].datadis_password, process.env.JWT_SECRET!);
+        console.log("datadis active",loginData)
+        datadisToken = await this.datadisService.login(loginData.username, loginData.password)
+        supplies = await this.datadisService.getSupplies(datadisToken);
+      } else{ 
+        let dni = cupsInfo[0].dni;
+        //community login
+        loginData.username=communityInfo[0].datadis_user;
+        loginData.password = PasswordUtils.decryptData(communityInfo[0].datadis_password, process.env.JWT_SECRET!);
+        console.log("community active?",loginData)
+        datadisToken = await this.datadisService.login(loginData.username, loginData.password)
+        supplies = await this.datadisService.getAuthorizedSupplies(datadisToken,dni);
+      }
+      
+      // const datadisRows: any = await this.prisma.$queryRaw
+      //     `
+      // SELECT EXISTS (
+      //   SELECT 1
+      //   FROM datadis_energy_registers
+      //   WHERE cups_id = ${id}
+      // ) AS datadis_active;
+      // `;
+
+      // if (datadisRows[0].datadis_active) {
+
+      if(supplies[0]){
+        console.log(supplies)
         return HttpResponse.success("the cups is active").withData({ active: true })
       } else {
         return HttpResponse.success("the cups is inactive").withData({ active: false })
       }
 
     } catch (e) {
-      return HttpResponse.failure("Error in database connecition", ErrorCode.INTERNAL_ERROR)
+      console.log(e)
+
+      return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
     }
   }
 

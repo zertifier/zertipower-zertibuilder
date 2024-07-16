@@ -10,6 +10,10 @@ import { EnvironmentService } from './environment-service';
 export class NotificationsService implements OnModuleInit {
   private conn: mysql.Pool;
 
+  //TODO 1:
+  //create function, to call when user created, to create user_notifications and user_notificatications_categories,
+  //to do this function, get notifications and notifications_categories and insert it with the user_id with all inactive
+
   constructor(
     private mysql: MysqlService,
     private prisma: PrismaService,

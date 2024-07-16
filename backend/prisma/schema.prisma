@@ -475,8 +475,8 @@ model Notification {
   notificationCategoryId Int?     @map("notification_category_id")
   notification          String?   @db.VarChar(50)
   code                  String?   @db.VarChar(50)
-  createdDt             DateTime  @default(now()) @db.DateTime(0)
-  updatedDt             DateTime? @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+  createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
+  updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
 
   @@map("notifications")
 }
@@ -484,8 +484,8 @@ model Notification {
 model NotificationCategory {
   id                    Int       @id @default(autoincrement())
   category              String?   @db.VarChar(50)
-  createdDt             DateTime  @default(now()) @db.DateTime(0)
-  updatedDt             DateTime? @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+  createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
+  updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
 
   @@map("notifications_categories")
 }
@@ -495,8 +495,8 @@ model UsersNotification {
   userId                Int?      @map("user_id")
   notificationId        Int?      @map("notification_id")
   active                Int?      @db.TinyInt
-  createdDt             DateTime  @default(now()) @db.DateTime(0)
-  updatedDt             DateTime? @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+  createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
+  updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
 
   @@map("users_notifications")
 }
@@ -506,8 +506,8 @@ model UsersNotificationCategory {
   userId                Int?      @map("user_id")
   notificationCategoryId Int?     @map("notification_categories_id")
   active                Int?      @db.TinyInt
-  createdDt             DateTime  @default(now()) @db.DateTime(0)
-  updatedDt             DateTime? @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+  createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
+  updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
 
   @@map("users_notifications_categories")
 }
@@ -518,8 +518,8 @@ model UsersNotificationHistoric {
   notificationId        Int?      @map("notification_id")
   email                 String?   @db.VarChar(50)
   subject               String?   @db.VarChar(50)
-  createdDt             DateTime  @default(now()) @db.DateTime(0)
-  updatedDt             DateTime? @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+  createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
+  updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
 
   @@map("users_notifications_historic")
 }

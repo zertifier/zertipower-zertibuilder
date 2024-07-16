@@ -37,6 +37,11 @@ import { EnergyPredictionModule } from './features/energy-prediction/energy-pred
 import { CommunitiesModule } from './features/communities/communities.module';
 import {EnergyHourlyController} from "./features/energy-hourly/energy-hourly.controller";
 import {TradesController} from "./features/trades/trades.controller";
+import { UsersNotificationsCategoriesController } from './features/notifications/controllers/users-notifications-categories.controller';
+import { UsersNotificationsController } from './features/notifications/controllers/users-notifications.controller';
+import { NotificationsCategoriesController } from './features/notifications/controllers/notifications-categories.controller';
+import { NotificationsController } from './features/notifications/controllers/notifications.controller';
+import { UsersNotificationsHistoricController } from './features/notifications/controllers/users-notifications-historic.controller';
 
 @Module({
   imports: [
@@ -79,7 +84,12 @@ import {TradesController} from "./features/trades/trades.controller";
     SharesController,
     BlockchainEnergyDataController,
     EnergyHourlyController,
-    TradesController
+    TradesController,
+    UsersNotificationsCategoriesController,
+    UsersNotificationsController,
+    NotificationsCategoriesController,
+    NotificationsController,
+    UsersNotificationsHistoricController
 ],
   providers: [],
 })

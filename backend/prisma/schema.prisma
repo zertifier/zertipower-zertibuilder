@@ -469,3 +469,57 @@ model NonWorkingDays {
 
   @@map("non_working_days")
 }
+
+model Notification {
+  id                    Int       @id @default(autoincrement())
+  notificationCategoryId Int?     @map("notification_category_id")
+  notification          String?   @db.VarChar(50)
+  code                  String?   @db.VarChar(50)
+  createdDt             DateTime  @default(now()) @db.DateTime(0)
+  updatedDt             DateTime? @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+
+  @@map("notifications")
+}
+
+model NotificationCategory {
+  id                    Int       @id @default(autoincrement())
+  category              String?   @db.VarChar(50)
+  createdDt             DateTime  @default(now()) @db.DateTime(0)
+  updatedDt             DateTime? @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+
+  @@map("notifications_categories")
+}
+
+model UsersNotification {
+  id                    Int       @id @default(autoincrement())
+  userId                Int?      @map("user_id")
+  notificationId        Int?      @map("notification_id")
+  active                Int?      @db.TinyInt
+  createdDt             DateTime  @default(now()) @db.DateTime(0)
+  updatedDt             DateTime? @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+
+  @@map("users_notifications")
+}
+
+model UsersNotificationCategory {
+  id                    Int       @id @default(autoincrement())
+  userId                Int?      @map("user_id")
+  notificationCategoryId Int?     @map("notification_categories_id")
+  active                Int?      @db.TinyInt
+  createdDt             DateTime  @default(now()) @db.DateTime(0)
+  updatedDt             DateTime? @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+
+  @@map("users_notifications_categories")
+}
+
+model UsersNotificationHistoric {
+  id                    Int       @id @default(autoincrement())
+  userId                Int?      @map("user_id")
+  notificationId        Int?      @map("notification_id")
+  email                 String?   @db.VarChar(50)
+  subject               String?   @db.VarChar(50)
+  createdDt             DateTime  @default(now()) @db.DateTime(0)
+  updatedDt             DateTime? @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+
+  @@map("users_notifications_historic")
+}

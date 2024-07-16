@@ -533,22 +533,27 @@
 
             <div class="collapse section-content-padding row border border-primary border-1 rounded-bottom px-3"
                 id="collapse-calculate-step" [ngClass]="{'show':stepActive==5}">
-                <div class="row m-0 py-2 py-md-4 px-4 px-md-2">
 
-                    <div class="w-100 d-flex mt-2 mt-md-4 p-0">
-                        <span *ngIf="!editingArea" class="w-50">Tria el tipus de consum que vols afegir</span>
-                        <span *ngIf="editingArea" class="w-50">Ajusta les dades</span>
-                        <a *ngIf="!editingArea" class="d-flex w-50 justify-content-end" (click)="editingArea=true"
-                            role="button">
-                            <span>Ajustar dades</span>
-                        </a>
-                        <a *ngIf="editingArea" class="d-flex w-50 justify-content-end" (click)="editingArea=false"
-                            role="button">
-                            <span>Tornar</span>
-                        </a>
+                <div class="row m-0 py-2 py-md-4 px-2 px-md-2">
+
+                    <div class="row mt-2 mt-md-4 m-0 p-0 mb-2">
+                        <div class="col-12 col-md-6 p-0">
+                            <!-- <span *ngIf="!editingArea" class="">Tria el tipus de consum que vols afegir</span> -->
+                            <span *ngIf="editingArea" class="">Ajusta les dades</span>
+                        </div>
+                        <div class="col-12 col-md-6 col-6 p-0">
+                            <a *ngIf="!editingArea" class="d-flex justify-content-end text-end"
+                                (click)="editingArea=true" role="button">
+                                <span>Ajustar dades</span>
+                            </a>
+                            <a *ngIf="editingArea" class="d-flex justify-content-end text-end"
+                                (click)="editingArea=false" role="button">
+                                <span>Tornar</span>
+                            </a>
+                        </div>
                     </div>
 
-                    <div class="border border-primary border-1 rounded my-3" *ngIf="!editingArea">
+                    <!-- <div class="border border-primary border-1 rounded my-3 p-0 p-md-2" *ngIf="!editingArea">
 
                         <div class="container d-flex justify-content-center align-items-center">
                             <div
@@ -559,7 +564,7 @@
                                     (click)="activeIndividual=false;activeCommunity=true; simulateGenerationConsumption()">Estalvi
                                     membre comunitari</button>
 
-                                <button type="button" class="btn w-md-auto  m-2 m-md-4 w-100"
+                                <button type="button" class="btn w-md-auto m-2 mt-0 m-md-4 w-100"
                                     [ngClass]="activeIndividual?'btn-secondary':'btn-inactive'"
                                     style="max-width: 300px;"
                                     (click)="activeIndividual=true;activeCommunity=false; simulateGenerationConsumption()">Estalvi
@@ -568,7 +573,11 @@
                             </div>
                         </div>
 
-                        <div class="row ps-0 m-0 pb-2 mt-4 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-5">
+                    </div> -->
+
+                    <div class="p-0 m-0" *ngIf="!editingArea">
+
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 row-cols-xl-4">
 
                             <!-- metres quadrats -->
                             <div class="col mb-2 mb-md-4">
@@ -580,7 +589,7 @@
                                 [(ngModel)]="this.selectedCadastre.m2" (change)="updateCadastreChart()" min="0"
                                 step="0" readonly> -->
 
-                                    <div class="input-group mb-3">
+                                    <div class="input-group">
                                         <input type="number" class="form-control number-input"
                                             [(ngModel)]="this.selectedCadastre.m2"
                                             (change)="simulateGenerationConsumption()">
@@ -605,20 +614,6 @@
                                 </div>
                             </div>
 
-                            <!-- Anys per amortitzar -->
-                            <div class="col mb-2 mb-md-4">
-
-                                <div>
-                                    <span>Anys per amortitzar</span>
-                                </div>
-
-                                <div>
-                                    <input type="number" class="form-control number-input w-100" disabled readonly
-                                        [value]="this.selectedCadastre.redeemYears">
-                                </div>
-
-                            </div>
-
                             <!-- Cost inicial d'inversió -->
                             <div class="col mb-2 mb-md-4">
 
@@ -633,30 +628,102 @@
 
                             </div>
 
-                            <!-- Estalvi mensual -->
-                            <div class="col mb-2 mb-md-4">
+                        </div>
 
-                                <div>
-                                    <span>ROI/Estalvi mensual</span>
+                        <div class="row">
+                            <div class="col col-12 col-lg-6">
+                                <!-- Estalvi comunitari -->
+
+                                <div class="mb-2">
+                                    <span class="fs-6 fw-bold">Estalvi comunitari</span>
                                 </div>
 
-                                <div>
-                                    <input type="number" class="form-control number-input w-100" disabled readonly
-                                        [value]="this.selectedCadastre.monthlySavings">
+                                <div class=" row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+
+                                    <!-- Estalvi mensual -->
+                                    <div class="col mb-2 mb-md-4">
+
+                                        <div>
+                                            <span>ROI/Estalvi mensual</span>
+                                        </div>
+
+                                        <div>
+                                            <input type="number" class="form-control number-input w-100" disabled
+                                                readonly [value]="this.selectedCadastre.monthlySavings">
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Anys per amortitzar -->
+
+                                    <div class="col mb-2 mb-md-4">
+
+                                        <div>
+                                            <span>Anys per amortitzar</span>
+                                        </div>
+
+                                        <div>
+                                            <input type="number" class="form-control number-input w-100" disabled
+                                                readonly [value]="this.selectedCadastre.redeemYears">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col col-12 col-lg-6">
+                                <!-- Estalvi autoconsum -->
+
+                                <div class="mb-2">
+                                    <span class="fs-6 fw-bold">Estalvi autoconsum</span>
+                                </div>
+
+                                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+
+                                    <!-- Estalvi mensual -->
+                                    <div class="col mb-2 mb-md-4">
+
+                                        <div>
+                                            <span>ROI/Estalvi mensual</span>
+                                        </div>
+
+                                        <div>
+                                            <input type="number" class="form-control number-input w-100" disabled
+                                                readonly [value]="this.selectedCadastre.selfConsumption.monthlySavings">
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Anys per amortitzar -->
+                                    <div class="col mb-2 mb-md-4">
+
+                                        <div>
+                                            <span>Anys per amortitzar</span>
+                                        </div>
+
+                                        <div>
+                                            <input type="number" class="form-control number-input w-100" disabled
+                                                readonly [value]="this.selectedCadastre.selfConsumption.redeemYears">
+                                        </div>
+
+                                    </div>
+
                                 </div>
 
                             </div>
 
                         </div>
 
+
+
                     </div>
 
-                    <div class="collapse" id="collapse-edit-area-step p-0" [ngClass]="{'show':editingArea}">
+                    <div class="collapse p-2" id="collapse-edit-area-step" [ngClass]="{'show':editingArea}">
 
                         <div class="row">
 
                             <!-- metres quadrats -->
-                            <div class="col-6 col-md-4 mt-2 mt-md-4">
+                            <div class="col-12 col-md-4 mt-2 mt-md-4 px-0 ps-md-0 pe-md-2">
                                 <div>
                                     <span>M² de l'àrea</span>
                                 </div>
@@ -671,7 +738,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-6 col-md-4 mt-2 mt-md-4">
+                            <div class="col-12 col-md-4 mt-2 mt-md-4 px-0 px-md-2">
                                 <div>
                                     <span>Inclinació del sostre</span>
                                 </div>
@@ -683,7 +750,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-6 col-md-4 mt-2 mt-md-4">
+                            <div class="col-12 col-md-4 mt-2 mt-md-4 px-0 pe-md-0 ps-md-2">
                                 <div>
                                     <span>Orientació</span>
                                 </div>
@@ -697,26 +764,34 @@
 
                         </div>
 
-                        <div class="row">
-                            <div class="col mt-2 mt-md-4">
+                        <div class="row mt-2 mt-md-4">
+                            <div class="col-12 col-lg-6 ps-0">
                                 <div>
-                                    <span>Preu de l'energia sobrant. €/Kwh.</span>
+                                    <span>Preu de l'energia sobrant individual. €/Kwh.</span>
                                 </div>
-                                <input *ngIf="!selectedCommunity || !selectedCommunity.energy_price || activeIndividual"
+                                <input
                                     type="number" class="form-control number-input w-100"
                                     [(ngModel)]="selectedCadastre.generationPrice" min="0">
-                                <input *ngIf="selectedCommunity && selectedCommunity.energy_price && activeCommunity"
+                            </div>
+                        
+                            <div class="col-12 col-lg-6 ps-0">
+                                <div>
+                                    <span>Preu de l'energia sobrant comunitària. €/Kwh.</span>
+                                </div>
+                                <input *ngIf="selectedCommunity && selectedCommunity.energy_price"
                                     type="number" class="form-control number-input w-100"
                                     [(ngModel)]="selectedCommunity.energy_price" min="0" disabled>
                             </div>
                         </div>
 
                         <div class="row mt-2 mt-md-4">
-                            <span>Introdueix el consum mensual per periode. kWh.</span>
+                            <div class="col-12 p-0">
+                                <span>Introdueix el consum mensual per periode. kWh.</span>
+                            </div>
                         </div>
 
                         <div class="row mt-2 mt-md-4">
-                            <div class="col-4">
+                            <div class="col-4 ps-0">
                                 <span class="form-label fs-6 smile-color">Vall</span>
                                 <input type="number" class="form-control number-input w-100"
                                     [(ngModel)]="selectedCadastre.valle" min="0" (change)="updateCadastreConsumption()">
@@ -728,7 +803,7 @@
                                     [(ngModel)]="selectedCadastre.llano" min="0" (change)="updateCadastreConsumption()">
                             </div>
 
-                            <div class="col-4">
+                            <div class="col-4 pe-0">
                                 <span class="form-label fs-6 frown-color">Punta</span>
                                 <input type="number" class="form-control number-input w-100"
                                     [(ngModel)]="selectedCadastre.punta" min="0" (change)="updateCadastreConsumption()">
@@ -736,21 +811,23 @@
                         </div>
 
                         <div class="row mt-2 mt-md-4">
-                            <span>Introdueix el preu per periode. €/Kwh.</span>
+                            <div class="col-12 p-0">
+                                <span>Introdueix el preu per periode. €/Kwh.</span>
+                            </div>
                         </div>
 
                         <div class="row mt-2 mt-md-4">
-                            <div class="col-4">
+                            <div class="col-4 ps-0">
                                 <span class="form-label smile-color fs-6">Vall</span>
                                 <input type="number" class="form-control number-input w-100"
                                     [(ngModel)]="selectedCadastre.vallePrice" (change)="updateConsumptions()">
                             </div>
                             <div class="col-4">
-                                <span class="form-label meh-color fs-6">Pla</span>
+                                <span class="form-label meh-color fs-6 ">Pla</span>
                                 <input type="number" class="form-control number-input w-100"
                                     [(ngModel)]="selectedCadastre.llanoPrice" (change)="updateConsumptions()">
                             </div>
-                            <div class="col-4">
+                            <div class="col-4 pe-0">
                                 <span class="form-label frown-color fs-6">Punta</span>
                                 <input type="number" class="form-control number-input w-100"
                                     [(ngModel)]="selectedCadastre.puntaPrice" (change)="updateConsumptions()">
@@ -758,9 +835,8 @@
                         </div>
 
                         <div class="d-flex justify-content-center">
-                            <button type="button" class="btn btn-primary w-md-auto mt-2 mt-md-4 w-100"
-                                style="max-width: 300px;"
-                                (click)="editingArea=false; simulateGenerationConsumption()">Calcular </button>
+                            <button type="button" class="btn btn-primary w-md-auto mt-4 w-100" style="max-width: 300px;"
+                                (click)="editingArea=false; simulateGenerationConsumption()">Calcular</button>
                         </div>
 
                     </div>

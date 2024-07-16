@@ -60,7 +60,15 @@ interface cadastre {
   orientation?: number,
   oldOrientation?: number,
   inclination?: number,
-  oldInclination?: number
+  oldInclination?: number,
+  selfConsumption: selfConsumption
+}
+
+interface selfConsumption {
+  monthlySavings?: number,
+  redeemYears?: number,
+  surplusMonthlyProfits?: number,
+  communityMonthlyCosts?: number
 }
 
 @Component({
@@ -207,7 +215,8 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     puntaPrice: 0.19,
     generationPrice: 0.10,
     orientation: 0,
-    inclination: 25
+    inclination: 25,
+    selfConsumption: {}
   };
 
   selectedCadastreBackup: cadastre = {
@@ -220,7 +229,8 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     puntaPrice: 0,
     generationPrice: 0,
     orientation: 0,
-    inclination: 0
+    inclination: 0,
+    selfConsumption: {}
   };
 
   cupsNumber: number = 0;
@@ -235,7 +245,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   //isShrunk: boolean = false;
 
   loading: Subject<boolean> = new Subject<boolean>;
-  isSpinning:boolean=false;
+  isSpinning: boolean = false;
 
   //engineeringCost: number = 1623;
   //installationCost: number[] = [0.35, 0.3, 0.24];
@@ -246,12 +256,11 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   selectedCoords: any;
 
   activeSimulation: boolean = false;
-  activeIndividual: boolean = false;
-  activeCommunity: boolean = false;
+  //activeIndividual: boolean = false;
+  //activeCommunity: boolean = false;
   //activeAcc: boolean = false;
   //activeCce: boolean = false;
-  //isMobile = false;
-  //private modalService = inject(NgbModal);
+  
   editingArea = false;
   isMobile = false;
 
@@ -551,7 +560,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     this.communityEnergyData.forEach((item: any) => {
       //this.communityMonthChartLabels.push(item.month);
       //numeros_mes.push(item.month_number);
-      imports.push(item.import);
+      imports.push(item.import + item.export);
       exports.push(item.export);
     });
 
@@ -561,10 +570,13 @@ export class CalculateComponent implements OnInit, AfterViewInit {
 
         if (imports[index]) {
           imports[index] += monthConsumption;
+          //total consumption implies the generation:
+          imports[index] += addedArea.monthsGeneration[index];
         }
 
         if (!imports[index]) {
-          imports.push(monthConsumption)
+          //total consumption implies the generation:
+          imports.push(monthConsumption + addedArea.monthsGeneration[index])
         }
 
         if (exports[index]) {
@@ -579,7 +591,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
 
     this.communityMonthChartDatasets = [
       {
-        label: 'Consum de la xarxa (Kwh)',
+        label: 'Consum total (Kwh)',
         data: imports,
         backgroundColor: 'rgb(211, 84, 0)',
         borderColor: 'rgb(255,255,255)'
@@ -925,10 +937,9 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       puntaPrice: 0.19,
       generationPrice: 0.10,
       orientation: 0,
-      inclination: 25
+      inclination: 25,
+      selfConsumption: {}
     }
-    this.activeIndividual = false;
-    this.activeCommunity = true;
   }
 
   addArea() {
@@ -1007,21 +1018,24 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     let monthlyConsumedProduction: number = 0;
     let monthlyCosts = this.selectedCadastre.monthlyConsumptionCost; //monthAverageConsumption * this.selectedCadastre.llanoPrice;
     let communityMonthlyCosts: number;
+    
     //if surplus:
+
     if (monthAverageGeneration > monthAverageConsumption) {
       //surplus is the generation minus consumption, if generation is greater than consumption
       let monthAverageSurplus: number = monthAverageGeneration - monthAverageConsumption;
       //monthlyConsumedProduction is the production directly used by the customer
       monthlyConsumedProduction = monthAverageGeneration - monthAverageSurplus;
+
       //surplusMonthlyProfits is the price of excedent from generation that is sold to the company or to community
-      if (this.activeIndividual) { // if it's sold to the company
-        this.selectedCadastre.surplusMonthlyProfits = monthAverageSurplus * this.selectedCadastre.generationPrice!;
-        //console.log("surplus individual profits",this.selectedCadastre.surplusMonthlyProfits);
-      } else if (this.activeCommunity) { //if it's sold to the community
-        this.selectedCadastre.surplusMonthlyProfits = monthAverageSurplus * this.selectedCommunity.energy_price!;
-        //console.log("surplus community profits",this.selectedCadastre.surplusMonthlyProfits);
-      }
+      //if it's sold to the community
+      this.selectedCadastre.surplusMonthlyProfits = monthAverageSurplus * this.selectedCommunity.energy_price!;
+      
+      // if it's sold to the company
+      this.selectedCadastre.selfConsumption.surplusMonthlyProfits = monthAverageSurplus * this.selectedCadastre.generationPrice!;
+
       monthAverageConsumption = 0;  //the generation convalidates consumption
+
     } else {
       //monthlyConsumedProduction is the production directly used by the customer
       monthlyConsumedProduction = monthAverageGeneration;
@@ -1030,30 +1044,27 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       this.selectedCadastre.surplusMonthlyProfits = 0;
     }
 
-    if (this.activeIndividual) {
-      //if activeIndividual, imported consumption divided by consumption from generation 
-      //el cost es igual al consum dividit pel consum base i multiplicat pel preu mensual 
-      let communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
-      this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts
+    //in community, the energy to consume is bought to the community, with the price of the community
+    communityMonthlyCosts = monthAverageConsumption * this.selectedCommunity.energy_price //this.selectedCadastre.generationPrice!;
+    //monthlySavings is the price of energy that you stop using from the company when you have generation
+    this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
 
-    } else {
-      //if activeCommunity, the energy to consume is bought to the community, with the price of the community
-      communityMonthlyCosts = monthAverageConsumption * this.selectedCommunity.energy_price //this.selectedCadastre.generationPrice!;
-      //monthlySavings is the price of energy that you stop using from the company when you have generation
-      this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
-
-    }
+    //self consumption
+    this.selectedCadastre.selfConsumption.communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
+    this.selectedCadastre.selfConsumption.monthlySavings = monthlyCosts! - this.selectedCadastre.selfConsumption.communityMonthlyCosts;
 
     this.selectedCadastre.monthlySavings! += this.selectedCadastre.surplusMonthlyProfits!;
 
-    //in acc, the savings cannot overcome the costs
-    if (this.activeIndividual && this.selectedCadastre.monthlySavings! > monthlyCosts!) {//if ((this.activeAcc || this.activeIndividual) && this.selectedCadastre.monthlySavings! > monthlyCosts!) {
-      //console.log("this.selectedCadastre.monthlySavings!, monthlyCosts!", this.selectedCadastre.monthlySavings!, monthlyCosts!)
-      this.selectedCadastre.monthlySavings = monthlyCosts!;
+    if (this.selectedCadastre.monthlySavings! > monthlyCosts!) {
+      this.selectedCadastre.selfConsumption.monthlySavings = monthlyCosts!;
     }
+
     this.selectedCadastre.monthlySavings = parseFloat(this.selectedCadastre.monthlySavings!.toFixed(2))
+    this.selectedCadastre.selfConsumption.monthlySavings = parseFloat(this.selectedCadastre.selfConsumption.monthlySavings!.toFixed(2))
+
     //the redeem years are the profits earned month by month:
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
+    this.selectedCadastre.selfConsumption.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.selfConsumption.monthlySavings!)));
 
     //console.log(this.selectedCadastre)
 

@@ -214,7 +214,7 @@ export class CupsController {
 
     let datadisToken:string;
     let loginData: { username: string, password: string } = { username: '', password: '' };
-    let supplies:any[];
+    let supplies:any[]=[];
 
     try {
 
@@ -224,6 +224,12 @@ export class CupsController {
         FROM cups LEFT JOIN customers ON customers.id = cups.customer_id
         WHERE cups.id = ${id}
       `;
+
+      console.log(cupsInfo,id);
+      
+      if(!cupsInfo[0]){
+        return HttpResponse.failure(`Cups with this id not found`, ErrorCode.BAD_REQUEST)
+      }
 
       const communityInfo: any = await this.prisma.$queryRaw
           `
@@ -239,7 +245,7 @@ export class CupsController {
         console.log("datadis active",loginData)
         datadisToken = await this.datadisService.login(loginData.username, loginData.password)
         supplies = await this.datadisService.getSupplies(datadisToken);
-      } else{ 
+      } else if(communityInfo[0]){ 
         let dni = cupsInfo[0].dni;
         //community login
         loginData.username=communityInfo[0].datadis_user;
@@ -261,7 +267,7 @@ export class CupsController {
       // if (datadisRows[0].datadis_active) {
 
       if(supplies[0]){
-        console.log(supplies)
+        console.log("supplies from cups",id,supplies)
         return HttpResponse.success("the cups is active").withData({ active: true })
       } else {
         return HttpResponse.success("the cups is inactive").withData({ active: false })

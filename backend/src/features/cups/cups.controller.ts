@@ -209,7 +209,7 @@ export class CupsController {
   }
 
   @Get("/datadis-active/:id")
-  //@Auth(RESOURCE_NAME)
+  @Auth(RESOURCE_NAME)
   async datadisActive(@Param("id") id: string) {
 
     let datadisToken: string;

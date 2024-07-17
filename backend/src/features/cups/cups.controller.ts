@@ -263,7 +263,7 @@ export class CupsController {
       // if (datadisRows[0].datadis_active) {
 
       if (supplies[0]) {
-        return HttpResponse.success("the cups is active").withData({ active: true, supplies: supplies })
+        return HttpResponse.success("the cups is active").withData({ active: true })
       } else {
         return HttpResponse.success("the cups is inactive").withData({ active: false })
       }

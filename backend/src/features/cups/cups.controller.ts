@@ -212,76 +212,70 @@ export class CupsController {
   //@Auth(RESOURCE_NAME)
   async datadisActive(@Param("id") id: string) {
 
-    let datadisToken:string;
+    let datadisToken: string;
     let loginData: { username: string, password: string } = { username: '', password: '' };
-    let supplies:any[]=[];
+    let supplies: any[] = [];
 
     try {
 
       const cupsInfo: any = await this.prisma.$queryRaw
-          `
+        `
       SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id, cups.datadis_active, customers.dni
         FROM cups LEFT JOIN customers ON customers.id = cups.customer_id
         WHERE cups.id = ${id}
       `;
 
-      console.log(cupsInfo,id);
-      
-      if(!cupsInfo[0]){
+      if (!cupsInfo[0]) {
         return HttpResponse.failure(`Cups with this id not found`, ErrorCode.BAD_REQUEST)
       }
 
       const communityInfo: any = await this.prisma.$queryRaw
-          `
+        `
       SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id
         FROM cups
         WHERE community_id = ${cupsInfo[0].community_id} and type = 'community'
       `;
 
-      if(cupsInfo[0].datadis_active){
+      if (cupsInfo[0].datadis_active) {
         //user login
-        loginData.username=cupsInfo[0].datadis_user;
+        loginData.username = cupsInfo[0].datadis_user;
         loginData.password = PasswordUtils.decryptData(cupsInfo[0].datadis_password, process.env.JWT_SECRET!);
-        console.log("datadis active",loginData)
         datadisToken = await this.datadisService.login(loginData.username, loginData.password)
         supplies = await this.datadisService.getSupplies(datadisToken);
-      } else if(communityInfo[0]){ 
+      } else if (communityInfo[0]) {
         let dni = cupsInfo[0].dni;
         //community login
-        loginData.username=communityInfo[0].datadis_user;
+        loginData.username = communityInfo[0].datadis_user;
         loginData.password = PasswordUtils.decryptData(communityInfo[0].datadis_password, process.env.JWT_SECRET!);
-        console.log("community active?",loginData)
         datadisToken = await this.datadisService.login(loginData.username, loginData.password)
-        supplies = await this.datadisService.getAuthorizedSupplies(datadisToken,dni);
+        supplies = await this.datadisService.getAuthorizedSupplies(datadisToken, dni);
       }
-      
+
       // const datadisRows: any = await this.prisma.$queryRaw
-      //     `
-      // SELECT EXISTS (
-      //   SELECT 1
-      //   FROM datadis_energy_registers
-      //   WHERE cups_id = ${id}
-      // ) AS datadis_active;
-      // `;
+      //   `
+      //   SELECT EXISTS (
+      //     SELECT 1
+      //     FROM datadis_energy_registers
+      //     WHERE cups_id = ${id}
+      //   ) AS datadis_active;
+      //   `;
 
       // if (datadisRows[0].datadis_active) {
 
-      if(supplies[0]){
-        console.log("supplies from cups",id,supplies)
-        return HttpResponse.success("the cups is active").withData({ active: true })
+      if (supplies[0]) {
+        return HttpResponse.success("the cups is active").withData({ active: true, supplies: supplies })
       } else {
         return HttpResponse.success("the cups is inactive").withData({ active: false })
       }
 
     } catch (e) {
       console.log(e)
-
       return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
     }
   }
 
   @Get("/community/:communityId/total")
-  async getTotalByCommunity(@Param("communityId") communityId: string){
+  async getTotalByCommunity(@Param("communityId") communityId: string) {
     const data: any = await this.prisma.$queryRaw`
         SELECT COUNT(*) total FROM cups WHERE community_id = ${communityId} AND type != 'community'
     `
@@ -323,14 +317,14 @@ export class CupsController {
 
     //return HttpResponse.failure("Invalid parameters. Cups not found",ErrorCode.MISSING_PARAMETERS)
 
-    if(body.dni){
+    if (body.dni) {
       try {
         const datadisRows: any = await this.prisma.$queryRaw`UPDATE customers SET dni=${body.dni} WHERE id=${body.customerId}`
       } catch (e) {
         return HttpResponse.failure("Error updating customer", ErrorCode.INTERNAL_ERROR).withData(e);
       }
     }
-    
+
     delete body.dni;
 
     try {

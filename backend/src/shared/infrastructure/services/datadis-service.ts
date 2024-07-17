@@ -115,9 +115,8 @@ export class DatadisService {
 
     this.supplies = [];
 
-    let authorizedSuppliesPromises: Promise<supply[]>[];
-
     for (let cups of this.dbCups) {
+
       if (!cups.datadis_active || !cups.datadis_user || !cups.datadis_password) {
         continue;
       }
@@ -320,12 +319,12 @@ export class DatadisService {
       if (axios.isAxiosError(error)) {
         const axiosError: any = error;
         if (axiosError.response) {
-          //console.log("GET SUPPLIES",axiosError.response)
+          //console.log("get supplies",axiosError.response)
           if (axiosError.response.data) {
-            console.log("supplies", axiosError.response.data)
+            console.log("get supplies error", axiosError.response.data)
             throw new Error(`${axiosError.response.data.status} ${axiosError.response.data.error} : ${axiosError.response.data.message}`);
           } else {
-            console.log("supplies", axiosError.response.status)
+            console.log("get supplies error", axiosError.response.status)
             throw new Error(`${axiosError.response.status}`);
           }
         } else if (axiosError.request) {

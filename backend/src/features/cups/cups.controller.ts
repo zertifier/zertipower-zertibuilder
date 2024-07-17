@@ -215,10 +215,12 @@ export class CupsController {
     let datadisToken: string;
     let loginData: { username: string, password: string } = { username: '', password: '' };
     let supplies: any[] = [];
+    let cupsInfo: any;
+    let communityInfo: any;
 
     try {
 
-      const cupsInfo: any = await this.prisma.$queryRaw
+      cupsInfo = await this.prisma.$queryRaw
         `
       SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id, cups.datadis_active, customers.dni
         FROM cups LEFT JOIN customers ON customers.id = cups.customer_id
@@ -229,12 +231,24 @@ export class CupsController {
         return HttpResponse.failure(`Cups with this id not found`, ErrorCode.BAD_REQUEST)
       }
 
-      const communityInfo: any = await this.prisma.$queryRaw
+    } catch (e) {
+      return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
+    }
+
+    try {
+      communityInfo = await this.prisma.$queryRaw
         `
       SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id
         FROM cups
         WHERE community_id = ${cupsInfo[0].community_id} and type = 'community'
       `;
+
+    } catch (e) {
+      console.log(e)
+      return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
+    }
+
+    try {
 
       if (cupsInfo[0].datadis_active) {
         //user login
@@ -249,18 +263,9 @@ export class CupsController {
         loginData.password = PasswordUtils.decryptData(communityInfo[0].datadis_password, process.env.JWT_SECRET!);
         datadisToken = await this.datadisService.login(loginData.username, loginData.password)
         supplies = await this.datadisService.getAuthorizedSupplies(datadisToken, dni);
+      } else {
+        return HttpResponse.failure(`Data not found`, ErrorCode.UNEXPECTED)
       }
-
-      // const datadisRows: any = await this.prisma.$queryRaw
-      //   `
-      //   SELECT EXISTS (
-      //     SELECT 1
-      //     FROM datadis_energy_registers
-      //     WHERE cups_id = ${id}
-      //   ) AS datadis_active;
-      //   `;
-
-      // if (datadisRows[0].datadis_active) {
 
       if (supplies[0]) {
         return HttpResponse.success("the cups is active").withData({ active: true })
@@ -270,8 +275,21 @@ export class CupsController {
 
     } catch (e) {
       console.log(e)
-      return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
+      //return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
+      return HttpResponse.success(e.toString()).withData({ active: false })
     }
+
+    // const datadisRows: any = await this.prisma.$queryRaw
+    //   `
+    //   SELECT EXISTS (
+    //     SELECT 1
+    //     FROM datadis_energy_registers
+    //     WHERE cups_id = ${id}
+    //   ) AS datadis_active;
+    //   `;
+
+    // if (datadisRows[0].datadis_active) {
+
   }
 
   @Get("/community/:communityId/total")

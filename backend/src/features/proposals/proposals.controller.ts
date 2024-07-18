@@ -8,8 +8,18 @@ import * as moment from 'moment';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/features/auth/infrastructure/decorators';
 import {GovernanceService} from "../../shared/infrastructure/services/governance/governance.service";
+import { NotificationsService, notificationCodes } from 'src/shared/infrastructure/services/notifications-service';
+import { Subject } from 'rxjs';
 
 export const RESOURCE_NAME = 'proposals';
+
+enum proposalStatus {
+  active = 'active',
+  pending = 'pending',
+  expired = 'expired', 
+  executed = 'executed',
+  denied = 'denied'
+}
 
 @ApiTags(RESOURCE_NAME)
 @Controller('proposals')
@@ -17,7 +27,8 @@ export class ProposalsController {
   constructor(
     private prisma: PrismaService,
     private datatable: Datatable,
-    private governanceService: GovernanceService
+    private governanceService: GovernanceService,
+    private notificationService:NotificationsService
   ) {}
 
   @Get()
@@ -191,6 +202,16 @@ export class ProposalsController {
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveProposalsDTO) {
     const data = await this.prisma.proposals.create({ data: body });
+
+    try{
+      const proposalName = data.proposal!;
+        const subject = this.notificationService.getNotificationSubject(notificationCodes.createProposal, this.notificationService.defaultNotificationLang, { proposalName });
+        let message=`` //la proposta està en estat x.
+      this.notificationService.sendCommunityNotification(body.communityId,notificationCodes.createProposal,subject,message)
+    }catch(error){
+      console.log(error)
+    }
+    
     return HttpResponse.success('proposals saved successfully').withData(data);
   }
 
@@ -208,7 +229,7 @@ export class ProposalsController {
 
   @Put(':id/status')
   @Auth(RESOURCE_NAME)
-  async updateState(@Param('id') id: string, @Body() body: {status: string}) {
+  async updateState(@Param('id') id: string, @Body() body: {status: notificationCodes}) {
     const data = await this.prisma.proposals.updateMany({
       where: {
         id: parseInt(id),
@@ -217,6 +238,21 @@ export class ProposalsController {
         status: body.status.toUpperCase()
       }
     });
+    
+    try{
+      let proposal=await this.getProposalFromId(parseInt(id))
+      if(proposal && proposal.communityId){
+        let notificationCode:notificationCodes=body.status;
+        //let subject=`La proposta ${proposal.proposal} ha canviat d'estat`
+        const proposalName = proposal.proposal!;
+        const subject = this.notificationService.getNotificationSubject(notificationCode, this.notificationService.defaultNotificationLang, { proposalName });
+        let message=`` //la proposta ha canviat d'estat per x. El numero de vots es x.
+        this.notificationService.sendCommunityNotification(proposal.communityId,notificationCode,subject,message)
+      }
+    }catch(error){
+      console.log(error)
+    }
+    
     return HttpResponse.success('proposals updated successfully').withData(data);
   }
 
@@ -228,6 +264,22 @@ export class ProposalsController {
         id: parseInt(id)
       }
     });
+
+    try{
+      let proposal=await this.getProposalFromId(parseInt(id))
+      if(proposal && proposal.communityId){
+        //let subject=`La proposta ${proposal.proposal} ha sigut esborrada`;
+        const proposalName = proposal.proposal!;
+        const subject = this.notificationService.getNotificationSubject(notificationCodes.deleteProposal, 'ca', { proposalName });
+        let message=``;
+        this.notificationService.sendCommunityNotification(proposal.communityId,notificationCodes.deleteProposal,subject,message)
+      } else {
+        console.log("proposal or community id")  
+      }
+    }catch(error){
+      console.log(error)
+    }
+
     return HttpResponse.success('proposals removed successfully').withData(data);
   }
 
@@ -240,6 +292,19 @@ export class ProposalsController {
         LEFT JOIN communities
             ON community_id = communities.id`);
     return HttpResponse.success('Datatables fetched successfully').withData(data);
+  }
+
+  async getProposalFromId(id:number){
+    try{
+      const data = await this.prisma.proposals.findUnique({
+        where: {
+          id: id
+        }
+      });
+      return data;
+    }catch(error){
+      throw new Error(error)
+    } 
   }
 
   mapData(data: any) {

@@ -3,6 +3,7 @@ import mysql from "mysql2/promise";
 import {MysqlService} from "../mysql-service";
 import * as moment from "moment";
 import {EnvironmentService} from "../environment-service";
+import { NotificationsService } from '../notifications-service';
 
 
 export interface RedistributeObject {
@@ -46,7 +47,7 @@ export class ShareService {
   };
   private conn: mysql.Pool;
 
-  constructor(private mysql: MysqlService, private environment: EnvironmentService) {
+  constructor(private mysql: MysqlService, private environment: EnvironmentService, private notificationService:NotificationsService) {
     this.conn = this.mysql.pool;
     this.redistribute()
 
@@ -223,6 +224,12 @@ export class ShareService {
       let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
       // const insertedRows = result.affectedRows;
       console.log(`Inserted values on trades from date: ${trade.redisitributePartners[0].infoDt}`);
+      try{
+        //this.notificationService.sendNotification()
+      }catch(error){
+        console.log(error)
+      }
+
     }
   }
 

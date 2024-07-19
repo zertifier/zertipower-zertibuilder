@@ -3,7 +3,7 @@ import mysql from "mysql2/promise";
 import {MysqlService} from "../mysql-service";
 import * as moment from "moment";
 import {EnvironmentService} from "../environment-service";
-import { NotificationsService } from '../notifications-service';
+import { NotificationsService, notificationCodes } from '../notifications-service';
 
 
 export interface RedistributeObject {
@@ -19,7 +19,8 @@ export interface RedistributePartner {
   resultConsumption: number,
   cupsId: number,
   ehId: number,
-  infoDt: Date
+  infoDt: Date,
+  userId:number
 }
 
 export interface RegistersFromDb {
@@ -30,6 +31,7 @@ export interface RegistersFromDb {
   type: 'consumer' | 'community',
   cups_id: number,
   community_id: number,
+  user_id: number
 }
 
 @Injectable()
@@ -40,9 +42,9 @@ export class ShareService {
     surplusCups: 20,
     surplusEhId: 0,
     redisitributePartners: [
-      {consumption: 30, resultConsumption: 0, cupsId: 1, infoDt: new Date, ehId: 1},
-      {consumption: 40, resultConsumption: 0, cupsId: 2, infoDt: new Date, ehId: 2},
-      {consumption: 10, resultConsumption: 0, cupsId: 3, infoDt: new Date, ehId: 3},
+      {consumption: 30, resultConsumption: 0, cupsId: 1, infoDt: new Date, ehId: 1, userId:1},
+      {consumption: 40, resultConsumption: 0, cupsId: 2, infoDt: new Date, ehId: 2, userId:1},
+      {consumption: 10, resultConsumption: 0, cupsId: 3, infoDt: new Date, ehId: 3, userId:1},
     ]
   };
   private conn: mysql.Pool;
@@ -166,7 +168,7 @@ export class ShareService {
         ORDER BY e.info_dt DESC, kwh_out DESC;
       `*/
       let query = `
-        SELECT e.id eh_id, e.kwh_in, (e.kwh_out - e.kwh_in) kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id
+        SELECT e.id eh_id, e.kwh_in, (e.kwh_out - e.kwh_in) kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id, users.id user_id
         FROM energy_hourly e
                LEFT JOIN trades t ON e.info_dt = t.info_dt
                LEFT JOIN cups ON e.cups_id = cups.id
@@ -185,7 +187,7 @@ export class ShareService {
   getNewRegisters(): Promise<RegistersFromDb[]> {
     return new Promise(async resolve => {
       let query = `
-        SELECT e.id eh_id, (e.kwh_in - e.kwh_out) kwh_in,e.kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id
+        SELECT e.id eh_id, (e.kwh_in - e.kwh_out) kwh_in,e.kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id, users.email email, users.id user_id
         FROM energy_hourly e
                LEFT JOIN trades t ON e.info_dt = t.info_dt
                LEFT JOIN cups ON e.cups_id = cups.id
@@ -224,8 +226,20 @@ export class ShareService {
       let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
       // const insertedRows = result.affectedRows;
       console.log(`Inserted values on trades from date: ${trade.redisitributePartners[0].infoDt}`);
+      
       try{
-        //this.notificationService.sendNotification()
+
+        for(const partner of trade.redisitributePartners){
+          //notificar al from del sell y al to del buy
+          const subjectSell = this.notificationService.getNotificationSubject(notificationCodes.sharingSent, this.notificationService.defaultNotificationLang, { proposalName });
+          let messageSell=`` //la proposta està en estat x.
+          const subjectBuy = this.notificationService.getNotificationSubject(notificationCodes.sharingReceived, this.notificationService.defaultNotificationLang, { proposalName });
+          let messageBuy=`` //la proposta està en estat x.
+          //TODO surplus cups
+          this.notificationService.sendNotification(partner.userId,notificationCodes.sharingSent,subject,message) 
+          this.notificationService.sendNotification(partner.userId,notificationCodes.sharingSent,subject,message)
+        }
+        
       }catch(error){
         console.log(error)
       }
@@ -239,12 +253,14 @@ export class ShareService {
       cupsId: 0,
       ehId: 0,
       resultConsumption: 0,
-      infoDt: new Date
+      infoDt: new Date,
+      userId:0
     }
     partner.consumption = parseFloat(data.kwh_in.toString())
     partner.infoDt = data.info_dt
     partner.cupsId = data.cups_id
     partner.ehId = data.eh_id
+    partner.userId = data.user_id
 
     return partner
   }

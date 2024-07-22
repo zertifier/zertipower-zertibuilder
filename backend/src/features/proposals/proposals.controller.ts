@@ -204,9 +204,9 @@ export class ProposalsController {
     const data = await this.prisma.proposals.create({ data: body });
 
     try{
-      const proposalName = data.proposal!;
+      const proposalName = body.proposal!; 
         const subject = this.notificationService.getNotificationSubject(notificationCodes.createProposal, this.notificationService.defaultNotificationLang, { proposalName });
-        let message=`` //la proposta està en estat x.
+        let message=`${body.description}`
       this.notificationService.sendCommunityNotification(body.communityId,notificationCodes.createProposal,subject,message)
     }catch(error){
       console.log(error)

@@ -230,14 +230,15 @@ export class ShareService {
       try{
 
         for(const partner of trade.redisitributePartners){
+          const proposalName = partner.consumption.toString(); //todo: check that. Not implemented in share type notifications
           //notificar al from del sell y al to del buy
           const subjectSell = this.notificationService.getNotificationSubject(notificationCodes.sharingSent, this.notificationService.defaultNotificationLang, { proposalName });
           let messageSell=`` //la proposta està en estat x.
           const subjectBuy = this.notificationService.getNotificationSubject(notificationCodes.sharingReceived, this.notificationService.defaultNotificationLang, { proposalName });
           let messageBuy=`` //la proposta està en estat x.
           //TODO surplus cups
-          this.notificationService.sendNotification(partner.userId,notificationCodes.sharingSent,subject,message) 
-          this.notificationService.sendNotification(partner.userId,notificationCodes.sharingSent,subject,message)
+          this.notificationService.sendNotification(partner.userId,notificationCodes.sharingSent,subjectSell,messageSell) 
+          this.notificationService.sendNotification(partner.userId,notificationCodes.sharingReceived,subjectBuy,messageBuy)
         }
         
       }catch(error){

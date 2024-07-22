@@ -621,9 +621,10 @@
                                     <span>Cost d'inversió</span>
                                 </div>
 
-                                <div>
-                                    <input type="number" class="form-control number-input w-100" readonly disabled
+                                <div class="input-group w-100">
+                                    <input type="number" class="form-control number-input" readonly disabled
                                         [value]="this.selectedCadastre.totalCost">
+                                        <span class="input-group-text">€</span>
                                 </div>
 
                             </div>
@@ -647,9 +648,10 @@
                                             <span>ROI/Estalvi mensual</span>
                                         </div>
 
-                                        <div>
-                                            <input type="number" class="form-control number-input w-100" disabled
+                                        <div  class="input-group w-100">
+                                            <input type="number" class="form-control number-input" disabled
                                                 readonly [value]="this.selectedCadastre.monthlySavings">
+                                                <span class="input-group-text">€</span>
                                         </div>
 
                                     </div>
@@ -688,9 +690,10 @@
                                             <span>ROI/Estalvi mensual</span>
                                         </div>
 
-                                        <div>
-                                            <input type="number" class="form-control number-input w-100" disabled
+                                        <div class="input-group w-100">
+                                            <input type="number" class="form-control number-input" disabled
                                                 readonly [value]="this.selectedCadastre.selfConsumption.monthlySavings">
+                                                <span class="input-group-text">€</span>
                                         </div>
 
                                     </div>

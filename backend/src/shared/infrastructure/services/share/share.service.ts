@@ -210,7 +210,7 @@ export class ShareService {
   }
 
   async getCustomerFromCupsId(cupsId: number) {
-    let query = `SELECT * FROM customers
+    let query = `SELECT customers.* FROM customers
     LEFT JOIN cups ON cups.customer_id = customers.id
     WHERE cups.id = ?`
     let [ROWS]: any = await this.conn.execute(query, [cupsId]);
@@ -243,15 +243,13 @@ export class ShareService {
 
   async insertToTrades(trade: RedistributeObject, communityPrice: number) {
 
-    //TODO: obtain and insert trade cost: kwh * community price
-    //TODO: trade only if customer has the sufficient balance
-
     let query = 'INSERT INTO trades (energy_hourly_from_id, energy_hourly_to_id, from_cups_id, to_cups_id, action, traded_kwh, cost, previous_kwh, current_kwh, info_dt) VALUES ';
-    let resultSellTotalKwh = trade.totalSurplus
     let updateCustomersBalanceQuery = 'UPDATE customers SET balance = CASE id'
-    let cupsIdsToUpdate = [];
+    let resultSellTotalKwh = trade.totalSurplus
+    let cupsBalancesToUpdate: any = {};
 
     for (const partner of trade.redisitributePartners) {
+
       const tradedKwh = partner.consumption - partner.resultConsumption
       const infoDt = moment(partner.infoDt).format('YYYY-MM-DD HH:mm:ss')
       const totalSellSurplus = resultSellTotalKwh
@@ -264,46 +262,51 @@ export class ShareService {
 
       if (isSuficientBalance && tradeCost > 0) {
 
-        console.log("SUFFICIENT! ", `Customer ${customerBuyer.name} with cups id ${partner.cupsId} has sufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost}`)
-
         const buyerBalance = parseFloat(customerBuyer.balance);
         const sellerBalance = parseFloat(customerSeller.balance);
 
         const newBuyerBalance = parseFloat((buyerBalance - tradeCost).toFixed(2));
         const newSellerBalance = parseFloat((sellerBalance + tradeCost).toFixed(2));
 
-        updateCustomersBalanceQuery += ` WHEN ${customerBuyer.id} THEN ${newBuyerBalance} `
-        updateCustomersBalanceQuery += ` WHEN ${customerSeller.id} THEN ${newSellerBalance} `
+        cupsBalancesToUpdate[customerBuyer.id] = newBuyerBalance;
+        cupsBalancesToUpdate[customerSeller.id] = newSellerBalance;
 
-        cupsIdsToUpdate.push(customerBuyer.id)
-        cupsIdsToUpdate.push(customerSeller.id)
-
-        //BUY
-        query +=
-          `(${partner.ehId}, ${trade.surplusEhId}, ${partner.cupsId}, ${trade.surplusCups}, 'BUY', ${tradedKwh}, ${tradeCost}, ${partner.consumption}, ${partner.resultConsumption}, "${infoDt}"),`
-        //SELL
-        query +=
-          `(${trade.surplusEhId}, ${partner.ehId}, ${trade.surplusCups}, ${partner.cupsId}, 'SELL', ${tradedKwh}, ${tradeCost}, ${totalSellSurplus}, ${resultSellTotalKwh}, "${infoDt}"),`
+        console.log("SUFFICIENT! ", `Customer ${customerBuyer.name} with cups id ${partner.cupsId} has sufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost}`)
+        //console.log("Buyer",customerBuyer,partner.cupsId)
+        //console.log("Seller",customerSeller,trade.surplusCups)
 
       } else {
-        console.log(`Customer ${customerBuyer.name} with cups id ${partner.cupsId} has insufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost}`)
+        //console.log(`customer ${customerBuyer.name} with cups id ${partner.cupsId} has insufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost} / Trade cost is 0 `)
       }
+
+      //BUY
+      query +=
+        `(${partner.ehId}, ${trade.surplusEhId}, ${partner.cupsId}, ${trade.surplusCups}, 'BUY', ${tradedKwh}, ${tradeCost}, ${partner.consumption}, ${partner.resultConsumption}, "${infoDt}"),`
+      //SELL
+      query +=
+        `(${trade.surplusEhId}, ${partner.ehId}, ${trade.surplusCups}, ${partner.cupsId}, 'SELL', ${tradedKwh}, ${tradeCost}, ${totalSellSurplus}, ${resultSellTotalKwh}, "${infoDt}"),`
 
     }
 
     query = query.slice(0, -1);
 
     if (trade.redisitributePartners.length) {
-      //TODO: esta query da error: 
-      console.log(query)
+
       let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
 
       // const insertedRows = result.affectedRows;
       console.log(`Inserted values on trades from date: ${trade.redisitributePartners[0].infoDt}`);
 
-      if (cupsIdsToUpdate.length) {
-        const uniqueCupsIdsToUpdate = [...new Set(cupsIdsToUpdate)];
-        updateCustomersBalanceQuery += ` ELSE balance END WHERE id IN (${uniqueCupsIdsToUpdate.join(', ')});`;
+      // Complete the update customers balances query
+      const uniqueCupsBalancesToUpdate = Object.keys(cupsBalancesToUpdate);
+
+      if (uniqueCupsBalancesToUpdate.length > 0) {
+
+        uniqueCupsBalancesToUpdate.forEach(id => {
+          updateCustomersBalanceQuery += ` WHEN ${id} THEN ${cupsBalancesToUpdate[id]} `;
+        });
+        updateCustomersBalanceQuery += ` ELSE balance END WHERE id IN (${uniqueCupsBalancesToUpdate.join(', ')});`;
+
         console.log(updateCustomersBalanceQuery)
         let [ROWS] = await this.conn.execute(updateCustomersBalanceQuery)
 

@@ -16,7 +16,7 @@ export class SaveCustomersDTO {
   dni: string;
 
   @IsOptional()
-  balance: string;
+  balance: number;
 
   @IsOptional()
   email: string;

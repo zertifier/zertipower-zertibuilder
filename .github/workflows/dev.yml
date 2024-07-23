@@ -87,6 +87,22 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Detect changes in api-dev-realtime-energy
+        id: check_api-dev-realtime-energy
+        run: |
+          cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+          cd realtime-energy-api
+          echo "Getting api-dev-realtime-energy diff"
+          CHANGED_FILES=$(git diff --name-only HEAD $LAST_COMMIT | grep "^backend/" || true)
+          echo "Checking api-dev-ris3cat diff"
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Changes detected in api-dev-realtime-energy"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes in api-dev-realtime-energy"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
 
   deploy-calculadora-ris3cat:
       needs: detect-changes
@@ -147,3 +163,17 @@ jobs:
             npx prisma generate
             docker compose up -d api-dev-ris3cat --build --force-recreate
             echo "api-dev-ris3cat deployed"
+
+  deploy-api-realtime-energy:
+    needs: detect-changes
+    runs-on: self-hosted
+    steps:
+      - name: Deploy api-ris3cat if changed
+      if: needs.detect-changes.outputs.api-ris3cat_changed == 'true'
+      run: |
+        cd /home/megatro/apps/dockers/Ris3Cat/realtime-energy-api
+        echo "Deploying api-dev-realtime-energy"
+        cd realtime-energy-api
+        npm i
+        docker compose up -d api-realtime-energy --build --force-recreate
+        echo "api-dev-realtime-e deployed"

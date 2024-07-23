@@ -171,9 +171,9 @@ jobs:
       - name: Deploy api-ris3cat if changed
       if: needs.detect-changes.outputs.api-ris3cat_changed == 'true'
       run: |
-        cd /home/megatro/apps/dockers/Ris3Cat/realtime-energy-api
+        cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
         echo "Deploying api-dev-realtime-energy"
         cd realtime-energy-api
         npm i
-        docker compose up -d api-realtime-energy --build --force-recreate
-        echo "api-dev-realtime-e deployed"
+        docker compose up -d api-dev-realtime-energy --build --force-recreate
+        echo "api-dev-realtime-energy deployed"

@@ -1,8 +1,8 @@
-import {Injectable} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import mysql from "mysql2/promise";
-import {MysqlService} from "../mysql-service";
+import { MysqlService } from "../mysql-service";
 import * as moment from "moment";
-import {EnvironmentService} from "../environment-service";
+import { EnvironmentService } from "../environment-service";
 
 
 export interface RedistributeObject {
@@ -39,9 +39,9 @@ export class ShareService {
     surplusCups: 20,
     surplusEhId: 0,
     redisitributePartners: [
-      {consumption: 30, resultConsumption: 0, cupsId: 1, infoDt: new Date, ehId: 1},
-      {consumption: 40, resultConsumption: 0, cupsId: 2, infoDt: new Date, ehId: 2},
-      {consumption: 10, resultConsumption: 0, cupsId: 3, infoDt: new Date, ehId: 3},
+      { consumption: 30, resultConsumption: 0, cupsId: 1, infoDt: new Date, ehId: 1 },
+      { consumption: 40, resultConsumption: 0, cupsId: 2, infoDt: new Date, ehId: 2 },
+      { consumption: 10, resultConsumption: 0, cupsId: 3, infoDt: new Date, ehId: 3 },
     ]
   };
   private conn: mysql.Pool;
@@ -62,7 +62,9 @@ export class ShareService {
     const newRegisters = await this.getNewRegisters()
 
     console.log(`Updating ${surplusRegisters.length} registers...`)
+
     for (const surplusRegister of surplusRegisters) {
+      const communityPrice = await this.getCommunityPrice(surplusRegister.community_id)
       const redisitributePartners = this.getRegistersByDateAndCommunity(surplusRegister.info_dt, surplusRegister.community_id, newRegisters)
       const redistributeObject = {
         totalSurplus: parseFloat(surplusRegister.kwh_out.toString()),
@@ -75,7 +77,7 @@ export class ShareService {
 
       const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
 
-      await this.insertToTrades(calculatedRedistribute)
+      await this.insertToTrades(calculatedRedistribute, communityPrice)
     }
 
     console.log("Finished trades update")
@@ -199,31 +201,119 @@ export class ShareService {
     })
   }
 
-  async insertToTrades(trade: RedistributeObject) {
+  async customerHasSufficientBalance(tradePrice: any, balance: any) {
+    if (balance >= tradePrice) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  async getCustomerFromCupsId(cupsId: number) {
+    let query = `SELECT customers.* FROM customers
+    LEFT JOIN cups ON cups.customer_id = customers.id
+    WHERE cups.id = ?`
+    let [ROWS]: any = await this.conn.execute(query, [cupsId]);
+    if (ROWS[0]) {
+      return ROWS[0];
+    } else {
+      throw new Error(`Error getting customer balance. Customer with cups id ${cupsId} not found.`);
+    }
+  }
+
+  async updateCustomerBalance(customerId: number, balance: number) {
+    let query = `UPDATE customers set balance = ? WHERE id = ?`
+    try {
+      let [ROWS]: any = await this.conn.execute(query, [balance, customerId]);
+    } catch (error) {
+      console.log('error updating customer balance: ', error)
+      throw new Error(`Error updating customer balance ${customerId}: ${error}`);
+    }
+  }
+
+  async getCommunityPrice(communityId: number) {
+    let query = `SELECT energy_price FROM communities WHERE id = ?`
+    let [ROWS]: any = await this.conn.execute(query, [communityId]);
+    if (ROWS[0] && ROWS[0].energy_price) {
+      return ROWS[0].energy_price;
+    } else {
+      throw new Error(`error getting community price ${communityId}`);
+    }
+  }
+
+  async insertToTrades(trade: RedistributeObject, communityPrice: number) {
+
     let query = 'INSERT INTO trades (energy_hourly_from_id, energy_hourly_to_id, from_cups_id, to_cups_id, action, traded_kwh, cost, previous_kwh, current_kwh, info_dt) VALUES ';
+    let updateCustomersBalanceQuery = 'UPDATE customers SET balance = CASE id'
     let resultSellTotalKwh = trade.totalSurplus
+    let cupsBalancesToUpdate: any = {};
 
     for (const partner of trade.redisitributePartners) {
+
       const tradedKwh = partner.consumption - partner.resultConsumption
       const infoDt = moment(partner.infoDt).format('YYYY-MM-DD HH:mm:ss')
       const totalSellSurplus = resultSellTotalKwh
       resultSellTotalKwh -= tradedKwh
+      const tradeCost = parseFloat((tradedKwh * communityPrice).toFixed(2));
+
+      const customerBuyer = await this.getCustomerFromCupsId(partner.cupsId);
+      const customerSeller = await this.getCustomerFromCupsId(trade.surplusCups);
+      const isSuficientBalance = await this.customerHasSufficientBalance(tradeCost, customerBuyer.balance);
+
+      if (isSuficientBalance && tradeCost > 0) {
+
+        const buyerBalance = parseFloat(customerBuyer.balance);
+        const sellerBalance = parseFloat(customerSeller.balance);
+
+        const newBuyerBalance = parseFloat((buyerBalance - tradeCost).toFixed(2));
+        const newSellerBalance = parseFloat((sellerBalance + tradeCost).toFixed(2));
+
+        cupsBalancesToUpdate[customerBuyer.id] = newBuyerBalance;
+        cupsBalancesToUpdate[customerSeller.id] = newSellerBalance;
+
+        console.log("SUFFICIENT! ", `Customer ${customerBuyer.name} with cups id ${partner.cupsId} has sufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost}`)
+        //console.log("Buyer",customerBuyer,partner.cupsId)
+        //console.log("Seller",customerSeller,trade.surplusCups)
+
+      } else {
+        //console.log(`customer ${customerBuyer.name} with cups id ${partner.cupsId} has insufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost} / Trade cost is 0 `)
+      }
 
       //BUY
       query +=
-        `(${partner.ehId}, ${trade.surplusEhId}, ${partner.cupsId}, ${trade.surplusCups}, 'BUY', ${tradedKwh}, ${0}, ${partner.consumption}, ${partner.resultConsumption}, "${infoDt}"),`
+        `(${partner.ehId}, ${trade.surplusEhId}, ${partner.cupsId}, ${trade.surplusCups}, 'BUY', ${tradedKwh}, ${tradeCost}, ${partner.consumption}, ${partner.resultConsumption}, "${infoDt}"),`
       //SELL
       query +=
-        `(${trade.surplusEhId}, ${partner.ehId}, ${trade.surplusCups}, ${partner.cupsId}, 'SELL', ${tradedKwh}, ${0}, ${totalSellSurplus}, ${resultSellTotalKwh}, "${infoDt}"),`
+        `(${trade.surplusEhId}, ${partner.ehId}, ${trade.surplusCups}, ${partner.cupsId}, 'SELL', ${tradedKwh}, ${tradeCost}, ${totalSellSurplus}, ${resultSellTotalKwh}, "${infoDt}"),`
+
     }
 
     query = query.slice(0, -1);
 
     if (trade.redisitributePartners.length) {
+
       let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
+
       // const insertedRows = result.affectedRows;
       console.log(`Inserted values on trades from date: ${trade.redisitributePartners[0].infoDt}`);
+
+      // Complete the update customers balances query
+      const uniqueCupsBalancesToUpdate = Object.keys(cupsBalancesToUpdate);
+
+      if (uniqueCupsBalancesToUpdate.length > 0) {
+
+        uniqueCupsBalancesToUpdate.forEach(id => {
+          updateCustomersBalanceQuery += ` WHEN ${id} THEN ${cupsBalancesToUpdate[id]} `;
+        });
+        updateCustomersBalanceQuery += ` ELSE balance END WHERE id IN (${uniqueCupsBalancesToUpdate.join(', ')});`;
+
+        console.log(updateCustomersBalanceQuery)
+        let [ROWS] = await this.conn.execute(updateCustomersBalanceQuery)
+
+      }
+
     }
+
   }
 
   formatPartnerObjects(data: RegistersFromDb) {

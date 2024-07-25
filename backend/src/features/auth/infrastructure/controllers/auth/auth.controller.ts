@@ -69,6 +69,8 @@ import { log } from "console";
 import { ErrorCode } from "src/shared/domain/error";
 import { BadRequestError, InvalidArgumentError, UnexpectedError } from "src/shared/domain/error/common";
 import { MissingParameters } from "src/shared/domain/error/common/MissingParameters";
+import { UsersNotificationsCategoriesController } from "src/features/notifications/controllers/users-notifications-categories.controller";
+import { UsersNotificationsController } from "src/features/notifications/controllers/users-notifications.controller";
 
 const signCodesRepository: { [walletAddress: string]: string } = {};
 const RESOURCE_NAME = "auth";
@@ -79,6 +81,7 @@ const RESOURCE_NAME = "auth";
 export class AuthController {
 
   private conn: mysql.Pool;
+  defaultBalance = 45;
 
   constructor(
     private prisma: PrismaService,
@@ -107,8 +110,9 @@ export class AuthController {
     const getCustomerEmail = `SELECT * FROM customers WHERE email = ?`;
     const insertUserQuery = `INSERT INTO users (wallet_address,password,role_id, username, firstname, lastname, email) VALUES (?,?,?,?,?,?,?)`
     const insertCustomerDniQuery = `INSERT INTO customers (name,dni,email) VALUES (?,?,?)`
-    const insertCustomerQuery = `INSERT INTO customers (name,email) VALUES (?,?)`
+    const insertCustomerQuery = `INSERT INTO customers (name,email,balance) VALUES (?,?,?)`
     const insertUserCustomerQuery = `INSERT INTO users (wallet_address,password,role_id, username, firstname, lastname, email,customer_id) VALUES (?,?,?,?,?,?,?,?)`
+
     let dbUser;
     let user: User;
     let customerId: any;
@@ -140,7 +144,7 @@ export class AuthController {
           const result: any = await this.conn.query(insertCustomerDniQuery, [`${firstname} ${lastname}`, dni, email]);
           customerId = result[0].insertId;
         } else {
-          const result: any = await this.conn.query(insertCustomerQuery, [`${firstname} ${lastname}`, email]);
+          const result: any = await this.conn.query(insertCustomerQuery, [`${firstname} ${lastname}`, email,this.defaultBalance]);
           customerId = result[0].insertId;
         }
       }
@@ -152,6 +156,9 @@ export class AuthController {
         new ByWalletAddress(wallet_address)
       );
       user = fetchedUsers[0];
+
+      await UsersNotificationsController.insertDefaultNotificationsByUser(user.id!, this.prisma);
+      await UsersNotificationsCategoriesController.insertDefaultNotificationCategoriesByUser(user.id!, this.prisma);
 
       const { signedRefreshToken, signedAccessToken } =
         await this.generateUserTokensAction.run(user);

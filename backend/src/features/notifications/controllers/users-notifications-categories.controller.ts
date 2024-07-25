@@ -20,7 +20,7 @@ export const RESOURCE_NAME = "usersNotificationsCategories";
 @ApiTags(RESOURCE_NAME)
 @Controller("users-notification-categories")
 export class UsersNotificationsCategoriesController {
-
+    
     constructor(private prisma: PrismaService, private datatable: Datatable) { }
 
     @Get()
@@ -104,6 +104,33 @@ export class UsersNotificationsCategoriesController {
         mappedData.createdDt = data.createdDt;
         mappedData.updatedDt = data.updatedDt;
         return mappedData;
+    }
+
+    static async insertDefaultNotificationCategoriesByUser(userId: number, prisma: PrismaService) {
+        try {
+            // Recuperar todas las categorías de notificación
+            const categories = await prisma.notificationCategory.findMany();
+    
+            if (categories.length === 0) {
+                return;
+            }
+    
+            // Crear una lista de datos para insertar
+            const userCategoriesData = categories.map(category => ({
+                userId: userId,
+                notificationCategoryId: category.id,
+                active: 0
+            }));
+    
+            // Insertar todas las categorías de notificación para el usuario
+            await prisma.usersNotificationCategory.createMany({
+                data: userCategoriesData,
+                skipDuplicates: true, // Evita insertar duplicados en caso de que ya existan
+            });
+    
+        } catch (error) {
+            console.error("Error inserting default notification categories by user:", error);
+        }
     }
 
 }

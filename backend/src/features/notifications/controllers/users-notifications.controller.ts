@@ -54,7 +54,7 @@ export class UsersNotificationsController {
         });
         return HttpResponse.success(
             "users_notifications and user_notifications_categories fetched successfully"
-        ).withData({notifications,categories});
+        ).withData({ notifications, categories });
     }
 
     @Put()
@@ -204,5 +204,34 @@ export class UsersNotificationsController {
         mappedData.updatedDt = data.updatedDt;
         return mappedData;
     }
+
+    static async insertDefaultNotificationsByUser(userId: number, prisma:PrismaService) {
+
+        try {
+            // Recuperar todas las notificaciones
+            const notifications = await prisma.notification.findMany();
+
+            if (notifications.length === 0) {
+                return;
+            }
+
+            // Crear una lista de datos para insertar
+            const userNotificationsData = notifications.map(notification => ({
+                userId: userId,
+                notificationId: notification.id,
+                active: 0
+            }));
+
+            // Insertar todas las notificaciones para el usuario
+            await prisma.usersNotification.createMany({
+                data: userNotificationsData,
+                skipDuplicates: true, // Evita insertar duplicados en caso de que ya existan
+            });
+
+        } catch (error) {
+            console.error("Error inserting default notifications by user:", error);
+        }
+    }
+
 
 }

@@ -113,9 +113,10 @@ export class DatadisService {
     this.dbCustomers = await this.getCustomers();
     this.dbCommunities = await this.getCommunities();
 
-    let authorizedSuppliesPromises: Promise<supply[]>[];
+    this.supplies = [];
 
     for (let cups of this.dbCups) {
+
       if (!cups.datadis_active || !cups.datadis_user || !cups.datadis_password) {
         continue;
       }
@@ -126,7 +127,7 @@ export class DatadisService {
       //get auth token
 
       try {
-        await this.login(this.loginData.username, this.loginData.password)
+        this.token = await this.login(this.loginData.username, this.loginData.password)
       } catch (error) {
         console.log("Login error", this.loginData.username, error)
         status = 'error';
@@ -138,7 +139,7 @@ export class DatadisService {
 
       //get datadis cups supplies
       try {
-        await this.getSupplies(this.token)
+        this.supplies = await this.getSupplies(this.token)
       } catch (error) {
         console.log("Get supplies error", this.loginData.username, typeof error, error.message);
         errorMessage = error.message;
@@ -178,7 +179,8 @@ export class DatadisService {
       //get authorized community datadis cups
       for (const communityCupsElement of this.communityCups) {
         try {
-          await this.getAuthorizedSupplies(this.token, communityCupsElement.dni);
+          let supplies = await this.getAuthorizedSupplies(this.token, communityCupsElement.dni);
+          this.supplies.concat(supplies);
         } catch (error) {
           console.log("Error getting authorized supplies", typeof error, error.message)
           errorMessage = error.message;
@@ -259,7 +261,7 @@ export class DatadisService {
     this.insertNewRegistersToEnergyHourly(newRegisters)
   }
 
-  async login(username: string, password: string) {
+  async login(username: string, password: string):Promise<string> {
 
     this.loginData = { username, password }
 
@@ -275,8 +277,8 @@ export class DatadisService {
         let response: any = await axios.request(config)
         //console.log("login success, token obtained");
         //console.log("possible login error: ", response.data.status, response.data.error, response.data.message);
-        this.token = response.data;
-        resolve(this.token);
+        let token:string = response.data;
+        resolve(token);
       } catch (error: any) {
         if (error.response) {
           // El servidor respondió con un estatus diferente a 2xx
@@ -296,35 +298,33 @@ export class DatadisService {
     })
   }
 
-  async getSupplies(token: string) {
-
-    this.token = token;
+  async getSupplies(token: string):Promise<supply[]> {
 
     let config = {
       method: 'get',
       maxBodyLength: Infinity,
       url: 'https://datadis.es/api-private/api/get-supplies',
-      headers: { 'Authorization': `Bearer ${this.token}` },
+      headers: { 'Authorization': `Bearer ${token}` },
       timeout: 20000
     }
 
     try {
 
       let response: any = await axios.request(config)
-      this.supplies = response.data
-      return this.supplies;
+      let supplies: supply[] = response.data
+      return supplies;
 
     } catch (error) {
 
       if (axios.isAxiosError(error)) {
         const axiosError: any = error;
         if (axiosError.response) {
-          //console.log("GET SUPPLIES",axiosError.response)
+          //console.log("get supplies",axiosError.response)
           if (axiosError.response.data) {
-            console.log("supplies", axiosError.response.data)
+            console.log("get supplies error", axiosError.response.data)
             throw new Error(`${axiosError.response.data.status} ${axiosError.response.data.error} : ${axiosError.response.data.message}`);
           } else {
-            console.log("supplies", axiosError.response.status)
+            console.log("get supplies error", axiosError.response.status)
             throw new Error(`${axiosError.response.status}`);
           }
         } else if (axiosError.request) {
@@ -344,13 +344,11 @@ export class DatadisService {
 
   async getAuthorizedSupplies(token: string, dni: string) {
 
-    this.token = token;
-
     let config = {
       method: 'get',
       maxBodyLength: Infinity,
       url: `https://datadis.es/api-private/api/get-supplies?authorizedNif=${dni}`,
-      headers: { 'Authorization': `Bearer ${this.token}` },
+      headers: { 'Authorization': `Bearer ${token}` },
       timeout: 40000
     }
 
@@ -361,8 +359,8 @@ export class DatadisService {
         supplies.authorizedNif = dni
       })
       //add supplies:
-      this.supplies = this.supplies.concat(response.data)
-      return this.supplies;
+      let supplies = response.data
+      return supplies;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const axiosError: any = error;

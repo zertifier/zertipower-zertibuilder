@@ -13,10 +13,10 @@ import { SaveUsersNotificationHistoricDTO } from 'src/features/notifications/dto
 export class NotificationsService implements OnModuleInit {
   private conn: mysql.Pool;
 
-  defaultNotificationLang:notificationLangs=notificationLangs.ca;
+  defaultNotificationLang: notificationLangs = notificationLangs.ca;
 
   //TODO 1:
-  //create function, to call when user created, to create user_notifications and user_notificatications_categories,
+  //create function, to call when user created, to create users_notifications and user_notificatications_categories,
   //to do this function, get notifications and notifications_categories and insert it with the user_id with all inactive
 
   constructor(
@@ -34,7 +34,12 @@ export class NotificationsService implements OnModuleInit {
 
   async sendNotification(userId: number, notificationCode: notificationCodes, subject: string, text: string) {
     try {
-      let user = await this.getUserByUserId(userId)
+      if (!userId || !notificationCode || !subject) {
+        console.log('error sending notification, parameter not provided')
+        console.log("userId:", userId, "notificationCode", notificationCode, "subject", subject, "text", text)
+        return;
+      }
+      let user = await this.getUserCustomerByUserId(userId)
       const notification: notification = await this.getNotificationByCode(notificationCode);
       const notificationActive = await this.isNotificationActive(userId, notification.id);
       if (!notificationActive) {
@@ -54,7 +59,7 @@ export class NotificationsService implements OnModuleInit {
     }
   }
 
-  
+
   async sendCommunityNotification(communityId: number, notificationCode: notificationCodes, subject: string, text: string) {
     //todo: replace with more eficient version thinking in get and post once;
     const notification: notification = await this.getNotificationByCode(notificationCode);
@@ -111,7 +116,7 @@ export class NotificationsService implements OnModuleInit {
   async getUserCustomerByUserId(userId: number) {
     try {
       const [rows]: any = await this.conn.query(
-        `SELECT *
+        `SELECT users.id, users.firstname, customers.email
         FROM users
         LEFT JOIN customers
         ON users.customer_id = customers.id
@@ -252,7 +257,7 @@ export class NotificationsService implements OnModuleInit {
   }
 
   async sendMail(notificationId: number, userId: number, email: string, subject: string, text: string) {
-    console.log("activar sendMail",notificationId,userId,email,subject,text)
+    console.log("activar sendMail", notificationId, userId, email, subject, text)
     //this.mailService.sendMail(email, subject, text);
     console.log(`Enviando notificación ${notificationId} al usuario ${userId}`);
   }
@@ -267,23 +272,23 @@ export class NotificationsService implements OnModuleInit {
     return result.count > 0;
   }
 
-  /** Register notifications into user_notifications_historic
+  /** Register notifications into users_notifications_historic
    * @param userNotifications 
    */
   async registerNotifications(userNotifications: SaveUsersNotificationHistoricDTO[]) {
     try {
-      await this.conn.query('INSERT INTO user_notifications_historic (user_id,notification_id,email,subject) VALUES (?)', [userNotifications]);
+      await this.conn.query('INSERT INTO users_notifications_historic (user_id,notification_id,email,subject) VALUES (?)', [userNotifications]);
     } catch (error) {
       console.error(`Error inserting last sent notifications:`, error);
       throw new Error(`Error inserting last sent notifications: ${error}`);
     }
   }
 
-  /** Register notification into user_notifications_historic
+  /** Register notification into users_notifications_historic
  */
   async registerNotification(userId: number, notificationId: number, email: string, subject: string) {
     try {
-      await this.conn.query('INSERT INTO user_notifications_historic (user_id,notification_id,email,subject) VALUES (?,?,?,?)', [userId, notificationId, email, subject]);
+      await this.conn.query('INSERT INTO users_notifications_historic (user_id,notification_id,email,subject) VALUES (?,?,?,?)', [userId, notificationId, email, subject]);
     } catch (error) {
       console.error(`Error inserting last sent notification:`, error);
       throw new Error(`Error inserting last sent notification: ${error}`);
@@ -312,13 +317,13 @@ export class NotificationsService implements OnModuleInit {
 interface notification { notification: string, code: string, notificationCategoryId: number, id: number }
 interface activeUserNotification { userId: number, userNotificationId: number, notificationCode: string }
 interface mail { email: string, subject: string, message: string }
-interface notificationHistoric { notificationId: number, subject: string, text?:string }
+interface notificationHistoric { notificationId: number, subject: string, text?: string }
 
 enum proposalToNotification {
-  'expired'='proposalExpired',
-  'active'='proposalAccepted',
-  'executed'='proposalExecuted',
-  'denied'='proposalDenied'
+  'expired' = 'proposalExpired',
+  'active' = 'proposalAccepted',
+  'executed' = 'proposalExecuted',
+  'denied' = 'proposalDenied'
 }
 
 export enum notificationCodes {
@@ -335,9 +340,9 @@ export enum notificationCodes {
 }
 
 export enum notificationLangs {
-   ca = 'ca',
-   en = 'en',
-   es = 'es'
+  ca = 'ca',
+  en = 'en',
+  es = 'es'
 }
 
 const notificationMessages = {
@@ -372,14 +377,14 @@ const notificationMessages = {
     es: 'Se ha rechazado una propuesta: ${proposalName}.',
   },
   sharing_received: {
-    ca: 'S\'ha rebut una compartició.',
-    en: 'A sharing has been received.',
-    es: 'Se ha recibido una compartición.',
+    ca: "S'ha rebut una compartició de ${sharedKW} kW a un cost de ${tradeCost} de part de ${customerName} amb data de ${infoDt}.",
+    en: "A sharing of ${sharedKW} kW has been received at a cost of ${tradeCost} from ${customerName} with a date of ${infoDt}.",
+    es: "Se ha recibido una compartición de ${sharedKW} kW a un costo de ${tradeCost} de parte de ${customerName} con fecha de ${infoDt}."
   },
   sharing_sent: {
-    ca: 'S\'ha enviat una compartició.',
-    en: 'A sharing has been sent.',
-    es: 'Se ha enviado una compartición.',
+    ca: "S'ha enviat una compartició de ${sharedKW} kW al destinatari ${customerName} a un preu de ${tradeCost} amb data de ${infoDt}.",
+    en: "A sharing of ${sharedKW} kW has been sent to the recipient ${customerName} at a price of ${tradeCost} with a date of ${infoDt}.",
+    es: "Se ha enviado una compartición de ${sharedKW} kW al destinatario ${customerName} a un precio de ${tradeCost} con fecha de ${infoDt}."
   },
   datadis_active: {
     ca: 'Datadis està actiu.',

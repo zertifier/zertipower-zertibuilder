@@ -129,7 +129,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   ];
   communityValoration: number = 0;
   communityEnergyData: any = [];
-  communityMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  communityMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Desembre'];
   communityMonthChartDatasets: any = [];
   communityMonthChartType = 'bar';
   communityUpdateMonthChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -173,7 +173,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
 
   cadastreValoration: number = 0;
   selectedCadastreEnergyData: any;
-  selectedCadastreMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Decembre'];
+  selectedCadastreMonthChartLabels: any = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octobre', 'Novembre', 'Desembre'];
   selectedCadastreMonthChartDatasets: any = [];
   selectedCadastreGenerationMonthChartDatasets: any = [];
   selectedCadastreMonthChartType = 'bar';

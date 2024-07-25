@@ -17,6 +17,8 @@ import { MinterService } from "./minter-service";
 import { GovernanceService } from './governance/governance.service';
 import { BlockchainService } from "./blockchain-service";
 import { ShareService } from './share/share.service';
+import { NotificationsService } from "./notifications-service";
+import { MailService } from "./mail-service";
 
 @Global()
 @Module({
@@ -36,7 +38,9 @@ import { ShareService } from './share/share.service';
     { provide: Datatable, useClass: MysqlDatatable },
     GovernanceService,
     BlockchainService,
-    ShareService
+    ShareService,
+    NotificationsService,
+    MailService
   ],
   exports: [
     PrismaService,
@@ -53,7 +57,9 @@ import { ShareService } from './share/share.service';
     MinterService,
     GovernanceService,
     BlockchainService,
-    ShareService
+    ShareService,
+    NotificationsService,
+    MailService
   ],
 })
 export class SharedServicesModule {}

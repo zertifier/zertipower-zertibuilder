@@ -1,0 +1,176 @@
+openapi: 3.0.3
+info:
+  title: Realtime energy API 1.0
+  description: |-
+    This is the Ris3Cat realtime energy API v.1.0 documentation.
+    
+    Some useful links:
+    - [The API repository](https://github.com/zertifier/zertipower-zertibuilder)
+    - [The client web app](https://comptador.zertipower.com/user/integrations)
+    - [The Zertipower project documentation](https://www.zertipower.com/)
+  termsOfService: terms,
+  contact:
+    email: info@zertifier.com
+  version: 1.0.0
+servers:
+  - url: https://api-public-ris3cat.zertifier.com
+    description: Production server
+  - url: https://dev-api-public-ris3cat.zertifier.com
+    description: Development server
+tags:
+
+  - name: checks
+    description: Inspections on backend.
+
+  - name: tokens
+    description: Interact with user permanent tokens. Zertipower auth token is necessary.
+
+  # - name: smart contracts interation
+  #   description: create transactions with smart contracts
+
+  # - name: database interaction
+  #   description: general interaction with database
+
+  # - name: energy flow
+  
+  # - name: economic information about energy
+  
+  # - name: auth
+  
+paths:
+
+  /is-alive:
+    get:
+      tags:
+        - checks
+      summary: Check if the server is running
+      description: If the server answer, its alive
+      operationId: getIsAlive
+      responses:
+        '200':
+          description: 'server is alive'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/isAliveResponse'
+
+  /version:
+    get:
+      tags:
+        - checks
+      summary: Check the API version
+      description: returns the number of the version
+      operationId: getVersion
+      responses:
+        '200':
+          description: 'version of the API'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionResponse'
+
+  /:
+    post:
+      tags:
+        - tokens
+      summary: Obtain permanent token
+      description: Get permanent token or creates one if dont exist for the user
+      operationId: obtainPermanentToken
+      responses:
+        '200':
+          description: 'obtain token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenResponse'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalServerError'
+
+  /refresh:
+    post:
+      tags:
+        - tokens
+      summary: Change permanent token
+      description: Get permanent token or creates one if dont exist for the user
+      operationId: refreshPermanentToken
+      responses:
+        '200':
+          description: 'refresh token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/refreshTokenResponse'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalServerError'
+components:
+  schemas:
+    isAliveResponse:
+      type: string
+    versionResponse:
+      type: string
+    tokenResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          description: Indicates whether the token obtaining was successful.
+          example: true
+        token:
+          type: string
+          description: User token with 'Bearer ' prefix.
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjIxMDE2NzQ2LCJleHAiOjE2MjEwMjA5NDZ9.Azh_tVmS8OHeJ2IXjV7-2Mw5C5un5UL5G5vVb9-hH0M
+    refreshTokenResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          description: Indicates whether the token renewal was successful.
+          example: true
+        token:
+          type: string
+          description: User token with 'Bearer ' prefix.
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjIxMDE2NzQ2LCJleHAiOjE2MjEwMjA5NDZ9.Azh_tVmS8OHeJ2IXjV7-2Mw5C5un5UL5G5vVb9-hH0M
+    internalServerError:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        msg:
+          type: string
+          example: 'Internal server error'
+    notFound:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+        msg:
+          type: string
+          example: Registers not found'    
+
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: Authorization
+      in: header

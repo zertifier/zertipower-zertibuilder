@@ -96,6 +96,27 @@ export class CustomersController {
   @Put(":id")
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: SaveCustomersDTO) {
+    
+    //todo: get customer, to compare balance, cannot upload balance. 
+
+    const data = await this.prisma.customers.updateMany({
+      where: {
+        id: parseInt(id),
+      },
+      data: body,
+    });
+    return HttpResponse.success("customers updated successfully").withData(
+      data
+    );
+  }
+
+  @Put("/balance/:id")
+  @Auth(RESOURCE_NAME)
+  async updateBalance(@Param("id") id: string, @Body() body: SaveCustomersDTO) {
+
+    //todo: get and transfer from customer wallet to central wallet 
+    //todo: update balance
+
     const data = await this.prisma.customers.updateMany({
       where: {
         id: parseInt(id),
@@ -138,6 +159,7 @@ export class CustomersController {
     mappedData.id = data.id;
     mappedData.name = data.name;
     mappedData.dni = data.dni;
+    mappedData.balance = data.balance;
     mappedData.walletAddress = data.walletAddress ? data.walletAddress.toString() : '';
     mappedData.createdAt = data.createdAt | data.created_at;
     mappedData.updatedAt = data.updatedAt | data.updated_at;
@@ -152,6 +174,7 @@ export class CustomersController {
       mappedObject.id = data.id;
       mappedObject.name = data.name;
       mappedObject.walletAddress = data.wallet_address;
+      mappedObject.balance = data.balance;
       mappedObject.createdAt = data.created_at;
       mappedObject.updatedAt = data.updated_at;
       mappedObject.communityId = data.community_id;

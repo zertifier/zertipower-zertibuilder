@@ -18,7 +18,6 @@ import { GovernanceService } from './governance/governance.service';
 import { BlockchainService } from "./blockchain-service";
 import { ShareService } from './share/share.service';
 import { NotificationsService } from "./notifications-service";
-import { MailService } from "./mail-service";
 
 @Global()
 @Module({
@@ -39,8 +38,7 @@ import { MailService } from "./mail-service";
     GovernanceService,
     BlockchainService,
     ShareService,
-    NotificationsService,
-    MailService
+    NotificationsService
   ],
   exports: [
     PrismaService,
@@ -58,8 +56,7 @@ import { MailService } from "./mail-service";
     GovernanceService,
     BlockchainService,
     ShareService,
-    NotificationsService,
-    MailService
+    NotificationsService
   ],
 })
 export class SharedServicesModule {}

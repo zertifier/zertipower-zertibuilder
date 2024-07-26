@@ -56,7 +56,7 @@ export class ProposalsController {
   @Auth(RESOURCE_NAME)
   async getByCommunity(@Param('communityId') communityId: string) {
 
-    await this.governanceService.updateExpiredPropsalsStatus()
+    await this.governanceService.updateExpiredProposalsStatus()
     // const data = await this.prisma.proposals.findMany();
    /* const [updatedData, data]: [any, any] = await this.prisma.$transaction([
       this.prisma.$queryRaw`

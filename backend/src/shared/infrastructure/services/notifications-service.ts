@@ -6,8 +6,16 @@ import * as moment from 'moment';
 import { PrismaService } from './prisma-service';
 import { EnvironmentService } from './environment-service';
 import { SaveUsersNotificationDTO } from 'src/features/notifications/dtos/save-users-notification-dto';
-import { MailService } from './mail-service';
+import { EmailService } from './email-service';
 import { SaveUsersNotificationHistoricDTO } from 'src/features/notifications/dtos/save-users-notification-historic-dto';
+
+//SELECT users.id as userId, users.email, users.firstname, cups.cups, communities.name as communityName
+interface CommunityUsers {
+  userId:number;
+  email:string;
+  cups:string;
+  communityName:string;
+}
 
 @Injectable()
 export class NotificationsService implements OnModuleInit {
@@ -23,7 +31,7 @@ export class NotificationsService implements OnModuleInit {
     private mysql: MysqlService,
     private prisma: PrismaService,
     private environmentService: EnvironmentService,
-    private mailService: MailService
+    private mailService: EmailService
   ) {
     this.conn = this.mysql.pool;
   }
@@ -63,29 +71,31 @@ export class NotificationsService implements OnModuleInit {
   async sendCommunityNotification(communityId: number, notificationCode: notificationCodes, subject: string, text: string) {
     //todo: replace with more eficient version thinking in get and post once;
     const notification: notification = await this.getNotificationByCode(notificationCode);
-    let communityUsers = await this.getUsersByCommunityId(communityId);
-    //todo: get community active notifications;
+    let communityUsers: CommunityUsers[] = await this.getUsersByCommunityId(communityId);
+    if(!communityUsers.length){
+      return;
+    }
     for (const user of communityUsers) {
       await this.sendNotification(user.userId, notificationCode, subject, text)
     }
-    //todo: use registerNotifications;
   }
 
-  async getUsersByCommunityId(communityId: number) {
+  async getUsersByCommunityId(communityId: number):Promise<CommunityUsers[]> {
+    let communityUsers: CommunityUsers[] = []
     try {
-      const [rows]: any = await this.conn.query(
-        `SELECT users.id as userId, customers.email, users.firstname, cups.cups, communities.name FROM users
+      communityUsers = await this.prisma.$queryRaw<CommunityUsers[]>`
+        SELECT users.id as userId, users.email, users.firstname, cups.cups, communities.name as communityName
+        FROM users
           LEFT JOIN customers
           ON users.customer_id = customers.id
           LEFT JOIN cups 
           ON customers.id = cups.customer_id
           LEFT JOIN communities
           ON cups.community_id = communities.id
-        WHERE community_id = ?`
-        , [communityId]);
-
-      if (rows.length > 0) {
-        return rows[0];
+        WHERE community_id = ${communityId}`
+        
+      if (communityUsers.length > 0) {
+        return communityUsers;
       } else {
         throw new Error('Any community user with this community id');
       }
@@ -258,7 +268,7 @@ export class NotificationsService implements OnModuleInit {
 
   async sendMail(notificationId: number, userId: number, email: string, subject: string, text: string) {
     console.log("activar sendMail", notificationId, userId, email, subject, text)
-    //this.mailService.sendMail(email, subject, text);
+    this.mailService.sendEmail(email, subject, text);
     console.log(`Enviando notificación ${notificationId} al usuario ${userId}`);
   }
 

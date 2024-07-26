@@ -6,6 +6,7 @@ export interface EnvVariables {
   SMTP_USER: string;
   SMTP_PASSWORD: string;
   SMTP_SERVER: string;
+  SMTP_DISPLAY_EMAIL:string;
   SMTP_PORT: number;
   VIEWS_FOLDER: string;
   FRONTEND_URL: string;

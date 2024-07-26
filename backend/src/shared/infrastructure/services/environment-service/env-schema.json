@@ -28,7 +28,13 @@
       "name": "SMTP_USER",
       "required": true,
       "type": "string",
-      "default": "ris3catzertifier@gmail.com"
+      "default": "info@zertifier.com"
+    },
+    {
+      "name": "SMTP_DISPLAY_EMAIL",
+      "required": true,
+      "type": "string",
+      "default": "no-reply@zertifier.com"
     },
     {
       "name": "SMTP_PASSWORD",

@@ -18,7 +18,7 @@ interface CommunityUsers {
 }
 
 @Injectable()
-export class NotificationsService implements OnModuleInit {
+export class NotificationsService {
   private conn: mysql.Pool;
 
   defaultNotificationLang: notificationLangs = notificationLangs.ca;
@@ -34,10 +34,6 @@ export class NotificationsService implements OnModuleInit {
     private mailService: EmailService
   ) {
     this.conn = this.mysql.pool;
-  }
-
-  onModuleInit() {
-    //this.run();
   }
 
   async sendNotification(userId: number, notificationCode: notificationCodes, subject: string, text: string) {

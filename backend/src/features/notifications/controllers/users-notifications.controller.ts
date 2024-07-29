@@ -15,6 +15,7 @@ import { Auth } from "src/features/auth/infrastructure/decorators";
 import { SaveUsersNotificationDTO } from "../dtos/save-users-notification-dto";
 import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
 import { ErrorCode } from "src/shared/domain/error";
+import { UsersNotificationsCategoriesController } from "./users-notifications-categories.controller";
 
 export const RESOURCE_NAME = "users-notifications";
 
@@ -41,20 +42,44 @@ export class UsersNotificationsController {
     @Get("categorized")
     @Auth(RESOURCE_NAME)
     async getWithCategoriesByUserId(@Req() req: Request | any) {
-        let userId = req.decodedToken.user.id;
-        const notifications = await this.prisma.usersNotification.findMany({
+        console.log(req.decodedToken)
+        console.log(req.decodedToken.user._id)
+
+        let userId = req.decodedToken.user._id;
+
+        let userNotifications = await this.prisma.usersNotification.findMany({
             where: {
                 userId: parseInt(userId),
             }
         });
-        const categories = await this.prisma.usersNotificationCategory.findMany({
+        let userCategories = await this.prisma.usersNotificationCategory.findMany({
             where: {
                 userId: parseInt(userId),
             }
         });
+
+        //todo: check if all notifications exists
+        const notifications = await this.prisma.notification.findMany();
+        const categories = await this.prisma.notificationCategory.findMany();
+
+        if (userNotifications.length < notifications.length || userCategories.length < categories.length) {
+            await UsersNotificationsController.insertDefaultNotificationsByUser(userId!, this.prisma);
+            await UsersNotificationsCategoriesController.insertDefaultNotificationCategoriesByUser(userId!, this.prisma);
+            userNotifications = await this.prisma.usersNotification.findMany({
+                where: {
+                    userId: parseInt(userId),
+                }
+            });
+            userCategories = await this.prisma.usersNotificationCategory.findMany({
+                where: {
+                    userId: parseInt(userId),
+                }
+            });
+        }
+
         return HttpResponse.success(
             "users_notifications and user_notifications_categories fetched successfully"
-        ).withData({ notifications, categories });
+        ).withData({ notifications: userNotifications, categories: userCategories });
     }
 
     @Put()
@@ -205,7 +230,7 @@ export class UsersNotificationsController {
         return mappedData;
     }
 
-    static async insertDefaultNotificationsByUser(userId: number, prisma:PrismaService) {
+    static async insertDefaultNotificationsByUser(userId: number, prisma: PrismaService) {
 
         try {
             // Recuperar todas las notificaciones

@@ -11,10 +11,10 @@ import { SaveUsersNotificationHistoricDTO } from 'src/features/notifications/dto
 
 //SELECT users.id as userId, users.email, users.firstname, cups.cups, communities.name as communityName
 interface CommunityUsers {
-  userId:number;
-  email:string;
-  cups:string;
-  communityName:string;
+  userId: number;
+  email: string;
+  cups: string;
+  communityName: string;
 }
 
 @Injectable()
@@ -63,7 +63,8 @@ export class NotificationsService implements OnModuleInit {
         return;
       }
     } catch (error) {
-      throw new Error(`Error sending notification: ${error}`);
+      console.log("Error sending notifications: ", error)
+      //throw new Error(`Error sending notification: ${error}`);
     }
   }
 
@@ -72,7 +73,7 @@ export class NotificationsService implements OnModuleInit {
     //todo: replace with more eficient version thinking in get and post once;
     const notification: notification = await this.getNotificationByCode(notificationCode);
     let communityUsers: CommunityUsers[] = await this.getUsersByCommunityId(communityId);
-    if(!communityUsers.length){
+    if (!communityUsers.length) {
       return;
     }
     for (const user of communityUsers) {
@@ -80,7 +81,7 @@ export class NotificationsService implements OnModuleInit {
     }
   }
 
-  async getUsersByCommunityId(communityId: number):Promise<CommunityUsers[]> {
+  async getUsersByCommunityId(communityId: number): Promise<CommunityUsers[]> {
     let communityUsers: CommunityUsers[] = []
     try {
       communityUsers = await this.prisma.$queryRaw<CommunityUsers[]>`
@@ -93,7 +94,7 @@ export class NotificationsService implements OnModuleInit {
           LEFT JOIN communities
           ON cups.community_id = communities.id
         WHERE community_id = ${communityId}`
-        
+
       if (communityUsers.length > 0) {
         return communityUsers;
       } else {
@@ -221,15 +222,39 @@ export class NotificationsService implements OnModuleInit {
   async isNotificationActive(userId: number, notificationId: number) {
     let activeNotifications: activeUserNotification[];
     try {
-      const [rows]: any = await this.conn.query(
-        `SELECT un.user_id, un.id, n.code
+      let [rows]: any = await this.conn.query(
+        `SELECT un.user_id, un.id, n.code, unc.active as userNotificationCategoryActive, un.active as userNotificationActive
         FROM users_notifications un
         LEFT JOIN notifications n ON un.notification_id = n.id
         LEFT JOIN users_notifications_categories unc ON n.notification_category_id = unc.notification_categories_id
-        WHERE unc.active = 1 AND un.active = 1 AND un.user_id = ? AND un.notification_id = ?`,
+        WHERE un.user_id = ? AND un.notification_id = ?`,
         [userId, notificationId]
       );
-      return rows.length > 0;
+      // const [rows]: any = await this.conn.query(
+      //   `SELECT un.user_id, un.id, n.code, unc.active as userNotificationCategoryActive, un.active as userNotificationActive
+      //   FROM users_notifications un
+      //   LEFT JOIN notifications n ON un.notification_id = n.id
+      //   LEFT JOIN users_notifications_categories unc ON n.notification_category_id = unc.notification_categories_id
+      //   WHERE unc.active = 1 AND un.active = 1 AND un.user_id = ? AND un.notification_id = ?`,
+      //   [userId, notificationId]
+      // );
+      if (!rows.length) {
+        [rows] = await this.conn.query(`SELECT nc.id FROM notifications_categories nc LEFT JOIN notifications n on nc.id = n.notification_category_id WHERE n.id = ?`, [notificationId])
+        if (rows.length) {
+          //insert user notifications:
+          let notificationCategoryId = rows[0].id;
+          await this.conn.query(`INSERT IGNORE INTO users_notifications (user_id,notification_id,active) VALUES (?,?,?)`, [userId, notificationId, 0]);
+          await this.conn.query(`INSERT IGNORE INTO users_notifications_categories (user_id, notification_categories_id, active) VALUES (?,?,?)`, [userId, notificationCategoryId, 0]);
+          console.log("users notifications created for the user ", userId)
+        } else {
+          console.log("notification category not found by notification id", notificationId)
+        }
+        return false;
+      }
+      if (rows[0].userNotificationCategoryActive && rows[0].userNotificationActive) {
+        return true
+      }
+      //return rows.length > 0;
     } catch (error) {
       console.error(`Error fetching active notifications for user ${userId}:`, error);
       throw new Error(`Error fetching active notifications for user ${userId}`);
@@ -268,8 +293,10 @@ export class NotificationsService implements OnModuleInit {
 
   async sendMail(notificationId: number, userId: number, email: string, subject: string, text: string) {
     console.log("activar sendMail", notificationId, userId, email, subject, text)
+
     //TODO: active notifications:
     //this.mailService.sendEmail(email, subject, text);
+
     console.log(`Enviando notificación ${notificationId} al usuario ${userId}`);
   }
 

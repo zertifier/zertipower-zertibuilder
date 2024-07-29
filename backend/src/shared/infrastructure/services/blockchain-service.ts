@@ -25,11 +25,15 @@ export class BlockchainService {
     }
 
     async initialize() {
-        let smartContracts = await this.getBlockchainAndScData()
-        let smartContract = smartContracts.find((smartContract: any) => smartContract.contract_reference == 'energyMapping')
-        await this.obtainSmartContract(smartContract.contract_address, process.env.PK, smartContract.abi, smartContract.blockchain_id, smartContract.rpc_url).catch(e => {
-            console.log(e)
-        })
+        try{
+            let smartContracts = await this.getBlockchainAndScData();
+            let smartContract = smartContracts.find((smartContract: any) => smartContract.contract_reference == 'energyMapping')
+            await this.obtainSmartContract(smartContract.contract_address, process.env.PK, smartContract.abi, smartContract.blockchain_id, smartContract.rpc_url).catch(e => {
+                console.log(e)
+            })
+        }catch(error){
+            console.log("Error inicialitzant servei blockchain",error)
+        }
     }
 
     /** Obtain blockchain and smart contract data according to config smart contract version.

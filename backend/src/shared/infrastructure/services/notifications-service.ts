@@ -268,7 +268,8 @@ export class NotificationsService implements OnModuleInit {
 
   async sendMail(notificationId: number, userId: number, email: string, subject: string, text: string) {
     console.log("activar sendMail", notificationId, userId, email, subject, text)
-    this.mailService.sendEmail(email, subject, text);
+    //TODO: active notifications:
+    //this.mailService.sendEmail(email, subject, text);
     console.log(`Enviando notificación ${notificationId} al usuario ${userId}`);
   }
 

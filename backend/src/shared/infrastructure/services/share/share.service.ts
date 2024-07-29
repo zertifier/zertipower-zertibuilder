@@ -72,31 +72,28 @@ export class ShareService {
   }
 
   async redistribute() {
-    console.log("Starting trades update...")
-
-    const surplusRegisters = await this.getNewSurplusRegisters()
-    const newRegisters = await this.getNewRegisters()
-
-    console.log(`Updating ${surplusRegisters.length} registers...`)
-
-    for (const surplusRegister of surplusRegisters) {
-      const communityPrice = await this.getCommunityPrice(surplusRegister.community_id)
-      const redisitributePartners = this.getRegistersByDateAndCommunity(surplusRegister.info_dt, surplusRegister.community_id, newRegisters)
-      const redistributeObject = {
-        totalSurplus: parseFloat(surplusRegister.kwh_out.toString()),
-        resultTotalSurplus: 0,
-        surplusCups: surplusRegister.cups_id,
-        surplusEhId: surplusRegister.eh_id,
-        redisitributePartners
+    try {
+      console.log("Starting trades update...")
+      const surplusRegisters = await this.getNewSurplusRegisters()
+      const newRegisters = await this.getNewRegisters()
+      console.log(`Updating ${surplusRegisters.length} registers...`)
+      for (const surplusRegister of surplusRegisters) {
+        const communityPrice = await this.getCommunityPrice(surplusRegister.community_id)
+        const redisitributePartners = this.getRegistersByDateAndCommunity(surplusRegister.info_dt, surplusRegister.community_id, newRegisters)
+        const redistributeObject = {
+          totalSurplus: parseFloat(surplusRegister.kwh_out.toString()),
+          resultTotalSurplus: 0,
+          surplusCups: surplusRegister.cups_id,
+          surplusEhId: surplusRegister.eh_id,
+          redisitributePartners
+        }
+        const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
+        await this.insertToTrades(calculatedRedistribute, communityPrice)
       }
-      // console.log(redistributeObject, "SURPLUS")
-
-      const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
-
-      await this.insertToTrades(calculatedRedistribute, communityPrice)
+      console.log("Finished trades update")
+    } catch (error) {
+      console.log(error);
     }
-
-    console.log("Finished trades update")
   }
 
   calculateRedistribution(redistributeObject: RedistributeObject = this.redistributeObject) {
@@ -324,13 +321,13 @@ export class ShareService {
 
     if (transactionNumber > 0) { //if (trade.redisitributePartners.length) {
 
-      try{
+      try {
         let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
-      } catch(error){
-        console.log("error creating trades",error);
+      } catch (error) {
+        console.log("error creating trades", error);
         return;
       }
-      
+
       // const insertedRows = result.affectedRows;
       console.log(`Inserted values on trades from date: ${trade.redisitributePartners[0].infoDt}`);
 
@@ -344,9 +341,9 @@ export class ShareService {
           const sellerName = partner.sellerName || '(UNNAMED)'
 
           //notificar al from del sell y al to del buy
-          const subjectSell = this.notificationService.getNotificationSubject(notificationCodes.sharingSent, this.notificationService.defaultNotificationLang, { sharedKW, tradeCost, customerName:buyerName, infoDt });
+          const subjectSell = this.notificationService.getNotificationSubject(notificationCodes.sharingSent, this.notificationService.defaultNotificationLang, { sharedKW, tradeCost, customerName: buyerName, infoDt });
           let messageSell = `Shared to ${buyerName}` //l'energia s'ha venut a x
-          const subjectBuy = this.notificationService.getNotificationSubject(notificationCodes.sharingReceived, this.notificationService.defaultNotificationLang, { sharedKW, tradeCost,customerName:sellerName, infoDt });
+          const subjectBuy = this.notificationService.getNotificationSubject(notificationCodes.sharingReceived, this.notificationService.defaultNotificationLang, { sharedKW, tradeCost, customerName: sellerName, infoDt });
           let messageBuy = `Shared from ${sellerName}` //l'energia s'ha comprat a x
           //TODO surplus cups
           this.notificationService.sendNotification(partner.userId, notificationCodes.sharingSent, subjectSell, messageSell)

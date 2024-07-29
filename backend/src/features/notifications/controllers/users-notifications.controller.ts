@@ -58,10 +58,10 @@ export class UsersNotificationsController {
             }
         });
 
-        //todo: check if all notifications exists
         const notifications = await this.prisma.notification.findMany();
         const categories = await this.prisma.notificationCategory.findMany();
 
+        //todo: check if all notifications exists
         if (userNotifications.length < notifications.length || userCategories.length < categories.length) {
             await UsersNotificationsController.insertDefaultNotificationsByUser(userId!, this.prisma);
             await UsersNotificationsCategoriesController.insertDefaultNotificationCategoriesByUser(userId!, this.prisma);
@@ -79,13 +79,13 @@ export class UsersNotificationsController {
 
         return HttpResponse.success(
             "users_notifications and user_notifications_categories fetched successfully"
-        ).withData({ notifications: userNotifications, categories: userCategories });
+        ).withData({ notifications, userNotifications, categories, userCategories });
     }
 
     @Put()
     @Auth(RESOURCE_NAME)
     async updateByUserId(@Req() req: Request | any, @Body() body: any) {
-        let userId = req.decodedToken.user.id;
+        let userId = req.decodedToken.user._id;
         let promises: any = [];
 
         if (!body.notifications && !body.notificationCategories) {

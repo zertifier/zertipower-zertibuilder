@@ -1,5 +1,6 @@
 const { response } = require("express");
 const { dbConnection } = require('../database/config');
+const { getDateLimits } = require("../utils/dateFunctions");
 
 const getRealTimeByCups = async (req, res = response) => {
 
@@ -173,7 +174,55 @@ const getRealTimeByCustomer = async (req, res = response) => {
 
 }
 
+
+const getEnergyByIdDate = async (req, res = response) => {
+    try {        
+
+        const customerId = req.query.id;
+        const date = req.query.date;
+        const dateFormat = req.query.dateFormat; // hourly, daily, weekly, monthly, yearly
+        
+        const {startDate, endDate} = getDateLimits(date, dateFormat)
+        totalIn,totalOut;
+
+        let [ROWS] = await dbConnection.execute(`SELECT id FROM cups WHERE customer_id = ?`, [customerId]); 
+        
+        if(!ROWS.length){
+            return res.status(404).json({
+                ok: false,
+                msg: `Cups with customer id ${customerId} not found.`
+            })
+        }
+
+        cupsId = ROWS[0].id;
+
+        [ROWS] = await dbConnection.execute(`SELECT * FROM energy_hourly WHERE cups_id = ? AND datetime BETWEEN ? AND ?`, [cupsId,startDate,endDate]); 
+
+        ROWS.map(energyHour=>{
+            totalIn+=energyHour.kwh_in;
+            totalOut+=energyHour.kwh_out;
+        })
+
+        return res.json({
+            ok: true,
+            msg: "",
+            data:ROWS,
+            totalIn,
+            totalOut
+        })
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            ok: false,
+            msg: error
+        })
+    }
+}
+
+
 module.exports = {
     getRealTimeByCups,
-    getRealTimeByCustomer
+    getRealTimeByCustomer,
+    getEnergyByIdDate
 }

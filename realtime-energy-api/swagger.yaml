@@ -25,6 +25,12 @@ tags:
   - name: tokens
     description: Interact with user permanent tokens. Zertipower auth token is necessary.
 
+  - name: cups
+    description: Interact with cups. Zertipower auth token is necessary.
+
+  - name: communities
+    description: Interact with communities.
+
   # - name: smart contracts interation
   #   description: create transactions with smart contracts
 
@@ -122,12 +128,52 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/internalServerError'
+
+  /:
+      get:
+        tags:
+          - communities
+        summary: Obtain all communities
+        description: Get all communities description data
+        operationId: obtainAllCommunnities
+        responses:
+          '200':
+            description: 'obtain all communities'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/communitiesResponse'
+          '404':
+            description: 'Not found'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/notFound'
+          '500':
+            description: 'Internal server error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/internalServerError'
+
+
 components:
   schemas:
     isAliveResponse:
       type: string
     versionResponse:
       type: string
+    communitiesResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          description: Indicates whether the communities obtaining was successful.
+          example: true
+        data:
+          type: array
+          description: CommunityInformation
+          example: []
     tokenResponse:
       type: object
       properties:

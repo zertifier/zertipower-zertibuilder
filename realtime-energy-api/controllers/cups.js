@@ -178,10 +178,18 @@ const getRealTimeByCustomer = async (req, res = response) => {
 const getEnergyByIdDate = async (req, res = response) => {
     try {        
 
-        const customerId = req.query.id;
+        const customerId = req.customerId;
         const date = req.query.date;
         const dateFormat = req.query.dateFormat; // hourly, daily, weekly, monthly, yearly
-        
+
+        // Verify if the params are existent
+        if (!date || !dateFormat) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Missing required query parameters'
+            });
+        }
+
         const {startDate, endDate} = getDateLimits(date, dateFormat)
         totalIn,totalOut;
 

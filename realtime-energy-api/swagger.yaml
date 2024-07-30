@@ -8,7 +8,7 @@ info:
     - [The API repository](https://github.com/zertifier/zertipower-zertibuilder)
     - [The client web app](https://comptador.zertipower.com/user/integrations)
     - [The Zertipower project documentation](https://www.zertipower.com/)
-  termsOfService: terms,
+  termsOfService: terms
   contact:
     email: info@zertifier.com
   version: 1.0.0
@@ -18,33 +18,15 @@ servers:
   - url: https://dev-api-public-ris3cat.zertifier.com
     description: Development server
 tags:
-
   - name: checks
     description: Inspections on backend.
-
   - name: tokens
     description: Interact with user permanent tokens. Zertipower auth token is necessary.
-
   - name: cups
     description: Interact with cups. Zertipower auth token is necessary.
-
   - name: communities
     description: Interact with communities.
-
-  # - name: smart contracts interation
-  #   description: create transactions with smart contracts
-
-  # - name: database interaction
-  #   description: general interaction with database
-
-  # - name: energy flow
-  
-  # - name: economic information about energy
-  
-  # - name: auth
-  
 paths:
-
   /is-alive:
     get:
       tags:
@@ -75,7 +57,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/versionResponse'
 
-  /:
+  /tokens/:
     post:
       tags:
         - tokens
@@ -102,7 +84,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/internalServerError'
 
-  /refresh:
+  /tokens/refresh:
     post:
       tags:
         - tokens
@@ -129,51 +111,298 @@ paths:
               schema:
                 $ref: '#/components/schemas/internalServerError'
 
-  /:
-      get:
-        tags:
-          - communities
-        summary: Obtain all communities
-        description: Get all communities description data
-        operationId: obtainAllCommunnities
-        responses:
-          '200':
-            description: 'obtain all communities'
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/communitiesResponse'
-          '404':
-            description: 'Not found'
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/notFound'
-          '500':
-            description: 'Internal server error'
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/internalServerError'
+  /cups/:
+    get:
+      tags:
+        - cups
+      summary: Obtain all cups
+      description: Get all cups description data
+      operationId: obtainAllCups
+      responses:
+        '200':
+          description: 'obtain all cups'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cupsResponse'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalServerError'
 
+  /cups/by-id:
+    get:
+      tags:
+        - cups
+      summary: Obtain cups by id
+      description: Get cups description data
+      operationId: obtainCupsById
+      responses:
+        '200':
+          description: 'obtain cups by cups id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cupsByIdResponse'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalServerError'
+                
+  /cups/by-id/by-date:
+    get:
+      tags:
+        - cups
+      summary: Get energy data by cups ID and date
+      description: Retrieve energy data for a specific cups within a date range
+      operationId: getEnergyDataByCupsIdAndDate
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Cups ID
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "17/02/2024"
+          description: Date for the query (DD/MM/YYYY)
+        - name: dateFormat
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [hourly, daily, weekly, yearly]
+          description: Format of the date (hourly, daily, weekly, yearly)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cupsByDataByIdResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalServerError'
 
+  /communities/:
+    get:
+      tags:
+        - communities
+      summary: Obtain all communities
+      description: Get all communities description data
+      operationId: obtainAllCommunnities
+      responses:
+        '200':
+          description: 'obtain all communities'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/communitiesResponse'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalServerError'
+  /communities/by-id:
+    get:
+      tags:
+        - communities
+      summary: Obtain community by id
+      description: Get community description data
+      operationId: obtainCommunnityById
+      responses:
+        '200':
+          description: 'obtain community by community id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/communitiesByIdResponse'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalServerError'
+                
+  /communities/by-id/by-date:
+    get:
+      tags:
+        - communities
+      summary: Get energy data by community ID and date
+      description: Retrieve energy data for a specific community within a date range
+      operationId: getEnergyDataByCommunityIdAndDate
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Community ID
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "17/02/2024"
+          description: Date for the query (DD/MM/YYYY)
+        - name: dateFormat
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [hourly, daily, weekly, yearly]
+          description: Format of the date (hourly, daily, weekly, yearly)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/communitiesByDataByIdResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalServerError'
 components:
   schemas:
     isAliveResponse:
       type: string
     versionResponse:
       type: string
-    communitiesResponse:
+    cupsResponse:
       type: object
+      description: Indicates whether the cups obtaining was successful.
       properties:
         ok:
           type: boolean
-          description: Indicates whether the communities obtaining was successful.
           example: true
         data:
           type: array
+          items: 
+            type: object
+          description: CupsInformation
+    cupsByIdResponse:
+      type: object
+      description: Indicates that cups obtaining was successful.
+      properties:
+        ok:
+          type: boolean
+          example: true
+        data:
+          type: object
+          description: CupsInformation
+    cupsByDataByIdResponse:
+      type: object
+      description: Indicates whether the cups obtaining was successful.
+      properties:
+        ok:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            totalIn:
+              type: number
+            totalOut:
+              type: number
+            energyData:
+              type: array
+              items:
+                type: object
+    communitiesResponse:
+      type: object
+      description: Indicates whether the communities obtaining was successful.
+      properties:
+        ok:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items: 
+            type: object
           description: CommunityInformation
-          example: []
+    communitiesByIdResponse:
+      type: object
+      description: Indicates that community obtaining was successful.
+      properties:
+        ok:
+          type: boolean
+          example: true
+        data:
+          type: object
+          description: CommunityInformation
+    communitiesByDataByIdResponse:
+      type: object
+      description: Indicates whether the communities obtaining was successful.
+      properties:
+        ok:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            totalIn:
+              type: number
+            totalOut:
+              type: number
+            energyData:
+              type: array
+              items:
+                type: object
     tokenResponse:
       type: object
       properties:
@@ -204,17 +433,16 @@ components:
           example: false
         msg:
           type: string
-          example: 'Internal server error'
+          example: Internal server error
     notFound:
       type: object
       properties:
         ok:
           type: boolean
-          example: true
+          example: false
         msg:
           type: string
-          example: Registers not found'    
-
+          example: Registers not found
   securitySchemes:
     api_key:
       type: apiKey

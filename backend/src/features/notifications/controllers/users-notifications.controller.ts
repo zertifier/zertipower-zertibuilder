@@ -88,51 +88,79 @@ export class UsersNotificationsController {
         let userId = req.decodedToken.user._id;
         let promises: any = [];
 
-        if (!body.notifications && !body.notificationCategories) {
-            return HttpResponse.failure("check if body has notifications or notificationsCategories", ErrorCode.BAD_REQUEST);
+        if (!body.userNnotifications && !body.userCategories) {
+            return HttpResponse.failure("check if body has userNotifications or userCategories", ErrorCode.BAD_REQUEST);
         }
 
-        console.log(body)
-
-        if (body.notifications) {
-            for (const userNotification of body.notifications) {
-                if (!userNotification.id) {
-                    return HttpResponse.failure("notification id not provided.", ErrorCode.BAD_REQUEST);
-                }
-                if (userNotification.active !== 0 && userNotification.active !== 1) {
-                    return HttpResponse.failure("Invalid 'active' value. Must be 0 or 1.", ErrorCode.BAD_REQUEST);
-                }
-                let promise = this.prisma.usersNotification.update({
-                    where: {
-                        id: parseInt(userNotification.id),
-                        userId: userId
-                    },
-                    data: {
-                        active: userNotification.active,
+        if (body.userNotifications) {
+            try {
+                for (const userNotification of body.userNotifications) {
+                    if (!userNotification.id) {
+                        console.log("notification id not provided.",userNotification)
+                        return HttpResponse.failure("notification id not provided.", ErrorCode.BAD_REQUEST);
                     }
-                });
-                promises.push(promise)
+                    if (userNotification.active !== 0 && userNotification.active !== 1) {
+                        console.log("Invalid 'active' value. Must be 0 or 1.",userNotification)
+                        return HttpResponse.failure("Invalid 'active' value. Must be 0 or 1.", ErrorCode.BAD_REQUEST);
+                    }
+
+                    if(userNotification.createdDt){
+                        delete userNotification.createdDt
+                    }
+
+                    if(userNotification.updated_Dt){
+                        delete userNotification.updatedDt
+                    }
+
+                    let promise = this.prisma.usersNotification.update({
+                        where: {
+                            id: parseInt(userNotification.id),
+                            userId: userId
+                        },
+                        data: {
+                            active: userNotification.active,
+                        }
+                    });
+                    promises.push(promise)
+                }
+            } catch (error) {
+                console.log(error)
+                return HttpResponse.failure("error updating user notifications", ErrorCode.BAD_REQUEST);
             }
         }
 
-        if (body.notificationCategories) {
-            for (const userNotificationCategory of body.notificationCategories) {
-                if (!userNotificationCategory.id) {
-                    return HttpResponse.failure("notification category id not provided.", ErrorCode.BAD_REQUEST);
-                }
-                if (userNotificationCategory.active !== 0 && userNotificationCategory.active !== 1) {
-                    return HttpResponse.failure("Invalid 'active' value. Must be 0 or 1.", ErrorCode.BAD_REQUEST);
-                }
-                let promise = this.prisma.usersNotificationCategory.update({
-                    where: {
-                        id: parseInt(userNotificationCategory.id),
-                        userId: userId
-                    },
-                    data: {
-                        active: userNotificationCategory.active,
+        if (body.userCategories) {
+            try {
+                for (const userNotificationCategory of body.userCategories) {
+                    if (!userNotificationCategory.id) {
+                        console.log("notification category id not provided.",userNotificationCategory)
+                        return HttpResponse.failure("notification category id not provided.", ErrorCode.BAD_REQUEST);
                     }
-                });
-                promises.push(promise)
+                    if (userNotificationCategory.active !== 0 && userNotificationCategory.active !== 1) {
+                        console.log("Invalid 'active' value. Must be 0 or 1.",userNotificationCategory)
+                        return HttpResponse.failure("Invalid 'active' value. Must be 0 or 1.", ErrorCode.BAD_REQUEST);
+                    }
+                    if(userNotificationCategory.createdDt){
+                        delete userNotificationCategory.createdDt
+                    }
+
+                    if(userNotificationCategory.updated_Dt){
+                        delete userNotificationCategory.updatedDt
+                    }
+                    let promise = this.prisma.usersNotificationCategory.update({
+                        where: {
+                            id: parseInt(userNotificationCategory.id),
+                            userId: userId
+                        },
+                        data: {
+                            active: userNotificationCategory.active,
+                        }
+                    });
+                    promises.push(promise)
+                }
+            } catch (error) {
+                console.log(error)
+                return HttpResponse.failure("error updating user notification categories", ErrorCode.BAD_REQUEST);
             }
         }
 
@@ -140,7 +168,12 @@ export class UsersNotificationsController {
             return HttpResponse.failure("No valid user notifications to update.", ErrorCode.UNEXPECTED);
         }
 
-        await Promise.all(promises)
+        try {
+            await Promise.all(promises)
+        } catch (error) {
+            console.log(error);
+            return HttpResponse.failure(error, ErrorCode.UNEXPECTED);
+        }
 
         return HttpResponse.success(
             "User notifications updated successfully."

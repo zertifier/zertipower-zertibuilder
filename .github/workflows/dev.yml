@@ -114,7 +114,7 @@ jobs:
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying dev-calculadora-ris3cat"
             cd calculadora
-            npm i --legacy-peer-deps
+            npm ci --legacy-peer-deps
             npm run build
             docker compose up -d dev-calculadora-ris3cat --build --force-recreate
             echo "dev-calculadora-ris3cat deployed"
@@ -129,7 +129,7 @@ jobs:
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying admin frontend"
             cd frontend
-            npm i --legacy--peer-deps
+            npm ci --legacy--peer-deps
             npm run build
             docker compose up -d app-dev-ris3cat --build --force-recreate
             echo "frontend deployed"
@@ -144,7 +144,7 @@ jobs:
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying wiki-dev-ris3cat"
             cd zertipower-hugo
-            npm i
+            npm ci
             hugo
             docker compose up -d wiki-dev-ris3cat --build --force-recreate
             echo "wiki-dev-ris3cat deployed"
@@ -159,7 +159,7 @@ jobs:
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying api-dev-ris3cat"
             cd backend
-            npm i
+            npm ci
             npx prisma generate
             docker compose up -d api-dev-ris3cat --build --force-recreate
             echo "api-dev-ris3cat deployed"
@@ -174,6 +174,6 @@ jobs:
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           echo "Deploying api-dev-realtime-energy"
           cd realtime-energy-api
-          npm i
+          npm ci
           docker compose up -d api-dev-realtime-energy --build --force-recreate
           echo "api-dev-realtime-energy deployed"

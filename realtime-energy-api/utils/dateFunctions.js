@@ -24,6 +24,7 @@ function getDateLimits(date,dateFormat){
             endDate = moment(date,'DD/MM/YYYY').endOf('year').format('YYYY-MM-DD HH:mm:ss');
             break;
         default:
+            console.log(date,dateFormat)
             throw new Error('Invalid date format')
     }
     return {startDate,endDate}

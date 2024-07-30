@@ -54,24 +54,25 @@ const getCommunitiesEnergyByIdDate = async (req, res = response) => {
         }
 
         const { startDate, endDate } = getDateLimits(date, dateFormat)
-        totalIn, totalOut;
+
+        totalIn = 0
+        totalOut = 0
 
         //TODO: check if energy hourly has community_id
-        const [ROWS] = await dbConnection.execute(`SELECT * FROM energy_hourly WHERE community_id = ? AND datetime BETWEEN ? AND ?`, [communityId, startDate, endDate]);
+        const [ROWS] = await dbConnection.execute(`SELECT energy_hourly.* FROM energy_hourly LEFT JOIN cups ON cups.id = energy_hourly.cups_id WHERE cups.community_id = ? AND energy_hourly.info_dt BETWEEN ? AND ?`, [communityId, startDate, endDate]);
 
         ROWS.forEach(energyHour => {
-            //TODO: delete kwh_out of community cups?
-            totalIn += energyHour.kwh_in;
-            totalOut += energyHour.kwh_out;
+            totalIn += parseFloat(energyHour.kwh_in) | 0;
+            totalOut += parseFloat(energyHour.kwh_out) | 0;
         })
 
         return res.json({
             ok: true,
-            msg: "",
+            msg: "Community energy fetched succesfully",
             data: {
-                energyData: ROWS,
                 totalIn,
-                totalOut
+                totalOut,
+                // energyData: ROWS
             }
         })
 

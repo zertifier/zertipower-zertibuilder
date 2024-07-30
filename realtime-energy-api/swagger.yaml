@@ -115,12 +115,12 @@ paths:
     get:
       tags:
         - cups
-      summary: Obtain all cups
-      description: Get all cups description data
-      operationId: obtainAllCups
+      summary: Obtain all cups from a customer
+      description: Get all customer cups description data
+      operationId: obtainAllCustomerCups
       responses:
         '200':
-          description: 'obtain all cups'
+          description: 'obtain all customer cups sucessfully'
           content:
             application/json:
               schema:
@@ -165,7 +165,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/internalServerError'
                 
-  /cups/by-id/by-date:
+  /cups/energy/by-id/by-date:
     get:
       tags:
         - cups
@@ -213,7 +213,61 @@ paths:
               schema:
                 $ref: '#/components/schemas/internalServerError'
 
-  /communities/:
+  /cups/energy/realtime:
+    get:
+      tags:
+        - cups
+      summary: Get current hour energy data from customer cups
+      description: Get current hour energy data from customer cups
+      operationId: getCurrentCustomerCupsEnergyData
+      responses:
+        '200':
+          description: 'Customer cups energy data from current hour fetched successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customerCupsCurrentHourEnergyResponse'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalServerError'
+
+  /cups/:id/energy/realtime:
+    get:
+      tags:
+        - cups
+      summary: Get current hour energy data from customer cups by cups id
+      description: Get current hour energy data from customer cups by cups id
+      operationId: getCurrentCustomerCupsEnergyDataById
+      responses:
+        '200':
+          description: 'Customer cups energy data from current hour fetched successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customerCupsCurrentHourEnergyByIdResponse'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalServerError'
+
+  /communities:
     get:
       tags:
         - communities
@@ -239,6 +293,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/internalServerError'
+
   /communities/by-id:
     get:
       tags:
@@ -266,7 +321,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/internalServerError'
                 
-  /communities/by-id/by-date:
+  /communities/energy/by-id/by-date:
     get:
       tags:
         - communities
@@ -315,10 +370,13 @@ paths:
                 $ref: '#/components/schemas/internalServerError'
 components:
   schemas:
+
     isAliveResponse:
       type: string
+
     versionResponse:
       type: string
+
     cupsResponse:
       type: object
       description: Indicates whether the cups obtaining was successful.
@@ -331,6 +389,7 @@ components:
           items: 
             type: object
           description: CupsInformation
+
     cupsByIdResponse:
       type: object
       description: Indicates that cups obtaining was successful.
@@ -341,9 +400,35 @@ components:
         data:
           type: object
           description: CupsInformation
+
+    customerCupsCurrentHourEnergyResponse:
+      type: object
+      description: Indicates that cups energy obtaining was successful.
+      properties:
+        ok:
+          type: boolean
+          example: true
+        data:
+          type: array
+          description: CupsInformationArray
+          items: 
+            type: object
+            description: CupsInformation
+
+    customerCupsCurrentHourEnergyByIdResponse:
+      type: object
+      description: Indicates that cups energy obtaining was successful.
+      properties:
+        ok:
+          type: boolean
+          example: true
+        data:
+          type: object
+          description: CupsInformation
+
     cupsByDataByIdResponse:
       type: object
-      description: Indicates whether the cups obtaining was successful.
+      description: Indicates whether the cups energy obtaining was successful.
       properties:
         ok:
           type: boolean
@@ -361,6 +446,7 @@ components:
               type: array
               items:
                 type: object
+
     communitiesResponse:
       type: object
       description: Indicates whether the communities obtaining was successful.
@@ -373,6 +459,7 @@ components:
           items: 
             type: object
           description: CommunityInformation
+
     communitiesByIdResponse:
       type: object
       description: Indicates that community obtaining was successful.
@@ -383,6 +470,7 @@ components:
         data:
           type: object
           description: CommunityInformation
+
     communitiesByDataByIdResponse:
       type: object
       description: Indicates whether the communities obtaining was successful.
@@ -403,6 +491,7 @@ components:
               type: array
               items:
                 type: object
+
     tokenResponse:
       type: object
       properties:
@@ -414,6 +503,7 @@ components:
           type: string
           description: User token with 'Bearer ' prefix.
           example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjIxMDE2NzQ2LCJleHAiOjE2MjEwMjA5NDZ9.Azh_tVmS8OHeJ2IXjV7-2Mw5C5un5UL5G5vVb9-hH0M
+   
     refreshTokenResponse:
       type: object
       properties:
@@ -425,6 +515,7 @@ components:
           type: string
           description: User token with 'Bearer ' prefix.
           example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjIxMDE2NzQ2LCJleHAiOjE2MjEwMjA5NDZ9.Azh_tVmS8OHeJ2IXjV7-2Mw5C5un5UL5G5vVb9-hH0M
+   
     internalServerError:
       type: object
       properties:
@@ -434,6 +525,7 @@ components:
         msg:
           type: string
           example: Internal server error
+ 
     notFound:
       type: object
       properties:
@@ -443,6 +535,7 @@ components:
         msg:
           type: string
           example: Registers not found
+ 
   securitySchemes:
     api_key:
       type: apiKey

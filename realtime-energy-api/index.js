@@ -40,6 +40,8 @@ swaggerDocument.servers.forEach(server => {
 app.use('/api-docs',swaggerUi.serve,swaggerUi.setup(swaggerDocument));
 
 app.use('/cups', require('./routes/cups'));
+app.use('/communities', require('./routes/communities'));
+
 app.use('/tokens', require('./routes/tokens'));
 
 app.use('/is-alive', async (req, res) => { res.send(true) })

@@ -45,7 +45,6 @@ const validatePermaJWT = async (req,res,next) => {
     let token = req.header('authorization');
 
     //select token and user depending on the user id and date not expired
-
     const query = `SELECT *
                    FROM user_tokens
                             LEFT JOIN users ON user_id = users.id
@@ -67,6 +66,14 @@ const validatePermaJWT = async (req,res,next) => {
 
         // get decoded uid from token:
         const {uid,customerId} = jwt.verify(token, process.env.JWT_SECRET);
+        
+        if(!uid || !customerId){
+            return res.status(401).json({
+                ok: false,
+                msg: 'the token is not valid'
+            })
+        }
+        
         req.uid = uid;
         req.customerId = customerId;
 
@@ -83,7 +90,7 @@ const validatePermaJWT = async (req,res,next) => {
         }
 
     } catch (error) {
-        console.log(error)
+        console.log("Error validating perma token.",error)
         return res.status(401).json({
             ok: false,
             msg: error

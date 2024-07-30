@@ -143,9 +143,9 @@ const getRealTimeByCustomer = async (req, res = response) => {
             GROUP BY
                 customers.id,
                 customers.name;
-         `, [ customerId])
+         `, [customerId])
 
-         const currentEnergyRegister = ROWS[0];
+        const currentEnergyRegister = ROWS[0];
 
         if (!ROWS[0]) {
             console.log("No current data for customer", customerId)
@@ -173,50 +173,71 @@ const getRealTimeByCustomer = async (req, res = response) => {
     }
 
 }
+const getCups = async (req, res = response) => {
 
+    const customerId = req.customerId;
+
+    try {
+        const [ROWS] = await dbConnection.execute(`SELECT * FROM cups WHERE customer_id = ?`, [customerId]);
+        return res.json({
+            ok: true,
+            msg: "cups fetched successfully",
+            data: ROWS
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            ok: false,
+            msg: error
+        })
+    }
+}
 
 const getEnergyByIdDate = async (req, res = response) => {
-    try {        
+
+    try {
 
         const customerId = req.customerId;
+        const cupsId = req.query.id;
         const date = req.query.date;
         const dateFormat = req.query.dateFormat; // hourly, daily, weekly, monthly, yearly
 
         // Verify if the params are existent
-        if (!date || !dateFormat) {
+        if (!date || !dateFormat || !cupsId) {
             return res.status(400).json({
                 ok: false,
                 msg: 'Missing required query parameters'
             });
         }
 
-        const {startDate, endDate} = getDateLimits(date, dateFormat)
-        totalIn,totalOut;
+        const { startDate, endDate } = getDateLimits(date, dateFormat)
+        totalIn = 0;
+        totalOut = 0;
 
-        let [ROWS] = await dbConnection.execute(`SELECT id FROM cups WHERE customer_id = ?`, [customerId]); 
-        
-        if(!ROWS.length){
+        let [ROWS] = await dbConnection.execute(`SELECT id FROM cups WHERE customer_id = ? AND id = ?`, [customerId, cupsId]);
+
+        if (!ROWS.length) {
             return res.status(404).json({
                 ok: false,
                 msg: `Cups with customer id ${customerId} not found.`
             })
         }
 
-        cupsId = ROWS[0].id;
+        [ROWS] = await dbConnection.execute(`SELECT * FROM energy_hourly WHERE cups_id = ? AND datetime BETWEEN ? AND ?`, [cupsId, startDate, endDate]);
 
-        [ROWS] = await dbConnection.execute(`SELECT * FROM energy_hourly WHERE cups_id = ? AND datetime BETWEEN ? AND ?`, [cupsId,startDate,endDate]); 
-
-        ROWS.map(energyHour=>{
-            totalIn+=energyHour.kwh_in;
-            totalOut+=energyHour.kwh_out;
+        ROWS.map(energyHour => {
+            totalIn += parseFloat(energyHour.kwh_in) | 0;
+            totalOut += parseFloat(energyHour.kwh_out) | 0;
         })
 
         return res.json({
             ok: true,
-            msg: "",
-            data:ROWS,
-            totalIn,
-            totalOut
+            msg: "Cups energy fetched succesfully",
+            data: {
+                totalIn,
+                totalOut,
+                energyData: ROWS
+            }
         })
 
     } catch (error) {
@@ -232,5 +253,6 @@ const getEnergyByIdDate = async (req, res = response) => {
 module.exports = {
     getRealTimeByCups,
     getRealTimeByCustomer,
-    getEnergyByIdDate
+    getEnergyByIdDate,
+    getCups
 }

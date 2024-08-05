@@ -19,6 +19,7 @@ import { SaveCupsDto } from "./save-cups-dto";
 import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
 import { CupsType } from "@prisma/client";
 import { ErrorCode } from "src/shared/domain/error";
+import mysql from "mysql2/promise";
 
 export const RESOURCE_NAME = "cups";
 
@@ -550,4 +551,7 @@ export class CupsController {
     }
     return data
   }
+
+
+
 }

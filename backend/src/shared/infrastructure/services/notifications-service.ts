@@ -40,22 +40,22 @@ export class NotificationsService {
     try {
       if (!userId || !notificationCode || !subject) {
         console.log('error sending notification, parameter not provided')
-        console.log("userId:", userId, "notificationCode", notificationCode, "subject", subject, "text", text)
+        //console.log("userId:", userId, "notificationCode", notificationCode, "subject", subject, "text", text)
         return;
       }
       let user = await this.getUserCustomerByUserId(userId)
       const notification: notification = await this.getNotificationByCode(notificationCode);
       const notificationActive = await this.isNotificationActive(userId, notification.id);
       if (!notificationActive) {
-        console.log("notification isn't activated")
+        //console.log("notification isn't activated")
         return;
       }
       const notificationSent = await this.isNotificationSent(userId, notification.id, subject);
       if (!notificationSent) {
-        await this.sendMail(notification.id, userId, user.email, subject, text);
+        //await this.sendMail(notification.id, userId, user.email, subject, text);
         await this.registerNotification(userId, notification.id, user.email, subject);
       } else {
-        console.log("notification already sent")
+        //console.log("notification already sent")
         return;
       }
     } catch (error) {
@@ -288,12 +288,12 @@ export class NotificationsService {
   }
 
   async sendMail(notificationId: number, userId: number, email: string, subject: string, text: string) {
-    console.log("activar sendMail", notificationId, userId, email, subject, text)
+    //console.log("activar sendMail", notificationId, userId, email, subject, text)
 
     //TODO: active notifications:
     //this.mailService.sendEmail(email, subject, text);
 
-    console.log(`Enviando notificación ${notificationId} al usuario ${userId}`);
+    //console.log(`Enviando notificación ${notificationId} al usuario ${userId}`);
   }
 
   async wasNotificationRecentlySent(userId: number, notificationId: number): Promise<boolean> {

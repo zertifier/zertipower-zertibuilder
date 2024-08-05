@@ -14,14 +14,13 @@ import {Datatable} from "src/shared/infrastructure/services/datatable/Datatable"
 import {SaveCommunitiesDTO, SaveDaoDTO} from "./save-communities-dto";
 import * as moment from "moment";
 import {ApiTags} from "@nestjs/swagger";
-import {Auth} from "src/features/auth/infrastructure/decorators";
+import { Auth } from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
 import { UnexpectedError } from "src/shared/domain/error/common";
 import {CommunityCups, CommunityCupsStats} from "./communities.interface";
 import {CommunitiesStatsService} from "./communities-stats/communities-stats.service";
 
 export const RESOURCE_NAME = "communities";
-
 
 @ApiTags(RESOURCE_NAME)
 @Controller("communities")
@@ -712,4 +711,5 @@ console.log(cups.surplus_distribution, 'cups.surplus_distribution')
 
     return cupsData
   }
+
 }

@@ -18,6 +18,11 @@ import { GovernanceService } from './governance/governance.service';
 import { BlockchainService } from "./blockchain-service";
 import { ShareService } from './share/share.service';
 import { NotificationsService } from "./notifications-service";
+import { EnergyHourlyService } from "./energy-houly-service";
+import { LogsService } from "./logs-service";
+import { CommunitiesDbRequestsService } from "src/features/communities/communities-db-requests.service";
+import { CupsDbRequestsService } from "src/features/cups/cups-db-requests.service";
+import { CustomersDbRequestsService } from "src/features/customers/customers-db-requests.service";
 
 @Global()
 @Module({
@@ -38,7 +43,12 @@ import { NotificationsService } from "./notifications-service";
     GovernanceService,
     BlockchainService,
     ShareService,
-    NotificationsService
+    NotificationsService,
+    EnergyHourlyService,
+    LogsService,
+    CommunitiesDbRequestsService,
+    CupsDbRequestsService,
+    CustomersDbRequestsService
   ],
   exports: [
     PrismaService,
@@ -56,7 +66,12 @@ import { NotificationsService } from "./notifications-service";
     GovernanceService,
     BlockchainService,
     ShareService,
-    NotificationsService
+    NotificationsService,
+    EnergyHourlyService,
+    LogsService,
+    CommunitiesDbRequestsService,
+    CupsDbRequestsService,
+    CustomersDbRequestsService
   ],
 })
 export class SharedServicesModule {}

@@ -5,9 +5,12 @@ import mysql from "mysql2/promise";
 import * as moment from 'moment';
 import { PasswordUtils } from "src/features/users/domain/Password/PasswordUtils";
 import { LocationUtils } from "src/shared/domain/utils/locationUtils";
-import { PrismaService } from "./prisma-service";
 import { EnvironmentService } from "./environment-service";
-
+import { EnergyHourlyService } from "./energy-houly-service";
+import { LogsService } from "./logs-service";
+import { CommunitiesDbRequestsService } from "src/features/communities/communities-db-requests.service";
+import { CupsDbRequestsService } from "src/features/cups/cups-db-requests.service";
+import { CustomersDbRequestsService } from "src/features/customers/customers-db-requests.service";
 
 interface supply {
   address: string
@@ -66,7 +69,14 @@ export class DatadisService {
 
   private conn: mysql.Pool;
 
-  constructor(private mysql: MysqlService, private prisma: PrismaService, private environmentService: EnvironmentService) {
+  constructor(
+    private mysql: MysqlService,
+    private environmentService: EnvironmentService,
+    private energyHourlyService: EnergyHourlyService,
+    private logsService: LogsService,
+    private customersDbService: CustomersDbRequestsService,
+    private cupsDbService: CupsDbRequestsService,
+    private communitiesDbService: CommunitiesDbRequestsService) {
 
     this.conn = this.mysql.pool;
 
@@ -74,7 +84,7 @@ export class DatadisService {
     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM');
 
-    //this.run(startDate, endDate)
+    this.run(startDate, endDate)
 
     setInterval(() => {
       startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
@@ -109,9 +119,9 @@ export class DatadisService {
     let errorMessage = '';
     let operation = 'insert datadis data';
 
-    this.dbCups = await this.getCups()
-    this.dbCustomers = await this.getCustomers();
-    this.dbCommunities = await this.getCommunities();
+    this.dbCups = await this.cupsDbService.getCups()
+    this.dbCustomers = await this.customersDbService.getCustomers();
+    this.dbCommunities = await this.communitiesDbService.getCommunities();
 
     this.supplies = [];
 
@@ -133,9 +143,11 @@ export class DatadisService {
         status = 'error';
         errorType = 'Error getting token';
         operation = 'Get token';
-        await this.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, error);
+        await this.logsService.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, error);
         continue;
       }
+
+      console.log("datadis login success: ", this.loginData.username)
 
       //get datadis cups supplies
       try {
@@ -146,12 +158,14 @@ export class DatadisService {
         status = 'error';
         errorType = 'Error getting supplies';
         operation = 'Get supplies'
-        await this.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
+        await this.logsService.postLogs(cups.cups, cups.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
       }
 
       if (!this.supplies || !this.supplies.length) {
         continue;
       }
+
+      console.log("got supplies. Number of supplies", this.supplies.length)
 
       //check if all cups are in database already
       await this.checkCups();
@@ -187,12 +201,16 @@ export class DatadisService {
           status = 'error';
           errorType = 'Error getting authorized supplies';
           operation = 'Get authorized supplies'
-          await this.postLogs(communityCupsElement.cups, communityCupsElement.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
+          await this.logsService.postLogs(communityCupsElement.cups, communityCupsElement.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage);
         }
       }
 
+      console.log("got supplies authorized. Number of supplies", this.supplies.length)
+
       //go across cups:
       for (const supply of this.supplies) {
+
+        console.log("getting datadis energy from", supply.cups, ". Authorized nif: ", supply.authorizedNif? true:false)
 
         status = 'success';
         errorType = '';
@@ -206,7 +224,7 @@ export class DatadisService {
           status = 'error';
           errorType = 'Error cups data not found on db';
           operation = 'Find cups data register by datadis supply.cups'
-          await this.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage)
+          await this.logsService.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, null, null, status, errorType, errorMessage)
           continue;
         }
 
@@ -226,7 +244,7 @@ export class DatadisService {
           errorType = "datadis request error";
           errorMessage = error.message.substring(0, 200);
           operation = "get datadis hourly energy registers (https://datadis.es/api-private/api/get-consumption-data)";
-          await this.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
+          await this.logsService.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
           continue;
         }
 
@@ -241,27 +259,27 @@ export class DatadisService {
           return 0;
         })
 
-        //insert readed cups energy hours
-        await this.postLogs(supply.cups, cupsData.id, operation, insertedEnergyDataNumber, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
+        console.log("datadis inserted registers number: ",insertedEnergyDataNumber)
 
-        try{
+        //insert readed cups energy hours
+        await this.logsService.postLogs(supply.cups, cupsData.id, operation, insertedEnergyDataNumber, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
+
+        try {
           await this.updateCupsEnergyData(cupsData.id, datadisCupsEnergyData);
-        } catch(error){
+        } catch (error) {
           status = 'error';
           errorType = "update datadis data error";
           errorMessage = error.message.substring(0, 200);
           operation = "update datadis hourly energy registers data into database (datadis table)";
-          await this.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
+          await this.logsService.postLogs(supply.cups, cupsData.id, operation, 0, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
         }
 
       }
     }
-
-    const newRegisters: any = await this.getNewDatadisRegisters()
-    this.insertNewRegistersToEnergyHourly(newRegisters)
+    await this.energyHourlyService.updateEnergyHourly();
   }
 
-  async login(username: string, password: string):Promise<string> {
+  async login(username: string, password: string): Promise<string> {
 
     this.loginData = { username, password }
 
@@ -277,7 +295,7 @@ export class DatadisService {
         let response: any = await axios.request(config)
         //console.log("login success, token obtained");
         //console.log("possible login error: ", response.data.status, response.data.error, response.data.message);
-        let token:string = response.data;
+        let token: string = response.data;
         resolve(token);
       } catch (error: any) {
         if (error.response) {
@@ -298,7 +316,7 @@ export class DatadisService {
     })
   }
 
-  async getSupplies(token: string):Promise<supply[]> {
+  async getSupplies(token: string): Promise<supply[]> {
 
     let config = {
       method: 'get',
@@ -369,10 +387,10 @@ export class DatadisService {
             if (typeof axiosError.response.data === 'object') {
               axiosError.response.data = axiosError.response.data.message;
             }
-            console.log("Get auth supplies error response", axiosError.response.data)
+            console.log("Get authorized supplies error response", axiosError.response.data)
             throw new Error(`${axiosError.response.data}`);
           } else {
-            console.log("Get auth supplies error response", axiosError.response)
+            console.log("Get authorized supplies error response", axiosError.response)
             throw new Error(`${axiosError.response.status}`);
           }
         } else if (axiosError.request) {
@@ -445,49 +463,6 @@ export class DatadisService {
 
   }
 
-  async getCups(): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const getCupsQuery = `SELECT *
-                              FROM cups`;
-        let [ROWS]: any = await this.conn.query(getCupsQuery);
-        resolve(ROWS);
-      } catch (e) {
-        console.log("error getting cups", e);
-        reject(e)
-      }
-    })
-  }
-
-  async getCustomers(): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const getCustomersQuery = `SELECT *
-                                   FROM customers`;
-        let [ROWS]: any = await this.conn.query(getCustomersQuery);
-        resolve(ROWS);
-      } catch (e) {
-        console.log("error getting customers", e);
-        reject(e)
-      }
-    })
-  }
-
-  async getCommunities(): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const getCommunitiesQuery: string = `SELECT *
-                                     FROM communities`;
-        let [ROWS]: any = await this.conn.query(getCommunitiesQuery);
-        resolve(ROWS);
-      } catch (e) {
-        console.log("error getting communities", e);
-        reject(e)
-      }
-    })
-  }
-
-
   async checkCups(): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -554,7 +529,7 @@ export class DatadisService {
 
   async updateCupsEnergyData(cupsId: any, datadisCupsEnergyData: any[]) {
 
-  
+
     try {
       let dataToSearchQueryPart = ''
       let values: any = []
@@ -610,7 +585,7 @@ export class DatadisService {
         let status = 'success'
         let errorMessage = ''
         let errorType = ''
-        this.postLogs(cups, cupsId, operation, nRegisters, values[0].info_dt, values[values.length - 1].info_dt, values[0].info_dt, values[values.length - 1].info_dt, status, errorType, errorMessage)
+        this.logsService.postLogs(cups, cupsId, operation, nRegisters, values[0].info_dt, values[values.length - 1].info_dt, values[0].info_dt, values[values.length - 1].info_dt, status, errorType, errorMessage)
       }
 
       function pushToValues(infoDt: string, consumption: number, generation: number, cupsId: any) {
@@ -704,302 +679,21 @@ export class DatadisService {
 
   }
 
-  async postLogs(cups: string, cupsId: number, operation: string, n_registers: number, startDate: any, endDate: any, getDatadisBegginningDate: any, getDatadisEndingDate: any, status: string, errorType: string, errorMessage: string) {
+  // async testRun() {
+  //   let datadisCupsEnergyData: any[] = await this.getCupsEnergyDataTest()
+  //   await this.updateCupsEnergyData(68, datadisCupsEnergyData);
+  // }
 
-    const log = {
-      cups,
-      n_registers,
-      startDate,
-      endDate,
-      status: status,
-      errorType,
-      errorMessage,
-      getDatadisBegginningDate,
-      getDatadisEndingDate
-    };
-
-    const insertLogQuery = `INSERT INTO logs (origin, log, cups, cups_id, status, operation, n_affected_registers,
-                                              error_message)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-
-    try {
-      let [ROWS] = await this.conn.query(insertLogQuery, ['datadis', JSON.stringify(log), cups, cupsId, status, operation, n_registers, errorMessage]);
-    } catch (e: any) {
-      console.log("error inserting logs energy data", e);
-    }
-
-  }
-
-  async getNewDatadisRegisters() {
-
-    return new Promise(async resolve => {
-      let query = `
-        SELECT d.*, cups.type, cups.surplus_distribution, cups.community_id
-        FROM datadis_energy_registers d
-               LEFT JOIN energy_hourly e ON d.info_dt = e.info_dt
-               LEFT JOIN cups ON d.cups_id = cups.id
-        WHERE e.info_dt IS NULL ;
-      `
-      let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
-      resolve(result);
-    })
-  }
-
-
-  async insertNewRegistersToEnergyHourly(datadisNewRegisters: any[]) {
-    const communities = await this.getCommunities()
-
-    for (const community of communities) {
-      let datadisRegistersByCommunity = datadisNewRegisters.filter(obj => obj.community_id === community.id);
-      const communityCups = datadisRegistersByCommunity.filter(obj => obj.type === 'community');
-
-      if (datadisNewRegisters) datadisRegistersByCommunity = this.orderArrByInfoDt(datadisNewRegisters)
-
-      const allCupsOfCommunity = await this.getCupsByCommunity(community.id)
-      // Merge and order the new and existing CUPS, adding any missing CUPS
-      const filteredCups = allCupsOfCommunity.length > 0 ?
-        this.orderArrByInfoDt(datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity))) : []
-
-      // Define the batch size
-      const batchSize = 4000;
-      // const batchSize = 99;
-
-      // Iterate over the filteredCups array in batches
-      for (let start = 0; start < filteredCups.length; start += batchSize) {
-        // for (let start = 0; start < 100; start += batchSize) {
-        // Extract a slice of batchSize from filteredCups
-        const batch = filteredCups.slice(start, start + batchSize);
-
-        // Construct the query for this batch
-        let query = 'INSERT INTO energy_hourly (info_dt, kwh_in, kwh_out, production, cups_id, origin, battery, shares) VALUES ';
-
-        for (let i = 0; i < batch.length; i++) {
-          const datadisRegister = batch[i];
-
-          if (datadisRegister.surplus_distribution) {
-            const communityExport = communityCups.find(obj =>
-              moment(obj.info_dt).format('YYYY-MM-DD HH:mm') == moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm'));
-
-            const production = communityExport ? datadisRegister.surplus_distribution * communityExport.export : null;
-            // const consumption = (production && datadisRegister.import) ? production + datadisRegister.import : datadisRegister.import;
-            let consumption = null;
-
-            /*if (production && datadisRegister.import){
-              consumption = production + datadisRegister.import
-            } else {
-              if (production && datadisRegister.export) {
-                consumption = production - datadisRegister.export
-              } else {
-                consumption = datadisRegister.import
-              }
-            }*/
-
-            query +=
-              `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${datadisRegister.import} , ${datadisRegister.export}, ${production} , ${datadisRegister.cups_id} , 'datadis', 0, ${datadisRegister.surplus_distribution || null}),`;
-          } else {
-            query +=
-              `("${moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss')}" , ${datadisRegister.import} , ${datadisRegister.export}, ${null} , ${datadisRegister.cups_id} , 'datadis', ${null}, ${null}),`;
-          }
-        }
-
-        // Remove the trailing comma from the query
-        query = query.slice(0, -1);
-        // console.log(query)
-
-        if (filteredCups.length) {
-          // Execute the query for this batch
-          let [result] = await this.conn.execute<mysql.ResultSetHeader>(query);
-          const insertedRows = result.affectedRows;
-          console.log(`Energy hourly of community ${community.id} inserted with a total of ${insertedRows} rows for batch starting at index ${start}`);
-        }
-
-      }
-    }
-
-    this.getTransactionsWithNullPrice().then(async (transactions) => {
-      console.log("Updating", transactions.length, "transactions...")
-      for (const transaction of transactions) {
-        const energyData = await this.getEnergyPrice(new Date(transaction.info_dt!), transaction.provider_id)
-        // transaction.kwhInPrice = energyData.price * transaction.kwhIn
-        transaction.kwh_in_price = energyData.price
-        // transaction.kwhOutPrice = energyData.price * transaction.kwhOut
-        transaction.kwh_out_price = 0.06
-        transaction.kwh_in_price_community = 0.09
-        transaction.kwh_out_price_community = 0.09
-        transaction.type = energyData.rate
-
-        this.updatePrices(transaction)
-      }
-    })
-  }
-
-
-  async getTransactionsWithNullPrice() {
-    const transactionsWithNullPrice: any = await this.prisma.$queryRaw`
-      SELECT eh.*, cups.community_id, cups.provider_id
-      FROM energy_hourly eh
-             LEFT JOIN cups ON eh.cups_id = cups.id
-      WHERE eh.kwh_in_price IS NULL
-         OR eh.kwh_out_price IS NULL;
-    `
-
-
-    return transactionsWithNullPrice;
-  }
-
-
-  async getEnergyPrice(date: Date, providerId: number) {
-    let formattedDate = moment(date).format('YYYY-MM-DD')
-    let price, energyBlockData: any[];
-
-    try {
-
-      const nonWorkingDayData = await this.prisma.nonWorkingDays.findFirst({
-        where: {
-          date: new Date(formattedDate),
-          providerId
-        }
-      })
-
-      let data: { rate: string, price: number } = {
-        rate: '',
-        price: 0
-      }
-
-      if (!nonWorkingDayData) {
-        formattedDate = moment(date).format('HH:DD:ss')
-
-        energyBlockData = await this.prisma.$queryRaw`
-          SELECT *
-          FROM energy_blocks
-          WHERE active_init <= ${formattedDate}
-            AND active_end >= ${formattedDate}
-            AND provider_id = ${providerId};
-        `
-        if (energyBlockData.length) {
-
-          const consumptionPrice = energyBlockData[0] ? energyBlockData[0].consumption_price : 0
-          price = consumptionPrice
-          data.rate = energyBlockData[0].reference || ''
-          data.price = price
-          return data
-
-        }
-
-      } else {
-        data.price = nonWorkingDayData.price || 0
-        data.rate = nonWorkingDayData.rate || ''
-      }
-
-      return data
-
-    } catch (e) {
-      throw new Error(`Get energy price error: energyBlockData",${energyBlockData!},"providerId",${providerId},"formattedDate",${formattedDate},${e}`)
-    }
-
-  }
-
-  async getCupsByCommunity(communityId: number) {
-    return await this.prisma.cups.findMany({
-      where: {
-        communityId
-      }
-    });
-  }
-
-  async updatePrices(data: any) {
-    await this.prisma.energyHourly.update({
-      where: {
-        id: parseInt(data.id),
-      },
-      data: {
-        kwhInPrice: data.kwh_in_price,
-        kwhOutPrice: data.kwh_out_price,
-        kwhOutVirtual: data.kwh_out,
-        type: data.type,
-      },
-    })
-  }
-
-/**
- * Adds CUPS (metering points) that are not provided in the new registers but exist in the database.
- *
- * @param {any[]} existentDatadisCups - An array of existing registers from the new data.
- * @param {any[]} allDbCups - An array of all CUPS from the database.
- * @returns {any[]} - An array of formatted new CUPS to be added.
- */
-  addNotProvidedCups(existentDatadisCups: any[], allDbCups: any[]) {
-    if (allDbCups.length === 0) {
-      return [];
-    }
-    // Extract the IDs of existing CUPS from the new registers
-    const existingCupsIds = existentDatadisCups.map(cup => cup.cups_id);
-    // Filter out the CUPS that are already in the existing registers
-    const newCups = allDbCups.filter(cup => !existingCupsIds.includes(cup.id));
-
-    if (!newCups.length) return []
-
-    const formattedNewCups: any = []
-
-    let lastCheckedDate = null
-
-    // Iterate over each existing CUPS register
-    for (const existentCups of existentDatadisCups) {
-      // Check if the date has changed
-      if (lastCheckedDate != moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss')) {
-        // Format the new CUPS for the changed date
-        formattedNewCups.push(...this.formatNewCups(newCups, existentCups))
-        lastCheckedDate = moment(existentCups.info_dt).format('YYYY-MM-DD HH:mm:ss')
-      }
-
-    }
-
-    return formattedNewCups
-  }
-
-  formatNewCups(newCups: any[], existentCups: any) {
-    const formattedCups = []
-    for (const cups of newCups) {
-      formattedCups.push({
-        cups_id: cups.id,
-        info_dt: existentCups.info_dt,
-        import: null,
-        export: null,
-        /*import: cups.type == 'community' ? existentCups.import : null,
-        export: cups.type == 'community' ? existentCups.export : null,*/
-        surplus_distribution: cups.surplusDistribution || null,
-        community_id: cups.communityId,
-        type: cups.type,
-        transaction_id: null,
-        battery: 0,
-        tx_import: null,
-        tx_export: null,
-        smart_contracts_version: 0
-      })
-    }
-
-    return formattedCups
-  }
-
-  orderArrByInfoDt(array: any[]) {
-    return array.sort((a: any, b: any) => a.info_dt - b.info_dt);
-  }
-
-  async testRun(){
-    let datadisCupsEnergyData:any[] = await this.getCupsEnergyDataTest()
-    await this.updateCupsEnergyData(68,datadisCupsEnergyData);
-  }
-
-  async getCupsEnergyDataTest(){
-    let selectQuery = `SELECT 
-    DATE_FORMAT(info_dt, '%Y/%m/%d') AS date, 
-    DATE_FORMAT(info_dt, '%H:%i') AS time,
-    import AS consumptionKWh,
-    export AS surplusEnergyKWh
-     from datadis_energy_registers WHERE info_dt LIKE '2024-07-01%' AND cups_id = 68`
-    const [ROWS]:any = await this.conn.execute(selectQuery);
-    let res:any[] = ROWS;
-    return res
-  }
+  // async getCupsEnergyDataTest() {
+  //   let selectQuery = `SELECT 
+  //   DATE_FORMAT(info_dt, '%Y/%m/%d') AS date, 
+  //   DATE_FORMAT(info_dt, '%H:%i') AS time,
+  //   import AS consumptionKWh,
+  //   export AS surplusEnergyKWh
+  //    from datadis_energy_registers WHERE info_dt LIKE '2024-07-01%' AND cups_id = 68`
+  //   const [ROWS]: any = await this.conn.execute(selectQuery);
+  //   let res: any[] = ROWS;
+  //   return res
+  // }
 
 }

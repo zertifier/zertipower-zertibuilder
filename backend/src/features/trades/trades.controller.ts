@@ -68,7 +68,7 @@ export class TradesController {
     mappedData.cost = data.cost
     mappedData.previousKwh = data.previous_kwh
     mappedData.currentKwh = data.current_kwh
-    mappedData.infoDt = moment(data.info_dt, 'YYYY-MM-DD HH:mm:ss').subtract(2, 'hours').format('YYYY-MM-DD HH:mm:ss');
+    mappedData.infoDt = moment(data.info_dt, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
     mappedData.createdDt = data.created_dt
     mappedData.updatedDT = data.updated_dt
 

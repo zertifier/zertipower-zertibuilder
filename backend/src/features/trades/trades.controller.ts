@@ -15,7 +15,7 @@ import { Datatable } from "src/shared/infrastructure/services/datatable/Datatabl
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
-import moment from "moment";
+import * as moment from "moment";
 export const RESOURCE_NAME = "trades";
 
 @ApiTags(RESOURCE_NAME)

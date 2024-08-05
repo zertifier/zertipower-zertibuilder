@@ -15,6 +15,7 @@ import { Datatable } from "src/shared/infrastructure/services/datatable/Datatabl
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
+import moment from "moment";
 export const RESOURCE_NAME = "trades";
 
 @ApiTags(RESOURCE_NAME)
@@ -67,7 +68,7 @@ export class TradesController {
     mappedData.cost = data.cost
     mappedData.previousKwh = data.previous_kwh
     mappedData.currentKwh = data.current_kwh
-    mappedData.infoDt = data.info_dt
+    mappedData.infoDt = moment(data.info_dt, 'YYYY-MM-DD HH:mm:ss').subtract(2, 'hours').format('YYYY-MM-DD HH:mm:ss');
     mappedData.createdDt = data.created_dt
     mappedData.updatedDT = data.updated_dt
 

@@ -205,7 +205,7 @@ export class DatadisService {
         }
       }
 
-      console.log("got supplies authorized. Number of supplies", this.supplies.length)
+      console.log("Got supplies authorized. Number of supplies", this.supplies.length)
 
       //go across cups:
       for (const supply of this.supplies) {

@@ -52,15 +52,16 @@ export class ShareService {
     ]
   };
   private conn: mysql.Pool;
+  daysToIgnore = 7;
 
   constructor(private mysql: MysqlService, private environment: EnvironmentService, private notificationService: NotificationsService) {
     this.conn = this.mysql.pool;
+
     try {
       this.redistribute()
     } catch (error) {
       console.log("shares redistribution error", error)
     }
-
 
     setInterval(() => {
       try {
@@ -74,7 +75,8 @@ export class ShareService {
   async redistribute() {
     try {
       console.log("Starting trades update...")
-      const surplusRegisters = await this.getNewSurplusRegisters()
+      let surplusRegisters = await this.getNewSurplusRegisters();
+      surplusRegisters = await this.deleteDays(surplusRegisters, this.daysToIgnore)
       const newRegisters = await this.getNewRegisters()
       console.log(`Updating ${surplusRegisters.length} registers...`)
       for (const surplusRegister of surplusRegisters) {
@@ -161,9 +163,7 @@ export class ShareService {
     const filteredRegisters = newRegisters.filter((register) =>
       moment(register.info_dt).format('YYYY-MM-DD HH') == date && communityId == register.community_id
     )
-
     return filteredRegisters.map(this.formatPartnerObjects)
-
   }
 
   getNewSurplusRegisters(): Promise<RegistersFromDb[]> {
@@ -377,6 +377,15 @@ export class ShareService {
 
     }
 
+  }
+
+  async deleteDays(registers: RegistersFromDb[], daysToIgnore: number) {
+    const date = moment().subtract(daysToIgnore, 'days')
+    let updatedRegisters: RegistersFromDb[];
+    updatedRegisters = registers.filter(register =>
+      moment(register.info_dt).isBefore(date)
+    )
+    return updatedRegisters;
   }
 
   formatPartnerObjects(data: RegistersFromDb) {

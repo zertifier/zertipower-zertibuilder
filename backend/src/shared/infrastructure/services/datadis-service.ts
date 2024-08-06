@@ -194,9 +194,9 @@ export class DatadisService {
       for (const communityCupsElement of this.communityCups) {
         try {
           let supplies = await this.getAuthorizedSupplies(this.token, communityCupsElement.dni);
-          this.supplies.concat(supplies);
+          this.supplies = this.supplies.concat(supplies);
         } catch (error) {
-          console.log("Error getting authorized supplies", typeof error, error.message)
+          console.log("Error getting authorized supplies", error.message, "cups id", communityCupsElement.id, "cups", communityCupsElement.cups, "dni", communityCupsElement.dni, "name", communityCupsElement.name)
           errorMessage = error.message;
           status = 'error';
           errorType = 'Error getting authorized supplies';
@@ -210,7 +210,7 @@ export class DatadisService {
       //go across cups:
       for (const supply of this.supplies) {
 
-        console.log("getting datadis energy from", supply.cups, ". Authorized nif: ", supply.authorizedNif? true:false)
+        console.log("getting datadis energy from", supply.cups, ". Authorized nif: ", supply.authorizedNif ? true : false)
 
         status = 'success';
         errorType = '';
@@ -259,7 +259,7 @@ export class DatadisService {
           return 0;
         })
 
-        console.log("datadis inserted registers number: ",insertedEnergyDataNumber)
+        console.log("datadis inserted registers number: ", insertedEnergyDataNumber)
 
         //insert readed cups energy hours
         await this.logsService.postLogs(supply.cups, cupsData.id, operation, insertedEnergyDataNumber, startDate, endDate, getDatadisBegginningDate, getDatadisEndingDate, status, errorType, errorMessage)
@@ -323,7 +323,7 @@ export class DatadisService {
       maxBodyLength: Infinity,
       url: 'https://datadis.es/api-private/api/get-supplies',
       headers: { 'Authorization': `Bearer ${token}` },
-      timeout: 20000
+      timeout: 40000
     }
 
     try {

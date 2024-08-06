@@ -321,7 +321,7 @@ export class EnergyHourlyService {
         try {
             const [ROWS]: any = await this.conn.query(query, [initData, endData]);
             const datadisRegisters = ROWS;
-            console.log("datadisRegisters", datadisRegisters)
+            //console.log("datadisRegisters", datadisRegisters)
             return datadisRegisters;
         } catch (error) {
             console.log("Error getting datadis registers to update energy hourly", error)

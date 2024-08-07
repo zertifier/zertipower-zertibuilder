@@ -960,7 +960,7 @@
 
                         <div class="row justify-content-center">
                             <div class="col-12 col-md-4 col-lg-4 d-flex">
-                                <button class="btn btn-secondary mt-4 w-100" (click)="addArea()">Afegir a la comunitat
+                                <button class="btn btn-secondary mt-4 mb-4 w-100" (click)="addArea()">Afegir a la comunitat
                                 </button>
                             </div>
                         </div>
@@ -976,9 +976,10 @@
                         </div>
                     </div> -->
 
-                    <div *ngIf="this.addedAreas.includes(this.selectedCadastre)">
-                        <!-- <div *ngIf="!this.selectedCadastre.monthlySavings"> -->
-
+                    <!-- <div *ngIf="!this.selectedCadastre.monthlySavings"> -->
+                    <!-- <div *ngIf="this.addedAreas.includes(this.selectedCadastre)"> -->
+                    <div *ngIf="this.addedAreas.length">
+                        
                         <div class="mb-2 mb-md-4">
                             <span> Resum de dades afegides. Edita'ls sempre que vulguis fent clic a
                                 <b>Seleccionar
@@ -1135,8 +1136,10 @@
                         </a>
 
                         <a class="d-flex" (click)="changeStep(4)" role="button" (click)="resetCadastre()">
-                            <span *ngIf="addedAreas.length && selectedCadastre.m2" class="ms-2 text-end">Afegir una
+                            <span *ngIf="addedAreas.length" class="ms-2 text-end">Afegir una
                                 altra àrea</span>
+                            <!-- <span *ngIf="addedAreas.length && selectedCadastre.m2" class="ms-2 text-end">Afegir una
+                                altra àrea</span> -->
                         </a>
 
                     </div>

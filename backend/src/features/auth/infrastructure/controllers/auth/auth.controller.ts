@@ -133,7 +133,8 @@ export class AuthController {
         throw new InvalidArgumentError("There is a user with this email");
       }
 
-      let encryptedPassword = await PasswordUtils.encrypt(private_key);
+      //let encryptedPassword = await PasswordUtils.encrypt(private_key); 
+      let encryptedPassword = await PasswordUtils.encryptData(private_key, process.env.JWT_SECRET!);
 
       //check if customer exists
       [ROWS] = await this.conn.query(getCustomerEmail, [email]);
@@ -144,7 +145,7 @@ export class AuthController {
           const result: any = await this.conn.query(insertCustomerDniQuery, [`${firstname} ${lastname}`, dni, email]);
           customerId = result[0].insertId;
         } else {
-          const result: any = await this.conn.query(insertCustomerQuery, [`${firstname} ${lastname}`, email,this.defaultBalance]);
+          const result: any = await this.conn.query(insertCustomerQuery, [`${firstname} ${lastname}`, email, this.defaultBalance]);
           customerId = result[0].insertId;
         }
       }
@@ -199,10 +200,13 @@ export class AuthController {
       if (!dbUser) {
         throw new UserNotFoundError();
       }
+      //two methods to two password types: migrating to decrypt method (in order to balance transaction purposes)
       let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
-      if (!passwordMatch) {
+      const decodedPK = await PasswordUtils.decryptData(dbUser.password, process.env.JWT_SECRET!);
+      if (!passwordMatch && decodedPK !== private_key) {
         throw new PasswordNotMatchError();
       }
+
     } catch (e) {
       console.log("error web wallet login get", e);
       throw new UserNotFoundError();
@@ -256,6 +260,7 @@ export class AuthController {
       ],
     },
   })
+
   async login(@Body() body: LoginDTO): Promise<HttpResponse> {
     const { user: usernameOrEmail, password } = body;
 
@@ -291,8 +296,6 @@ export class AuthController {
     if (!passwordMatch) {
       throw new PasswordNotMatchError();
     }
-
-    console.log("user", user)
 
     // Creating errors
     const { signedRefreshToken, signedAccessToken } =

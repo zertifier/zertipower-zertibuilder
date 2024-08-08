@@ -6,19 +6,30 @@ import {
   Put,
   Body,
   Param,
+  Request,
 } from "@nestjs/common";
-import {HttpResponse} from "src/shared/infrastructure/http/HttpResponse";
-import {PrismaService} from "src/shared/infrastructure/services/prisma-service/prisma-service";
-import {MysqlService} from "src/shared/infrastructure/services/mysql-service/mysql.service";
-import {Datatable} from "src/shared/infrastructure/services/datatable/Datatable";
-import {SaveCommunitiesDTO, SaveDaoDTO} from "./save-communities-dto";
+import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
+import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
+import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
+import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
+import { SaveCommunitiesDTO, SaveDaoDTO } from "./save-communities-dto";
 import * as moment from "moment";
-import {ApiTags} from "@nestjs/swagger";
+import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
 import { UnexpectedError } from "src/shared/domain/error/common";
-import {CommunityCups, CommunityCupsStats} from "./communities.interface";
-import {CommunitiesStatsService} from "./communities-stats/communities-stats.service";
+import { CommunityCups, CommunityCupsStats } from "./communities.interface";
+import { CommunitiesStatsService } from "./communities-stats/communities-stats.service";
+import { CustomersDbRequestsService } from "../customers/customers-db-requests.service";
+import { UsersDbRequestsService } from "../users/infrastructure/user-controller/user-db-requests.service";
+import { UserDTO } from "../users/infrastructure/user-controller/DTOs/UserDTO"
+import { transferERC20 } from "src/shared/infrastructure/services/contract-helpers"
+import { CommunityDbRequestsService } from "./community-db.service";
+import { CupsDbRequestsService } from "../cups/cups-db-requests.service";
+import { SaveUserDTO } from "../users/infrastructure/user-controller/DTOs/SaveUserDTO";
+import { SaveCustomersDTO } from "../customers/save-customers-dto";
+import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
+import { EnvironmentService } from "src/shared/infrastructure/services";
 
 export const RESOURCE_NAME = "communities";
 
@@ -33,6 +44,11 @@ export class CommunitiesController {
     private datatable: Datatable,
     private mysql: MysqlService,
     private statsService: CommunitiesStatsService,
+    private customersDbRequestService: CustomersDbRequestsService,
+    private usersDbRequestService: UsersDbRequestsService,
+    private communityDbRequestService: CommunityDbRequestsService,
+    private cupsDbRequestsService: CupsDbRequestsService,
+    private environmentService: EnvironmentService
   ) {
     this.conn = this.mysql.pool;
   }
@@ -54,7 +70,7 @@ export class CommunitiesController {
   @Get("/:id/cups")
   async getCommunityCupsById(@Param("id") id: number) {
     let url = `SELECT * FROM cups WHERE community_id = ?`;
-    const [ROWS]:any[] = await this.conn.query(url,[id]);
+    const [ROWS]: any[] = await this.conn.query(url, [id]);
     return HttpResponse.success("communities cups fetched successfully").withData(
       ROWS
     );
@@ -90,8 +106,8 @@ export class CommunitiesController {
   //@Auth(RESOURCE_NAME)
   async getByIdEnergyActives(@Param("id") id: number, @Param("date") date: string) {
 
-    try{
-    let url = `
+    try {
+      let url = `
         SELECT 
         COUNT(DISTINCT c.id) AS total_cups,
         COUNT(DISTINCT der.cups_id) AS total_actives
@@ -100,11 +116,11 @@ export class CommunitiesController {
     WHERE c.community_id = ?;
     `;
 
-    const [ROWS]: any[] = await this.conn.query(url, [id]);
+      const [ROWS]: any[] = await this.conn.query(url, [id]);
 
-    return HttpResponse.success("community active users fetched successfully").withData(ROWS);
-    
-    }catch(e){
+      return HttpResponse.success("community active users fetched successfully").withData(ROWS);
+
+    } catch (e) {
       console.log(e)
       throw new UnexpectedError(e);
     }
@@ -127,7 +143,7 @@ export class CommunitiesController {
                GROUP BY MONTH(info_dt);
     `;
 
-      let productionDataQuery = `SELECT MONTHNAME(info_dt) as month,
+    let productionDataQuery = `SELECT MONTHNAME(info_dt) as month,
       MONTH(info_dt)     as month_number,
       SUM(export)        AS export
       FROM communities
@@ -141,14 +157,14 @@ export class CommunitiesController {
 
     let year = moment(date, 'YYYY-MM-DD').format('YYYY').toString()
 
-    console.log(id,year)
+    console.log(id, year)
 
     let [ROWS]: any[] = await this.conn.query(importDataQuery, [id, year]);
     let importData = ROWS;
     [ROWS] = await this.conn.query(productionDataQuery, [id, year]);
     let productionData = ROWS;
 
-    return HttpResponse.success("communities fetched successfully").withData({importData,productionData})
+    return HttpResponse.success("communities fetched successfully").withData({ importData, productionData })
 
   }
 
@@ -481,7 +497,10 @@ export class CommunitiesController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCommunitiesDTO) {
-    const data = await this.prisma.communities.create({data: body});
+    if (body.walletPwd) {
+      body.walletPwd = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!)
+    }
+    const data = await this.prisma.communities.create({ data: body });
     return HttpResponse.success("communities saved successfully").withData(
       data
     );
@@ -592,14 +611,14 @@ export class CommunitiesController {
     mappedData.production = data.surplusCommunity || data.surplus_community;
     mappedData.activeMembers = parseInt(data.activeMembers) || parseInt(data.active_members);
     mappedData.type = data.type;
-/*    mappedData.createdAt = data.createdAt || data.created_at;
-    mappedData.updatedAt = data.updatedAt || data.updated_at;*/
+    /*    mappedData.createdAt = data.createdAt || data.created_at;
+        mappedData.updatedAt = data.updatedAt || data.updated_at;*/
     mappedData.communityId = data.communityId || data.community_id;
     mappedData.communitiesCups = data.communitiesCups
     return mappedData;
   }
 
-  mapCommunityData(data: any){
+  mapCommunityData(data: any) {
     const mappedData: any = {};
     mappedData.kwhOut = data.kwhOut || data.kwh_out;
     mappedData.infoDt = data.infoDt || data.info_dt;
@@ -620,13 +639,13 @@ export class CommunitiesController {
           formattedDate = `${date} ${hour}:00:00`
         }
 
-        if (type == 'monthly'){
-          const day = (i+1).toString().length > 1 ? i+1 : `0${i+1}`
+        if (type == 'monthly') {
+          const day = (i + 1).toString().length > 1 ? i + 1 : `0${i + 1}`
           formattedDate = `${date}-${day} 01:00:00`
         }
 
-        if (type == 'yearly'){
-          const month = (i+1).toString().length > 1 ? i+1 : `0${i+1}`
+        if (type == 'yearly') {
+          const month = (i + 1).toString().length > 1 ? i + 1 : `0${i + 1}`
           formattedDate = `${date}-${month}-01 01:00:00`
         }
 
@@ -635,13 +654,13 @@ export class CommunitiesController {
           if (type == 'daily' && item.info_dt)
             return item.info_dt.toString() == newDate.toString()
 
-          if (type == 'monthly' && item.info_dt){
+          if (type == 'monthly' && item.info_dt) {
             const dayOfItem = moment(item.info_dt).format('YYYY-MM-DD')
             const dayOfNewDate = moment(newDate).format('YYYY-MM-DD')
             return dayOfItem == dayOfNewDate
           }
 
-          if (type == 'yearly' && item.info_dt){
+          if (type == 'yearly' && item.info_dt) {
             const monthOfItem = moment(item.info_dt).format('YYYY-MM')
             const monthOfNewDate = moment(newDate).format('YYYY-MM')
             return monthOfItem == monthOfNewDate
@@ -679,30 +698,30 @@ export class CommunitiesController {
     return data
   }
 
-  setProduction(cupsData: any, communityData: any, type: 'yearly' | 'monthly' | 'daily'){
+  setProduction(cupsData: any, communityData: any, type: 'yearly' | 'monthly' | 'daily') {
     let dateFormat = 'YYYY-MM-DD HH:mm:ss'
     if (type == "monthly") dateFormat = 'YYYY-MM-DD'
     if (type == "yearly") dateFormat = 'YYYY-MM'
 
     for (const cups of cupsData) {
-      let production = communityData.find((community: {production: number, info_dt: Date}) => {
+      let production = communityData.find((community: { production: number, info_dt: Date }) => {
         if (moment(community.info_dt).format(dateFormat) == moment(cups.info_dt).format(dateFormat)) return community
       })
 
 
       if (!production) production = 0
       else production = production.production
-console.log(cups.surplus_distribution, 'cups.surplus_distribution')
+      console.log(cups.surplus_distribution, 'cups.surplus_distribution')
 
       cups.production = production
-      cups.production_active  = production * parseFloat(cups.surplus_distribution)
+      cups.production_active = production * parseFloat(cups.surplus_distribution)
 
     }
 
     return cupsData
   }
 
-  addCommunityCups(cupsData: CommunityCupsStats[], communityStats: CommunityCups[]){
+  addCommunityCups(cupsData: CommunityCupsStats[], communityStats: CommunityCups[]) {
 
     for (const cups of cupsData) {
       const communities: CommunityCups[] | [] = communityStats.filter(communityCups => communityCups.filter_dt == cups.filter_dt) || []
@@ -710,6 +729,89 @@ console.log(cups.surplus_distribution, 'cups.surplus_distribution')
     }
 
     return cupsData
+  }
+
+  @Put("/balance/deposit")
+  @Auth(RESOURCE_NAME)
+  async depositBalance(@Body() body: any, @Request() req: any) {
+    try {
+      const { balance } = body;
+
+      const payload = req.decodedToken;
+      const _user = payload.user;
+
+      const user: any = await this.usersDbRequestService.getUserById(_user._id)
+      console.log("user", user);
+      const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
+      console.log("customer", customer);
+      const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
+      console.log("cups", cups);
+      const community: any = await this.communityDbRequestService.getCommunityById(cups.community_id)
+      console.log("community", community);
+
+      //decoded user social wallet pk (only if can decode pwd)
+      const decodedPK = await PasswordUtils.decryptData(user.password, process.env.JWT_SECRET!);
+
+      //transfer EKW balance from user social wallet to community wallet
+      await transferERC20(decodedPK, community.wallet_address, balance, "EKW");
+
+      //update customer balance
+      const newBalance = customer?.balance + balance;
+
+      const customerUpdate: SaveCustomersDTO = {
+        balance: newBalance
+      }
+
+      await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
+
+      return HttpResponse.success("deposit balance success")
+
+    } catch (error) {
+      console.log(error)
+      throw new UnexpectedError(error);
+    }
+
+  }
+
+  @Put("/balance/witdraw")
+  @Auth(RESOURCE_NAME)
+  async witdrawBalance(@Body() body: any, @Request() req: any) {
+    try {
+      const { balance } = body;
+
+      const payload = req.decodedToken;
+      const _user = payload.user;
+
+      const user: any = await this.usersDbRequestService.getUserById(_user._id)
+      console.log("user", user);
+      const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
+      console.log("customer", customer);
+      const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
+      console.log("cups", cups);
+      const community: any = await this.communityDbRequestService.getCommunityById(cups.community_id)
+      console.log("community", community);
+
+      //decoded community wallet address PK
+      const decodedPK = await PasswordUtils.decryptData(community.password, process.env.JWT_SECRET!);
+
+      //send from community wallet to customer social wallet
+      await transferERC20(decodedPK, user.wallet_address, balance, "EKW");
+
+      //update customer balance
+      const newBalance = customer?.balance - balance;
+
+      const customerUpdate: SaveCustomersDTO = {
+        balance: newBalance
+      }
+
+      await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
+
+      return HttpResponse.success("witdraw balance success")
+
+    } catch (error) {
+      console.log(error)
+      throw new UnexpectedError(error);
+    }
   }
 
 }

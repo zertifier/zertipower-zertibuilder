@@ -23,6 +23,7 @@ import { LogsService } from "./logs-service";
 import { CommunitiesDbRequestsService } from "src/features/communities/communities-db-requests.service";
 import { CupsDbRequestsService } from "src/features/cups/cups-db-requests.service";
 import { CustomersDbRequestsService } from "src/features/customers/customers-db-requests.service";
+import { UsersDbRequestsService } from "src/features/users/infrastructure/user-controller/user-db-requests.service";
 
 @Global()
 @Module({
@@ -48,7 +49,9 @@ import { CustomersDbRequestsService } from "src/features/customers/customers-db-
     LogsService,
     CommunitiesDbRequestsService,
     CupsDbRequestsService,
-    CustomersDbRequestsService
+    CustomersDbRequestsService,
+    UsersDbRequestsService,
+    CommunitiesDbRequestsService
   ],
   exports: [
     PrismaService,
@@ -71,7 +74,9 @@ import { CustomersDbRequestsService } from "src/features/customers/customers-db-
     LogsService,
     CommunitiesDbRequestsService,
     CupsDbRequestsService,
-    CustomersDbRequestsService
+    CustomersDbRequestsService,
+    UsersDbRequestsService,
+    CommunitiesDbRequestsService
   ],
 })
 export class SharedServicesModule {}

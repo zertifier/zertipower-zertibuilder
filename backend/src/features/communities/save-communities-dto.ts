@@ -17,6 +17,15 @@ export class SaveCommunitiesDTO {
   geolocation: string;
 
   @IsOptional()
+  dao_address: string;
+
+  @IsOptional()
+  walletAddress: string;
+
+  @IsOptional()
+  walletPwd: string;
+
+  @IsOptional()
   energyPrice:number;
 
   @Transform((value) =>

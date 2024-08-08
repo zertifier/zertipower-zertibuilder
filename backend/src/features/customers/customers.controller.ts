@@ -110,23 +110,23 @@ export class CustomersController {
     );
   }
 
-  @Put("/balance/:id")
-  @Auth(RESOURCE_NAME)
-  async updateBalance(@Param("id") id: string, @Body() body: SaveCustomersDTO) {
+  // @Put("/balance/:id")
+  // @Auth(RESOURCE_NAME)
+  // async updateBalance(@Param("id") id: string, @Body() body: SaveCustomersDTO) {
 
-    //todo: get and transfer from customer wallet to central wallet 
-    //todo: update balance
+  //   //todo: get and transfer from customer wallet to central wallet 
+  //   //todo: update balance
 
-    const data = await this.prisma.customers.updateMany({
-      where: {
-        id: parseInt(id),
-      },
-      data: body,
-    });
-    return HttpResponse.success("customers updated successfully").withData(
-      data
-    );
-  }
+  //   const data = await this.prisma.customers.updateMany({
+  //     where: {
+  //       id: parseInt(id),
+  //     },
+  //     data: body,
+  //   });
+  //   return HttpResponse.success("customers updated successfully").withData(
+  //     data
+  //   );
+  // }
 
   @Delete(":id")
   @Auth(RESOURCE_NAME)

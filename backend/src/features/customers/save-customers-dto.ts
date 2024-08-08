@@ -7,19 +7,19 @@ export class SaveCustomersDTO {
   id: number;*/
   
   @IsOptional()
-  name: string;
+  name?: string;
 
   @IsOptional()
-  walletAddress: string;
+  walletAddress?: string;
 
   @IsOptional()
-  dni: string;
+  dni?: string;
 
   @IsOptional()
-  balance: number;
+  balance?: number;
 
   @IsOptional()
-  email: string;
+  email?: string;
   
 /*  @Transform((value) =>
     moment.utc((value as any).value, "YYYY-MM-DD HH:mm:ss").toDate()

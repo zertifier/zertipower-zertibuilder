@@ -74,11 +74,15 @@ export class ShareService {
 
   async redistribute() {
     try {
+
       console.log("Starting trades update...")
+
       let surplusRegisters = await this.getNewSurplusRegisters();
       surplusRegisters = await this.deleteDays(surplusRegisters, this.daysToIgnore)
       const newRegisters = await this.getNewRegisters()
-      console.log(`Updating ${surplusRegisters.length} registers...`)
+
+      console.log(`Inserting ${surplusRegisters.length} trades...`)
+
       for (const surplusRegister of surplusRegisters) {
         const communityPrice = await this.getCommunityPrice(surplusRegister.community_id)
         const redisitributePartners = this.getRegistersByDateAndCommunity(surplusRegister.info_dt, surplusRegister.community_id, newRegisters)
@@ -92,7 +96,7 @@ export class ShareService {
         const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
         await this.insertToTrades(calculatedRedistribute, communityPrice)
       }
-      console.log("Finished trades update")
+      
     } catch (error) {
       console.log(error);
     }

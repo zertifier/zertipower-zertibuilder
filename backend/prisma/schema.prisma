@@ -115,18 +115,20 @@ model Calendar {
 }
 
 model Communities {
-  id          Int       @id @default(autoincrement())
-  name        String?   @db.VarChar(50)
-  test        Int?      @default(dbgenerated("(current_timestamp())")) @db.TinyInt
-  energyPrice Float?    @map("energy_price")
-  lat         Float?
-  lng         Float?
-  daoAddress  String?   @map("dao_address") @db.VarChar(50)
-  daoName     String?   @map("dao_name") @db.VarChar(255)
-  daoSymbol   String?   @map("dao_symbol") @db.VarChar(50)
-  locationId  Int?      @map("location_id")
-  createdAt   DateTime? @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt   DateTime? @map("updated_at") @db.DateTime(0)
+  id            Int       @id @default(autoincrement())
+  name          String?   @db.VarChar(50)
+  test          Int?      @default(dbgenerated("(current_timestamp())")) @db.TinyInt
+  energyPrice   Float?    @map("energy_price")
+  lat           Float?
+  lng           Float?
+  daoAddress    String?   @map("dao_address") @db.VarChar(50)
+  walletAddress String?   @map("wallet_address") @db.VarChar(150)
+  walletPwd     String?   @map("wallet_pwd") @db.VarChar(150)
+  daoName       String?   @map("dao_name") @db.VarChar(255)
+  daoSymbol     String?   @map("dao_symbol") @db.VarChar(50)
+  locationId    Int?      @map("location_id")
+  createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt     DateTime? @map("updated_at") @db.DateTime(0)
 
   @@map("communities")
 }

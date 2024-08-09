@@ -735,7 +735,7 @@ export class CommunitiesController {
   @Auth(RESOURCE_NAME)
   async depositBalance(@Body() body: any, @Request() req: any) {
     try {
-      const { balance } = body;
+      const { balance, pk } = body;
 
       const payload = req.decodedToken;
       const _user = payload.user;
@@ -750,10 +750,10 @@ export class CommunitiesController {
       console.log("community", community);
 
       //decoded user social wallet pk (only if can decode pwd)
-      const decodedPK = await PasswordUtils.decryptData(user.password, process.env.JWT_SECRET!);
+      //const decodedPK = await PasswordUtils.decryptData(user.password, process.env.JWT_SECRET!);
 
       //transfer EKW balance from user social wallet to community wallet
-      await transferERC20(decodedPK, community.wallet_address, balance, "EKW");
+      await transferERC20(pk, community.wallet_address, balance, "EKW");
 
       //update customer balance
       const newBalance = customer?.balance + balance;

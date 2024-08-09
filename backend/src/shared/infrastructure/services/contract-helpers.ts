@@ -1,25 +1,5 @@
-import { getDefaultProvider } from "ethers";
-
 const { ethers } = require("ethers");
 const https = require('https');
-
-interface contractData {
-    id: number,
-    contract_reference: string,
-    contract_address: string,
-    wallet_address_owner: string,
-    code: string,
-    abi: string
-    blockchain_id: string,
-    version: number,
-    blockchain_name: string,
-    rpc_url: string,
-    blockchain_tx_url: string,
-    wallet_url: string
-}
-
-let contractData: contractData[];
-getBlockchainAndScData().then((res: contractData[]) => contractData = res);
 
 async function mintBatchERC20(batchContractAddress: any, contractAddresses: any, walletReceivers: any, amounts: any, privateKey: any, abi: any, chainId: any, rpcUrl: any) {
 
@@ -200,37 +180,6 @@ function createWalletByReference(reference: string | number) {
     return WALLET.address
 }
 
-export async function transferERC20(fromWalletPk: string, toWallet: string, amount: number, type: 'DAO' | 'XDAI' | 'EKW') {
-    
-    const contractData:contractData = getContractData(type)!;
-    const rpc = getRpc(contractData.blockchain_id);
-    const provider = new ethers.JsonRpcProvider(rpc)
-    const fromWallet = new ethers.Wallet(fromWalletPk, provider);
-
-    try {
-        switch (type) {
-            case "DAO":
-                //code not implemented
-                break;
-            case "XDAI":
-                //code not implemented
-                break;
-            case "EKW":
-                let tx: any;
-                let value = ethers.parseUnits(amount.toString(), "ether");
-                const contract = new ethers.Contract(contractData.contract_address, contractData.abi, fromWallet)
-                tx = await contract['transfer'](toWallet, value);
-                tx = await tx.wait();
-                return tx;
-            default:
-                throw new Error(`Transfer error: unrecognized type ${type}`)
-        }
-    } catch (error) {
-        console.log(error)
-        throw new Error(`Transfer error ${error}`)
-    }
-}
-
 async function getChainBalance(walletAddress: string) {
     try {
         const provider = new ethers.JsonRpcProvider(this.rpc)
@@ -239,27 +188,6 @@ async function getChainBalance(walletAddress: string) {
     } catch (error) {
         console.log(error, "ERROR")
         return 0
-    }
-}
-
-async function getEKWBalance(walletAddress: string) {
-    try {
-        const provider = new ethers.JsonRpcProvider(this.rpc);
-        const EKW_CONTRACT: contractData = getContractData('EKW')!;
-        const contract = new ethers.Contract(EKW_CONTRACT.contract_address, EKW_CONTRACT.abi, provider)
-        const balance = ethers.formatEther(await contract['balanceOf'](walletAddress)).toString();
-        return parseFloat(balance)
-    } catch (error) {
-        console.log(error, "ERROR")
-        return 0
-    }
-}
-
-function getContractData(contractReference: string): contractData | undefined {
-    try {
-        return contractData.find((contract: contractData) => contract.contract_reference = contractReference)
-    } catch {
-        return undefined
     }
 }
 
@@ -341,6 +269,5 @@ module.exports = {
     createContractInstanceWithSigner,
     mintBatchERC20,
     createWalletByReference,
-    transferERC20,
     getChainBalance
 }

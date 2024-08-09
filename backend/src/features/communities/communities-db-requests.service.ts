@@ -2,6 +2,7 @@ import { MysqlService } from "src/shared/infrastructure/services/mysql-service/m
 import mysql from "mysql2/promise";
 import { LogsService } from "src/shared/infrastructure/services/logs-service";
 import { Injectable } from "@nestjs/common";
+import { PrismaService } from "src/shared/infrastructure/services";
 
 @Injectable()
 export class CommunitiesDbRequestsService {
@@ -10,6 +11,7 @@ export class CommunitiesDbRequestsService {
 
     constructor(
         private mysql: MysqlService,
+        private prisma: PrismaService,
         private logsService: LogsService) {
         this.conn = this.mysql.pool;
     }
@@ -23,6 +25,22 @@ export class CommunitiesDbRequestsService {
                 resolve(ROWS);
             } catch (e) {
                 console.log("error getting communities", e);
+                reject(e)
+            }
+        })
+    }
+
+    async getCommunityById(communityId: number): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const community = await this.prisma.communities.findUnique({
+                    where: {
+                        id: communityId
+                    },
+                });
+                resolve(community)
+            } catch (e) {
+                console.log("error getting community by id", e);
                 reject(e)
             }
         })

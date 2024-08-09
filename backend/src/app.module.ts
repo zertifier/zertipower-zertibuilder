@@ -59,7 +59,7 @@ import { UsersNotificationsHistoricController } from './features/notifications/c
     AuthRepositoriesModule,
     WeatherPredictionModule,
     EnergyPredictionModule,
-    CommunitiesModule,
+    CommunitiesModule
   ],
   // Do not remove controllers section cuz zertibuilder
   // can create it if it doesn't exist

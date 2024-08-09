@@ -19,17 +19,19 @@ import { Auth } from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
 import { UnexpectedError } from "src/shared/domain/error/common";
 import { CommunityCups, CommunityCupsStats } from "./communities.interface";
+
 import { CommunitiesStatsService } from "./communities-stats/communities-stats.service";
 import { CustomersDbRequestsService } from "../customers/customers-db-requests.service";
 import { UsersDbRequestsService } from "../users/infrastructure/user-controller/user-db-requests.service";
-import { UserDTO } from "../users/infrastructure/user-controller/DTOs/UserDTO"
-import { transferERC20 } from "src/shared/infrastructure/services/contract-helpers"
-import { CommunityDbRequestsService } from "./community-db.service";
+import { CommunitiesDbRequestsService } from "./communities-db-requests.service";
 import { CupsDbRequestsService } from "../cups/cups-db-requests.service";
+
+import { UserDTO } from "../users/infrastructure/user-controller/DTOs/UserDTO"
 import { SaveUserDTO } from "../users/infrastructure/user-controller/DTOs/SaveUserDTO";
 import { SaveCustomersDTO } from "../customers/save-customers-dto";
 import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
 import { EnvironmentService } from "src/shared/infrastructure/services";
+import { BlockchainService } from "src/shared/infrastructure/services/blockchain-service";
 
 export const RESOURCE_NAME = "communities";
 
@@ -46,9 +48,10 @@ export class CommunitiesController {
     private statsService: CommunitiesStatsService,
     private customersDbRequestService: CustomersDbRequestsService,
     private usersDbRequestService: UsersDbRequestsService,
-    private communityDbRequestService: CommunityDbRequestsService,
+    private communityDbRequestService: CommunitiesDbRequestsService,
     private cupsDbRequestsService: CupsDbRequestsService,
-    private environmentService: EnvironmentService
+    private environmentService: EnvironmentService,
+    private blockchainService: BlockchainService
   ) {
     this.conn = this.mysql.pool;
   }
@@ -746,14 +749,14 @@ export class CommunitiesController {
       console.log("customer", customer);
       const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
       console.log("cups", cups);
-      const community: any = await this.communityDbRequestService.getCommunityById(cups.community_id)
+      const community: any = await this.communityDbRequestService.getCommunityById(cups.communityId)
       console.log("community", community);
 
       //decoded user social wallet pk (only if can decode pwd)
       //const decodedPK = await PasswordUtils.decryptData(user.password, process.env.JWT_SECRET!);
 
       //transfer EKW balance from user social wallet to community wallet
-      await transferERC20(pk, community.wallet_address, balance, "EKW");
+      await this.blockchainService.transferERC20(pk, community.wallet_address, balance, "EKW");
 
       //update customer balance
       const newBalance = customer?.balance + balance;
@@ -768,7 +771,7 @@ export class CommunitiesController {
 
     } catch (error) {
       console.log(error)
-      throw new UnexpectedError(error);
+      throw new UnexpectedError('deposit error');
     }
 
   }
@@ -788,14 +791,14 @@ export class CommunitiesController {
       console.log("customer", customer);
       const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
       console.log("cups", cups);
-      const community: any = await this.communityDbRequestService.getCommunityById(cups.community_id)
+      const community: any = await this.communityDbRequestService.getCommunityById(cups.communityId)
       console.log("community", community);
 
       //decoded community wallet address PK
       const decodedPK = await PasswordUtils.decryptData(community.password, process.env.JWT_SECRET!);
 
       //send from community wallet to customer social wallet
-      await transferERC20(decodedPK, user.wallet_address, balance, "EKW");
+      await this.blockchainService.transferERC20(decodedPK, user.wallet_address, balance, "EKW");
 
       //update customer balance
       const newBalance = customer?.balance - balance;
@@ -810,7 +813,7 @@ export class CommunitiesController {
 
     } catch (error) {
       console.log(error)
-      throw new UnexpectedError(error);
+      throw new UnexpectedError('witdraw error');
     }
   }
 

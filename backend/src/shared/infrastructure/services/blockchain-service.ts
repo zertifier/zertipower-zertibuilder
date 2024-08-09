@@ -11,11 +11,27 @@ const { ethers } = require("ethers");
 require('dotenv').config();
 const https = require('https');
 
+interface contractData {
+    id: number,
+    contract_reference: string,
+    contract_address: string,
+    wallet_address_owner: string,
+    code: string,
+    abi: string
+    blockchain_id: string,
+    version: number,
+    blockchain_name: string,
+    rpc_url: string,
+    blockchain_tx_url: string,
+    wallet_url: string
+}
+
 @Injectable()
 export class BlockchainService {
 
     private conn: mysql.Pool;
 
+    smartContracts:contractData[];
     smartContract: any;
     provider: any;
 
@@ -26,8 +42,9 @@ export class BlockchainService {
 
     async initialize() {
         try{
-            let smartContracts = await this.getBlockchainAndScData();
-            let smartContract = smartContracts.find((smartContract: any) => smartContract.contract_reference == 'energyMapping')
+            this.smartContracts = await this.getBlockchainAndScData();
+            let smartContract = this.smartContracts.find((smartContract: any) => smartContract.contract_reference == 'energyMapping')!
+
             await this.obtainSmartContract(smartContract.contract_address, process.env.PK, smartContract.abi, smartContract.blockchain_id, smartContract.rpc_url).catch(e => {
                 console.log(e)
             })
@@ -211,6 +228,58 @@ export class BlockchainService {
         }
         catch (e) {
             throw new Error(e)
+        }
+    }
+
+    async transferERC20(fromWalletPk: string, toWallet: string, amount: number, type: 'DAO' | 'XDAI' | 'EKW') {
+    
+        const contractData:contractData = this.getContractData(type)!;
+        const rpc = this.getRpc(contractData.blockchain_id);
+        const provider = new ethers.JsonRpcProvider(rpc);
+        const fromWallet = new ethers.Wallet(fromWalletPk, provider);
+    
+        try {
+            switch (type) {
+                case "DAO":
+                    //code not implemented
+                    break;
+                case "XDAI":
+                    //code not implemented
+                    break;
+                case "EKW":
+                    let tx: any;
+                    let value = ethers.parseUnits(amount.toString(), "ether");
+                    const contract = new ethers.Contract(contractData.contract_address, contractData.abi, fromWallet)
+                    tx = await contract['transfer'](toWallet, value);
+                    tx = await tx.wait();
+                    return tx;
+                default:
+                    throw new Error(`Transfer error: unrecognized type ${type}`)
+            }
+        } catch (error) {
+            console.log(error)
+            throw new Error(`Transfer error ${error}`)
+        }
+    }
+
+    getContractData(contractReference: string): contractData | undefined {
+        try {
+            return this.smartContracts.find((contract: contractData) => contract.contract_reference = contractReference)
+        } catch {
+            return undefined
+        }
+    }
+
+    async getEKWBalance(walletAddress: string, chainId:number) {
+        try {
+            const provider = this.getRpc(chainId)
+            const EKW_CONTRACT: contractData = this.getContractData('EKW')!;
+            const contract = new ethers.Contract(EKW_CONTRACT.contract_address, EKW_CONTRACT.abi, provider)
+            const balance = ethers.formatEther(await contract['balanceOf'](walletAddress)).toString();
+            return parseFloat(balance)
+        } catch (error) {
+            console.log(error, "ERROR")
+            return 0
         }
     }
 

@@ -133,8 +133,8 @@ export class AuthController {
         throw new InvalidArgumentError("There is a user with this email");
       }
 
-      //let encryptedPassword = await PasswordUtils.encrypt(private_key); 
-      let encryptedPassword = await PasswordUtils.encryptData(private_key, process.env.JWT_SECRET!);
+      let encryptedPassword = await PasswordUtils.encrypt(private_key); 
+      //let encryptedPassword = await PasswordUtils.encryptData(private_key, process.env.JWT_SECRET!);
 
       //check if customer exists
       [ROWS] = await this.conn.query(getCustomerEmail, [email]);
@@ -202,8 +202,11 @@ export class AuthController {
       }
       //two methods to two password types: migrating to decrypt method (in order to balance transaction purposes)
       let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
-      const decodedPK = await PasswordUtils.decryptData(dbUser.password, process.env.JWT_SECRET!);
-      if (!passwordMatch && decodedPK !== private_key) {
+      // const decodedPK = await PasswordUtils.decryptData(dbUser.password, process.env.JWT_SECRET!);
+      // if (!passwordMatch && decodedPK !== private_key) {
+      //   throw new PasswordNotMatchError();
+      // }
+      if (!passwordMatch) {
         throw new PasswordNotMatchError();
       }
 

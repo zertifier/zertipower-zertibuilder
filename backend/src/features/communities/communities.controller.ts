@@ -744,13 +744,13 @@ export class CommunitiesController {
       const _user = payload.user;
 
       const user: any = await this.usersDbRequestService.getUserById(_user._id)
-      console.log("user", user);
+      //console.log("user", user);
       const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
-      console.log("customer", customer);
+      //console.log("customer", customer);
       const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
-      console.log("cups", cups);
+      //console.log("cups", cups);
       const community: any = await this.communityDbRequestService.getCommunityById(cups.communityId)
-      console.log("community", community);
+      //console.log("community", community);
 
       //decoded user social wallet pk (only if can decode pwd)
       //const decodedPK = await PasswordUtils.decryptData(user.password, process.env.JWT_SECRET!);
@@ -786,13 +786,13 @@ export class CommunitiesController {
       const _user = payload.user;
 
       const user: any = await this.usersDbRequestService.getUserById(_user._id)
-      console.log("user", user);
+      //console.log("user", user);
       const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
-      console.log("customer", customer);
+      //console.log("customer", customer);
       const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
-      console.log("cups", cups);
+      //console.log("cups", cups);
       const community: any = await this.communityDbRequestService.getCommunityById(cups.communityId)
-      console.log("community", community);
+      //console.log("community", community);
 
       //decoded community wallet address PK
       const decodedPK = await PasswordUtils.decryptData(community.password, process.env.JWT_SECRET!);

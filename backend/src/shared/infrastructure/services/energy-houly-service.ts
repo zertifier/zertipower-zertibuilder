@@ -312,16 +312,20 @@ export class EnergyHourlyService {
         let query = `
         SELECT der.cups_id, der.info_dt, der.import, der.export, c.community_id, c.surplus_distribution, eh.id
         FROM datadis_energy_registers der 
-        LEFT JOIN energy_hourly eh ON der.info_dt = eh.info_dt
+        LEFT JOIN energy_hourly eh ON der.info_dt = eh.info_dt AND der.cups_id = eh.cups_id
         LEFT JOIN cups c ON der.cups_id = c.id
         WHERE 
         der.info_dt BETWEEN ? AND ? AND
-        der.cups_id = eh.cups_id AND der.info_dt = eh.info_dt AND
-        ( der.import != eh.kwh_in OR der.export != eh.kwh_out)`
+        (
+        (eh.kwh_in IS NULL AND der.import IS NOT NULL) OR 
+        (eh.kwh_in IS NOT NULL AND der.import != eh.kwh_in) OR 
+        (eh.kwh_out IS NULL AND der.export IS NOT NULL) OR 
+        (eh.kwh_out IS NOT NULL AND der.export != eh.kwh_out)
+        )`
         try {
             const [ROWS]: any = await this.conn.query(query, [initData, endData]);
             const datadisRegisters = ROWS;
-            //console.log("datadisRegisters", datadisRegisters)
+            console.log("datadisRegisters length ", datadisRegisters.length ,"from",initData,"to",endData)
             return datadisRegisters;
         } catch (error) {
             console.log("Error getting datadis registers to update energy hourly", error)

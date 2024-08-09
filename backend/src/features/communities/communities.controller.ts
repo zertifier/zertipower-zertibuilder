@@ -24,12 +24,12 @@ import { CustomersDbRequestsService } from "../customers/customers-db-requests.s
 import { UsersDbRequestsService } from "../users/infrastructure/user-controller/user-db-requests.service";
 import { UserDTO } from "../users/infrastructure/user-controller/DTOs/UserDTO"
 import { transferERC20 } from "src/shared/infrastructure/services/contract-helpers"
-import { CommunityDbRequestsService } from "./community-db.service";
 import { CupsDbRequestsService } from "../cups/cups-db-requests.service";
 import { SaveUserDTO } from "../users/infrastructure/user-controller/DTOs/SaveUserDTO";
 import { SaveCustomersDTO } from "../customers/save-customers-dto";
 import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
 import { EnvironmentService } from "src/shared/infrastructure/services";
+import { CommunitiesDbRequestsService } from "./communities-db-requests.service";
 
 export const RESOURCE_NAME = "communities";
 
@@ -46,7 +46,7 @@ export class CommunitiesController {
     private statsService: CommunitiesStatsService,
     private customersDbRequestService: CustomersDbRequestsService,
     private usersDbRequestService: UsersDbRequestsService,
-    private communityDbRequestService: CommunityDbRequestsService,
+    private communityDbRequestService: CommunitiesDbRequestsService,
     private cupsDbRequestsService: CupsDbRequestsService,
     private environmentService: EnvironmentService
   ) {
@@ -731,87 +731,87 @@ export class CommunitiesController {
     return cupsData
   }
 
-  @Put("/balance/deposit")
-  @Auth(RESOURCE_NAME)
-  async depositBalance(@Body() body: any, @Request() req: any) {
-    try {
-      const { balance } = body;
+  // @Put("/balance/deposit")
+  // @Auth(RESOURCE_NAME)
+  // async depositBalance(@Body() body: any, @Request() req: any) {
+  //   try {
+  //     const { balance } = body;
 
-      const payload = req.decodedToken;
-      const _user = payload.user;
+  //     const payload = req.decodedToken;
+  //     const _user = payload.user;
 
-      const user: any = await this.usersDbRequestService.getUserById(_user._id)
-      console.log("user", user);
-      const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
-      console.log("customer", customer);
-      const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
-      console.log("cups", cups);
-      const community: any = await this.communityDbRequestService.getCommunityById(cups.community_id)
-      console.log("community", community);
+  //     const user: any = await this.usersDbRequestService.getUserById(_user._id)
+  //     console.log("user", user);
+  //     const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
+  //     console.log("customer", customer);
+  //     const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
+  //     console.log("cups", cups);
+  //     const community: any = await this.communityDbRequestService.getCommunityById(cups.community_id)
+  //     console.log("community", community);
 
-      //decoded user social wallet pk (only if can decode pwd)
-      const decodedPK = await PasswordUtils.decryptData(user.password, process.env.JWT_SECRET!);
+  //     //decoded user social wallet pk (only if can decode pwd)
+  //     const decodedPK = await PasswordUtils.decryptData(user.password, process.env.JWT_SECRET!);
 
-      //transfer EKW balance from user social wallet to community wallet
-      await transferERC20(decodedPK, community.wallet_address, balance, "EKW");
+  //     //transfer EKW balance from user social wallet to community wallet
+  //     await transferERC20(decodedPK, community.wallet_address, balance, "EKW");
 
-      //update customer balance
-      const newBalance = customer?.balance + balance;
+  //     //update customer balance
+  //     const newBalance = customer?.balance + balance;
 
-      const customerUpdate: SaveCustomersDTO = {
-        balance: newBalance
-      }
+  //     const customerUpdate: SaveCustomersDTO = {
+  //       balance: newBalance
+  //     }
 
-      await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
+  //     await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
 
-      return HttpResponse.success("deposit balance success")
+  //     return HttpResponse.success("deposit balance success")
 
-    } catch (error) {
-      console.log(error)
-      throw new UnexpectedError(error);
-    }
+  //   } catch (error) {
+  //     console.log(error)
+  //     throw new UnexpectedError(error);
+  //   }
 
-  }
+  // }
 
-  @Put("/balance/witdraw")
-  @Auth(RESOURCE_NAME)
-  async witdrawBalance(@Body() body: any, @Request() req: any) {
-    try {
-      const { balance } = body;
+  // @Put("/balance/witdraw")
+  // @Auth(RESOURCE_NAME)
+  // async witdrawBalance(@Body() body: any, @Request() req: any) {
+  //   try {
+  //     const { balance } = body;
 
-      const payload = req.decodedToken;
-      const _user = payload.user;
+  //     const payload = req.decodedToken;
+  //     const _user = payload.user;
 
-      const user: any = await this.usersDbRequestService.getUserById(_user._id)
-      console.log("user", user);
-      const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
-      console.log("customer", customer);
-      const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
-      console.log("cups", cups);
-      const community: any = await this.communityDbRequestService.getCommunityById(cups.community_id)
-      console.log("community", community);
+  //     const user: any = await this.usersDbRequestService.getUserById(_user._id)
+  //     console.log("user", user);
+  //     const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
+  //     console.log("customer", customer);
+  //     const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
+  //     console.log("cups", cups);
+  //     const community: any = await this.communityDbRequestService.getCommunityById(cups.community_id)
+  //     console.log("community", community);
 
-      //decoded community wallet address PK
-      const decodedPK = await PasswordUtils.decryptData(community.password, process.env.JWT_SECRET!);
+  //     //decoded community wallet address PK
+  //     const decodedPK = await PasswordUtils.decryptData(community.password, process.env.JWT_SECRET!);
 
-      //send from community wallet to customer social wallet
-      await transferERC20(decodedPK, user.wallet_address, balance, "EKW");
+  //     //send from community wallet to customer social wallet
+  //     await transferERC20(decodedPK, user.wallet_address, balance, "EKW");
 
-      //update customer balance
-      const newBalance = customer?.balance - balance;
+  //     //update customer balance
+  //     const newBalance = customer?.balance - balance;
 
-      const customerUpdate: SaveCustomersDTO = {
-        balance: newBalance
-      }
+  //     const customerUpdate: SaveCustomersDTO = {
+  //       balance: newBalance
+  //     }
 
-      await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
+  //     await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
 
-      return HttpResponse.success("witdraw balance success")
+  //     return HttpResponse.success("witdraw balance success")
 
-    } catch (error) {
-      console.log(error)
-      throw new UnexpectedError(error);
-    }
-  }
+  //   } catch (error) {
+  //     console.log(error)
+  //     throw new UnexpectedError(error);
+  //   }
+  // }
 
 }

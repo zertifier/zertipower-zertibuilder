@@ -740,8 +740,8 @@ export class CommunitiesController {
     try {
       const { balance, pk } = body;
 
-      const payload = req.decodedToken;
-      const _user = payload.user;
+       const payload = req.decodedToken;
+       const _user = payload.user;
 
       const user: any = await this.usersDbRequestService.getUserById(_user._id)
       //console.log("user", user);

@@ -234,9 +234,10 @@ export class BlockchainService {
     async transferERC20(fromWalletPk: string, toWallet: string, amount: number, type: 'DAO' | 'XDAI' | 'EKW') {
     
         const contractData:contractData = this.getContractData(type)!;
-        const rpc = this.getRpc(contractData.blockchain_id);
+        const rpc = await this.getRpc(contractData.blockchain_id);
+        console.log(rpc);
         const provider = new ethers.JsonRpcProvider(rpc);
-        const fromWallet = new ethers.Wallet(fromWalletPk, provider);
+        const fromWallet = new ethers.Wallet(fromWalletPk, provider); //invalid private key error 
     
         try {
             switch (type) {

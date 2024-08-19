@@ -740,8 +740,8 @@ export class CommunitiesController {
     try {
       const { balance, pk } = body;
 
-  //     const payload = req.decodedToken;
-  //     const _user = payload.user;
+      const payload = req.decodedToken;
+      const _user = payload.user;
 
       const user: any = await this.usersDbRequestService.getUserById(_user._id)
       //console.log("user", user);
@@ -774,16 +774,16 @@ export class CommunitiesController {
       throw new UnexpectedError('deposit error');
     }
 
-  // }
+  }
 
-  // @Put("/balance/witdraw")
-  // @Auth(RESOURCE_NAME)
-  // async witdrawBalance(@Body() body: any, @Request() req: any) {
-  //   try {
-  //     const { balance } = body;
+  @Put("/balance/witdraw")
+  @Auth(RESOURCE_NAME)
+  async witdrawBalance(@Body() body: any, @Request() req: any) {
+    try {
+      const { balance } = body;
 
-  //     const payload = req.decodedToken;
-  //     const _user = payload.user;
+      const payload = req.decodedToken;
+      const _user = payload.user;
 
       const user: any = await this.usersDbRequestService.getUserById(_user._id)
       //console.log("user", user);
@@ -795,7 +795,7 @@ export class CommunitiesController {
       //console.log("community", community);
 
   //     //decoded community wallet address PK
-  //     const decodedPK = await PasswordUtils.decryptData(community.password, process.env.JWT_SECRET!);
+      const decodedPK = await PasswordUtils.decryptData(community.password, process.env.JWT_SECRET!);
 
       //send from community wallet to customer social wallet
       await this.blockchainService.transferERC20(decodedPK, user.wallet_address, balance, "EKW");
@@ -809,7 +809,7 @@ export class CommunitiesController {
 
   //     await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
 
-  //     return HttpResponse.success("witdraw balance success")
+      return HttpResponse.success("witdraw balance success")
 
     } catch (error) {
       console.log(error)

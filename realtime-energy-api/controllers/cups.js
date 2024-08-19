@@ -70,9 +70,11 @@ const getRealTimeByCups = async (req, res = response) => {
         res.json({
             ok: true,
             cups: lastEnergyRegister.cups,
-            consumption: lastEnergyRegister.kwh_in ? parseFloat(lastEnergyRegister.kwh_in).toFixed(2) : 0,
-            production: lastEnergyRegister.production ? parseFloat(lastEnergyRegister.production).toFixed(2) : 0,
-            export: lastEnergyRegister.kwh_out ? parseFloat(lastEnergyRegister.kwh_out).toFixed(2) : 0
+            battery: 0,
+            consumption: lastEnergyRegister.kwh_in ? Number(parseFloat(lastEnergyRegister.kwh_in).toFixed(2)) : 0,
+            production: lastEnergyRegister.production ? Number(parseFloat(lastEnergyRegister.production).toFixed(2)) : 0,
+            export: lastEnergyRegister.kwh_out ? Number(parseFloat(lastEnergyRegister.kwh_out).toFixed(2)) : 0
+            //test: Number(parseFloat(0.009).toFixed(2))
         });
 
     } catch (error) {
@@ -158,9 +160,10 @@ const getRealTimeByCustomer = async (req, res = response) => {
         res.json({
             ok: true,
             customer: currentEnergyRegister.name || '',
-            consumption: currentEnergyRegister.kwh_in ? parseFloat(currentEnergyRegister.kwh_in).toFixed(2) : 0,
-            production: currentEnergyRegister.production ? parseFloat(currentEnergyRegister.production).toFixed(2) : 0,
-            export: currentEnergyRegister.kwh_out ? parseFloat(currentEnergyRegister.kwh_out).toFixed(2) : 0
+            battery: 0,
+            consumption: currentEnergyRegister.kwh_in ? Number(parseFloat(currentEnergyRegister.kwh_in).toFixed(2)) : 0,
+            production: currentEnergyRegister.production ? Number(parseFloat(currentEnergyRegister.production).toFixed(2)) : 0,
+            export: currentEnergyRegister.kwh_out ? Number(parseFloat(currentEnergyRegister.kwh_out).toFixed(2)) : 0
         });
 
     } catch (error) {
@@ -236,6 +239,7 @@ const getEnergyByIdDate = async (req, res = response) => {
             data: {
                 totalIn,
                 totalOut,
+                battery: 0,
                 energyData: ROWS
             }
         })

@@ -146,34 +146,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/internalServerError'
 
-  /cups/by-id:
-    get:
-      tags:
-        - cups
-      summary: Obtain cups by id
-      description: Get cups description data
-      operationId: obtainCupsById
-      security:
-        - permanentToken: []   
-      responses:
-        '200':
-          description: 'obtain cups by cups id'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/cupsByIdResponse'
-        '404':
-          description: 'Not found'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/notFound'
-        '500':
-          description: 'Internal server error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/internalServerError'
+  # /cups/by-id:
+  #   get:
+  #     tags:
+  #       - cups
+  #     summary: Obtain cups by id
+  #     description: Get cups description data
+  #     operationId: obtainCupsById
+  #     security:
+  #       - permanentToken: []   
+  #     responses:
+  #       '200':
+  #         description: 'obtain cups by cups id'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/cupsByIdResponse'
+  #       '404':
+  #         description: 'Not found'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/notFound'
+  #       '500':
+  #         description: 'Internal server error'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/internalServerError'
                 
   /cups/energy/by-id/by-date:
     get:
@@ -254,7 +254,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/internalServerError'
 
-  /cups/:id/energy/realtime:
+  /cups/{id}/energy/realtime:
     get:
       tags:
         - cups
@@ -263,6 +263,13 @@ paths:
       operationId: getCurrentCustomerCupsEnergyDataById
       security:
         - permanentToken: []   
+      parameters:
+        - in: path
+          name: id
+          shema: 
+            type: integer
+          required: true
+          description: cups id
       responses:
         '200':
           description: 'Customer cups energy data from current hour fetched successfully'

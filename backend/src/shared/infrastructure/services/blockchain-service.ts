@@ -31,7 +31,7 @@ export class BlockchainService {
 
     private conn: mysql.Pool;
 
-    smartContracts:contractData[];
+    smartContracts: contractData[];
     smartContract: any;
     provider: any;
 
@@ -41,15 +41,15 @@ export class BlockchainService {
     }
 
     async initialize() {
-        try{
+        try {
             this.smartContracts = await this.getBlockchainAndScData();
             let smartContract = this.smartContracts.find((smartContract: any) => smartContract.contract_reference == 'energyMapping')!
 
             await this.obtainSmartContract(smartContract.contract_address, process.env.PK, smartContract.abi, smartContract.blockchain_id, smartContract.rpc_url).catch(e => {
                 console.log(e)
             })
-        }catch(error){
-            console.log("Error inicialitzant servei blockchain",error)
+        } catch (error) {
+            console.log("Error inicialitzant servei blockchain", error)
         }
     }
 
@@ -133,7 +133,7 @@ export class BlockchainService {
                 console.log(e)
                 if (e.reason) {
                     reject(e.reason)
-                } else if(e.info && e.info.error && e.info.error.message) {
+                } else if (e.info && e.info.error && e.info.error.message) {
                     const errorMessage = e.info.error.message;
                     reject(errorMessage)
                 } else {
@@ -232,13 +232,13 @@ export class BlockchainService {
     }
 
     async transferERC20(fromWalletPk: string, toWallet: string, amount: number, type: 'DAO' | 'XDAI' | 'EKW') {
-    
-        const contractData:contractData = this.getContractData(type)!;
+
+        const contractData: contractData = this.getContractData(type)!;
         const rpc = await this.getRpc(contractData.blockchain_id);
         console.log(rpc);
         const provider = new ethers.JsonRpcProvider(rpc);
         const fromWallet = new ethers.Wallet(fromWalletPk, provider); //invalid private key error 
-    
+
         try {
             switch (type) {
                 case "DAO":
@@ -271,7 +271,7 @@ export class BlockchainService {
         }
     }
 
-    async getEKWBalance(walletAddress: string, chainId:number) {
+    async getEKWBalance(walletAddress: string, chainId: number) {
         try {
             const provider = this.getRpc(chainId)
             const EKW_CONTRACT: contractData = this.getContractData('EKW')!;
@@ -324,4 +324,15 @@ export class BlockchainService {
         })
 
     }
+
+    createPrivateKey(text: string) {
+        const privateKey = ethers.keccak256(ethers.toUtf8Bytes(text));
+        return privateKey;
+    }
+
+    createWalletWithPk(pk: string) {
+        const wallet = new ethers.Wallet(pk);
+        return wallet;
+    }
+
 }

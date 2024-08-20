@@ -220,15 +220,7 @@ async function getRpc(chainId: any) {
     }
 }
 
-export function createPrivateKey(text:string){
-    const privateKey = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(text));
-    return privateKey;
-}
 
-export function createWalletWithPk(pk:string){
-    const wallet = new ethers.Wallet(pk);
-    return wallet;
-}
 
 async function httpGet(url: string) {
 
@@ -279,7 +271,5 @@ module.exports = {
     createContractInstanceWithSigner,
     mintBatchERC20,
     createWalletByReference,
-    getChainBalance,
-    createPrivateKey,
-    createWalletWithPk
+    getChainBalance
 }

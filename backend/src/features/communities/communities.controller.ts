@@ -24,7 +24,6 @@ import { CustomersDbRequestsService } from "../customers/customers-db-requests.s
 import { UsersDbRequestsService } from "../users/infrastructure/user-controller/user-db-requests.service";
 import { CommunitiesDbRequestsService } from "./communities-db-requests.service";
 import { UserDTO } from "../users/infrastructure/user-controller/DTOs/UserDTO"
-import { transferERC20, createWalletWithPk, createPrivateKey } from "src/shared/infrastructure/services/contract-helpers"
 import { CupsDbRequestsService } from "../cups/cups-db-requests.service";
 import { SaveUserDTO } from "../users/infrastructure/user-controller/DTOs/SaveUserDTO";
 import { SaveCustomersDTO } from "../customers/save-customers-dto";
@@ -501,60 +500,86 @@ export class CommunitiesController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCommunitiesDTO) {
-    try {
+
+    let pk;
+
+    try { 
+      //create new wallet
       if (body.walletPwd) {
-        body.walletPwd = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!)
-      } else { //create new wallet
+        pk = body.walletPwd;
+      } else { 
         if (!body.name) {
           return HttpResponse.failure("a name is required", ErrorCode.MISSING_PARAMETERS)
         }
         const envVariables = this.environmentService.getEnv();
         const textToPrivate = envVariables.JWT_SECRET + body.name;
-        const pk = createPrivateKey(textToPrivate);
-        const wallet = createWalletWithPk(pk);
-        const encriptedPk = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!);
-        body.walletPwd = encriptedPk;
+        pk = this.blockchainService.createPrivateKey(textToPrivate);
       }
-      const data = await this.prisma.communities.create({ data: body });
+      const wallet = this.blockchainService.createWalletWithPk(pk);
+      const encriptedPk = await PasswordUtils.encryptData(pk, process.env.JWT_SECRET!);
+      body.walletPwd = encriptedPk;
+      body.walletAddress = wallet.address;
+
+      //insert new community:
+      const data:any = await this.prisma.communities.create({ data: body });
+      
+      delete data.walletPwd
       return HttpResponse.success("communities saved successfully").withData(
         data
       );
+
     } catch (error) {
       console.log("Error creating community", error);
       return HttpResponse.failure("error creating community", ErrorCode.INTERNAL_ERROR)
     }
   }
 
-  @Put("wallet/:id")
+  @Put(":id/wallet")
   @Auth(RESOURCE_NAME)
   async createWallet(@Param("id") id: string, @Body() body: SaveCommunitiesDTO) {
+    
+    let pk;
+
     try {
+      
       //get community
-      const community = await this.prisma.communities.findUnique({
+      const community:any = await this.prisma.communities.findUnique({
         where: {
           id: parseInt(id),
         },
       });
+
+      if(!community){
+        return HttpResponse.failure("Community not found", ErrorCode.NOT_FOUND)
+      }
+
       //create new wallet
       if (body.walletPwd) {
-        body.walletPwd = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!)
+        pk = body.walletPwd;
       } else {
-        if (!body.name) {
+        if (!community.name) {
           return HttpResponse.failure("a name is required", ErrorCode.MISSING_PARAMETERS)
         }
         const envVariables = this.environmentService.getEnv();
-        const textToPrivate = envVariables.JWT_SECRET + body.name;
-        const pk = createPrivateKey(textToPrivate);
-        const wallet = createWalletWithPk(pk);
-        const encriptedPk = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!);
-        body.walletPwd = encriptedPk;
+        const textToPrivate = envVariables.JWT_SECRET + community.name;
+        pk = this.blockchainService.createPrivateKey(textToPrivate);
       }
-      const data = await this.prisma.communities.update({ where: { id: parseInt(id) }, data: body });
+
+      const wallet = this.blockchainService.createWalletWithPk(pk);
+      const encriptedPk = await PasswordUtils.encryptData(pk, process.env.JWT_SECRET!);
+      community.walletPwd = encriptedPk;
+      community.walletAddress = wallet.address;
+
+      const data = await this.prisma.communities.update({ where: { id: parseInt(id) }, data: community });
+
+      delete community.walletPwd;
+
       return HttpResponse.success("communities saved successfully").withData(
         data
       );
+
     } catch (error) {
-      console.log("Error creating community", error);
+      console.log("Error updating wallet community", error);
       return HttpResponse.failure("error updating community wallet", ErrorCode.INTERNAL_ERROR)
     }
   }

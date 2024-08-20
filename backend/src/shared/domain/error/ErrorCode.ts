@@ -7,5 +7,6 @@ export enum ErrorCode {
   BAD_REQUEST = "002",
   INTERNAL_ERROR = "003",
   FORBIDDEN = "004",
-  MISSING_PARAMETERS = "422"
+  MISSING_PARAMETERS = "422",
+  NOT_FOUND = "404"
 }

@@ -19,19 +19,20 @@ import { Auth } from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
 import { UnexpectedError } from "src/shared/domain/error/common";
 import { CommunityCups, CommunityCupsStats } from "./communities.interface";
-
 import { CommunitiesStatsService } from "./communities-stats/communities-stats.service";
 import { CustomersDbRequestsService } from "../customers/customers-db-requests.service";
 import { UsersDbRequestsService } from "../users/infrastructure/user-controller/user-db-requests.service";
 import { CommunitiesDbRequestsService } from "./communities-db-requests.service";
-import { CupsDbRequestsService } from "../cups/cups-db-requests.service";
-
 import { UserDTO } from "../users/infrastructure/user-controller/DTOs/UserDTO"
+import { transferERC20, createWalletWithPk, createPrivateKey } from "src/shared/infrastructure/services/contract-helpers"
+import { CupsDbRequestsService } from "../cups/cups-db-requests.service";
 import { SaveUserDTO } from "../users/infrastructure/user-controller/DTOs/SaveUserDTO";
 import { SaveCustomersDTO } from "../customers/save-customers-dto";
 import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
 import { EnvironmentService } from "src/shared/infrastructure/services";
 import { BlockchainService } from "src/shared/infrastructure/services/blockchain-service";
+import { ErrorCode } from "src/shared/domain/error";
+
 
 export const RESOURCE_NAME = "communities";
 
@@ -500,13 +501,62 @@ export class CommunitiesController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCommunitiesDTO) {
-    if (body.walletPwd) {
-      body.walletPwd = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!)
+    try {
+      if (body.walletPwd) {
+        body.walletPwd = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!)
+      } else { //create new wallet
+        if (!body.name) {
+          return HttpResponse.failure("a name is required", ErrorCode.MISSING_PARAMETERS)
+        }
+        const envVariables = this.environmentService.getEnv();
+        const textToPrivate = envVariables.JWT_SECRET + body.name;
+        const pk = createPrivateKey(textToPrivate);
+        const wallet = createWalletWithPk(pk);
+        const encriptedPk = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!);
+        body.walletPwd = encriptedPk;
+      }
+      const data = await this.prisma.communities.create({ data: body });
+      return HttpResponse.success("communities saved successfully").withData(
+        data
+      );
+    } catch (error) {
+      console.log("Error creating community", error);
+      return HttpResponse.failure("error creating community", ErrorCode.INTERNAL_ERROR)
     }
-    const data = await this.prisma.communities.create({ data: body });
-    return HttpResponse.success("communities saved successfully").withData(
-      data
-    );
+  }
+
+  @Put("wallet/:id")
+  @Auth(RESOURCE_NAME)
+  async createWallet(@Param("id") id: string, @Body() body: SaveCommunitiesDTO) {
+    try {
+      //get community
+      const community = await this.prisma.communities.findUnique({
+        where: {
+          id: parseInt(id),
+        },
+      });
+      //create new wallet
+      if (body.walletPwd) {
+        body.walletPwd = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!)
+      } else {
+        if (!body.name) {
+          return HttpResponse.failure("a name is required", ErrorCode.MISSING_PARAMETERS)
+        }
+        const envVariables = this.environmentService.getEnv();
+        const textToPrivate = envVariables.JWT_SECRET + body.name;
+        const pk = createPrivateKey(textToPrivate);
+        const wallet = createWalletWithPk(pk);
+        const encriptedPk = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!);
+        body.walletPwd = encriptedPk;
+      }
+      const data = await this.prisma.communities.update({ where: { id: parseInt(id) }, data: body });
+      return HttpResponse.success("communities saved successfully").withData(
+        data
+      );
+    } catch (error) {
+      console.log("Error creating community", error);
+      return HttpResponse.failure("error updating community wallet", ErrorCode.INTERNAL_ERROR)
+    }
   }
 
   @Post(':id/dao')
@@ -628,10 +678,8 @@ export class CommunitiesController {
     mappedData.cupsId = data.cupsId || data.cups_id;
     mappedData.cups = data.cups;
     mappedData.reference = data.reference;
-
     return mappedData
   }
-
 
   dataWithEmpty(data: any, date: string, qty: number, type: 'yearly' | 'monthly' | 'daily') {
     if (data.length < qty) {
@@ -731,7 +779,7 @@ export class CommunitiesController {
       cups.communitiesCups = communities.map(this.mapCommunityData)
     }
 
-    return cupsData
+    return cupsData;
   }
 
   @Put("/balance/deposit")
@@ -758,16 +806,16 @@ export class CommunitiesController {
       //transfer EKW balance from user social wallet to community wallet
       await this.blockchainService.transferERC20(pk, community.wallet_address, balance, "EKW");
 
-  //     //update customer balance
-  //     const newBalance = customer?.balance + balance;
+      //update customer balance
+      const newBalance = customer?.balance + balance;
 
-  //     const customerUpdate: SaveCustomersDTO = {
-  //       balance: newBalance
-  //     }
+      const customerUpdate: SaveCustomersDTO = {
+        balance: newBalance
+      }
 
-  //     await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
+      await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
 
-  //     return HttpResponse.success("deposit balance success")
+      return HttpResponse.success("deposit balance success")
 
     } catch (error) {
       console.log(error)
@@ -794,20 +842,20 @@ export class CommunitiesController {
       const community: any = await this.communityDbRequestService.getCommunityById(cups.communityId)
       //console.log("community", community);
 
-  //     //decoded community wallet address PK
+      //decoded community wallet address PK
       const decodedPK = await PasswordUtils.decryptData(community.password, process.env.JWT_SECRET!);
 
       //send from community wallet to customer social wallet
       await this.blockchainService.transferERC20(decodedPK, user.wallet_address, balance, "EKW");
 
-  //     //update customer balance
-  //     const newBalance = customer?.balance - balance;
+      //update customer balance
+      const newBalance = customer?.balance - balance;
 
-  //     const customerUpdate: SaveCustomersDTO = {
-  //       balance: newBalance
-  //     }
+      const customerUpdate: SaveCustomersDTO = {
+        balance: newBalance
+      }
 
-  //     await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
+       await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
 
       return HttpResponse.success("witdraw balance success")
 

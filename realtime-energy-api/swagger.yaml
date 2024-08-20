@@ -17,6 +17,8 @@ servers:
     description: Production server
   - url: https://dev-api-public-ris3cat.zertifier.com
     description: Development server
+  - url: http://localhost:3000
+    description: Development server
 tags:
   - name: checks
     description: Inspections on backend.
@@ -64,6 +66,8 @@ paths:
       summary: Obtain permanent token
       description: Get permanent token or creates one if dont exist for the user
       operationId: obtainPermanentToken
+      security:
+        - temporalToken: []  
       responses:
         '200':
           description: 'obtain token'
@@ -91,6 +95,8 @@ paths:
       summary: Change permanent token
       description: Get permanent token or creates one if dont exist for the user
       operationId: refreshPermanentToken
+      security:
+        - permanentToken: []   
       responses:
         '200':
           description: 'refresh token'
@@ -118,6 +124,8 @@ paths:
       summary: Obtain all cups from a customer
       description: Get all customer cups description data
       operationId: obtainAllCustomerCups
+      security:
+        - permanentToken: []     
       responses:
         '200':
           description: 'obtain all customer cups sucessfully'
@@ -138,32 +146,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/internalServerError'
 
-  /cups/by-id:
-    get:
-      tags:
-        - cups
-      summary: Obtain cups by id
-      description: Get cups description data
-      operationId: obtainCupsById
-      responses:
-        '200':
-          description: 'obtain cups by cups id'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/cupsByIdResponse'
-        '404':
-          description: 'Not found'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/notFound'
-        '500':
-          description: 'Internal server error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/internalServerError'
+  # /cups/by-id:
+  #   get:
+  #     tags:
+  #       - cups
+  #     summary: Obtain cups by id
+  #     description: Get cups description data
+  #     operationId: obtainCupsById
+  #     security:
+  #       - permanentToken: []   
+  #     responses:
+  #       '200':
+  #         description: 'obtain cups by cups id'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/cupsByIdResponse'
+  #       '404':
+  #         description: 'Not found'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/notFound'
+  #       '500':
+  #         description: 'Internal server error'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/internalServerError'
                 
   /cups/energy/by-id/by-date:
     get:
@@ -172,6 +182,8 @@ paths:
       summary: Get energy data by cups ID and date
       description: Retrieve energy data for a specific cups within a date range
       operationId: getEnergyDataByCupsIdAndDate
+      security:
+        - permanentToken: []   
       parameters:
         - name: id
           in: query
@@ -220,6 +232,8 @@ paths:
       summary: Get current hour energy data from customer cups
       description: Get current hour energy data from customer cups
       operationId: getCurrentCustomerCupsEnergyData
+      security:
+        - permanentToken: []   
       responses:
         '200':
           description: 'Customer cups energy data from current hour fetched successfully'
@@ -240,13 +254,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/internalServerError'
 
-  /cups/:id/energy/realtime:
+  /cups/{id}/energy/realtime:
     get:
       tags:
         - cups
       summary: Get current hour energy data from customer cups by cups id
       description: Get current hour energy data from customer cups by cups id
       operationId: getCurrentCustomerCupsEnergyDataById
+      security:
+        - permanentToken: []   
+      parameters:
+        - in: path
+          name: id
+          shema: 
+            type: integer
+          required: true
+          description: cups id
       responses:
         '200':
           description: 'Customer cups energy data from current hour fetched successfully'
@@ -537,7 +560,12 @@ components:
           example: Registers not found
  
   securitySchemes:
-    api_key:
+    permanentToken:
       type: apiKey
-      name: Authorization
+      name: authorization
       in: header
+    temporalToken: 
+      type: apiKey
+      name: authorization
+      in: header
+    

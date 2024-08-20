@@ -23,13 +23,15 @@ import { CommunitiesStatsService } from "./communities-stats/communities-stats.s
 import { CustomersDbRequestsService } from "../customers/customers-db-requests.service";
 import { UsersDbRequestsService } from "../users/infrastructure/user-controller/user-db-requests.service";
 import { UserDTO } from "../users/infrastructure/user-controller/DTOs/UserDTO"
-import { transferERC20 } from "src/shared/infrastructure/services/contract-helpers"
+import { transferERC20, createWalletWithPk, createPrivateKey } from "src/shared/infrastructure/services/contract-helpers"
 import { CupsDbRequestsService } from "../cups/cups-db-requests.service";
 import { SaveUserDTO } from "../users/infrastructure/user-controller/DTOs/SaveUserDTO";
 import { SaveCustomersDTO } from "../customers/save-customers-dto";
 import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
 import { EnvironmentService } from "src/shared/infrastructure/services";
 import { CommunitiesDbRequestsService } from "./communities-db-requests.service";
+import { ErrorCode } from "src/shared/domain/error";
+
 
 export const RESOURCE_NAME = "communities";
 
@@ -497,13 +499,28 @@ export class CommunitiesController {
   @Post()
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCommunitiesDTO) {
-    if (body.walletPwd) {
-      body.walletPwd = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!)
+    try {
+      if (body.walletPwd) {
+        body.walletPwd = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!)
+      } else { //create new wallet
+        if (!body.name) {
+          return HttpResponse.failure("a name is required", ErrorCode.MISSING_PARAMETERS)
+        }
+        const envVariables = this.environmentService.getEnv();
+        const textToPrivate = envVariables.JWT_SECRET + body.name;
+        const pk = createPrivateKey(textToPrivate);
+        const wallet = createWalletWithPk(pk);
+        const encriptedPk = await PasswordUtils.encryptData(body.walletPwd, process.env.JWT_SECRET!);
+        body.walletPwd = encriptedPk;
+      }
+      const data = await this.prisma.communities.create({ data: body });
+      return HttpResponse.success("communities saved successfully").withData(
+        data
+      );
+    } catch (error) {
+      console.log("Error creating community", error);
+      return HttpResponse.failure("error creating community", ErrorCode.INTERNAL_ERROR)
     }
-    const data = await this.prisma.communities.create({ data: body });
-    return HttpResponse.success("communities saved successfully").withData(
-      data
-    );
   }
 
   @Post(':id/dao')
@@ -728,7 +745,7 @@ export class CommunitiesController {
       cups.communitiesCups = communities.map(this.mapCommunityData)
     }
 
-    return cupsData
+    return cupsData;
   }
 
   // @Put("/balance/deposit")

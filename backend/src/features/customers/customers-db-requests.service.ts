@@ -52,7 +52,7 @@ export class CustomersDbRequestsService {
         
         try {
 
-            if (!paramsToUpdate || paramsToUpdate) {
+            if (!customerId || !paramsToUpdate) {
                 throw new Error('No parameters provided for update');
             }
 

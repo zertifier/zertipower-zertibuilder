@@ -817,19 +817,12 @@ export class CommunitiesController {
        const _user = payload.user;
 
       const user: any = await this.usersDbRequestService.getUserById(_user._id)
-      //console.log("user", user);
       const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
-      //console.log("customer", customer);
       const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
-      //console.log("cups", cups);
       const community: any = await this.communityDbRequestService.getCommunityById(cups.communityId)
-      //console.log("community", community);
-
-      //decoded user social wallet pk (only if can decode pwd)
-      //const decodedPK = await PasswordUtils.decryptData(user.password, process.env.JWT_SECRET!);
-
+      
       //transfer EKW balance from user social wallet to community wallet
-      await this.blockchainService.transferERC20(pk, community.wallet_address, balance, "EKW");
+      await this.blockchainService.transferERC20(pk, community.walletAddress, balance, "EKW");
 
       //update customer balance
       const newBalance = customer?.balance + balance;
@@ -839,6 +832,8 @@ export class CommunitiesController {
       }
 
       await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
+
+      //NOTIFICATION: transfer balance. 
 
       return HttpResponse.success("deposit balance success")
 
@@ -859,18 +854,12 @@ export class CommunitiesController {
       const _user = payload.user;
 
       const user: any = await this.usersDbRequestService.getUserById(_user._id)
-      //console.log("user", user);
       const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
-      //console.log("customer", customer);
       const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
-      //console.log("cups", cups);
       const community: any = await this.communityDbRequestService.getCommunityById(cups.communityId)
-      //console.log("community", community);
-
+      
       //decoded community wallet address PK
       const decodedPK = await PasswordUtils.decryptData(community.walletPwd, process.env.JWT_SECRET!);
-
-      //console.log(decodedPK, user.wallet_address, balance, "EKW")
 
       //send from community wallet to customer social wallet
       await this.blockchainService.transferERC20(decodedPK, user.wallet_address, balance, "EKW");

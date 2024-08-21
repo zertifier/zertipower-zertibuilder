@@ -50,6 +50,7 @@
     "pg-format": "^1.0.4",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "stripe": "^16.8.0",
     "winston": "^3.9.0"
   },
   "devDependencies": {

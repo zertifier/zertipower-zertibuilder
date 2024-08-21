@@ -98,9 +98,22 @@
     {
       "name": "TRADE_UPDATE_DAYS",
       "required": true,
-      "type": "int",
-      "default": "30"
+      "type": "string"
+    },
+    {
+      "name": "STRIPE_PRODUCT_ID",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "STRIPE_PRICE_KEY",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "STRIPE_SECRET_KEY",
+      "required": true,
+      "type": "string"
     }
-    
   ]
 }

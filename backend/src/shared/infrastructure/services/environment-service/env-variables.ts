@@ -18,4 +18,7 @@ export interface EnvVariables {
   TRADE_UPDATE_DAYS:number;
   EMAIL:string;
   EMAIL_PASSWORD:string;
+  STRIPE_PRICE_KEY:string;
+  STRIPE_PRODUCT_ID:string;
+  STRIPE_SECRET_KEY:string;
 }

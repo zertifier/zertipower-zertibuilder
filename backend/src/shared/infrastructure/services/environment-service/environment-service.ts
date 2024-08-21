@@ -31,7 +31,10 @@ export class EnvironmentService implements OnModuleInit {
     DATADIS_MONTHS:0,
     TRADE_UPDATE_DAYS: 0,
     EMAIL:"",
-    EMAIL_PASSWORD:""
+    EMAIL_PASSWORD:"",
+    STRIPE_PRICE_KEY:"",
+    STRIPE_PRODUCT_ID:"",
+    STRIPE_SECRET_KEY:"",
   };
 
   onModuleInit(): any {

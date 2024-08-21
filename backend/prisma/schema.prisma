@@ -169,12 +169,24 @@ model Customers {
   name          String?   @db.VarChar(50)
   dni           String?   @db.VarChar(50)
   email         String?   @db.VarChar(50)
-  balance       Float?    
+  balance       Float?
   walletAddress String?   @map("wallet_address") @db.VarChar(200)
   createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt     DateTime? @map("updated_at") @db.DateTime(0)
 
   @@map("customers")
+}
+
+model Stripe {
+  id        Int           @id @default(autoincrement())
+  userId    String?       @map("user_id") @db.VarChar(255)
+  eventId   String?       @map("event_id") @db.VarChar(255)
+  requestId String?       @map("request_id") @db.VarChar(255)
+  status    StripeStatus? @default(PENDING)
+  amount    Float?
+  createdAt DateTime      @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@map("stripe")
 }
 
 model EnergyAreaCoordinates {
@@ -398,6 +410,12 @@ enum CupsType {
   community
 }
 
+enum StripeStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model Proposals {
   id             Int       @id @default(autoincrement()) @map("id")
   proposal       String?   @map("proposal") @db.VarChar(255)
@@ -474,60 +492,60 @@ model NonWorkingDays {
 }
 
 model Notification {
-  id                    Int       @id @default(autoincrement())
-  notificationCategoryId Int?     @map("notification_category_id")
-  notification          String?   @db.VarChar(50)
-  code                  String?   @db.VarChar(50)
-  createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
-  updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
+  id                     Int       @id @default(autoincrement())
+  notificationCategoryId Int?      @map("notification_category_id")
+  notification           String?   @db.VarChar(50)
+  code                   String?   @db.VarChar(50)
+  createdDt              DateTime  @default(now()) @map("created_dt") @db.DateTime(0)
+  updatedDt              DateTime? @default(dbgenerated("(current_timestamp())")) @map("updated_dt") @db.DateTime(0)
 
   @@map("notifications")
 }
 
 model NotificationCategory {
-  id                    Int       @id @default(autoincrement())
-  category              String?   @db.VarChar(50)
-  createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
-  updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
- // notificationCategory  NotificationCategory? @relation(fields: [notificationCategoryId], references: [id])
+  id        Int       @id @default(autoincrement())
+  category  String?   @db.VarChar(50)
+  createdDt DateTime  @default(now()) @map("created_dt") @db.DateTime(0)
+  updatedDt DateTime? @default(dbgenerated("(current_timestamp())")) @map("updated_dt") @db.DateTime(0)
 
+  // notificationCategory  NotificationCategory? @relation(fields: [notificationCategoryId], references: [id])
   @@map("notifications_categories")
 }
 
 model UsersNotification {
-  id                    Int       @id @default(autoincrement())
-  userId                Int?      @map("user_id")
-  notificationId        Int?      @map("notification_id")
-  active                Int?      @db.TinyInt
-  createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
-  updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
-  //notification          Notification? @relation(fields: [notificationId], references: [id])
-//  notifications         Notification[]
+  id             Int       @id @default(autoincrement())
+  userId         Int?      @map("user_id")
+  notificationId Int?      @map("notification_id")
+  active         Int?      @db.TinyInt
+  createdDt      DateTime  @default(now()) @map("created_dt") @db.DateTime(0)
+  updatedDt      DateTime? @default(dbgenerated("(current_timestamp())")) @map("updated_dt") @db.DateTime(0)
 
+  // notification          Notification? @relation(fields: [notificationId], references: [id])
+  //  notifications         Notification[]
   @@map("users_notifications")
 }
 
 model UsersNotificationCategory {
-  id                    Int       @id @default(autoincrement())
-  userId                Int?      @map("user_id")
-  notificationCategoryId Int?     @map("notification_categories_id")
-  active                Int?      @db.TinyInt
-  createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
-  updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
-//  notificationCategory  NotificationCategory? @relation(fields: [notificationCategoryId], references: [id])
+  id                     Int       @id @default(autoincrement())
+  userId                 Int?      @map("user_id")
+  notificationCategoryId Int?      @map("notification_categories_id")
+  active                 Int?      @db.TinyInt
+  createdDt              DateTime  @default(now()) @map("created_dt") @db.DateTime(0)
+  updatedDt              DateTime? @default(dbgenerated("(current_timestamp())")) @map("updated_dt") @db.DateTime(0)
 
+  //  notificationCategory  NotificationCategory? @relation(fields: [notificationCategoryId], references: [id])
   @@map("users_notifications_categories")
 }
 
 model UsersNotificationHistoric {
-  id                    Int       @id @default(autoincrement())
-  userId                Int?      @map("user_id")
-  notificationId        Int?      @map("notification_id")
-  email                 String?   @db.VarChar(50)
-  subject               String?   @db.VarChar(50)
-  createdDt             DateTime  @map("created_dt") @default(now()) @db.DateTime(0)
-  updatedDt             DateTime? @map("updated_dt") @default(dbgenerated("(current_timestamp())")) @db.DateTime(0)
-  //notification          Notification? @relation(fields: [notificationId], references: [id])
+  id             Int       @id @default(autoincrement())
+  userId         Int?      @map("user_id")
+  notificationId Int?      @map("notification_id")
+  email          String?   @db.VarChar(50)
+  subject        String?   @db.VarChar(50)
+  createdDt      DateTime  @default(now()) @map("created_dt") @db.DateTime(0)
+  updatedDt      DateTime? @default(dbgenerated("(current_timestamp())")) @map("updated_dt") @db.DateTime(0)
 
+  // notification          Notification? @relation(fields: [notificationId], references: [id])
   @@map("users_notifications_historic")
 }

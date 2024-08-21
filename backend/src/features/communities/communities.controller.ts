@@ -868,11 +868,13 @@ export class CommunitiesController {
       //console.log("community", community);
 
       //decoded community wallet address PK
-      const decodedPK = await PasswordUtils.decryptData(community.password, process.env.JWT_SECRET!);
+      const decodedPK = await PasswordUtils.decryptData(community.walletPwd, process.env.JWT_SECRET!);
+
+      //console.log(decodedPK, user.wallet_address, balance, "EKW")
 
       //send from community wallet to customer social wallet
       await this.blockchainService.transferERC20(decodedPK, user.wallet_address, balance, "EKW");
-
+      
       //update customer balance
       const newBalance = customer?.balance - balance;
 
@@ -881,6 +883,8 @@ export class CommunitiesController {
       }
 
        await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
+
+      //NOTIFICATION: transfer balance. 
 
       return HttpResponse.success("witdraw balance success")
 

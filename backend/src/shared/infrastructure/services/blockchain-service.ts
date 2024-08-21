@@ -233,7 +233,9 @@ export class BlockchainService {
 
     async transferERC20(fromWalletPk: string, toWallet: string, amount: number, type: 'DAO' | 'XDAI' | 'EKW') {
 
+        console.log(type)
         const contractData: contractData = this.getContractData(type)!;
+        //console.log("contractData",contractData)
         const rpc = await this.getRpc(contractData.blockchain_id);
         console.log(rpc);
         const provider = new ethers.JsonRpcProvider(rpc);
@@ -251,8 +253,10 @@ export class BlockchainService {
                     let tx: any;
                     let value = ethers.parseUnits(amount.toString(), "ether");
                     const contract = new ethers.Contract(contractData.contract_address, contractData.abi, fromWallet)
+                    console.log("transferring to",toWallet,"VALUE", value)
                     tx = await contract['transfer'](toWallet, value);
                     tx = await tx.wait();
+                    console.log("transference realized", tx)
                     return tx;
                 default:
                     throw new Error(`Transfer error: unrecognized type ${type}`)
@@ -265,7 +269,7 @@ export class BlockchainService {
 
     getContractData(contractReference: string): contractData | undefined {
         try {
-            return this.smartContracts.find((contract: contractData) => contract.contract_reference = contractReference)
+            return this.smartContracts.find((contract: contractData) => contract.contract_reference == contractReference)
         } catch {
             return undefined
         }

@@ -5,15 +5,16 @@ import {
   Delete,
   Put,
   Body,
-  Param, Query, Redirect,
+  Param, Query, Redirect, Headers,
 } from "@nestjs/common";
-import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
-import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
+import {HttpResponse} from "src/shared/infrastructure/http/HttpResponse";
+import {PrismaService} from "src/shared/infrastructure/services/prisma-service/prisma-service";
 import {ApiTags} from "@nestjs/swagger";
 import {Datatable} from "../../shared/infrastructure/services/datatable/Datatable";
 import {Auth} from "../auth/infrastructure/decorators";
 import {EnvironmentService} from "../../shared/infrastructure/services";
 import Stripe from 'stripe'
+import {StripeService} from "../../shared/infrastructure/services/stripe/stripe.service";
 
 export const RESOURCE_NAME = "stripe";
 
@@ -21,7 +22,13 @@ export const RESOURCE_NAME = "stripe";
 @Controller("stripe")
 export class StripeController {
   private stripe: Stripe;
-  constructor(private prisma: PrismaService, private datatable: Datatable, private environment: EnvironmentService,) {
+
+  constructor(
+    private prisma: PrismaService,
+    private datatable: Datatable,
+    private environment: EnvironmentService,
+    private stripeService: StripeService
+    ) {
     const secretKey = this.environment.getEnv().STRIPE_SECRET_KEY;
     this.stripe = new Stripe(secretKey);
   }
@@ -30,7 +37,7 @@ export class StripeController {
   // @Auth(RESOURCE_NAME)
   @Redirect()
   async get(@Query() query: any) {
-    const {quantity, userId} = query
+    const {quantity, walletAddress} = query
 
     const session = await this.stripe.checkout.sessions.create({
       line_items: [
@@ -44,15 +51,43 @@ export class StripeController {
         enabled: true
       },
       metadata: {
-        userId: userId,
+        walletAddress: walletAddress,
         qty: quantity,
       },
       mode: 'payment',
-      success_url: `${this.environment.getEnv().FRONTEND_URL}/user/wallet?blockchain=true&success=true&userId=${userId}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${this.environment.getEnv().FRONTEND_URL}}/user/wallet?blockchain=true&success=false&userId=${userId}`,
+      success_url: `${this.environment.getEnv().FRONTEND_URL}/user/wallet?blockchain=true&success=true&walletAddress=${walletAddress}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${this.environment.getEnv().FRONTEND_URL}/user/wallet?blockchain=true&success=false&walletAddress=${walletAddress}`,
     });
 
-    return { url: session.url, statusCode: 303 };
+    // console.log(session.id)
+
+   /* await this.prisma.stripe.create({
+      data: {
+        sessionId: session.id
+      }
+    })*/
+    return {url: session.url, statusCode: 303};
+  }
+
+  @Get('session/:sessionId/status')
+  async getSessionStatus(@Param('sessionId') sessionId: string) {
+    const session = await this.stripe.checkout.sessions.retrieve(sessionId)
+    console.log(session)
+
+    return HttpResponse.success(
+      "session fetched successfully"
+    ).withData(session);
+  }
+
+
+  @Post('webhook')
+  // @Auth(RESOURCE_NAME)
+  async stripeWebhook(@Headers('stripe-signature') signature: string, @Body() body: any) {
+
+    // console.log(body)
+    this.stripeService.postEvent(signature, body)
+
+
   }
 
   mapData(data: any) {

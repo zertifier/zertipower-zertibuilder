@@ -18,4 +18,5 @@ export interface EnvVariables {
   TRADE_UPDATE_DAYS:number;
   EMAIL:string;
   EMAIL_PASSWORD:string;
+  ENERGY_PREDICTION_API:string;
 }

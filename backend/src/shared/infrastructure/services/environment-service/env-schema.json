@@ -90,6 +90,12 @@
       "type": "string"
     },
     {
+      "name": "ENERGY_PREDICTION_API",
+      "required": true,
+      "description": "",
+      "type": "string"
+    },
+    {
       "name": "DATADIS_MONTHS",
       "required": true,
       "type": "int",

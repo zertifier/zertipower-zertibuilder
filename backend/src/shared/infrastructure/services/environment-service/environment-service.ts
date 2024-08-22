@@ -31,7 +31,8 @@ export class EnvironmentService implements OnModuleInit {
     DATADIS_MONTHS:0,
     TRADE_UPDATE_DAYS: 0,
     EMAIL:"",
-    EMAIL_PASSWORD:""
+    EMAIL_PASSWORD:"",
+    ENERGY_PREDICTION_API:""
   };
 
   onModuleInit(): any {

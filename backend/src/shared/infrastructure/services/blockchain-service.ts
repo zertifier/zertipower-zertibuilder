@@ -88,10 +88,15 @@ export class BlockchainService {
 
     return new Promise(async (resolve, reject) => {
       try {
-        let networkChainUrl = await this.getRpc(chainId)
+        let networkChainUrl;
+        try {
+          networkChainUrl = await this.getRpc(chainId)
+        }catch (err){
+          networkChainUrl = rpcUrl
+        }
         // console.log(networkChainUrl)
-        //this.provider = new JsonRpcProvider(networkChainUrl)
-        this.provider = new JsonRpcProvider("https://ethereum-sepolia.blockpi.network/v1/rpc/public");
+        this.provider = new JsonRpcProvider(networkChainUrl)
+        // this.provider = new JsonRpcProvider("https://ethereum-sepolia.blockpi.network/v1/rpc/public");
         //warning error TypeError: Cannot read properties of null (reading 'toHexString') is because it faults private key at wallets or any data (check db relations)
         const wallet = new ethers.Wallet(privateKey)
         const walletSigner = await wallet.connect(this.provider);
@@ -280,9 +285,8 @@ export class BlockchainService {
   }
 
   async mintEkw(toWallet: string, qty: number){
-
       try {
-        const tx = await this.ekwContract.mint(toWallet, qty)
+        const tx = await this.ekwContract.mint(toWallet, ethers.parseEther(qty))
         await tx.wait()
         return true
       }catch (error){

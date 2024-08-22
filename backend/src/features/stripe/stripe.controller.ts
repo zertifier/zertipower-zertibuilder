@@ -69,14 +69,25 @@ export class StripeController {
     return {url: session.url, statusCode: 303};
   }
 
+
   @Get('session/:sessionId/status')
   async getSessionStatus(@Param('sessionId') sessionId: string) {
-    const session = await this.stripe.checkout.sessions.retrieve(sessionId)
-    console.log(session)
+/*    const session = await this.stripe.checkout.sessions.retrieve(sessionId)
+    console.log(session)*/
+
+    const data = await this.prisma.stripe.findUnique({
+      select: {
+        mintStatus: true
+      },
+      where:{
+        sessionId
+      }
+    })
+
 
     return HttpResponse.success(
       "session fetched successfully"
-    ).withData(session);
+    ).withData(data ? data.mintStatus : 'ERROR');
   }
 
 

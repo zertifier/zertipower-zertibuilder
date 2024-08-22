@@ -180,8 +180,8 @@ model Customers {
 model Stripe {
   id         Int               @id @default(autoincrement())
   walletAddress     String?           @map("wallet_address") @db.VarChar(255)
-  sessionId  String?           @map("session_id") @db.VarChar(255)
-  mintStatus StripeMintStatus? @default(PENDING) @map("mint_status")
+  sessionId  String           @unique @map("session_id") @db.VarChar(255)
+  mintStatus StripeMintStatus? @default(MINTING) @map("mint_status")
   qty     Float?
   createdAt  DateTime          @default(now()) @map("created_at") @db.DateTime(0)
 
@@ -411,10 +411,9 @@ enum CupsType {
 
 
 enum StripeMintStatus {
-  PENDING
   MINTING
   ACCEPTED
-  REJECTED
+  ERROR
 }
 
 model Proposals {

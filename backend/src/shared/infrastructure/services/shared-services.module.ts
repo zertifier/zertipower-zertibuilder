@@ -25,6 +25,7 @@ import { CupsDbRequestsService } from "src/features/cups/cups-db-requests.servic
 import { CustomersDbRequestsService } from "src/features/customers/customers-db-requests.service";
 import { UsersDbRequestsService } from "src/features/users/infrastructure/user-controller/user-db-requests.service";
 import { StripeService } from './stripe/stripe.service';
+import {MintSocket} from "./stripe/MintSocket";
 
 @Global()
 @Module({
@@ -52,7 +53,8 @@ import { StripeService } from './stripe/stripe.service';
     CustomersDbRequestsService,
     UsersDbRequestsService,
     CommunitiesDbRequestsService,
-    StripeService
+    StripeService,
+    MintSocket
   ],
   exports: [
     PrismaService,
@@ -77,7 +79,8 @@ import { StripeService } from './stripe/stripe.service';
     CustomersDbRequestsService,
     UsersDbRequestsService,
     CommunitiesDbRequestsService,
-    StripeService
+    StripeService,
+    MintSocket
   ],
 })
 export class SharedServicesModule {}

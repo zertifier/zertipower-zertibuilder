@@ -17,6 +17,7 @@ import * as moment from "moment";
 import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
+import { CustomersDbRequestsService } from "./customers-db-requests.service";
 export const RESOURCE_NAME = "customers";
 
 @ApiTags(RESOURCE_NAME)
@@ -26,7 +27,8 @@ export class CustomersController {
   constructor(
     private prisma: PrismaService,
     private datatable: Datatable,
-    private mysql: MysqlService
+    private mysql: MysqlService,
+    private customersDbRequestsService: CustomersDbRequestsService
   ) {
     this.conn = this.mysql.pool;
   }

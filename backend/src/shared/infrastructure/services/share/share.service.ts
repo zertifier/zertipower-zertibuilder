@@ -64,6 +64,7 @@ export class ShareService {
     }
 
     setInterval(() => {
+      //TODO: introduïr condició de si es dia 1 de qualsevol mes, faci el següent:
       try {
         this.redistribute()
       } catch (error) {
@@ -96,7 +97,7 @@ export class ShareService {
         const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
         await this.insertToTrades(calculatedRedistribute, communityPrice)
       }
-      
+
     } catch (error) {
       console.log(error);
     }
@@ -224,6 +225,18 @@ export class ShareService {
     })
   }
 
+  // getUserByCustomerId(customerId:number){
+  //   return new Promise(async resolve => {
+  //     let query = `
+  //       SELECT users.id user_id
+  //       FROM users
+  //       WHERE customer_id = ?
+  //     `
+  //     let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query,customerId);
+  //     resolve(result);
+  //   })
+  // }
+
   async customerHasSufficientBalance(tradePrice: any, balance: any) {
     if (balance >= tradePrice) {
       return true;
@@ -233,8 +246,9 @@ export class ShareService {
   }
 
   async getCustomerFromCupsId(cupsId: number) {
-    let query = `SELECT customers.* FROM customers
+    let query = `SELECT customers.*, users.id as userId FROM customers
     LEFT JOIN cups ON cups.customer_id = customers.id
+    LEFT JOIN users ON users.customer_id = customers.id
     WHERE cups.id = ?`
     let [ROWS]: any = await this.conn.execute(query, [cupsId]);
     if (ROWS[0]) {
@@ -271,6 +285,7 @@ export class ShareService {
     let resultSellTotalKwh = trade.totalSurplus
     let cupsBalancesToUpdate: any = {};
     let transactionNumber = 0;
+    const customerSeller = await this.getCustomerFromCupsId(trade.surplusCups);
 
     for (const partner of trade.redisitributePartners) {
 
@@ -284,14 +299,13 @@ export class ShareService {
       resultSellTotalKwh -= tradedKwh
 
       const customerBuyer = await this.getCustomerFromCupsId(partner.cupsId);
-      const customerSeller = await this.getCustomerFromCupsId(trade.surplusCups);
-
+      
       partner.buyerName = customerBuyer.name;
       partner.sellerName = customerSeller.name;
 
       const isSuficientBalance = await this.customerHasSufficientBalance(tradeCost, customerBuyer.balance);
 
-      if (isSuficientBalance && tradeCost > 0.001) {
+      if (isSuficientBalance && (tradeCost > 0.001)) {
 
         transactionNumber++;
 
@@ -316,7 +330,22 @@ export class ShareService {
         //console.log("Seller",customerSeller,trade.surplusCups)
 
       } else {
-        //console.log(`customer ${customerBuyer.name} with cups id ${partner.cupsId} has insufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost} / Trade cost is 0 `)
+
+        if(tradeCost > 0.001){
+
+        //insufficient balance notification
+        console.log(`customer ${customerBuyer.name} with cups id ${partner.cupsId} has insufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost} / Trade cost is 0 `)
+
+        //TODO: obtain buyer userId , custom get notification;
+
+        const subjectInsufficientBalance = this.notificationService.getNotificationSubject(notificationCodes.insufficientBalance, this.notificationService.defaultNotificationLang, { sharedKW: tradedKwh.toString(), tradeCost: tradeCost.toString(), customerName: partner.sellerName!, infoDt });
+        //let messageInsufficientBalance = `Your community balance (${customerBuyer.balance} EKW) is innsufficient to buy ${tradedKwh} for the trade cost ${tradeCost} from ${partner.sellerName}`
+        let messageInsufficientBalance = `El teu saldo comunitari (${customerBuyer.balance} EKW) es insuficient per comprar a ${partner.sellerName} ${tradedKwh} kW al preu de ${tradeCost}`
+        this.notificationService.sendNotification(customerBuyer.userId, notificationCodes.insufficientBalance, subjectInsufficientBalance, messageInsufficientBalance)
+
+        } else {
+          //trade cost = 0
+        }
       }
 
     }
@@ -335,23 +364,28 @@ export class ShareService {
       // const insertedRows = result.affectedRows;
       console.log(`Inserted values on trades from date: ${trade.redisitributePartners[0].infoDt}`);
 
-      try {
+      try { //send notifications
 
         for (const partner of trade.redisitributePartners) {
+
+          const customerBuyer = await this.getCustomerFromCupsId(partner.cupsId);
+
           const sharedKW = partner.tradedKWh!.toString();
           const tradeCost = partner.tradeCost!.toString();
           const infoDt = moment(partner.infoDt).format('DD-MM-YYYY HH:mm:ss');
-          const buyerName = partner.buyerName || '(UNNAMED)'
-          const sellerName = partner.sellerName || '(UNNAMED)'
+          const buyerName = partner.buyerName || '(UNNAMED)';
+          const sellerName = partner.sellerName || '(UNNAMED)';
 
-          //notificar al from del sell y al to del buy
+          //notificar al from del sell y al to del buy:
+
           const subjectSell = this.notificationService.getNotificationSubject(notificationCodes.sharingSent, this.notificationService.defaultNotificationLang, { sharedKW, tradeCost, customerName: buyerName, infoDt });
           let messageSell = `Shared to ${buyerName}` //l'energia s'ha venut a x
+          this.notificationService.sendNotification(customerSeller.userId, notificationCodes.sharingSent, subjectSell, messageSell)
+
           const subjectBuy = this.notificationService.getNotificationSubject(notificationCodes.sharingReceived, this.notificationService.defaultNotificationLang, { sharedKW, tradeCost, customerName: sellerName, infoDt });
           let messageBuy = `Shared from ${sellerName}` //l'energia s'ha comprat a x
-          //TODO surplus cups
-          this.notificationService.sendNotification(partner.userId, notificationCodes.sharingSent, subjectSell, messageSell)
-          this.notificationService.sendNotification(partner.userId, notificationCodes.sharingReceived, subjectBuy, messageBuy)
+          this.notificationService.sendNotification(customerBuyer.userId, notificationCodes.sharingReceived, subjectBuy, messageBuy)
+
         }
 
       } catch (error) {

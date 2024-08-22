@@ -39,7 +39,7 @@ export class NotificationsService {
   async sendNotification(userId: number, notificationCode: notificationCodes, subject: string, text: string) {
     try {
       if (!userId || !notificationCode || !subject) {
-        console.log('error sending notification, parameter not provided')
+        console.log('error sending notification, parameter not provided',userId,notificationCode,subject)
         //console.log("userId:", userId, "notificationCode", notificationCode, "subject", subject, "text", text)
         return;
       }
@@ -47,15 +47,15 @@ export class NotificationsService {
       const notification: notification = await this.getNotificationByCode(notificationCode);
       const notificationActive = await this.isNotificationActive(userId, notification.id);
       if (!notificationActive) {
-        //console.log("notification isn't activated")
+        //console.log("notification isn't activated","userId",userId,"notificationId",notification.id,"subject",subject)
         return;
       }
       const notificationSent = await this.isNotificationSent(userId, notification.id, subject);
       if (!notificationSent) {
-        //await this.sendMail(notification.id, userId, user.email, subject, text);
+        await this.sendMail(notification.id, userId, user.email, subject, text);
         await this.registerNotification(userId, notification.id, user.email, subject);
       } else {
-        //console.log("notification already sent")
+        console.log("notification already sent","userId",userId,"notificationId",notification.id,"subject",subject)
         return;
       }
     } catch (error) {
@@ -123,7 +123,7 @@ export class NotificationsService {
   async getUserCustomerByUserId(userId: number) {
     try {
       const [rows]: any = await this.conn.query(
-        `SELECT users.id, users.firstname, customers.email
+        `SELECT users.id, users.firstname, users.email
         FROM users
         LEFT JOIN customers
         ON users.customer_id = customers.id
@@ -222,8 +222,8 @@ export class NotificationsService {
         `SELECT un.user_id, un.id, n.code, unc.active as userNotificationCategoryActive, un.active as userNotificationActive
         FROM users_notifications un
         LEFT JOIN notifications n ON un.notification_id = n.id
-        LEFT JOIN users_notifications_categories unc ON n.notification_category_id = unc.notification_categories_id
-        WHERE un.user_id = ? AND un.notification_id = ?`,
+        LEFT JOIN users_notifications_categories unc ON n.notification_category_id = unc.notification_categories_id AND un.user_id = unc.user_id
+        WHERE un.user_id = ? AND n.id = ?`,
         [userId, notificationId]
       );
       // const [rows]: any = await this.conn.query(
@@ -234,7 +234,8 @@ export class NotificationsService {
       //   WHERE unc.active = 1 AND un.active = 1 AND un.user_id = ? AND un.notification_id = ?`,
       //   [userId, notificationId]
       // );
-      if (!rows.length) {
+
+      if (!rows.length) { //if notification not found, creates inactive database notification register
         [rows] = await this.conn.query(`SELECT nc.id FROM notifications_categories nc LEFT JOIN notifications n on nc.id = n.notification_category_id WHERE n.id = ?`, [notificationId])
         if (rows.length) {
           //insert user notifications:
@@ -247,6 +248,8 @@ export class NotificationsService {
         }
         return false;
       }
+
+      //if category and notification are active, returns true
       if (rows[0].userNotificationCategoryActive && rows[0].userNotificationActive) {
         return true
       }
@@ -289,10 +292,12 @@ export class NotificationsService {
 
   async sendMail(notificationId: number, userId: number, email: string, subject: string, text: string) {
     //console.log("activar sendMail", notificationId, userId, email, subject, text)
-
-    this.mailService.sendEmail(email, subject, text);
-
-    //console.log(`Enviando notificación ${notificationId} al usuario ${userId}`);
+    try{
+      console.log(`Enviando notificación ${notificationId} al usuario ${userId}: ${email}`);
+      this.mailService.sendEmail(email, subject, text); 
+    } catch(error){
+      console.log("Error sending mail",error)
+    }
   }
 
   async wasNotificationRecentlySent(userId: number, notificationId: number): Promise<boolean> {
@@ -369,7 +374,9 @@ export enum notificationCodes {
   sharingReceived = 'sharing_received',
   sharingSent = 'sharing_sent',
   datadisActive = 'datadis_active',
-  datadisInactive = 'datadis_inactive'
+  datadisInactive = 'datadis_inactive',
+  insufficientBalance = 'insufficient_balance',
+  lowBalance = 'low_balance'
 }
 
 export enum notificationLangs {
@@ -429,6 +436,16 @@ const notificationMessages = {
     en: 'Datadis is inactive.',
     es: 'Datadis está inactivo.',
   },
+  insufficient_balance: {
+    ca: 'Saldo insuficient per comprar ${sharedKW} KW al destinatari ${customerName} a un preu de ${tradeCost} amb data de ${infoDt}.',
+    en: 'Insufficient balance for buying ${sharedKW} kW at a cost of ${tradeCost} from ${customerName} with a date of ${infoDt}.',
+    es: 'Saldo insuficiente para comprar ${sharedKW} kW a un costo de ${tradeCost} de parte de ${customerName} con fecha de ${infoDt}.'
+  },
+  low_balance: {
+    ca: 'El saldo de dins de la comunitat és baix a data de ${infoDt}.',
+    en: 'The balance within the community is low with a date of ${infoDt}',
+    es: 'El saldo de dentro de la comunidad es bajo con fecha de ${infoDt}'
+  }
 };
 
 // async run() {

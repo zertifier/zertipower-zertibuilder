@@ -20,8 +20,8 @@ export class EmailService {
     this.transporter = nodemailer.createTransport({
       pool: true, 
       host: SMTP_SERVER,
-      port: SMTP_PORT,
-      secure: false, // false para utilizar STARTTLS en el puerto 587
+      port: Number(SMTP_PORT),
+      secure: true, // false para utilizar STARTTLS en el puerto 587
       auth: {
         user: this.user,
         pass: SMTP_PASSWORD,

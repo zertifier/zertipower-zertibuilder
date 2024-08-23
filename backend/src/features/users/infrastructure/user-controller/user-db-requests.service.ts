@@ -43,4 +43,20 @@ export class UsersDbRequestsService {
             }
         })
     }
+
+    async getUserByCustomerId(customerId: number): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const user = await this.prisma.user.findMany({
+                    where: {
+                        customer_id:customerId,
+                    },
+                });
+                resolve(user)
+            } catch (e) {
+                console.log("error getting user", e);
+                reject(e)
+            }
+        })
+    }
 }

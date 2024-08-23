@@ -20,7 +20,6 @@ RUN pnpx prisma generate
 FROM base AS build
 WORKDIR /app
 COPY --from=prisma /src .
-RUN mv src/shared/infrastructure/views ./views
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 RUN pnpm build

@@ -23,6 +23,7 @@ export interface EnvVariables {
   EMAIL:string;
   EMAIL_PASSWORD:string;
   ENERGY_PREDICTION_API:string;
+  PK:string;
   STRIPE_PRICE_KEY:string;
   STRIPE_PRODUCT_ID:string;
   STRIPE_SECRET_KEY:string;

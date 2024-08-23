@@ -40,6 +40,7 @@ export class EnvironmentService implements OnModuleInit {
     STRIPE_PRICE_KEY:"",
     STRIPE_PRODUCT_ID:"",
     STRIPE_SECRET_KEY:"",
+    PK:""
   };
 
   onModuleInit(): any {

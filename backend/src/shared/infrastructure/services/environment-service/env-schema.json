@@ -131,6 +131,11 @@
       "type": "string"
     },
     {
+      "name": "PK",
+      "required": true,
+      "type": "string"
+    },
+    {
       "name": "STRIPE_PRODUCT_ID",
       "required": true,
       "type": "string"

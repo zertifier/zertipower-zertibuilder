@@ -18,7 +18,13 @@ jobs:
           whoami
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           git switch dev
-          LAST_COMMIT=$(git rev-parse HEAD) # Getting last commit before changes
+          
+          if [[ -f .LAST_COMMIT.txt ]]; then
+            LAST_COMMIT=$(cat .LAST_COMMIT.txt)
+          else
+            LAST_COMMIT=$(git rev-parse HEAD) # Getting last commit before changes
+          fi
+
           echo "Pulling and rebasing changes from github"
           git pull origin dev --rebase
           echo "LAST_COMMIT=${LAST_COMMIT}" >> $GITHUB_ENV
@@ -178,3 +184,17 @@ jobs:
           npm ci
           docker compose up -d api-dev-realtime-energy --build --force-recreate
           echo "api-dev-realtime-energy deployed"
+  persist-last-commit:
+    needs: 
+      - deploy-api-realtime-energy
+      - deploy-api-ris3cat
+      - deploy-wiki-ris3cat
+      - deploy-frontend
+      - deploy-calculadora-ris3cat
+    runs-on: self-hosted
+    steps:
+      - name: Saving last deployed commit
+        run: |
+          cd /home/megatro/apps/dockers/dev-rem-sensors
+          git rev-parse HEAD > .LAST_COMMIT.txt
+

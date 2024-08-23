@@ -116,7 +116,7 @@ export class UsersNotificationsCategoriesController {
             }
     
             // Crear una lista de datos para insertar
-            const userCategoriesData = categories.map(category => ({
+            const userCategoriesData = categories.map((category:any) => ({
                 userId: userId,
                 notificationCategoryId: category.id,
                 active: 0

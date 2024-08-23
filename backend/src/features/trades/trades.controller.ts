@@ -44,7 +44,7 @@ export class TradesController {
       ORDER BY info_dt DESC
     `*/
     const query = `
-      SELECT trades.id, action, traded_kwh, cost, previous_kwh, current_kwh, info_dt
+      SELECT trades.id, action, traded_kwh, cost, previous_kwh, current_kwh, info_dt, from_cups_id, to_cups_id, cups.customer_id
       FROM trades
              LEFT JOIN cups ON trades.from_cups_id = cups.id
       WHERE cups.customer_id = ${customerId}

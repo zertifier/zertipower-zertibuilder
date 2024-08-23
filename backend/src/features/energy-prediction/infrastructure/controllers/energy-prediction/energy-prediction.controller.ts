@@ -57,7 +57,6 @@ export class EnergyPredictionController {
     const ago = response[response.length - 1].infoDt;
     let historicRadiation;
 
-    console.log("ago", ago, "now", now)
     try {
       historicRadiation = await this.energyForecastService.getRadiation(ago, now);
     } catch (err) {

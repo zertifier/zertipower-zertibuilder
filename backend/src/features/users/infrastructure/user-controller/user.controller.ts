@@ -111,12 +111,27 @@ export class UserController {
     
   }
 
+  @Get("/cups/:id")
+  @Auth(RESOURCE_NAME)
+  //@ApiBearerAuth()
+  @UseGuards(AccessTokenGuard)
+  async getUserByCupsId(@Param("id") id: number, @Headers('authorization') authHeader: string) {
+    try{
+      const user = await this.dbRequestsService.getUserByCupsId(id);
+      return HttpResponse.success("user fetched successfully").withData(
+        user
+      );
+    } catch(error){
+      console.log(error)
+      throw new BadRequestError("User not found")
+    }
+  }
+
   @Get("/:id/cups")
   @Auth(RESOURCE_NAME)
   //@ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   async getUserCups(@Param("id") id: number, @Headers('authorization') authHeader: string) {
-
     //authHeader
     //this.accessTokenGuard.canActivate;
 

@@ -4,6 +4,11 @@ on:
     branches:
       - dev
 
+defaults:
+  run:
+    shell: bash
+    working-directory: /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+
 jobs:
   detect-changes:
     runs-on: self-hosted
@@ -197,6 +202,6 @@ jobs:
     steps:
       - name: Saving last deployed commit
         run: |
-          cd /home/megatro/apps/dockers/dev-rem-sensors
+          cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           git rev-parse HEAD > .LAST_COMMIT.txt
 

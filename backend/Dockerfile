@@ -28,6 +28,7 @@ RUN pnpm build
 FROM node:20-alpine3.18
 
 COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/src/shared/infrastructure/views ./src/shared/infrastructure/views
 COPY --from=build /app/dist ./dist
 
 ENTRYPOINT [ "node", "dist/main.js" ]

@@ -27,6 +27,7 @@ RUN pnpm build
 ### Final image just node, node_modules and dist
 FROM node:20-alpine3.18
 
+COPY ./backups ./backups
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/src/shared/infrastructure/views ./src/shared/infrastructure/views
 COPY --from=build /app/dist ./dist

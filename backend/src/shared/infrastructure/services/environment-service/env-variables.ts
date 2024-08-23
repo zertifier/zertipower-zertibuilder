@@ -1,5 +1,5 @@
 export interface EnvVariables {
-  // DATABASE_URL: string;
+  DATABASE_URL: string;
   DB_HOST: string;
   DB_USER: string;
   DB_PASSWORD: string;

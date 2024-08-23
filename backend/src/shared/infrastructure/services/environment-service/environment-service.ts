@@ -22,7 +22,7 @@ export class EnvironmentService implements OnModuleInit {
     VIEWS_FOLDER: "",
     PORT: 0,
     JWT_SECRET: "",
-    // DATABASE_URL: "",
+    DATABASE_URL: "",
     DB_HOST: "",
     DB_USER: "",
     DB_PASSWORD: "",

@@ -1,6 +1,12 @@
 {
   "vars": [
     {
+      "name": "DATABASE_URL",
+      "required": true,
+      "type": "string",
+      "default": ""
+    },
+    {
       "name": "DB_HOST",
       "required": true,
       "type": "string",

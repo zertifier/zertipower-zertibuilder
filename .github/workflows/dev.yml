@@ -15,6 +15,7 @@ jobs:
     steps:
       - name: Pull changes
         run: |
+          whoami
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           git switch dev
           LAST_COMMIT=$(git rev-parse HEAD) # Getting last commit before changes

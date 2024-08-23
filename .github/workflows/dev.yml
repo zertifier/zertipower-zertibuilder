@@ -168,13 +168,9 @@ jobs:
         - name: Deploy api-ris3cat if changed
           if: needs.detect-changes.outputs.api-ris3cat_changed == 'true'
           run: |
-            whoami
-            echo $PATH
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying api-dev-ris3cat"
             cd backend
-            pnpm i --frozen-lockfile
-            pnpx prisma generate
             docker compose up -d api-dev-ris3cat --build --force-recreate
             echo "api-dev-ris3cat deployed"
 

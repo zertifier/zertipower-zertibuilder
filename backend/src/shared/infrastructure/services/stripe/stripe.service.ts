@@ -21,6 +21,7 @@ export class StripeService {
 
         await this.createOrder(stripeObject.id, stripeObject.metadata.walletAddress, stripeObject.metadata.qty)
         try {
+          console.log(`Minting to ${stripeObject.metadata.walletAddress}`)
           await this.blockchainService.mintEkw(stripeObject.metadata.walletAddress, stripeObject.metadata.qty)
           await this.updateOrderStatus(stripeObject.id, 'ACCEPTED')
           this.mintSocket.emitToSession(stripeObject.id, 'isMinted', "ACCEPTED")

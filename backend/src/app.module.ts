@@ -42,6 +42,7 @@ import { UsersNotificationsController } from './features/notifications/controlle
 import { NotificationsCategoriesController } from './features/notifications/controllers/notifications-categories.controller';
 import { NotificationsController } from './features/notifications/controllers/notifications.controller';
 import { UsersNotificationsHistoricController } from './features/notifications/controllers/users-notifications-historic.controller';
+import {StripeController} from "./features/stripe/stripe.controller";
 
 @Module({
   imports: [
@@ -89,7 +90,8 @@ import { UsersNotificationsHistoricController } from './features/notifications/c
     UsersNotificationsController,
     NotificationsCategoriesController,
     NotificationsController,
-    UsersNotificationsHistoricController
+    UsersNotificationsHistoricController,
+    StripeController
 ],
   providers: [],
 })

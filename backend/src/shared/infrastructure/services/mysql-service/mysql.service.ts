@@ -10,6 +10,18 @@ export class MysqlService {
   public pool: mysql.Pool;
 
   constructor(private environment: EnvironmentService) {
-    this.pool = mysql.createPool(this.environment.getEnv().DATABASE_URL);
+    //this.pool = mysql.createPool(this.environment.getEnv().DATABASE_URL);
+    const host = this.environment.getEnv().DB_HOST
+    const user = this.environment.getEnv().DB_USER 
+    const pwd = this.environment.getEnv().DB_PASSWORD
+    const database = this.environment.getEnv().DB_DATABASE
+    this.pool = mysql.createPool({
+      host: host,
+      user: user,
+      password: pwd,
+      database: database,
+      connectionLimit: 30,
+  });
+      
   }
 }

@@ -188,7 +188,6 @@ jobs:
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           echo "Deploying api-dev-realtime-energy"
           cd realtime-energy-api
-          npm ci
           docker compose up -d api-dev-realtime-energy --build --force-recreate
           echo "api-dev-realtime-energy deployed"
   persist-last-commit:

@@ -24,6 +24,7 @@ export class EnvironmentService implements OnModuleInit {
     JWT_SECRET: "",
     DATABASE_URL: "",
     FRONTEND_URL: "",
+    COMPTADOR_FRONTEND_URL: "",
     GOOGLE_CLIENT_SECRET: "",
     GOOGLE_CLIENT_ID: "",
     RADIATION_API: "",

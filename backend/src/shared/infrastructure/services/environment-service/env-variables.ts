@@ -10,6 +10,7 @@ export interface EnvVariables {
   SMTP_PORT: number;
   VIEWS_FOLDER: string;
   FRONTEND_URL: string;
+  COMPTADOR_FRONTEND_URL: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   RADIATION_API: string;

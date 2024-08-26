@@ -67,6 +67,12 @@
       "default": "http://localhost:4200"
     },
     {
+      "name": "COMPTADOR_FRONTEND_URL",
+      "required": true,
+      "type": "string",
+      "default": "http://localhost:4200"
+    },
+    {
       "name": "GOOGLE_CLIENT_ID",
       "required": true,
       "type": "string",

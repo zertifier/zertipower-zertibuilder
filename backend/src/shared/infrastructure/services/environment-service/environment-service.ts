@@ -28,6 +28,7 @@ export class EnvironmentService implements OnModuleInit {
     DB_PASSWORD: "",
     DB_DATABASE: "",
     FRONTEND_URL: "",
+    COMPTADOR_FRONTEND_URL: "",
     GOOGLE_CLIENT_SECRET: "",
     GOOGLE_CLIENT_ID: "",
     RADIATION_API: "",

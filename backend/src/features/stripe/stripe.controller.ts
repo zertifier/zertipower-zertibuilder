@@ -55,8 +55,8 @@ export class StripeController {
         qty: quantity,
       },
       mode: 'payment',
-      success_url: `${this.environment.getEnv().FRONTEND_URL}/user/wallet?blockchain=true&success=true&walletAddress=${walletAddress}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${this.environment.getEnv().FRONTEND_URL}/user/wallet?blockchain=true&success=false&walletAddress=${walletAddress}`,
+      success_url: `${this.environment.getEnv().COMPTADOR_FRONTEND_URL}/user/wallet?blockchain=true&success=true&walletAddress=${walletAddress}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${this.environment.getEnv().COMPTADOR_FRONTEND_URL}/user/wallet?blockchain=true&success=false&walletAddress=${walletAddress}`,
     });
 
     // console.log(session.id)

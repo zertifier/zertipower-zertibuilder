@@ -24,12 +24,12 @@ export class StripeService {
           console.log(`Minting to ${stripeObject.metadata.walletAddress}`)
           await this.blockchainService.mintEkw(stripeObject.metadata.walletAddress, stripeObject.metadata.qty)
           await this.updateOrderStatus(stripeObject.id, 'ACCEPTED')
-          this.mintSocket.emitToSession(stripeObject.id, 'isMinted', "ACCEPTED")
+          this.mintSocket.emitToSession(stripeObject.id, "ACCEPTED")
 
         } catch (e) {
           console.log(e)
           await this.updateOrderStatus(stripeObject.id, 'ERROR')
-          this.mintSocket.emitToSession(stripeObject.id, 'isMinted', "ERROR")
+          this.mintSocket.emitToSession(stripeObject.id, "ERROR")
         }
         break;
     }

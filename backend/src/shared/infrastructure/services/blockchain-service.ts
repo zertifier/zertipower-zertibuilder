@@ -271,7 +271,7 @@ export class BlockchainService {
                     const contract = new ethers.Contract(contractData.contract_address, contractData.abi, fromWallet)
                     console.log("transferring to",toWallet,"VALUE", value)
                     tx = await contract['transfer'](toWallet, value);
-                    tx = await tx.wait();
+                    tx = await tx.wait(5);
                     console.log("transference realized", tx)
                     return tx;
                 default:

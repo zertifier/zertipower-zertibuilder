@@ -4,7 +4,31 @@
       "name": "DATABASE_URL",
       "required": true,
       "type": "string",
-      "default": "mysql://root:1234@localhost:3306/example"
+      "default": ""
+    },
+    {
+      "name": "DB_HOST",
+      "required": true,
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "DB_USER",
+      "required": true,
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "DB_PASSWORD",
+      "required": true,
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "DB_DATABASE",
+      "required": true,
+      "type": "string",
+      "default": ""
     },
     {
       "name": "PORT",
@@ -109,6 +133,11 @@
     },
     {
       "name": "TRADE_UPDATE_DAYS",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "PK",
       "required": true,
       "type": "string"
     },

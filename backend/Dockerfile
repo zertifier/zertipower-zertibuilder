@@ -1,16 +1,35 @@
+### Base image for build steps
+FROM node:20-alpine3.18 AS base
 
-FROM node:20
+## Preparing pnpm
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN npm i -g pnpm
 
-WORKDIR /usr/src/app
+### Generating prisma client
+FROM base as prisma
 
+WORKDIR /src
 COPY . .
 
-RUN npm install --only=development
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install -D
+RUN pnpx prisma generate
 
-RUN npx prisma generate
+### Build image installing just production dependencies and getting prisma from
+### previous step
+FROM base AS build
+WORKDIR /app
+COPY --from=prisma /src .
 
-RUN npm run build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN pnpm build
 
-EXPOSE 3000
+### Final image just node, node_modules and dist
+FROM node:20-alpine3.18
 
-CMD [ "npm", "run", "start:prod" ]
+COPY ./backups ./backups
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/src/shared/infrastructure/views ./src/shared/infrastructure/views
+COPY --from=build /app/dist ./dist
+
+ENTRYPOINT [ "node", "dist/main.js" ]

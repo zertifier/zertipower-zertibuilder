@@ -43,4 +43,44 @@ export class UsersDbRequestsService {
             }
         })
     }
+
+    async getUserByCustomerId(customerId: number): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const user = await this.prisma.user.findMany({
+                    where: {
+                        customer_id:customerId,
+                    },
+                });
+                resolve(user)
+            } catch (e) {
+                console.log("error getting user by customer id", e);
+                reject(e)
+            }
+        })
+    }
+
+    async getUserByCupsId(cupsId: number): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const cups = await this.prisma.cups.findUnique({
+                    where: {
+                        id:cupsId,
+                    },
+                });
+
+                const customerId = cups?.customerId;
+
+                const user = await this.prisma.user.findMany({
+                    where: {
+                        customer_id:customerId,
+                    },
+                });
+                resolve(user)
+            } catch (e) {
+                console.log("error getting user by cups id", e);
+                reject(e)
+            }
+        })
+    }
 }

@@ -23,6 +23,10 @@ export class EnvironmentService implements OnModuleInit {
     PORT: 0,
     JWT_SECRET: "",
     DATABASE_URL: "",
+    DB_HOST: "",
+    DB_USER: "",
+    DB_PASSWORD: "",
+    DB_DATABASE: "",
     FRONTEND_URL: "",
     COMPTADOR_FRONTEND_URL: "",
     GOOGLE_CLIENT_SECRET: "",
@@ -37,6 +41,7 @@ export class EnvironmentService implements OnModuleInit {
     STRIPE_PRICE_KEY:"",
     STRIPE_PRODUCT_ID:"",
     STRIPE_SECRET_KEY:"",
+    PK:""
   };
 
   onModuleInit(): any {

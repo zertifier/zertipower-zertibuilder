@@ -41,6 +41,7 @@ import {Auth} from "../../../auth/infrastructure/decorators";
 import {UserRole} from "../../../roles/domain/UserRole";
 import {Datatable} from "../../../../shared/infrastructure/services/datatable/Datatable";
 import mysql from "mysql2/promise";
+import { UsersDbRequestsService } from "./user-db-requests.service";
 
 export const RESOURCE_NAME = "users";
 
@@ -57,7 +58,8 @@ export class UserController {
     private userRepository: UserRepository,
     private authRepository: AuthTokenRepository,
     private datatable: Datatable,
-    private mysql: MysqlService
+    private mysql: MysqlService,
+    private dbRequestsService:UsersDbRequestsService
   ) {
     this.conn = this.mysql.pool;
   }
@@ -92,12 +94,44 @@ export class UserController {
     );
   }
 
+  @Get("/customer/:id")
+  @Auth(RESOURCE_NAME)
+  //@ApiBearerAuth()
+  @UseGuards(AccessTokenGuard)
+  async getUserByCustomerId(@Param("id") id: number, @Headers('authorization') authHeader: string) {
+    try{
+      const user = await this.dbRequestsService.getUserByCustomerId(id);
+      return HttpResponse.success("user fetched successfully").withData(
+        user
+      );
+    } catch(error){
+      console.log(error)
+      throw new BadRequestError("User not found")
+    }
+    
+  }
+
+  @Get("/cups/:id")
+  @Auth(RESOURCE_NAME)
+  //@ApiBearerAuth()
+  @UseGuards(AccessTokenGuard)
+  async getUserByCupsId(@Param("id") id: number, @Headers('authorization') authHeader: string) {
+    try{
+      const user = await this.dbRequestsService.getUserByCupsId(id);
+      return HttpResponse.success("user fetched successfully").withData(
+        user
+      );
+    } catch(error){
+      console.log(error)
+      throw new BadRequestError("User not found")
+    }
+  }
+
   @Get("/:id/cups")
   @Auth(RESOURCE_NAME)
   //@ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   async getUserCups(@Param("id") id: number, @Headers('authorization') authHeader: string) {
-
     //authHeader
     //this.accessTokenGuard.canActivate;
 

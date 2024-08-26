@@ -32,7 +32,6 @@ interface contractData {
 export class BlockchainService {
 
   private conn: mysql.Pool;
-
   smartContracts: contractData[];
   energyMappingContract: any;
   ekwContract: Contract | any;

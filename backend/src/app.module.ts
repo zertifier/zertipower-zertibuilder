@@ -43,6 +43,7 @@ import { NotificationsCategoriesController } from './features/notifications/cont
 import { NotificationsController } from './features/notifications/controllers/notifications.controller';
 import { UsersNotificationsHistoricController } from './features/notifications/controllers/users-notifications-historic.controller';
 import {StripeController} from "./features/stripe/stripe.controller";
+import {MintSocket} from "./shared/infrastructure/services/stripe/MintSocket";
 
 @Module({
   imports: [
@@ -60,7 +61,8 @@ import {StripeController} from "./features/stripe/stripe.controller";
     AuthRepositoriesModule,
     WeatherPredictionModule,
     EnergyPredictionModule,
-    CommunitiesModule
+    CommunitiesModule,
+    MintSocket
   ],
   // Do not remove controllers section cuz zertibuilder
   // can create it if it doesn't exist

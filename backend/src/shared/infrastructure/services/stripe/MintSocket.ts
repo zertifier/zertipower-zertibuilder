@@ -3,7 +3,7 @@ import {
   WebSocketServer,
   SubscribeMessage,
   MessageBody,
-  ConnectedSocket,
+  ConnectedSocket, OnGatewayConnection,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import {StripeMintStatus} from "@prisma/client";
@@ -15,25 +15,22 @@ import {StripeMintStatus} from "@prisma/client";
   },
 })
 
-export class MintSocket{
+export class MintSocket implements OnGatewayConnection{
   @WebSocketServer()
   server: Server;
 
-/*  // Este método se ejecuta cuando un cliente se conecta
+
   handleConnection(client: Socket) {
-    const sessionId = client.handshake.query.sessionId; // Asume que el sessionId se pasa en la conexión
+    const sessionId = client.handshake.query.sessionId;
     if (sessionId) {
-      client.join(sessionId); // El cliente se une a una sala con su sessionId
+      client.join(sessionId);
     }
-  }*/
-
-
-  emitToSession(sessionId: string, event: string, data: StripeMintStatus) {
-    this.server.to(sessionId).emit(event, data);
   }
 
-  @SubscribeMessage('isMinted')
-  isMinted(@MessageBody() data: StripeMintStatus, @ConnectedSocket() client: Socket): {status: StripeMintStatus }  {
-    return {status: data};
+
+  emitToSession(sessionId: string, data: StripeMintStatus) {
+    this.server.to(sessionId).emit('isMinted',  data );
   }
+
+
 }

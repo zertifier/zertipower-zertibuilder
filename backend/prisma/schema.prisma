@@ -277,6 +277,7 @@ model EnergyHourly {
   cupsId               Int?      @map("cups_id")
   infoDt               DateTime? @map("info_dt") @db.DateTime(0)
   kwhIn                Float?    @map("kwh_in")
+  kwhInVirtual         Float?    @map("kwh_in_virtual")
   kwhOut               Float?    @map("kwh_out")
   kwhOutVirtual        Float?    @map("kwh_out_virtual")
   kwhInPrice           Float?    @map("kwh_in_price")

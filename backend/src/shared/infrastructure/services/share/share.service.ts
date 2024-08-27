@@ -4,6 +4,7 @@ import { MysqlService } from "../mysql-service";
 import * as moment from "moment";
 import { EnvironmentService } from "../environment-service";
 import { NotificationsService, notificationCodes } from '../notifications-service';
+import {info} from "winston";
 
 
 export interface RedistributeObject {
@@ -84,6 +85,7 @@ export class ShareService {
 
       console.log(`Inserting ${surplusRegisters.length} trades...`)
 
+      console.log(surplusRegisters)
       for (const surplusRegister of surplusRegisters) {
         const communityPrice = await this.getCommunityPrice(surplusRegister.community_id)
         const redisitributePartners = this.getRegistersByDateAndCommunity(surplusRegister.info_dt, surplusRegister.community_id, newRegisters)
@@ -321,13 +323,13 @@ export class ShareService {
         //BUY
         query +=
           `(${partner.ehId}, ${trade.surplusEhId}, ${partner.cupsId}, ${trade.surplusCups}, 'BUY', ${tradedKwh}, ${tradeCost}, ${partner.consumption}, ${partner.resultConsumption}, "${infoDt}"),`
+        await this.updateHourlyVirtual(partner.cupsId, partner.resultConsumption, infoDt, 'BUY')
+
         //SELL
         query +=
           `(${trade.surplusEhId}, ${partner.ehId}, ${trade.surplusCups}, ${partner.cupsId}, 'SELL', ${tradedKwh}, ${tradeCost}, ${totalSellSurplus}, ${resultSellTotalKwh}, "${infoDt}"),`
+        await this.updateHourlyVirtual(trade.surplusCups, resultSellTotalKwh, infoDt, 'SELL')
 
-        //console.log("SUFFICIENT! ", `Customer ${customerBuyer.name} with cups id ${partner.cupsId} has sufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost}`)
-        //console.log("Buyer",customerBuyer,partner.cupsId)
-        //console.log("Seller",customerSeller,trade.surplusCups)
 
       } else {
 
@@ -415,6 +417,25 @@ export class ShareService {
 
     }
 
+  }
+
+  /**
+   * Updates virtuals from energy hourly
+   * @param cupsId
+   * @param virtual
+   * @param staticKwh static is the contrary kwh (in or out) based on virtual, if virtual is virtual_IN static would be virtual_OUT
+   * @param infoDt
+   * @param type
+   */
+  async updateHourlyVirtual(cupsId: number, virtual: number, infoDt: string, type: 'BUY' | 'SELL'){
+    let query = ''
+    if (type == 'BUY'){
+      query = `UPDATE energy_hourly SET kwh_in_virtual = ${virtual}, kwh_out_virtual = kwh_out  WHERE cups_id = ${cupsId} AND info_dt LIKE "${infoDt}"`
+    }else{
+      query = `UPDATE energy_hourly SET kwh_out_virtual = ${virtual}, kwh_in_virtual = kwh_in WHERE cups_id = ${cupsId} AND info_dt LIKE "${infoDt}"`
+    }
+
+    await this.conn.execute(query)
   }
 
   async deleteDays(registers: RegistersFromDb[], daysToIgnore: number) {

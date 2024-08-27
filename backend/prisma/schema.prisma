@@ -165,14 +165,15 @@ model Cups {
 }
 
 model Customers {
-  id            Int       @id @default(autoincrement())
-  name          String?   @db.VarChar(50)
-  dni           String?   @db.VarChar(50)
-  email         String?   @db.VarChar(50)
+  id            Int         @id @default(autoincrement())
+  name          String?     @db.VarChar(50)
+  dni           String?     @db.VarChar(50)
+  email         String?     @db.VarChar(50)
+  tradeType     TradeTypes? @default(PREFERRED) @map("trade_type")
   balance       Float?
-  walletAddress String?   @map("wallet_address") @db.VarChar(200)
-  createdAt     DateTime? @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt     DateTime? @map("updated_at") @db.DateTime(0)
+  walletAddress String?     @map("wallet_address") @db.VarChar(200)
+  createdAt     DateTime?   @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt     DateTime?   @map("updated_at") @db.DateTime(0)
 
   @@map("customers")
 }
@@ -414,6 +415,11 @@ enum StripeMintStatus {
   MINTING
   ACCEPTED
   ERROR
+}
+
+enum TradeTypes {
+  PREFERRED
+  EQUITABLE
 }
 
 model Proposals {

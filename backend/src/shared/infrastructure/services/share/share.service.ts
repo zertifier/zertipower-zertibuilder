@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import mysql from "mysql2/promise";
-import { MysqlService } from "../mysql-service";
+import {MysqlService} from "../mysql-service";
 import * as moment from "moment";
-import { EnvironmentService } from "../environment-service";
-import { NotificationsService, notificationCodes } from '../notifications-service';
+import {EnvironmentService} from "../environment-service";
+import {NotificationsService, notificationCodes} from '../notifications-service';
 import {info} from "winston";
+import {PrismaService} from "../prisma-service";
 
 
 export interface RedistributeObject {
@@ -47,15 +48,20 @@ export class ShareService {
     surplusCups: 20,
     surplusEhId: 0,
     redisitributePartners: [
-      { consumption: 30, resultConsumption: 0, cupsId: 1, infoDt: new Date, ehId: 1, userId: 1 },
-      { consumption: 40, resultConsumption: 0, cupsId: 2, infoDt: new Date, ehId: 2, userId: 1 },
-      { consumption: 10, resultConsumption: 0, cupsId: 3, infoDt: new Date, ehId: 3, userId: 1 },
+      {consumption: 30, resultConsumption: 0, cupsId: 1, infoDt: new Date, ehId: 1, userId: 1},
+      {consumption: 40, resultConsumption: 0, cupsId: 2, infoDt: new Date, ehId: 2, userId: 1},
+      {consumption: 10, resultConsumption: 0, cupsId: 3, infoDt: new Date, ehId: 3, userId: 1},
     ]
   };
   private conn: mysql.Pool;
   daysToIgnore = 7;
 
-  constructor(private mysql: MysqlService, private environment: EnvironmentService, private notificationService: NotificationsService) {
+  constructor(
+    private mysql: MysqlService,
+    private environment: EnvironmentService,
+    private notificationService: NotificationsService,
+    private prisma: PrismaService
+  ) {
     this.conn = this.mysql.pool;
 
     try {
@@ -188,16 +194,22 @@ export class ShareService {
           ORDER BY e.info_dt DESC, kwh_out DESC;
         `*/
         let query = `
-        SELECT e.id eh_id, e.kwh_in, (e.kwh_out - e.kwh_in) kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id, users.id user_id
-        FROM energy_hourly e
-               LEFT JOIN trades t ON e.info_dt = t.info_dt
-               LEFT JOIN cups ON e.cups_id = cups.id
-               LEFT JOIN users ON cups.customer_id = users.customer_id
-        WHERE t.info_dt IS NULL
-          AND cups.type != 'community'
-        HAVING kwh_out > 0
-        ORDER BY e.info_dt DESC, kwh_out DESC;
-      `
+          SELECT e.id                   eh_id,
+                 e.kwh_in,
+                 (e.kwh_out - e.kwh_in) kwh_out,
+                 e.info_dt,
+                 cups.id                cups_id,
+                 cups.community_id      community_id,
+                 users.id               user_id
+          FROM energy_hourly e
+                 LEFT JOIN trades t ON e.info_dt = t.info_dt
+                 LEFT JOIN cups ON e.cups_id = cups.id
+                 LEFT JOIN users ON cups.customer_id = users.customer_id
+          WHERE t.info_dt IS NULL
+            AND cups.type != 'community'
+          HAVING kwh_out > 0
+          ORDER BY e.info_dt DESC, kwh_out DESC;
+        `
         let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
         resolve(result);
 
@@ -208,10 +220,17 @@ export class ShareService {
 
   }
 
-  getNewRegisters(): Promise<RegistersFromDb[]> {
+  getNewRegisters(): Promise<RegistersFromDb[] | any[]> {
     return new Promise(async resolve => {
       let query = `
-        SELECT e.id eh_id, (e.kwh_in - e.kwh_out) kwh_in,e.kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id, users.email email, users.id user_id
+        SELECT e.id                   eh_id,
+               (e.kwh_in - e.kwh_out) kwh_in,
+               e.kwh_out,
+               e.info_dt,
+               cups.id                cups_id,
+               cups.community_id      community_id,
+               users.email            email,
+               users.id               user_id
         FROM energy_hourly e
                LEFT JOIN trades t ON e.info_dt = t.info_dt
                LEFT JOIN cups ON e.cups_id = cups.id
@@ -221,7 +240,25 @@ export class ShareService {
         HAVING kwh_in > 0
         ORDER BY e.info_dt DESC, kwh_in DESC;
       `
-      let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
+      // let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
+      let result: any = await this.prisma.$queryRaw`
+      SELECT e.id                   eh_id,
+               (e.kwh_in - e.kwh_out) kwh_in,
+               e.kwh_out,
+               e.info_dt,
+               cups.id                cups_id,
+               cups.community_id      community_id,
+               users.email            email,
+               users.id               user_id
+        FROM energy_hourly e
+               LEFT JOIN trades t ON e.info_dt = t.info_dt
+               LEFT JOIN cups ON e.cups_id = cups.id
+               LEFT JOIN users ON cups.customer_id = users.customer_id
+        WHERE t.info_dt IS NULL
+          AND cups.type != 'community'
+        HAVING kwh_in > 0
+        ORDER BY e.info_dt DESC, kwh_in DESC;
+      `
       resolve(result);
     })
   }
@@ -247,10 +284,11 @@ export class ShareService {
   }
 
   async getCustomerFromCupsId(cupsId: number) {
-    let query = `SELECT customers.*, users.id as userId FROM customers
-    LEFT JOIN cups ON cups.customer_id = customers.id
-    LEFT JOIN users ON users.customer_id = customers.id
-    WHERE cups.id = ?`
+    let query = `SELECT customers.*, users.id as userId
+                 FROM customers
+                        LEFT JOIN cups ON cups.customer_id = customers.id
+                        LEFT JOIN users ON users.customer_id = customers.id
+                 WHERE cups.id = ?`
     let [ROWS]: any = await this.conn.execute(query, [cupsId]);
     if (ROWS[0]) {
       return ROWS[0];
@@ -260,7 +298,9 @@ export class ShareService {
   }
 
   async updateCustomerBalance(customerId: number, balance: number) {
-    let query = `UPDATE customers set balance = ? WHERE id = ?`
+    let query = `UPDATE customers
+                 set balance = ?
+                 WHERE id = ?`
     try {
       let [ROWS]: any = await this.conn.execute(query, [balance, customerId]);
     } catch (error) {
@@ -270,7 +310,9 @@ export class ShareService {
   }
 
   async getCommunityPrice(communityId: number) {
-    let query = `SELECT energy_price FROM communities WHERE id = ?`
+    let query = `SELECT energy_price
+                 FROM communities
+                 WHERE id = ?`
     let [ROWS]: any = await this.conn.execute(query, [communityId]);
     if (ROWS[0] && ROWS[0].energy_price) {
       return ROWS[0].energy_price;
@@ -300,7 +342,7 @@ export class ShareService {
       resultSellTotalKwh -= tradedKwh
 
       const customerBuyer = await this.getCustomerFromCupsId(partner.cupsId);
-      
+
       partner.buyerName = customerBuyer.name;
       partner.sellerName = customerSeller.name;
 
@@ -332,17 +374,22 @@ export class ShareService {
 
       } else {
 
-        if(tradeCost > 0.001){
+        if (tradeCost > 0.001) {
 
-        //insufficient balance notification
-        console.log(`customer ${customerBuyer.name} with cups id ${partner.cupsId} has insufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost} / Trade cost is 0 `)
+          //insufficient balance notification
+          console.log(`customer ${customerBuyer.name} with cups id ${partner.cupsId} has insufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost} / Trade cost is 0 `)
 
-        //TODO: obtain buyer userId , custom get notification;
+          //TODO: obtain buyer userId , custom get notification;
 
-        const subjectInsufficientBalance = this.notificationService.getNotificationSubject(notificationCodes.insufficientBalance, this.notificationService.defaultNotificationLang, { sharedKW: tradedKwh.toString(), tradeCost: tradeCost.toString(), customerName: partner.sellerName!, infoDt });
-        //let messageInsufficientBalance = `Your community balance (${customerBuyer.balance} EKW) is innsufficient to buy ${tradedKwh} for the trade cost ${tradeCost} from ${partner.sellerName}`
-        let messageInsufficientBalance = `El teu saldo comunitari (${customerBuyer.balance} EKW) es insuficient per comprar a ${partner.sellerName} ${tradedKwh} kW al preu de ${tradeCost}`
-        this.notificationService.sendNotification(customerBuyer.userId, notificationCodes.insufficientBalance, subjectInsufficientBalance, messageInsufficientBalance)
+          const subjectInsufficientBalance = this.notificationService.getNotificationSubject(notificationCodes.insufficientBalance, this.notificationService.defaultNotificationLang, {
+            sharedKW: tradedKwh.toString(),
+            tradeCost: tradeCost.toString(),
+            customerName: partner.sellerName!,
+            infoDt
+          });
+          //let messageInsufficientBalance = `Your community balance (${customerBuyer.balance} EKW) is innsufficient to buy ${tradedKwh} for the trade cost ${tradeCost} from ${partner.sellerName}`
+          let messageInsufficientBalance = `El teu saldo comunitari (${customerBuyer.balance} EKW) es insuficient per comprar a ${partner.sellerName} ${tradedKwh} kW al preu de ${tradeCost}`
+          this.notificationService.sendNotification(customerBuyer.userId, notificationCodes.insufficientBalance, subjectInsufficientBalance, messageInsufficientBalance)
 
         } else {
           //trade cost = 0
@@ -379,11 +426,21 @@ export class ShareService {
 
           //notificar al from del sell y al to del buy:
 
-          const subjectSell = this.notificationService.getNotificationSubject(notificationCodes.sharingSent, this.notificationService.defaultNotificationLang, { sharedKW, tradeCost, customerName: buyerName, infoDt });
+          const subjectSell = this.notificationService.getNotificationSubject(notificationCodes.sharingSent, this.notificationService.defaultNotificationLang, {
+            sharedKW,
+            tradeCost,
+            customerName: buyerName,
+            infoDt
+          });
           let messageSell = `Shared to ${buyerName}` //l'energia s'ha venut a x
           this.notificationService.sendNotification(customerSeller.userId, notificationCodes.sharingSent, subjectSell, messageSell)
 
-          const subjectBuy = this.notificationService.getNotificationSubject(notificationCodes.sharingReceived, this.notificationService.defaultNotificationLang, { sharedKW, tradeCost, customerName: sellerName, infoDt });
+          const subjectBuy = this.notificationService.getNotificationSubject(notificationCodes.sharingReceived, this.notificationService.defaultNotificationLang, {
+            sharedKW,
+            tradeCost,
+            customerName: sellerName,
+            infoDt
+          });
           let messageBuy = `Shared from ${sellerName}` //l'energia s'ha comprat a x
           this.notificationService.sendNotification(customerBuyer.userId, notificationCodes.sharingReceived, subjectBuy, messageBuy)
 
@@ -426,12 +483,20 @@ export class ShareService {
    * @param infoDt
    * @param type
    */
-  async updateHourlyVirtual(cupsId: number, virtual: number, infoDt: string, type: 'BUY' | 'SELL'){
+  async updateHourlyVirtual(cupsId: number, virtual: number, infoDt: string, type: 'BUY' | 'SELL') {
     let query = ''
-    if (type == 'BUY'){
-      query = `UPDATE energy_hourly SET kwh_in_virtual = ${virtual}, kwh_out_virtual = kwh_out  WHERE cups_id = ${cupsId} AND info_dt LIKE "${infoDt}"`
-    }else{
-      query = `UPDATE energy_hourly SET kwh_out_virtual = ${virtual}, kwh_in_virtual = kwh_in WHERE cups_id = ${cupsId} AND info_dt LIKE "${infoDt}"`
+    if (type == 'BUY') {
+      query = `UPDATE energy_hourly
+               SET kwh_in_virtual  = ${virtual},
+                   kwh_out_virtual = kwh_out
+               WHERE cups_id = ${cupsId}
+                 AND info_dt LIKE "${infoDt}"`
+    } else {
+      query = `UPDATE energy_hourly
+               SET kwh_out_virtual = ${virtual},
+                   kwh_in_virtual  = kwh_in
+               WHERE cups_id = ${cupsId}
+                 AND info_dt LIKE "${infoDt}"`
     }
 
     await this.conn.execute(query)

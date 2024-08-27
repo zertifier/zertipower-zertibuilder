@@ -487,19 +487,19 @@ export class ShareService {
     let query = ''
     if (type == 'BUY') {
       query = `UPDATE energy_hourly
-               SET kwh_in_virtual  = ${virtual},
+               SET kwh_in_virtual  = ?,
                    kwh_out_virtual = kwh_out
-               WHERE cups_id = ${cupsId}
-                 AND info_dt LIKE "${infoDt}"`
+               WHERE cups_id = ?
+                 AND info_dt LIKE ?`
     } else {
       query = `UPDATE energy_hourly
-               SET kwh_out_virtual = ${virtual},
+               SET kwh_out_virtual = ?,
                    kwh_in_virtual  = kwh_in
-               WHERE cups_id = ${cupsId}
-                 AND info_dt LIKE "${infoDt}"`
+               WHERE cups_id = ?
+                 AND info_dt LIKE ?`
     }
 
-    await this.conn.execute(query)
+    await this.conn.execute(query, [virtual, cupsId, infoDt])
   }
 
   async deleteDays(registers: RegistersFromDb[], daysToIgnore: number) {

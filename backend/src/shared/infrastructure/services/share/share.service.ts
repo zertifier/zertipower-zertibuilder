@@ -85,7 +85,6 @@ export class ShareService {
 
       console.log(`Inserting ${surplusRegisters.length} trades...`)
 
-      console.log(surplusRegisters)
       for (const surplusRegister of surplusRegisters) {
         const communityPrice = await this.getCommunityPrice(surplusRegister.community_id)
         const redisitributePartners = this.getRegistersByDateAndCommunity(surplusRegister.info_dt, surplusRegister.community_id, newRegisters)

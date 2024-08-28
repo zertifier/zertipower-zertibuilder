@@ -493,7 +493,7 @@ export class EnergyHourlyService {
     //Thanks AI
 
     const [result] = await this.conn.execute<mysql.ResultSetHeader>(query, queryParams);
-    console.log(`Updated production of ${result.affectedRows} from ${moment(date).format('YYYY-MM-DD HH:mm')}`)
+    // console.log(`Updated production of ${result.affectedRows} from ${moment(date).format('YYYY-MM-DD HH:mm')}`)
 
   }
 

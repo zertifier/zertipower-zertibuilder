@@ -469,7 +469,7 @@ export class EnergyHourlyService {
   }
 
   async updateConsumers(consumers: any[], communityExport: number, date: string) {
-    let query = 'UPDATE energy_hourly SET kwh_in = CASE';
+    let query = 'UPDATE energy_hourly SET production = CASE';
     let queryParams: any[] = [];
 
     for (const consumer of consumers) {
@@ -493,7 +493,7 @@ export class EnergyHourlyService {
     //Thanks AI
 
     const [result] = await this.conn.execute<mysql.ResultSetHeader>(query, queryParams);
-    console.log(`Updated kwh_in of ${result.affectedRows} from ${moment(date).format('YYYY-MM-DD HH:mm')}`)
+    console.log(`Updated production of ${result.affectedRows} from ${moment(date).format('YYYY-MM-DD HH:mm')}`)
 
   }
 

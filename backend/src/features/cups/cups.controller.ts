@@ -475,6 +475,7 @@ export class CupsController {
     mappedData.kwhIn = data.kwhIn || data.kwh_in;
     mappedData.kwhOut = data.kwhOut || data.kwh_out;
     mappedData.kwhOutVirtual = data.kwhOutVirtual || data.kwh_out_virtual;
+    mappedData.kwhInVirtual = data.kwhInVirtual || data.kwh_in_virtual;
     mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;

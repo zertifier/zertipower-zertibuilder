@@ -120,6 +120,7 @@ export class CupsController {
              SUM(kwh_in)                  AS kwh_in,
              SUM(kwh_out)                 AS kwh_out,
              SUM(kwh_out_virtual)         AS kwh_out_virtual,
+             SUM(kwh_in_virtual)         AS kwh_in_virtual,
              kwh_in_price            AS kwh_in_price,
              kwh_out_price           AS kwh_out_price,
              kwh_in_price_community  AS kwh_in_price_community,
@@ -160,6 +161,7 @@ export class CupsController {
       dataToSend
     );
   }
+
   @Get(":id/stats/:origin/yearly/:date")
   // @Auth(RESOURCE_NAME)
   async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
@@ -170,6 +172,7 @@ export class CupsController {
              SUM(kwh_in)                  AS         kwh_in,
              SUM(kwh_out)                 AS         kwh_out,
              SUM(kwh_out_virtual)         AS         kwh_out_virtual,
+             SUM(kwh_in_virtual)         AS kwh_in_virtual,
              kwh_in_price          AS         kwh_in_price,
              kwh_out_price           AS         kwh_out_price,
              kwh_in_price_community  AS         kwh_in_price_community,

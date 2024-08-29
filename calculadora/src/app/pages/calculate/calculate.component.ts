@@ -90,7 +90,9 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   communities: any = [];
   selectedCommunity: any = null;
   selectedCommunities: any;
-  newCommunity: any = {};
+  newCommunity: any = { 
+    energy_price: 0.09 
+  };
   communityCups: any = [];
 
   cadastresMap: any;
@@ -206,14 +208,14 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     }
 
   selectedCadastre: cadastre = {
-    totalConsumption: 200,
-    valle: 98,
-    llano: 52,
-    punta: 48,
-    vallePrice: 0.10,
+    totalConsumption: 300,
+    valle: 50,
+    llano: 100,
+    punta: 150,
+    vallePrice: 0.09,
     llanoPrice: 0.13,
-    puntaPrice: 0.19,
-    generationPrice: 0.10,
+    puntaPrice: 0.17,
+    generationPrice: 0.5,
     orientation: 0,
     inclination: 25,
     selfConsumption: {}
@@ -260,7 +262,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   //activeCommunity: boolean = false;
   //activeAcc: boolean = false;
   //activeCce: boolean = false;
-  
+
   editingArea = false;
   isMobile = false;
 
@@ -405,6 +407,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
 
     if (stepDestination == 5) {
       this.stepsCompleted[4] = 1;
+      this.simulateGenerationConsumption()
     }
 
     this.stepActive = stepDestination;
@@ -823,9 +826,9 @@ export class CalculateComponent implements OnInit, AfterViewInit {
 
     //console.log("updateCadastreConsumptionM2", updatedConsumption)
 
-    this.selectedCadastre.valle = this.selectedCadastre.totalConsumption * 0.50;
-    this.selectedCadastre.llano = this.selectedCadastre.totalConsumption * 0.26;
-    this.selectedCadastre.punta = this.selectedCadastre.totalConsumption * 0.24;
+    this.selectedCadastre.valle = this.selectedCadastre.totalConsumption * 0.16; // 0.50
+    this.selectedCadastre.llano = this.selectedCadastre.totalConsumption * 0.33; // 0.26
+    this.selectedCadastre.punta = this.selectedCadastre.totalConsumption * 0.50; // 0.24
 
     //console.log("update consumption by m2", "valle:", this.selectedCadastre.valle, "llano:", this.selectedCadastre.llano, "punta:", this.selectedCadastre.punta, "total:", this.selectedCadastre.totalConsumption)
   }
@@ -928,14 +931,14 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     this.selectedCadastreGenerationMonthChartDatasets = [];
     this.selectedCadastreMonthChartDatasets = [];
     this.selectedCadastre = {
-      totalConsumption: 200,
-      valle: 98,
-      llano: 52,
-      punta: 48,
-      vallePrice: 0.10,
+      totalConsumption: 300,
+      valle: 50,
+      llano: 100,
+      punta: 150,
+      vallePrice: 0.09,
       llanoPrice: 0.13,
-      puntaPrice: 0.19,
-      generationPrice: 0.10,
+      puntaPrice: 0.17,
+      generationPrice: 0.5,
       orientation: 0,
       inclination: 25,
       selfConsumption: {}
@@ -1018,7 +1021,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     let monthlyConsumedProduction: number = 0;
     let monthlyCosts = this.selectedCadastre.monthlyConsumptionCost; //monthAverageConsumption * this.selectedCadastre.llanoPrice;
     let communityMonthlyCosts: number;
-    
+
     //if surplus:
 
     if (monthAverageGeneration > monthAverageConsumption) {
@@ -1030,7 +1033,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       //surplusMonthlyProfits is the price of excedent from generation that is sold to the company or to community
       //if it's sold to the community
       this.selectedCadastre.surplusMonthlyProfits = monthAverageSurplus * this.selectedCommunity.energy_price!;
-      
+
       // if it's sold to the company
       this.selectedCadastre.selfConsumption.surplusMonthlyProfits = monthAverageSurplus * this.selectedCadastre.generationPrice!;
 

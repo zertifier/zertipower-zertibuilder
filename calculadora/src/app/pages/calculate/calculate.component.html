@@ -5,13 +5,18 @@
     <div class="header-calculate d-flex align-items-center w-100 px-1 px-md-5 row m-0">
 
         <div class="d-none d-md-block col-12 col-md-6 logo-zertipower-container py-3 px-0">
-            <img src="assets/img/navbar/zertipower-logo-white.png" class="w-100" alt="zertipower-logo"
-                style="max-width:200px;">
+            <a href="./">
+                <img src="assets/img/navbar/zertipower-logo-white.png" class="w-100" alt="zertipower-logo"
+                    style="max-width:200px;">
+            </a>
+
         </div>
 
         <div class="d-block d-md-none col-12 logo-zertipower-container d-flex justify-content-center py-3 px-0">
-            <img src="assets/img/navbar/zertipower-logo-white.png" class="w-100" alt="zertipower-logo"
-                style="max-width:200px;">
+            <a href="./">
+                <img src="assets/img/navbar/zertipower-logo-white.png" class="w-100" alt="zertipower-logo"
+                    style="max-width:200px;">
+            </a>
         </div>
 
         <div class="d-none d-md-block col-6 eslogan text-white text-end">
@@ -306,7 +311,7 @@
                 id="collapse-community-data-step" [ngClass]="{'show':stepActive==3}">
                 <div class="row  m-0 py-2 py-md-4">
 
-                    <span class="col-12">Aquestes son les estadístiques de la comunitat.</span>
+                    <span class="col-12">Aquestes són les estadístiques de la comunitat.</span>
 
                     <div class="col-12 d-flex mt-2 mt-md-4">
                         <span class="d-flex align-items-center me-2">Membres:</span>
@@ -321,7 +326,7 @@
 
                         <div *ngIf="!selectedCommunity || (!selectedCommunity.cups_number && !addedAreas.length)"
                             class="chart-message">Agrega àrees per
-                            obtenir dades comunitàries
+                            obtenir dades comunitàries.
                         </div>
 
                         <div *ngIf="selectedCommunity && (selectedCommunity.cups_number || addedAreas.length)"
@@ -421,8 +426,7 @@
                 id="collapse-area-step" [ngClass]="{'show':stepActive==4}">
                 <div class="row m-0 py-2 py-md-4">
 
-                    <span>Fes click en una àrea per veure les seves dades i simular que passaria si s'afegeix a la
-                        comunitat.</span>
+                    <span>Fes clic en una àrea per veure'n les dades i simular què passaria si s'incorpora a la comunitat.</span>
 
                     <div class="col-12 col-md-4 mt-2 mt-md-4">
                         <span *ngIf="selectedLocation">Població seleccionada:
@@ -624,7 +628,7 @@
                                 <div class="input-group w-100">
                                     <input type="number" class="form-control number-input" readonly disabled
                                         [value]="this.selectedCadastre.totalCost">
-                                        <span class="input-group-text">€</span>
+                                    <span class="input-group-text">€</span>
                                 </div>
 
                             </div>
@@ -636,7 +640,15 @@
                                 <!-- Estalvi comunitari -->
 
                                 <div class="mb-2">
-                                    <span class="fs-6 fw-bold">Estalvi comunitari</span>
+                                    <span class="fs-6 fw-bold">Estalvi dins d'una CCE </span>
+                                    <app-question-badge>
+                                        <!-- L'estalvi dins d'una CCE és la reducció de costos energètics que aconsegueixen
+                                        els membres gràcies a la gestió col·lectiva i l'optimització de l'ús de les
+                                        fonts d'energia.
+                                        Les CCE tenen un estatus legal reconegut a la UE, amb un marc regulador que
+                                        facilita la seva creació i operació, promogut per les directives RED II i IEMD. -->
+                                        Marc regulador que facilita el intercanvi d'energia p2p entre els seus components.
+                                    </app-question-badge>
                                 </div>
 
                                 <div class=" row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
@@ -648,10 +660,10 @@
                                             <span>ROI/Estalvi mensual</span>
                                         </div>
 
-                                        <div  class="input-group w-100">
-                                            <input type="number" class="form-control number-input" disabled
-                                                readonly [value]="this.selectedCadastre.monthlySavings">
-                                                <span class="input-group-text">€</span>
+                                        <div class="input-group w-100">
+                                            <input type="number" class="form-control number-input" disabled readonly
+                                                [value]="this.selectedCadastre.monthlySavings">
+                                            <span class="input-group-text">€</span>
                                         </div>
 
                                     </div>
@@ -691,9 +703,9 @@
                                         </div>
 
                                         <div class="input-group w-100">
-                                            <input type="number" class="form-control number-input" disabled
-                                                readonly [value]="this.selectedCadastre.selfConsumption.monthlySavings">
-                                                <span class="input-group-text">€</span>
+                                            <input type="number" class="form-control number-input" disabled readonly
+                                                [value]="this.selectedCadastre.selfConsumption.monthlySavings">
+                                            <span class="input-group-text">€</span>
                                         </div>
 
                                     </div>
@@ -773,18 +785,25 @@
                                 <div>
                                     <span>Preu de l'energia sobrant individual. €/Kwh.</span>
                                 </div>
-                                <input
-                                    type="number" class="form-control number-input w-100"
+                                <input type="number" class="form-control number-input w-100"
                                     [(ngModel)]="selectedCadastre.generationPrice" min="0">
                             </div>
-                        
+
                             <div class="col-12 col-lg-6 ps-0">
                                 <div>
                                     <span>Preu de l'energia sobrant comunitària. €/Kwh.</span>
                                 </div>
-                                <input *ngIf="selectedCommunity && selectedCommunity.energy_price"
-                                    type="number" class="form-control number-input w-100"
-                                    [(ngModel)]="selectedCommunity.energy_price" min="0" disabled>
+                                <div *ngIf="selectedCommunity && selectedCommunity.name">
+                                    <input *ngIf="selectedCommunity && selectedCommunity.energy_price" type="number"
+                                    class="form-control number-input w-100" [(ngModel)]="selectedCommunity.energy_price"
+                                    min="0" disabled>
+                                </div>
+                                <div *ngIf="selectedCommunity && !selectedCommunity.name">
+                                    <input *ngIf="selectedCommunity && selectedCommunity.energy_price" type="number"
+                                    class="form-control number-input w-100" [(ngModel)]="selectedCommunity.energy_price"
+                                    min="0">
+                                </div>
+                                
                             </div>
                         </div>
 
@@ -953,14 +972,15 @@
                     <div
                         *ngIf="this.selectedCadastre.monthlySavings && !this.addedAreas.includes(this.selectedCadastre)">
                         <span class="mb-2 mb-md-4">Dades completades! Fes clic a <b>Afegir comunitat</b> per a
-                            finalitzar.
+                            finalitzar.<br>
                             Edita dades i
                             estadístiques més tard fent clic en <b>Dades i
                                 estadístiques de la comunitat</b> o <b>Seleccionar àrea</b>.</span>
 
                         <div class="row justify-content-center">
                             <div class="col-12 col-md-4 col-lg-4 d-flex">
-                                <button class="btn btn-secondary mt-4 mb-4 w-100" (click)="addArea()">Afegir a la comunitat
+                                <button class="btn btn-secondary mt-4 mb-4 w-100" (click)="addArea()">Afegir a la
+                                    comunitat
                                 </button>
                             </div>
                         </div>
@@ -979,7 +999,7 @@
                     <!-- <div *ngIf="!this.selectedCadastre.monthlySavings"> -->
                     <!-- <div *ngIf="this.addedAreas.includes(this.selectedCadastre)"> -->
                     <div *ngIf="this.addedAreas.length">
-                        
+
                         <div class="mb-2 mb-md-4">
                             <span> Resum de dades afegides. Edita'ls sempre que vulguis fent clic a
                                 <b>Seleccionar
@@ -1135,6 +1155,10 @@
                             <span class="ms-2">Enrere</span>
                         </a>
 
+                        <a class="d-flex" href="./">
+                            <span *ngIf="addedAreas.length" class="ms-2 text-end">  </span>
+                        </a>
+
                         <a class="d-flex" (click)="changeStep(4)" role="button" (click)="resetCadastre()">
                             <span *ngIf="addedAreas.length" class="ms-2 text-end">Afegir una
                                 altra àrea</span>
@@ -1153,14 +1177,15 @@
 
     <div class="footer-calculate  w-100 p-3">
         <div class="d-flex justify-content-center align-items-center text-white flex-column flex-lg-row py-4">
-            <img class="mx-5 my-3 my-lg-0 order-0 order-lg-1" src="assets/img/logos/generalitat.png" alt="Generalitat logo"
-                 style="height: 38px">
-            <img class="mx-5 my-3 my-lg-0 order-1 order-lg-0" src="assets/img/logos/europe.png" alt="UE logo" style="height: 42px">
+            <img class="mx-5 my-3 my-lg-0 order-0 order-lg-1" src="assets/img/logos/generalitat.png"
+                alt="Generalitat logo" style="height: 38px">
+            <img class="mx-5 my-3 my-lg-0 order-1 order-lg-0" src="assets/img/logos/europe.png" alt="UE logo"
+                style="height: 42px">
             <a href="https://zertifier.com">
-              <img class="mx-5 my-3 my-md-0 order-2" src="assets/img/logos/zertifier-logo-white.png" alt="Zertifier logo"
-                   style="height: 32px">
+                <img class="mx-5 my-3 my-md-0 order-2" src="assets/img/logos/zertifier-logo-white.png"
+                    alt="Zertifier logo" style="height: 32px">
             </a>
-          </div>
+        </div>
     </div>
 
 </div>

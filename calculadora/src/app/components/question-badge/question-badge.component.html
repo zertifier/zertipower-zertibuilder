@@ -1,0 +1,5 @@
+<ng-template #tooltipContent>
+  <ng-content/>
+</ng-template>
+<i class="fa-solid fa-circle-question" style="font-size: 14px" [style.color]="'#5F7187'" [tooltipClass]="tooltipClass" [ngbTooltip]="tooltipContent" [placement]="tooltipPlacement"></i>
+

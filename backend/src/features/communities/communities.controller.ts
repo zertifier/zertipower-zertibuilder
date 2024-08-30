@@ -31,6 +31,7 @@ import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
 import { EnvironmentService } from "src/shared/infrastructure/services";
 import { BlockchainService } from "src/shared/infrastructure/services/blockchain-service";
 import { ErrorCode } from "src/shared/domain/error";
+import {ModifyByTradeDTO} from "./modify-by-trade-dto";
 
 
 export const RESOURCE_NAME = "communities";
@@ -612,6 +613,59 @@ export class CommunitiesController {
     );
   }
 
+  @Put(":id/trade-types")
+  @Auth(RESOURCE_NAME)
+  async updateTradeAndName(@Param("id") id: string, @Body() body: ModifyByTradeDTO) {
+    const data = await this.prisma.communities.updateMany({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        name: body.name
+      },
+    });
+
+    const cupsToUpdate = await this.prisma.cups.findMany({
+      where: {
+        communityId: parseInt(id)
+      }
+    })
+
+    const result = await this.prisma.$transaction(async (prisma) => {
+      const data = await prisma.communities.updateMany({
+        where: {
+          id: parseInt(id),
+        },
+        data: {
+          name: body.name,
+        },
+      });
+
+      const cupsToUpdate = await prisma.cups.findMany({
+        where: {
+          communityId: parseInt(id),
+        },
+      });
+
+      await prisma.customers.updateMany({
+        where: {
+          id: {
+            in: cupsToUpdate.map(cup => cup.id),
+          },
+        },
+        data: {
+          tradeType: body.tradeType,
+        },
+      });
+
+      return { data };
+    });
+
+
+    return HttpResponse.success("communities updated successfully").withData(
+      data
+    );
+  }
   @Delete(":id")
   @Auth(RESOURCE_NAME)
   async remove(@Param("id") id: string) {

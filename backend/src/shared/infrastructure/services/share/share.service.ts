@@ -6,6 +6,7 @@ import {EnvironmentService} from "../environment-service";
 import {NotificationsService, notificationCodes} from '../notifications-service';
 import {info} from "winston";
 import {PrismaService} from "../prisma-service";
+import {TradeTypes} from "@prisma/client";
 
 
 export interface RedistributeObject {
@@ -42,7 +43,7 @@ export interface RegistersFromDb {
   trade_type: TradeTypes
 }
 
-type TradeTypes = 'PREFERRED' | 'EQUITABLE'
+// export type TradeTypes = 'PREFERRED' | 'EQUITABLE'
 
 @Injectable()
 export class ShareService {

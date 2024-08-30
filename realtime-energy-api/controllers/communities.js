@@ -85,10 +85,69 @@ const getCommunitiesEnergyByIdDate = async (req, res = response) => {
     }
 }
 
+const getRealtime = async (req, res = response) => {
+    try {
+        const communityId = req.params.id;
+
+        //Truly realtime data:
+    //     const [ROWS] = await dbConnection.execute
+    //         (`
+    //     SELECT 
+    //     SUM(energy_hourly.kwh_in) AS kwh_in,
+    //     SUM(energy_hourly.kwh_out) AS kwh_out,
+    //     SUM(energy_hourly.production) AS production,
+    //     COUNT(cups.id) AS cupsNumber
+    //   FROM energy_hourly
+    // LEFT JOIN 
+    //     cups ON cups.id = energy_hourly.cups_id
+    // WHERE
+    //     cups.community_id = ? AND
+    //     DATE_FORMAT(energy_hourly.info_dt, '%Y-%m-%d %H') = DATE_FORMAT(NOW(), '%Y-%m-%d %H')
+    //  GROUP BY energy_hourly.info_dt
+    //  `)
+
+        //get last energy data from community: 
+        const [ROWS] = await dbConnection.execute
+            (`
+        SELECT 
+        SUM(energy_hourly.kwh_in) AS consumption,
+        SUM(energy_hourly.kwh_out) AS export,
+        SUM(energy_hourly.production) AS production,
+        energy_hourly.info_dt
+        FROM
+        energy_hourly
+        JOIN cups ON cups.id = energy_hourly.cups_id 
+        WHERE
+            cups.community_id= ?
+            GROUP BY info_dt
+        ORDER BY energy_hourly.info_dt DESC
+        LIMIT 1 
+     `, [communityId])
+
+        const lastEnergyRegister = ROWS[0];
+
+        res.json({
+            ok: true,
+            battery: 0,
+            consumption: lastEnergyRegister.kwh_in ? Number(parseFloat(lastEnergyRegister.kwh_in).toFixed(2)) : 0,
+            production: lastEnergyRegister.production ? Number(parseFloat(lastEnergyRegister.production).toFixed(2)) : 0,
+            export: lastEnergyRegister.kwh_out ? Number(parseFloat(lastEnergyRegister.kwh_out).toFixed(2)) : 0
+            //test: Number(parseFloat(0.009).toFixed(2))
+        });
+    } catch (error) {
+        console.log("Error getting real time by community: ", error)
+        res.status(500).json({
+            ok: false,
+            msg: error
+        })
+    }
+}
+
 
 
 module.exports = {
     getCommunities,
     getCommunitiesById,
-    getCommunitiesEnergyByIdDate
+    getCommunitiesEnergyByIdDate,
+    getRealtime
 }

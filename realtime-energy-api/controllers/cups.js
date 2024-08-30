@@ -8,7 +8,10 @@ const getRealTimeByCups = async (req, res = response) => {
 
         const cupsId = req.params.id;
         const customerId = req.customerId;
-        console.log("get real time by customer id", customerId, "cups id", cupsId);
+
+        //Truly realtime data:
+
+        //console.log("get real time by customer id", customerId, "cups id", cupsId);
 
         //get realtime energy from customer cups: 
         // const [ROWS] = await dbConnection.execute

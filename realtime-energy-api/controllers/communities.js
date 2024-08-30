@@ -107,31 +107,33 @@ const getRealtime = async (req, res = response) => {
     //  `)
 
         //get last energy data from community: 
-        const [ROWS] = await dbConnection.execute
-            (`
-        SELECT 
-        SUM(energy_hourly.kwh_in) AS consumption,
-        SUM(energy_hourly.kwh_out) AS export,
-        SUM(energy_hourly.production) AS production,
-        energy_hourly.info_dt
-        FROM
-        energy_hourly
-        JOIN cups ON cups.id = energy_hourly.cups_id 
-        WHERE
-            cups.community_id= ?
-            GROUP BY info_dt
-        ORDER BY energy_hourly.info_dt DESC
-        LIMIT 1 
-     `, [communityId])
+    //     const [ROWS] = await dbConnection.execute
+    //         (`
+    //     SELECT 
+    //     SUM(energy_hourly.kwh_in) AS consumption,
+    //     SUM(energy_hourly.kwh_out) AS export,
+    //     SUM(energy_hourly.production) AS production,
+    //     energy_hourly.info_dt
+    //     FROM
+    //     energy_hourly
+    //     JOIN cups ON cups.id = energy_hourly.cups_id 
+    //     WHERE
+    //         cups.community_id= ?
+    //         GROUP BY info_dt
+    //     ORDER BY energy_hourly.info_dt DESC
+    //     LIMIT 1 
+    //  `, [communityId])
+
+
 
         const lastEnergyRegister = ROWS[0];
 
         res.json({
             ok: true,
             battery: 0,
-            consumption: lastEnergyRegister.kwh_in ? Number(parseFloat(lastEnergyRegister.kwh_in).toFixed(2)) : 0,
-            production: lastEnergyRegister.production ? Number(parseFloat(lastEnergyRegister.production).toFixed(2)) : 0,
-            export: lastEnergyRegister.kwh_out ? Number(parseFloat(lastEnergyRegister.kwh_out).toFixed(2)) : 0
+            consumption: lastEnergyRegister.kwh_in ? Number(parseFloat(lastEnergyRegister.kwh_in).toFixed(2)) : 'No disponible.',
+            production: lastEnergyRegister.production ? Number(parseFloat(lastEnergyRegister.production).toFixed(2)) : 'No disponible.',
+            export: lastEnergyRegister.kwh_out ? Number(parseFloat(lastEnergyRegister.kwh_out).toFixed(2)) : 'No disponible.'
             //test: Number(parseFloat(0.009).toFixed(2))
         });
     } catch (error) {

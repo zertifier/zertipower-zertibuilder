@@ -74,9 +74,9 @@ const getRealTimeByCups = async (req, res = response) => {
             ok: true,
             cups: lastEnergyRegister.cups,
             battery: 0,
-            consumption: lastEnergyRegister.kwh_in ? Number(parseFloat(lastEnergyRegister.kwh_in).toFixed(2)) : 0,
-            production: lastEnergyRegister.production ? Number(parseFloat(lastEnergyRegister.production).toFixed(2)) : 0,
-            export: lastEnergyRegister.kwh_out ? Number(parseFloat(lastEnergyRegister.kwh_out).toFixed(2)) : 0
+            consumption: lastEnergyRegister.kwh_in ? Number(parseFloat(lastEnergyRegister.kwh_in).toFixed(2)) :  'No disponible.',
+            production: lastEnergyRegister.production ? Number(parseFloat(lastEnergyRegister.production).toFixed(2)) :  'No disponible.',
+            export: lastEnergyRegister.kwh_out ? Number(parseFloat(lastEnergyRegister.kwh_out).toFixed(2)) :  'No disponible.'
             //test: Number(parseFloat(0.009).toFixed(2))
         });
 
@@ -164,9 +164,9 @@ const getRealTimeByCustomer = async (req, res = response) => {
             ok: true,
             customer: currentEnergyRegister.name || '',
             battery: 0,
-            consumption: currentEnergyRegister.kwh_in ? Number(parseFloat(currentEnergyRegister.kwh_in).toFixed(2)) : 0,
-            production: currentEnergyRegister.production ? Number(parseFloat(currentEnergyRegister.production).toFixed(2)) : 0,
-            export: currentEnergyRegister.kwh_out ? Number(parseFloat(currentEnergyRegister.kwh_out).toFixed(2)) : 0
+            consumption: currentEnergyRegister.kwh_in ? Number(parseFloat(currentEnergyRegister.kwh_in).toFixed(2)) :  'No disponible.',
+            production: currentEnergyRegister.production ? Number(parseFloat(currentEnergyRegister.production).toFixed(2)) :  'No disponible.',
+            export: currentEnergyRegister.kwh_out ? Number(parseFloat(currentEnergyRegister.kwh_out).toFixed(2)) :  'No disponible.'
         });
 
     } catch (error) {

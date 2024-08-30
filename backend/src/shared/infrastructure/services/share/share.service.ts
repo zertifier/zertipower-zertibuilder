@@ -259,7 +259,7 @@ export class ShareService {
                  LEFT JOIN trades t ON e.info_dt = t.info_dt
                  LEFT JOIN cups ON e.cups_id = cups.id
                  LEFT JOIN users ON cups.customer_id = users.customer_id
-                 LEFT JOIN customers ON cups.customer_id = customers.id
+                 LEFT JOIN communities ON cups.community_id = communities.id
           WHERE t.info_dt IS NULL
             AND cups.type != 'community'
           AND e.kwh_out > 0
@@ -313,7 +313,7 @@ export class ShareService {
                LEFT JOIN trades t ON e.info_dt = t.info_dt
                LEFT JOIN cups ON e.cups_id = cups.id
                LEFT JOIN users ON cups.customer_id = users.customer_id
-               LEFT JOIN customers ON cups.customer_id = customers.id
+               LEFT JOIN communities ON cups.community_id = communities.id
         WHERE t.info_dt IS NULL
           AND cups.type != 'community'
         AND e.kwh_in > 0

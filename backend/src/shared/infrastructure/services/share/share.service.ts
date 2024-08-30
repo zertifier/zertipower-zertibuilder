@@ -121,7 +121,7 @@ export class ShareService {
             }
           );*/
           const filteredRegisters = newRegisters.filter(register =>
-            !calculatedRedistribute.redistributePartners.some(partner => partner.ehId === register.eh_id)
+            !calculatedRedistribute.redistributePartners.some(partner => partner.cupsId === register.cups_id && moment(partner.infoDt).format('YYYY-MM-DD HH') == moment(register.info_dt).format('YYYY-MM-DD HH'))
           );
 
           if (filteredRegisters.length !== newRegisters.length)

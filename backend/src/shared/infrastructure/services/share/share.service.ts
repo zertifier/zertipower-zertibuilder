@@ -105,6 +105,7 @@ export class ShareService {
 
           const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, customerCupsRegisters, surplusRegister.trade_type)
           const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
+          console.log(calculatedRedistribute, "calculatedRedistribute")
           await this.insertToTrades(calculatedRedistribute, communityPrice)
           totalSurplus = calculatedRedistribute.resultTotalSurplus
           // if (calculatedRedistribute.redistributePartners.length) console.log(calculatedRedistribute)
@@ -120,12 +121,18 @@ export class ShareService {
 
             }
           );*/
-          const filteredRegisters = newRegisters.filter(register =>
-            !calculatedRedistribute.redistributePartners.some(partner => partner.cupsId === register.cups_id && moment(partner.infoDt).format('YYYY-MM-DD HH') == moment(register.info_dt).format('YYYY-MM-DD HH'))
-          );
+          if (calculatedRedistribute.redistributePartners.length){
+            const filteredRegisters = newRegisters.filter(register =>
+              !calculatedRedistribute.redistributePartners.some(partner =>
+                partner.cupsId === register.cups_id && moment(partner.infoDt).format('YYYY-MM-DD HH') == moment(register.info_dt).format('YYYY-MM-DD HH'))
+            );
 
-          if (filteredRegisters.length !== newRegisters.length)
-            newRegisters = filteredRegisters;
+            console.log(filteredRegisters.length, "FIRST")
+
+            if (filteredRegisters.length)
+              newRegisters = filteredRegisters;
+          }
+
 
 
         }
@@ -139,8 +146,9 @@ export class ShareService {
           surplusEhId: surplusRegister.eh_id,
           redisitributePartners
         }*/
-        const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, newRegisters, surplusRegister.trade_type)
 
+        const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, newRegisters, "EQUITABLE")
+        console.log(redistributeObject)
         const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
         await this.insertToTrades(calculatedRedistribute, communityPrice)
       }
@@ -226,10 +234,12 @@ export class ShareService {
     const filteredRegisters = newRegisters.filter((register) => {
       if (
         moment(register.info_dt).format('YYYY-MM-DD HH') == date && communityId == register.community_id
-        && customerId == register.customer_id) return register
+        && customerId == register.customer_id) {
+
+        return register
+      }
       }
     )
-
     return filteredRegisters.map(this.formatPartnerObjects)
   }
 
@@ -254,7 +264,7 @@ export class ShareService {
                  LEFT JOIN users ON cups.customer_id = users.customer_id
                  LEFT JOIN customers ON cups.customer_id = customers.id
           WHERE t.info_dt IS NULL
-            AND cups.type != 'community'
+            AND cups.type != 'community' AND e.info_dt LIKE '2024-08-11%'
           AND e.kwh_out > 0
           ORDER BY e.info_dt DESC, e.kwh_out DESC;
         `
@@ -308,7 +318,7 @@ export class ShareService {
                LEFT JOIN users ON cups.customer_id = users.customer_id
                LEFT JOIN customers ON cups.customer_id = customers.id
         WHERE t.info_dt IS NULL
-          AND cups.type != 'community'
+          AND cups.type != 'community' AND e.info_dt LIKE '2024-08-11%'
         AND e.kwh_in > 0
         ORDER BY e.info_dt DESC, e.kwh_in DESC;
       `)

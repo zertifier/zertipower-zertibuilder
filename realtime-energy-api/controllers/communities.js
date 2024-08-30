@@ -124,7 +124,7 @@ const getRealtime = async (req, res = response) => {
     //     LIMIT 1 
     //  `, [communityId])
 
-        const lastEnergyRegister = ROWS[0];
+        const lastEnergyRegister = ROWS.length ? ROWS[0] : {};
 
         res.json({
             ok: true,

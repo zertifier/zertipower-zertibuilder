@@ -145,7 +145,6 @@ export class ShareService {
         }*/
 
         const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, newRegisters, "EQUITABLE")
-        console.log(redistributeObject)
         const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
         await this.insertToTrades(calculatedRedistribute, communityPrice)
       }

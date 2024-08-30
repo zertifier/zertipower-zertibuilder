@@ -82,12 +82,16 @@ export class CommunitiesController {
 
   @Get(":id")
   @Auth(RESOURCE_NAME)
-  async getById(@Param("id") id: string) {
+  async getById(@Param("id") id: number) {
+    if(!id){
+      return HttpResponse.failure("Missing parameter Id.",ErrorCode.MISSING_PARAMETERS)
+    }
     const data = await this.prisma.communities.findUnique({
       where: {
-        id: parseInt(id),
+        id: id,
       },
     });
+    console.log(data)
     return HttpResponse.success("communities fetched successfully").withData(
       this.mapData(data)
     );

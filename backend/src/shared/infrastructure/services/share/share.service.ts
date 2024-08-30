@@ -13,7 +13,7 @@ export interface RedistributeObject {
   resultTotalSurplus: number,
   surplusCups: number,
   surplusEhId: number,
-  redisitributePartners: RedistributePartner[]
+  redistributePartners: RedistributePartner[]
 }
 
 export interface RedistributePartner {
@@ -37,8 +37,12 @@ export interface RegistersFromDb {
   type: 'consumer' | 'community',
   cups_id: number,
   community_id: number,
-  user_id: number
+  user_id: number,
+  customer_id: number,
+  trade_type: TradeTypes
 }
+
+type TradeTypes = 'PREFERRED' | 'EQUITABLE'
 
 @Injectable()
 export class ShareService {
@@ -47,7 +51,7 @@ export class ShareService {
     resultTotalSurplus: 0,
     surplusCups: 20,
     surplusEhId: 0,
-    redisitributePartners: [
+    redistributePartners: [
       {consumption: 30, resultConsumption: 0, cupsId: 1, infoDt: new Date, ehId: 1, userId: 1},
       {consumption: 40, resultConsumption: 0, cupsId: 2, infoDt: new Date, ehId: 2, userId: 1},
       {consumption: 10, resultConsumption: 0, cupsId: 3, infoDt: new Date, ehId: 3, userId: 1},
@@ -87,32 +91,76 @@ export class ShareService {
 
       let surplusRegisters = await this.getNewSurplusRegisters();
       surplusRegisters = await this.deleteDays(surplusRegisters, this.daysToIgnore)
-      const newRegisters = await this.getNewRegisters()
+      let newRegisters = await this.getNewRegisters()
 
       console.log(`Inserting ${surplusRegisters.length} trades...`)
 
       for (const surplusRegister of surplusRegisters) {
         const communityPrice = await this.getCommunityPrice(surplusRegister.community_id)
-        const redisitributePartners = this.getRegistersByDateAndCommunity(surplusRegister.info_dt, surplusRegister.community_id, newRegisters)
-        const redistributeObject = {
-          totalSurplus: parseFloat(surplusRegister.kwh_out.toString()),
+        let totalSurplus = parseFloat(surplusRegister.kwh_out.toString())
+
+        if (surplusRegister.trade_type == 'PREFERRED'){
+          const customerCupsRegisters = newRegisters.filter((register) => register.customer_id == surplusRegister.customer_id)
+
+          const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, customerCupsRegisters, surplusRegister.trade_type)
+          const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
+          await this.insertToTrades(calculatedRedistribute, communityPrice)
+          totalSurplus = calculatedRedistribute.resultTotalSurplus
+          // if (calculatedRedistribute.redistributePartners.length) console.log(calculatedRedistribute)
+          //We remove the calculated trades of the cups of customer from newRegisters
+         /* newRegisters = newRegisters.filter(register => {
+            !calculatedRedistribute.redistributePartners.some(
+              partner => {
+                if (partner.ehId === register.eh_id) {
+                  console.log(partner)
+                  return partner
+                }
+              } )
+
+            }
+          );*/
+          if (calculatedRedistribute.redistributePartners.length){
+            const filteredRegisters = newRegisters.filter(register =>
+              !calculatedRedistribute.redistributePartners.some(partner =>
+                partner.cupsId === register.cups_id && moment(partner.infoDt).format('YYYY-MM-DD HH') == moment(register.info_dt).format('YYYY-MM-DD HH'))
+            );
+
+
+            if (filteredRegisters.length)
+              newRegisters = filteredRegisters;
+          }
+
+
+
+        }
+
+
+        // const redisitributePartners = this.getRegistersByDateAndCommunity(surplusRegister.info_dt, surplusRegister.community_id, newRegisters)
+        /*const redistributeObject = {
+          totalSurplus,
           resultTotalSurplus: 0,
           surplusCups: surplusRegister.cups_id,
           surplusEhId: surplusRegister.eh_id,
           redisitributePartners
-        }
+        }*/
+
+        const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, newRegisters, "EQUITABLE")
+        console.log(redistributeObject)
         const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
         await this.insertToTrades(calculatedRedistribute, communityPrice)
       }
-
     } catch (error) {
-      console.log(error);
+      console.log("Error updating trades:", error);
     }
+
+    console.log(`Trades updated.`)
   }
 
   calculateRedistribution(redistributeObject: RedistributeObject = this.redistributeObject) {
+    /*if (redistributeObject.surplusCups == 22) console.log(redistributeObject)
+    if (redistributeObject.surplusCups == 22) console.log(moment(redistributeObject.redistributePartners[0].infoDt).format('YYYY-MM-DD HH:mm'))*/
     let total = redistributeObject.totalSurplus;
-    let partners = redistributeObject.redisitributePartners;
+    let partners = redistributeObject.redistributePartners;
     let activePartners = partners.length;
 
     // console.log(redistributeObject)
@@ -178,39 +226,66 @@ export class ShareService {
     return filteredRegisters.map(this.formatPartnerObjects)
   }
 
+  getRegistersByDateAndCommunityAndCustomer(surplusRegisterDate: Date, communityId: number, customerId: number, newRegisters: RegistersFromDb[]) {
+    const date = moment(surplusRegisterDate).format('YYYY-MM-DD HH')
+    const filteredRegisters = newRegisters.filter((register) => {
+      if (
+        moment(register.info_dt).format('YYYY-MM-DD HH') == date && communityId == register.community_id
+        && customerId == register.customer_id) {
+
+        return register
+      }
+      }
+    )
+    return filteredRegisters.map(this.formatPartnerObjects)
+  }
+
   getNewSurplusRegisters(): Promise<RegistersFromDb[]> {
 
     return new Promise(async (resolve, reject) => {
       try {
-        /*let query = `
-          SELECT e.id eh_id, e.kwh_in, e.kwh_out, e.info_dt, cups.id cups_id, cups.community_id community_id
-          FROM energy_hourly e
-                 LEFT JOIN trades t ON e.info_dt = t.info_dt
-                 LEFT JOIN cups ON e.cups_id = cups.id
-                 LEFT JOIN users ON cups.customer_id = users.customer_id
-          WHERE t.info_dt IS NULL
-            AND kwh_out > 0
-            AND cups.type != 'community'
-          ORDER BY e.info_dt DESC, kwh_out DESC;
-        `*/
+
         let query = `
           SELECT e.id                   eh_id,
                  e.kwh_in,
-                 (e.kwh_out - e.kwh_in) kwh_out,
+                 e.kwh_out,
                  e.info_dt,
                  cups.id                cups_id,
                  cups.community_id      community_id,
-                 users.id               user_id
+                 users.id               user_id,
+                 cups.customer_id,
+                 trade_type
           FROM energy_hourly e
                  LEFT JOIN trades t ON e.info_dt = t.info_dt
                  LEFT JOIN cups ON e.cups_id = cups.id
                  LEFT JOIN users ON cups.customer_id = users.customer_id
+                 LEFT JOIN customers ON cups.customer_id = customers.id
           WHERE t.info_dt IS NULL
             AND cups.type != 'community'
-          HAVING kwh_out > 0
-          ORDER BY e.info_dt DESC, kwh_out DESC;
+          AND e.kwh_out > 0
+          ORDER BY e.info_dt DESC, e.kwh_out DESC;
         `
         let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
+        /*let result: any = await this.prisma.$queryRaw`
+         SELECT e.id                   eh_id,
+                 e.kwh_in,
+                 e.kwh_out,
+                 e.info_dt,
+                 cups.id                cups_id,
+                 cups.community_id      community_id,
+                 users.id               user_id,
+                 cups.customer_id,
+                 trade_type
+          FROM energy_hourly e
+                 LEFT JOIN trades t ON e.info_dt = t.info_dt
+                 LEFT JOIN cups ON e.cups_id = cups.id
+                 LEFT JOIN users ON cups.customer_id = users.customer_id
+                 LEFT JOIN customers ON cups.customer_id = customers.id
+          WHERE t.info_dt IS NULL
+            AND cups.type != 'community'
+          AND e.kwh_out > 0 AND e.info_dt LIKE '2024-08-19 23%'
+          ORDER BY e.info_dt DESC, e.kwh_out DESC;
+            `*/
         resolve(result);
 
       } catch (error) {
@@ -222,43 +297,28 @@ export class ShareService {
 
   getNewRegisters(): Promise<RegistersFromDb[] | any[]> {
     return new Promise(async resolve => {
-      let query = `
-        SELECT e.id                   eh_id,
-               (e.kwh_in - e.kwh_out) kwh_in,
-               e.kwh_out,
-               e.info_dt,
-               cups.id                cups_id,
-               cups.community_id      community_id,
-               users.email            email,
-               users.id               user_id
-        FROM energy_hourly e
-               LEFT JOIN trades t ON e.info_dt = t.info_dt
-               LEFT JOIN cups ON e.cups_id = cups.id
-               LEFT JOIN users ON cups.customer_id = users.customer_id
-        WHERE t.info_dt IS NULL
-          AND cups.type != 'community'
-        HAVING kwh_in > 0
-        ORDER BY e.info_dt DESC, kwh_in DESC;
-      `
       // let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
-      let result: any = await this.prisma.$queryRaw`
+      // let result: any = await this.prisma.$queryRaw`
+      let [result]: any = await this.conn.execute(`
       SELECT e.id                   eh_id,
-               (e.kwh_in - e.kwh_out) kwh_in,
+               e.kwh_in,
                e.kwh_out,
                e.info_dt,
                cups.id                cups_id,
                cups.community_id      community_id,
-               users.email            email,
-               users.id               user_id
+               users.id               user_id,
+               cups.customer_id,
+               trade_type
         FROM energy_hourly e
                LEFT JOIN trades t ON e.info_dt = t.info_dt
                LEFT JOIN cups ON e.cups_id = cups.id
                LEFT JOIN users ON cups.customer_id = users.customer_id
+               LEFT JOIN customers ON cups.customer_id = customers.id
         WHERE t.info_dt IS NULL
           AND cups.type != 'community'
-        HAVING kwh_in > 0
-        ORDER BY e.info_dt DESC, kwh_in DESC;
-      `
+        AND e.kwh_in > 0
+        ORDER BY e.info_dt DESC, e.kwh_in DESC;
+      `)
       resolve(result);
     })
   }
@@ -283,6 +343,22 @@ export class ShareService {
     }
   }
 
+  getRedistributeObject(totalSurplus: number, surplusRegister: RegistersFromDb, newRegisters: RegistersFromDb[],type: TradeTypes): RedistributeObject{
+    let redistributePartners!: RedistributePartner[];
+    if (type == 'PREFERRED')
+      redistributePartners =
+        this.getRegistersByDateAndCommunityAndCustomer(surplusRegister.info_dt, surplusRegister.community_id, surplusRegister.customer_id, newRegisters)
+    else
+      redistributePartners = this.getRegistersByDateAndCommunity(surplusRegister.info_dt, surplusRegister.community_id, newRegisters)
+
+    return {
+      totalSurplus,
+      resultTotalSurplus: 0,
+      surplusCups: surplusRegister.cups_id,
+      surplusEhId: surplusRegister.eh_id,
+      redistributePartners
+    }
+  }
   async getCustomerFromCupsId(cupsId: number) {
     let query = `SELECT customers.*, users.id as userId
                  FROM customers
@@ -330,10 +406,10 @@ export class ShareService {
     let transactionNumber = 0;
     const customerSeller = await this.getCustomerFromCupsId(trade.surplusCups);
 
-    for (const partner of trade.redisitributePartners) {
+    for (const partner of trade.redistributePartners) {
 
       const tradedKwh = parseFloat((partner.consumption - partner.resultConsumption).toFixed(3))
-      const tradeCost = parseFloat((tradedKwh * communityPrice).toFixed(3));
+      const tradeCost = parseFloat((tradedKwh * (communityPrice || 0)).toFixed(3));
       partner.tradeCost = tradeCost;
       partner.tradedKWh = tradedKwh;
 
@@ -410,11 +486,11 @@ export class ShareService {
       }
 
       // const insertedRows = result.affectedRows;
-      console.log(`Inserted values on trades from date: ${trade.redisitributePartners[0].infoDt}`);
+      console.log(`Inserted values on trades from date: ${trade.redistributePartners[0].infoDt}`);
 
       try { //send notifications
 
-        for (const partner of trade.redisitributePartners) {
+        for (const partner of trade.redistributePartners) {
 
           const customerBuyer = await this.getCustomerFromCupsId(partner.cupsId);
 
@@ -479,7 +555,6 @@ export class ShareService {
    * Updates virtuals from energy hourly
    * @param cupsId
    * @param virtual
-   * @param staticKwh static is the contrary kwh (in or out) based on virtual, if virtual is virtual_IN static would be virtual_OUT
    * @param infoDt
    * @param type
    */
@@ -488,17 +563,18 @@ export class ShareService {
     if (type == 'BUY') {
       query = `UPDATE energy_hourly
                SET kwh_in_virtual  = ?,
-                   kwh_out_virtual = kwh_out
+                   kwh_out_virtual = NULL
                WHERE cups_id = ?
                  AND info_dt LIKE ?`
     } else {
       query = `UPDATE energy_hourly
                SET kwh_out_virtual = ?,
-                   kwh_in_virtual  = kwh_in
+                   kwh_in_virtual  = NULL
                WHERE cups_id = ?
                  AND info_dt LIKE ?`
     }
 
+    // console.log(query)
     await this.conn.execute(query, [virtual, cupsId, infoDt])
   }
 
@@ -508,6 +584,7 @@ export class ShareService {
     updatedRegisters = registers.filter(register =>
       moment(register.info_dt).isBefore(date)
     )
+
     return updatedRegisters;
   }
 
@@ -520,6 +597,8 @@ export class ShareService {
       infoDt: new Date,
       userId: 0
     }
+   /* if (data.cups_id == 23 || data.cups_id == 22) console.log(data, "DATAAA")
+    if (data.cups_id == 23 || data.cups_id == 22) console.log(moment(data.info_dt).format('YYYY-MM-DD HH'), "DATAAA")*/
     partner.consumption = parseFloat(data.kwh_in.toString())
     partner.infoDt = data.info_dt
     partner.cupsId = data.cups_id

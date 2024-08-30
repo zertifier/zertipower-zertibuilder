@@ -627,46 +627,10 @@ export class CommunitiesController {
         id: parseInt(id),
       },
       data: {
-        name: body.name
+        name: body.name,
+        tradeType: body.tradeType
       },
     });
-
-    const cupsToUpdate = await this.prisma.cups.findMany({
-      where: {
-        communityId: parseInt(id)
-      }
-    })
-
-    const result = await this.prisma.$transaction(async (prisma) => {
-      const data = await prisma.communities.updateMany({
-        where: {
-          id: parseInt(id),
-        },
-        data: {
-          name: body.name,
-        },
-      });
-
-      const cupsToUpdate = await prisma.cups.findMany({
-        where: {
-          communityId: parseInt(id),
-        },
-      });
-
-      await prisma.customers.updateMany({
-        where: {
-          id: {
-            in: cupsToUpdate.map(cup => cup.id),
-          },
-        },
-        data: {
-          tradeType: body.tradeType,
-        },
-      });
-
-      return { data };
-    });
-
 
     return HttpResponse.success("communities updated successfully").withData(
       data
@@ -718,6 +682,7 @@ export class CommunitiesController {
     mappedData.test = data.test;
     mappedData.geolocation = data.geolocation;
     mappedData.energyPrice = data.energyPrice;
+    mappedData.tradeType = data.tradeType || data.trade_type;
     mappedData.daoAddress = data.daoAddress || data.dao_address;
     mappedData.daoName = data.daoName || data.dao_name;
     mappedData.daoSymbol = data.daoSymbol || data.dao_symbol;
@@ -762,6 +727,7 @@ export class CommunitiesController {
     mappedData.kwhOut = data.kwhOut || data.kwh_out;
     mappedData.infoDt = data.infoDt || data.info_dt;
     mappedData.cupsId = data.cupsId || data.cups_id;
+    mappedData.tradeType = data.tradeType || data.trade_type;
     mappedData.cups = data.cups;
     mappedData.reference = data.reference;
     return mappedData

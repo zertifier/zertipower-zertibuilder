@@ -90,21 +90,21 @@ const getRealtime = async (req, res = response) => {
         const communityId = req.params.id;
 
         //Truly realtime data:
-    //     const [ROWS] = await dbConnection.execute
-    //         (`
-    //     SELECT 
-    //     SUM(energy_hourly.kwh_in) AS kwh_in,
-    //     SUM(energy_hourly.kwh_out) AS kwh_out,
-    //     SUM(energy_hourly.production) AS production,
-    //     COUNT(cups.id) AS cupsNumber
-    //   FROM energy_hourly
-    // LEFT JOIN 
-    //     cups ON cups.id = energy_hourly.cups_id
-    // WHERE
-    //     cups.community_id = ? AND
-    //     DATE_FORMAT(energy_hourly.info_dt, '%Y-%m-%d %H') = DATE_FORMAT(NOW(), '%Y-%m-%d %H')
-    //  GROUP BY energy_hourly.info_dt
-    //  `)
+        const [ROWS] = await dbConnection.execute
+            (`
+        SELECT 
+        SUM(energy_hourly.kwh_in) AS kwh_in,
+        SUM(energy_hourly.kwh_out) AS kwh_out,
+        SUM(energy_hourly.production) AS production,
+        COUNT(cups.id) AS cupsNumber
+      FROM energy_hourly
+    LEFT JOIN 
+        cups ON cups.id = energy_hourly.cups_id
+    WHERE
+        cups.community_id = ? AND
+        DATE_FORMAT(energy_hourly.info_dt, '%Y-%m-%d %H') = DATE_FORMAT(NOW(), '%Y-%m-%d %H')
+     GROUP BY energy_hourly.info_dt
+     `)
 
         //get last energy data from community: 
     //     const [ROWS] = await dbConnection.execute
@@ -123,8 +123,6 @@ const getRealtime = async (req, res = response) => {
     //     ORDER BY energy_hourly.info_dt DESC
     //     LIMIT 1 
     //  `, [communityId])
-
-
 
         const lastEnergyRegister = ROWS[0];
 

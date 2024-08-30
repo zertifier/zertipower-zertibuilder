@@ -104,7 +104,7 @@ const getRealtime = async (req, res = response) => {
         cups.community_id = ? AND
         DATE_FORMAT(energy_hourly.info_dt, '%Y-%m-%d %H') = DATE_FORMAT(NOW(), '%Y-%m-%d %H')
      GROUP BY energy_hourly.info_dt
-     `)
+     `,[communityId])
 
         //get last energy data from community: 
     //     const [ROWS] = await dbConnection.execute

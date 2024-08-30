@@ -53,6 +53,10 @@ export class EnergyPredictionController {
       throw new BadRequestError('must specify cups or community')
     }
 
+    if(!response.length || !response[0]){
+      return HttpResponse.failure('Cannot predict without data',ErrorCode.NOT_FOUND);
+    }
+
     const now = response[0].infoDt;
     const ago = response[response.length - 1].infoDt;
     let historicRadiation;

@@ -289,6 +289,7 @@ export class CommunitiesController {
       SELECT b.*,
              a.surplus_community
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
+                   SUM(kwh_in_virtual)                              AS kwh_in_virtual,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
                    SUM(
@@ -402,6 +403,7 @@ export class CommunitiesController {
              a.surplus_community
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
+                   SUM(kwh_in_virtual)                              AS kwh_in_virtual,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
                    SUM(
                      CASE
@@ -678,6 +680,7 @@ export class CommunitiesController {
     mappedData.origin = data.origin;
     mappedData.kwhIn = data.kwhIn || data.kwh_in;
     mappedData.kwhOut = data.kwhOut || data.kwh_out;
+    mappedData.kwhInVirtual = data.kwhInVirtual || data.kwh_in_virtual;
     mappedData.kwhOutVirtual = data.kwhOutVirtual || data.kwh_out_virtual;
     mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;

@@ -94,7 +94,6 @@ export class ShareService {
       let newRegisters = await this.getNewRegisters()
 
       console.log(`Inserting ${surplusRegisters.length} trades...`)
-      console.log(newRegisters.length)
 
       for (const surplusRegister of surplusRegisters) {
         const communityPrice = await this.getCommunityPrice(surplusRegister.community_id)
@@ -105,7 +104,6 @@ export class ShareService {
 
           const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, customerCupsRegisters, surplusRegister.trade_type)
           const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
-          console.log(calculatedRedistribute, "calculatedRedistribute")
           await this.insertToTrades(calculatedRedistribute, communityPrice)
           totalSurplus = calculatedRedistribute.resultTotalSurplus
           // if (calculatedRedistribute.redistributePartners.length) console.log(calculatedRedistribute)
@@ -127,7 +125,6 @@ export class ShareService {
                 partner.cupsId === register.cups_id && moment(partner.infoDt).format('YYYY-MM-DD HH') == moment(register.info_dt).format('YYYY-MM-DD HH'))
             );
 
-            console.log(filteredRegisters.length, "FIRST")
 
             if (filteredRegisters.length)
               newRegisters = filteredRegisters;
@@ -264,7 +261,7 @@ export class ShareService {
                  LEFT JOIN users ON cups.customer_id = users.customer_id
                  LEFT JOIN customers ON cups.customer_id = customers.id
           WHERE t.info_dt IS NULL
-            AND cups.type != 'community' AND e.info_dt LIKE '2024-08-11%'
+            AND cups.type != 'community'
           AND e.kwh_out > 0
           ORDER BY e.info_dt DESC, e.kwh_out DESC;
         `
@@ -318,7 +315,7 @@ export class ShareService {
                LEFT JOIN users ON cups.customer_id = users.customer_id
                LEFT JOIN customers ON cups.customer_id = customers.id
         WHERE t.info_dt IS NULL
-          AND cups.type != 'community' AND e.info_dt LIKE '2024-08-11%'
+          AND cups.type != 'community'
         AND e.kwh_in > 0
         ORDER BY e.info_dt DESC, e.kwh_in DESC;
       `)

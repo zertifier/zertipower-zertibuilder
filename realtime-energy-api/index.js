@@ -22,7 +22,7 @@ app.use(cors());
 app.use(requestIp.mw());
 const limiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 100, // Limit each IP to 20 requests per `window`
+    max: 100, // Limit each IP to 100 requests per `window`
     message: 'Ip blocked for security',
     keyGenerator: (req, res) => {
         return req.clientIp // IP address from requestIp.mw(), as opposed to req.ip

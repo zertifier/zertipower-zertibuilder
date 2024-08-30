@@ -17,6 +17,7 @@ jobs:
       calculadora-ris3cat_changed: ${{ steps.check_calculadora-ris3cat.outputs.changed }}
       wiki-ris3cat_changed: ${{ steps.check_wiki-dev-ris3cat.outputs.changed }}
       api-ris3cat_changed: ${{ steps.check_api-dev-ris3cat.outputs.changed }}
+      api-realtime_changed: ${{ steps.check_api-dev-realtime-energy.outputs.changed }}
     steps:
       - name: Pull changes
         run: |
@@ -179,7 +180,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Deploy api-ris3cat if changed
-        if: needs.detect-changes.outputs.api-ris3cat_changed == 'true'
+        if: needs.detect-changes.outputs.api-realtime_changed == 'true'
         run: |
           cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
           echo "Deploying api-dev-realtime-energy"

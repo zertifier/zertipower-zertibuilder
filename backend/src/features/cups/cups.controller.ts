@@ -272,15 +272,16 @@ export class CupsController {
       }
 
       if (supplies[0]) {
-        return HttpResponse.success("the cups is active").withData({ supplies })
+        console.log(supplies)
+        return HttpResponse.success("the cups is active").withData({ supplies, cupsInfo })
       } else {
-        return HttpResponse.success("the cups is inactive").withData({ active: false })
+        return HttpResponse.success("the cups is inactive").withData({ active: false, cupsInfo })
       }
 
     } catch (e) {
       console.log(e)
       //return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
-      return HttpResponse.success(e.toString()).withData({ active: false })
+      return HttpResponse.success(e.toString()).withData({ active: false, cupsInfo })
     }
 
     // const datadisRows: any = await this.prisma.$queryRaw

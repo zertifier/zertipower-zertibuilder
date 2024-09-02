@@ -427,7 +427,7 @@ export class CommunitiesController {
                    LEFT JOIN
                  cups c
                  ON cups_id = c.id
-            WHERE (c.type = 'community' OR c.type = 'prosumer')
+            WHERE c.type != 'community'
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
             GROUP BY MONTH(eh.info_dt)) b
@@ -439,7 +439,7 @@ export class CommunitiesController {
                    LEFT JOIN
                  cups c
                  ON cups_id = c.id
-            WHERE c.type = 'community'
+            WHERE (c.type = 'community' OR c.type = 'prosumer')
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}

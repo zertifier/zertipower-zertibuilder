@@ -86,7 +86,7 @@ export class CupsController {
                    LEFT JOIN
                  cups cu
                  ON eh.cups_id = cu.id
-            WHERE cu.type = 'community'
+            WHERE (cu.type = 'community' OR cu.type = 'prosumer')
               AND DATE(info_dt) = ${date}
             GROUP BY HOUR(info_dt)
             ORDER BY info_dt) b
@@ -135,7 +135,7 @@ export class CupsController {
                    LEFT JOIN
                  cups cu
                  ON eh.cups_id = cu.id
-            WHERE cu.type = 'community'
+            WHERE (cu.type = 'community' OR cu.type = 'prosumer')
               AND YEAR(info_dt) = ${parseInt(year)}
               AND MONTH(info_dt) = ${parseInt(month)}
             GROUP BY DAY(info_dt)
@@ -187,7 +187,7 @@ export class CupsController {
                    LEFT JOIN
                  cups cu
                  ON eh.cups_id = cu.id
-            WHERE cu.type = 'community'
+            WHERE (cu.type = 'community' OR cu.type = 'prosumer')
               AND YEAR(info_dt) = ${parseInt(year)}
             GROUP BY MONTH(info_dt)
             ORDER BY info_dt) b

@@ -355,6 +355,9 @@ export class CupsController {
           data: body
         })
       } else {
+        if(body.customer_id !== customerData.id){
+          return HttpResponse.failure("the customer and the CUPS aren't related to each other", ErrorCode.UNAUTHORIZED)
+        }
         data = await this.prisma.cups.update({
           where: {
             id: cupsData[0].id,

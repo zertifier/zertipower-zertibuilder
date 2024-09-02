@@ -272,7 +272,7 @@ export class CupsController {
       }
 
       if (supplies[0]) {
-        return HttpResponse.success("the cups is active").withData({ active: true })
+        return HttpResponse.success("the cups is active").withData({ supplies })
       } else {
         return HttpResponse.success("the cups is inactive").withData({ active: false })
       }

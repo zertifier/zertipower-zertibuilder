@@ -416,7 +416,7 @@ export class EnergyHourlyService {
             const communityExport = datadisRegistersByCommunity.find(obj =>
               moment(obj.info_dt).format('YYYY-MM-DD HH:mm') === moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm')
             );
-            production = communityExport ? communityExport.export * datadisRegister.surplus_distribution : 0;
+            production = communityExport ? communityExport.export *  parseFloat(datadisRegister.surplus_distribution) : 0;
           }
 
           // console.log(datadisRegister, "DATADIS")

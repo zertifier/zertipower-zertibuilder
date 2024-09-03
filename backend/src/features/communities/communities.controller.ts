@@ -215,7 +215,7 @@ export class CommunitiesController {
                    LEFT JOIN
                  cups c
                  ON cups_id = c.id
-            WHERE c.type = 'community'
+            WHERE (c.type = 'community' OR c.type = 'prosumer')
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
@@ -326,7 +326,7 @@ export class CommunitiesController {
                    LEFT JOIN
                  cups c
                  ON cups_id = c.id
-            WHERE c.type = 'community'
+            WHERE (c.type = 'community' OR c.type = 'prosumer')
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
@@ -439,7 +439,7 @@ export class CommunitiesController {
                    LEFT JOIN
                  cups c
                  ON cups_id = c.id
-            WHERE c.type = 'community'
+            WHERE (c.type = 'community' OR c.type = 'prosumer')
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}

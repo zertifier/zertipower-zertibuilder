@@ -18,6 +18,9 @@ import { ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
 import { CustomersDbRequestsService } from "./customers-db-requests.service";
+import { ErrorCode } from "src/shared/domain/error";
+import { DatadisService } from "src/shared/infrastructure/services";
+import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
 export const RESOURCE_NAME = "customers";
 
 @ApiTags(RESOURCE_NAME)
@@ -28,7 +31,8 @@ export class CustomersController {
     private prisma: PrismaService,
     private datatable: Datatable,
     private mysql: MysqlService,
-    private customersDbRequestsService: CustomersDbRequestsService
+    private customersDbRequestsService: CustomersDbRequestsService,
+    private datadisService: DatadisService
   ) {
     this.conn = this.mysql.pool;
   }
@@ -50,7 +54,7 @@ export class CustomersController {
     console.log("cups customers")
     try {
       let url = `SELECT cups.* , customers.name, customers.wallet_address FROM cups LEFT JOIN customers on cups.customer_id = customers.id WHERE customers.id = ?`;
-      const [ROWS]:any[] = await this.conn.query(url,customerId);
+      const [ROWS]: any[] = await this.conn.query(url, customerId);
 
       return HttpResponse.success("customers fetched successfully").withData(
         ROWS
@@ -65,7 +69,7 @@ export class CustomersController {
   async getByCups() {
     try {
       let url = `SELECT cups.* , customers.name, customers.wallet_address FROM cups LEFT JOIN customers on cups.customer_id = customers.id`;
-      const [ROWS]:any[] = await this.conn.query(url);
+      const [ROWS]: any[] = await this.conn.query(url);
 
       return HttpResponse.success("customers fetched successfully").withData(
         ROWS
@@ -98,7 +102,7 @@ export class CustomersController {
   @Put(":id")
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: SaveCustomersDTO) {
-    
+
     //todo: get customer, to compare balance, cannot upload balance. 
 
     const data = await this.prisma.customers.updateMany({
@@ -141,6 +145,85 @@ export class CustomersController {
     return HttpResponse.success("customers removed successfully").withData(
       data
     );
+  }
+
+  @Get("/datadis-active/:id")
+  @Auth(RESOURCE_NAME)
+  async datadisActive(@Param("id") id: string) {
+
+    let datadisToken: string;
+    let loginData: { username: string, password: string } = { username: '', password: '' };
+    let supplies: any[] = [];
+    let cupsInfo: any;
+    let communityInfo: any;
+
+    try {
+
+      cupsInfo = await this.prisma.$queryRaw
+        `
+      SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id, cups.datadis_active, customers.dni
+        FROM cups LEFT JOIN customers ON customers.id = cups.customer_id
+        WHERE cups.customer_id = ${id}
+      `;
+
+      if (!cupsInfo.length) {
+        return HttpResponse.failure(`Cups with this customer id not found`, ErrorCode.BAD_REQUEST)
+      }
+
+    } catch (e) {
+      return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
+    }
+
+    try {
+      communityInfo = await this.prisma.$queryRaw
+        `
+      SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id
+        FROM cups
+        WHERE community_id = ${cupsInfo[0].community_id} and type = 'community'
+      `;
+
+    } catch (e) {
+      console.log(e)
+      return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
+    }
+
+    try {
+      
+      const datadisActive = cupsInfo.find((cups:any)=>{cups.datadis_active});
+
+      if (datadisActive) {
+        //user login
+        loginData.username = cupsInfo[0].datadis_user;
+        loginData.password = PasswordUtils.decryptData(cupsInfo[0].datadis_password, process.env.JWT_SECRET!);
+        datadisToken = await this.datadisService.login(loginData.username, loginData.password)
+        supplies = await this.datadisService.getSupplies(datadisToken);
+
+      } else { //can be datadis authorized one:
+        //community login
+        let dni = cupsInfo[0].dni;
+        loginData.username = communityInfo[0].datadis_user;
+        loginData.password = PasswordUtils.decryptData(communityInfo[0].datadis_password, process.env.JWT_SECRET!);
+        datadisToken = await this.datadisService.login(loginData.username, loginData.password)
+        supplies = await this.datadisService.getAuthorizedSupplies(datadisToken, dni);
+      }
+
+    } catch (e) {
+      console.log(e)
+      cupsInfo.map((cups: any) => { cups.active = false; })
+      return HttpResponse.success(e.toString()).withData({ cupsInfo })
+    }
+
+    cupsInfo.map((cups: any) => {
+      let found = supplies.find((supply) => supply.cups == cups.cups)
+      if (found) {
+        cups.active = true;
+      } else {
+        cups.active = false;
+      }
+    })
+
+    return HttpResponse.success("state of the cups obtained").withData({ cupsInfo })
+
   }
 
   @Post("datatable")

@@ -273,23 +273,18 @@ export class CupsController {
 
     } catch (e) {
       console.log(e)
-
-      cupsInfo.map((cups: any) => { cups.active = false; })
-
-      //return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
+      cupsInfo[0].active = false;
       return HttpResponse.success(e.toString()).withData({ cupsInfo })
     }
 
-    cupsInfo.map((cups: any) => {
-      let found = supplies.find((supply) => supply.cups == cups.cups)
-      if (found) {
-        cups.active = true;
-      } else {
-        cups.active = false;
-      }
-    })
+    let found = supplies.find((supply) => supply.cups == cupsInfo[0].cups)
+    if (found) {
+      cupsInfo[0].active = true;
+    } else {
+      cupsInfo[0].active = false;
+    }
 
-    return HttpResponse.success("state of the cups obtained").withData({ cupsInfo })
+    return HttpResponse.success("state of the cups obtained").withData({ cupsInfo: cupsInfo[0] })
 
   }
 

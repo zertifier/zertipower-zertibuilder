@@ -289,7 +289,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       if (this.selectedLocationId) {
         //this.stepActive = 2;
         //this.stepsCompleted[0] = 1;
-        this.updateCompleteSteps(0);
+        //this.updateCompleteSteps(0);
       }
     } catch {
       console.log("location unselected")
@@ -563,23 +563,29 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     this.communityEnergyData.forEach((item: any) => {
       //this.communityMonthChartLabels.push(item.month);
       //numeros_mes.push(item.month_number);
-      imports.push(item.import + item.export);
+      imports.push(item.import); // + item.export
       exports.push(item.export);
     });
+
+    console.log("this.communityEnergyData",this.communityEnergyData)
 
     this.addedAreas.map((addedArea: any) => {
 
       addedArea.monthsConsumption?.map((monthConsumption: number, index: number) => {
 
+        console.log("addedArea",addedArea)
+
         if (imports[index]) {
           imports[index] += monthConsumption;
-          //total consumption implies the generation:
-          imports[index] += addedArea.monthsGeneration[index];
+          //imports[index] += monthConsumption;
+          //total consumption implies the generation: 
+          // imports[index] += addedArea.monthsGeneration[index];
         }
 
         if (!imports[index]) {
+          imports.push(monthConsumption)
           //total consumption implies the generation:
-          imports.push(monthConsumption + addedArea.monthsGeneration[index])
+          // imports.push(monthConsumption + addedArea.monthsGeneration[index])
         }
 
         if (exports[index]) {
@@ -591,6 +597,8 @@ export class CalculateComponent implements OnInit, AfterViewInit {
         }
       })
     })
+
+    console.log("imports",imports,"exports",exports)
 
     this.communityMonthChartDatasets = [
       {
@@ -950,7 +958,8 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
       //console.log("add Area found", found)
       if (found) {
-        this.addedAreas = [...this.addedAreas]
+        this.addedAreas = [...this.addedAreas];
+        this.updateCommunityChart();
         Swal.fire({ text: 'Àrea actualitzada', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>', timer: 2000, customClass: { icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       } else {
         this.addedAreas = this.addedAreas.concat([this.selectedCadastre])

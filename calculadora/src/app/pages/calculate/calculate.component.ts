@@ -215,7 +215,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     vallePrice: 0.09,
     llanoPrice: 0.13,
     puntaPrice: 0.17,
-    generationPrice: 0.5,
+    generationPrice: 0.05,
     orientation: 0,
     inclination: 25,
     selfConsumption: {}
@@ -287,7 +287,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     try {
       this.selectedLocationId = parseInt(localStorage.getItem("location")!)
       if (this.selectedLocationId) {
-        this.stepActive = 2;
+        //this.stepActive = 2;
         //this.stepsCompleted[0] = 1;
         this.updateCompleteSteps(0);
       }
@@ -938,7 +938,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       vallePrice: 0.09,
       llanoPrice: 0.13,
       puntaPrice: 0.17,
-      generationPrice: 0.5,
+      generationPrice: 0.05,
       orientation: 0,
       inclination: 25,
       selfConsumption: {}

@@ -39,7 +39,6 @@ export class EnergyHourlyService {
     const communities = await this.communitiesDbRequestsService.getCommunities();
 
     const newRegisters: datadisCupsRegisters[] = await this.getNewDatadisRegisters();
-    console.log(newRegisters.length, "NEW REGISTERS TO ADD")
     await this.insertNewRegistersToEnergyHourly(newRegisters, communities);
 
     const registersToUpdate = await this.getDatadisRegistersToUpdateEnergyHourly();
@@ -64,8 +63,8 @@ export class EnergyHourlyService {
         SELECT 1
         FROM energy_hourly e
         WHERE e.info_dt = d.info_dt
-          AND e.cups_id = d.cups_id
-      );
+          AND e.cups_id = d.cups_id AND info_dt LIKE '2024-08%'
+      ) AND info_dt LIKE '2024-08%';
     `/*
     let query = `
       SELECT d.*, cups.type, cups.surplus_distribution, cups.community_id
@@ -113,74 +112,60 @@ export class EnergyHourlyService {
   }
 
   async insertNewRegistersToEnergyHourly(datadisNewRegisters: any[], communities: any[]) {
+    const batchSize = 100;  // Reducir el tamaño del lote a 100 registros por batch
 
     for (const community of communities) {
+      const datadisRegistersByCommunity = this.orderArrByInfoDt(datadisNewRegisters.filter(obj => obj.community_id === community.id));
 
-      // Get datadis registers for the community
-      let datadisRegistersByCommunity = datadisNewRegisters.filter(obj => obj.community_id === community.id);
+      console.log(datadisRegistersByCommunity.length, "datadisRegistersByCommunity");
 
-      // Order registers by info_dt if there are any new registers
-      if (datadisNewRegisters.length > 0) {
-        datadisRegistersByCommunity = this.orderArrByInfoDt(datadisRegistersByCommunity);
+      const allCupsOfCommunity = await this.getCupsByCommunity(community.id);
+      let filteredCups = [];
+
+      if (allCupsOfCommunity.length > 0) {
+        filteredCups = this.orderArrByInfoDt(
+          datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity))
+        );
       }
 
-      console.log(datadisRegistersByCommunity.length, "datadisRegistersByCommunity")
-      // Get all CUPS of the community
-      const allCupsOfCommunity = await this.getCupsByCommunity(community.id);
-
-      const filteredCups = allCupsOfCommunity.length > 0
-        ? this.orderArrByInfoDt(datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity)))
-        : [];
-
-      console.log(filteredCups.length, "FILTERED")
-
-      // Define the batch size
-      const batchSize = 4000;
-
-      // Iterate over the filteredCups array in batches
+      // Iterar sobre el array de filteredCups en pequeños lotes
       for (let start = 0; start < filteredCups.length; start += batchSize) {
-        // Extract a slice of batchSize from filteredCups
         const batch = filteredCups.slice(start, start + batchSize);
 
-        console.log(batch.length, "BATCH")
-        // Construct the query and parameters for this batch
+        const valuesPlaceholders = batch.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(',');
         const query = `
-          INSERT IGNORE INTO energy_hourly (info_dt, kwh_in, kwh_out, production, cups_id, origin, battery, shares)
-          VALUES ${batch.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(',')}
-        `;
+                INSERT IGNORE INTO energy_hourly (info_dt, kwh_in, kwh_out, production, cups_id, origin, battery, shares)
+                VALUES ${valuesPlaceholders}`;
 
         const queryParams = batch.flatMap(datadisRegister => {
-          const info_dt = moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss');
-          // console.log(datadisRegister, "DATADIS REGISTER")
+          const info_dt = moment(datadisRegister.info_dt).format('YYYY-MM-DD HH')
+
 
           if (datadisRegister.surplus_distribution) {
-            // Obtain community export kWh
             const communityExport = datadisRegistersByCommunity.find(obj =>
-              moment(obj.info_dt).format('YYYY-MM-DD HH:mm') === moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm') &&
-              obj.type == 'community');
-            // console.log(communityExport, "COMMUNITY")
-            // const production = communityExport ? datadisRegister.surplus_distribution * communityExport.export : null;
-            const production = communityExport ? communityExport.export *  parseFloat(datadisRegister.surplus_distribution) : null;
+              obj.type === 'community' &&
+              moment(obj.info_dt).format('YYYY-MM-DD HH') === moment(datadisRegister.info_dt).format('YYYY-MM-DD HH')
+            );
+            const production = communityExport ? communityExport.export * parseFloat(datadisRegister.surplus_distribution) : null;
             return [info_dt, datadisRegister.import, datadisRegister.export, production, datadisRegister.cups_id, 'datadis', 0, datadisRegister.surplus_distribution];
           } else {
             return [info_dt, datadisRegister.import, datadisRegister.export, null, datadisRegister.cups_id, 'datadis', null, null];
           }
         });
 
-        console.log(filteredCups.length, "filteredCups.length")
-        if (filteredCups.length) {
-          try {
-            // Execute the query for this batch
-            const [result] = await this.conn.execute<mysql.ResultSetHeader>(query, queryParams);
-            const insertedRows = result.affectedRows;
-            console.log(`Energy hourly of community ${community.id} inserted with a total of ${insertedRows} rows for batch starting at index ${start}`);
-          } catch (error) {
-            console.log("Error inserting on energy hourly", error)
-          }
+        try {
+          const [result] = await this.conn.execute<mysql.ResultSetHeader>(query, queryParams);
+          const insertedRows = result.affectedRows;
+          console.log(`Energy hourly of community ${community.id} inserted with ${insertedRows} rows for batch starting at index ${start}`);
+        } catch (error) {
+          console.log("Error inserting on energy hourly", error);
+          break;  // Opcional: Detener la inserción en caso de error
         }
       }
     }
   }
+
+
 
   async setPrices() {
     this.getTransactionsWithNullPrice().then(async (transactions) => {

@@ -91,7 +91,6 @@ export class CommunitiesController {
         id: id,
       },
     });
-    console.log(data)
     return HttpResponse.success("communities fetched successfully").withData(
       this.mapData(data)
     );
@@ -165,7 +164,6 @@ export class CommunitiesController {
 
     let year = moment(date, 'YYYY-MM-DD').format('YYYY').toString()
 
-    console.log(id, year)
 
     let [ROWS]: any[] = await this.conn.query(importDataQuery, [id, year]);
     let importData = ROWS;
@@ -332,8 +330,8 @@ export class CommunitiesController {
               AND origin = ${origin}
             GROUP BY DAY(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
+            ORDER BY info_dt
     `
-
     let totalActiveMembers: any = await this.prisma.$queryRaw`
       SELECT totalActiveMembers.totalActiveMembersSum totalActiveMembers, totalMembers.totalMembers
       FROM (
@@ -383,13 +381,14 @@ export class CommunitiesController {
 
     // data = this.setProduction(data, communityData, 'monthly')
     date = date.slice(0, -1)
-
     const daysOfMonth = moment(date).daysInMonth()
     data = this.dataWithEmpty(data, date, daysOfMonth, 'monthly')
 
     const mappedData = data.map(this.energyHourlyMapData);
 
+
     dataToSend.stats = mappedData
+
     return HttpResponse.success("communities fetched successfully").withData(
       // this.mapData(data)
       dataToSend
@@ -737,41 +736,32 @@ export class CommunitiesController {
     if (data.length < qty) {
       for (let i = 0; i < qty; i++) {
         let formattedDate;
-        if (type == 'daily') {
-          const hour = i.toString().length > 1 ? i : `0${i}`
-          formattedDate = `${date} ${hour}:00:00`
+        if (type === 'daily') {
+          const hour = i.toString().padStart(2, '0');
+          formattedDate = `${date} ${hour}:00:00`;
+        } else if (type === 'monthly') {
+          const day = (i + 1).toString().padStart(2, '0');
+          formattedDate = `${date}-${day} 01:00:00`;
+        } else if (type === 'yearly') {
+          const month = (i + 1).toString().padStart(2, '0');
+          formattedDate = `${date}-${month}-01 01:00:00`;
         }
 
-        if (type == 'monthly') {
-          const day = (i + 1).toString().length > 1 ? i + 1 : `0${i + 1}`
-          formattedDate = `${date}-${day} 01:00:00`
-        }
+        const newDate = moment.utc(formattedDate).toDate();
 
-        if (type == 'yearly') {
-          const month = (i + 1).toString().length > 1 ? i + 1 : `0${i + 1}`
-          formattedDate = `${date}-${month}-01 01:00:00`
-        }
-
-        const newDate = moment.utc(formattedDate).toDate()
         const sameDate = data.find((item: any) => {
-          if (type == 'daily' && item.info_dt)
-            return item.info_dt.toString() == newDate.toString()
-
-          if (type == 'monthly' && item.info_dt) {
-            const dayOfItem = moment(item.info_dt).format('YYYY-MM-DD')
-            const dayOfNewDate = moment(newDate).format('YYYY-MM-DD')
-            return dayOfItem == dayOfNewDate
+          if (type === 'daily') {
+            return moment(item.info_dt).isSame(newDate, 'hour');
           }
-
-          if (type == 'yearly' && item.info_dt) {
-            const monthOfItem = moment(item.info_dt).format('YYYY-MM')
-            const monthOfNewDate = moment(newDate).format('YYYY-MM')
-            return monthOfItem == monthOfNewDate
+          if (type === 'monthly') {
+            return moment(item.info_dt).isSame(newDate, 'day');
           }
-
-          return
-
+          if (type === 'yearly') {
+            return moment(item.info_dt).isSame(newDate, 'month');
+          }
+          return false;
         });
+
         if (!sameDate) {
           const cupEmptyObject = {
             "id": 0,

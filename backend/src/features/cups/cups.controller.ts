@@ -271,29 +271,20 @@ export class CupsController {
         return HttpResponse.failure(`Data not found`, ErrorCode.UNEXPECTED)
       }
 
-      if (supplies[0]) {
-        console.log(supplies)
-        return HttpResponse.success("the cups is active").withData({ supplies, cupsInfo })
-      } else {
-        return HttpResponse.success("the cups is inactive").withData({ active: false, cupsInfo })
-      }
-
     } catch (e) {
       console.log(e)
-      //return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
-      return HttpResponse.success(e.toString()).withData({ active: false, cupsInfo })
+      cupsInfo[0].active = false;
+      return HttpResponse.success(e.toString()).withData({ cupsInfo })
     }
 
-    // const datadisRows: any = await this.prisma.$queryRaw
-    //   `
-    //   SELECT EXISTS (
-    //     SELECT 1
-    //     FROM datadis_energy_registers
-    //     WHERE cups_id = ${id}
-    //   ) AS datadis_active;
-    //   `;
+    let found = supplies.find((supply) => supply.cups == cupsInfo[0].cups)
+    if (found) {
+      cupsInfo[0].active = true;
+    } else {
+      cupsInfo[0].active = false;
+    }
 
-    // if (datadisRows[0].datadis_active) {
+    return HttpResponse.success("state of the cups obtained").withData({ cupsInfo: cupsInfo[0] })
 
   }
 
@@ -356,7 +347,7 @@ export class CupsController {
           data: body
         })
       } else {
-        if(body.customer_id !== customerData.id){
+        if (body.customer_id !== customerData.id) {
           return HttpResponse.failure("the customer and the CUPS aren't related to each other", ErrorCode.UNAUTHORIZED)
         }
         data = await this.prisma.cups.update({
@@ -452,6 +443,7 @@ export class CupsController {
     mappedData.lng = data.lng
     mappedData.lat = data.lat
     mappedData.type = data.type
+    mappedData.active = data.active
     mappedData.datadisActive = data.datadis_active
     mappedData.datadisUser = data.datadis_user
     mappedData.datadisPassword = data.datadis_password
@@ -485,6 +477,7 @@ export class CupsController {
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
     mappedData.type = data.type;
+    mappedData.active = data.active ? data.active : 1;
     mappedData.production = data.production ? data.production : 0;
     mappedData.generation = data.generation;
     mappedData.createdAt = data.createdAt || data.created_at;

@@ -147,6 +147,7 @@ model Cups {
   lng                 Float?
   lat                 Float?
   type                CupsType?
+  active              Boolean?  @default(true) @map("active") @db.TinyInt
   datadisActive       Boolean?  @default(false) @map("datadis_active") @db.TinyInt
   datadisUser         String?   @map("datadis_user") @db.VarChar(50)
   datadisPassword     String?   @map("datadis_password") @db.VarChar(100)

@@ -31,7 +31,7 @@ import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
 import { EnvironmentService } from "src/shared/infrastructure/services";
 import { BlockchainService } from "src/shared/infrastructure/services/blockchain-service";
 import { ErrorCode } from "src/shared/domain/error";
-import {ModifyByTradeDTO} from "./modify-by-trade-dto";
+import { ModifyByTradeDTO } from "./modify-by-trade-dto";
 
 
 export const RESOURCE_NAME = "communities";
@@ -83,8 +83,8 @@ export class CommunitiesController {
   @Get(":id")
   @Auth(RESOURCE_NAME)
   async getById(@Param("id") id: number) {
-    if(!id){
-      return HttpResponse.failure("Missing parameter Id.",ErrorCode.MISSING_PARAMETERS)
+    if (!id) {
+      return HttpResponse.failure("Missing parameter Id.", ErrorCode.MISSING_PARAMETERS)
     }
     const data = await this.prisma.communities.findUnique({
       where: {
@@ -95,6 +95,22 @@ export class CommunitiesController {
       this.mapData(data)
     );
   }
+
+  // @Get("/producers/:id")
+  // async getProducersByCommunityId(@Param("id") id: string) {
+  //   try {
+  //     let url = `
+  //       SELECT *
+  //       FROM cups AS c
+  //       WHERE c.community_id = ? AND type='prosumer' or type='community'; 
+  //   `;
+  //     const [ROWS]: any[] = await this.conn.query(url, [id]);
+  //     return HttpResponse.success("community producers fetched successfully").withData({ cups: ROWS });
+  //   } catch (e) {
+  //     console.log(e)
+  //     throw new UnexpectedError(e);
+  //   }
+  // }
 
   @Get("/locations/:id")
   @Auth(RESOURCE_NAME)
@@ -204,6 +220,7 @@ export class CommunitiesController {
             WHERE c.type != 'community'
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
+              AND c.active = 1
             GROUP BY HOUR(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out)  AS surplus_community,
@@ -217,6 +234,7 @@ export class CommunitiesController {
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
+              AND c.active = 1
             GROUP BY HOUR(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
     `;
@@ -233,6 +251,7 @@ export class CommunitiesController {
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
                       AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
+                      AND c.active = 1
                     GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -241,6 +260,7 @@ export class CommunitiesController {
         FROM cups c
         WHERE community_id = ${id}
           AND TYPE != 'community'
+          AND c.active = 1
       ) AS totalMembers;
     `
 
@@ -256,6 +276,7 @@ export class CommunitiesController {
       WHERE c.type = 'community'
         AND eh.info_dt LIKE ${date}
         AND c.community_id = ${id}
+        AND c.active = 1
       GROUP BY HOUR(eh.info_dt), eh.cups_id
       ORDER BY filter_dt;
     `
@@ -315,6 +336,7 @@ export class CommunitiesController {
             WHERE c.type != 'community'
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
+              AND c.active = 1
             GROUP BY DAY(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out) AS surplus_community,
@@ -328,6 +350,7 @@ export class CommunitiesController {
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
+              AND c.active = 1
             GROUP BY DAY(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
             ORDER BY info_dt
@@ -344,6 +367,7 @@ export class CommunitiesController {
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
                       AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
+                      AND c.active = 1
                     GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -352,6 +376,7 @@ export class CommunitiesController {
         FROM cups c
         WHERE community_id = ${id}
           AND TYPE != 'community'
+          AND c.active = 1
       ) AS totalMembers;
     `
 
@@ -367,6 +392,7 @@ export class CommunitiesController {
       WHERE c.type = 'community'
         AND eh.info_dt LIKE ${date}
         AND c.community_id = ${id}
+        AND c.active = 1
       GROUP BY DAY(eh.info_dt), eh.cups_id
       ORDER BY filter_dt;
     `
@@ -429,6 +455,7 @@ export class CommunitiesController {
             WHERE c.type != 'community'
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
+              AND c.active = 1
             GROUP BY MONTH(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out)   AS surplus_community,
@@ -442,6 +469,7 @@ export class CommunitiesController {
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
+              AND c.active = 1
             GROUP BY MONTH(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
     `
@@ -457,6 +485,7 @@ export class CommunitiesController {
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
                       AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
+                      AND c.cups = 1
                       GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -465,6 +494,7 @@ export class CommunitiesController {
         FROM cups c
         WHERE community_id = ${id}
           AND TYPE != 'community'
+          AND c.active = 1
       ) AS totalMembers;
     `
 
@@ -480,6 +510,7 @@ export class CommunitiesController {
       WHERE c.type = 'community'
         AND eh.info_dt LIKE ${date}
         AND c.community_id = ${id}
+        AND c.active = 1
       GROUP BY MONTH(eh.info_dt), eh.cups_id
       ORDER BY filter_dt;
     `
@@ -509,11 +540,11 @@ export class CommunitiesController {
 
     let pk;
 
-    try { 
+    try {
       //create new wallet
       if (body.walletPwd) {
         pk = body.walletPwd;
-      } else { 
+      } else {
         if (!body.name) {
           return HttpResponse.failure("a name is required", ErrorCode.MISSING_PARAMETERS)
         }
@@ -527,8 +558,8 @@ export class CommunitiesController {
       body.walletAddress = wallet.address;
 
       //insert new community:
-      const data:any = await this.prisma.communities.create({ data: body });
-      
+      const data: any = await this.prisma.communities.create({ data: body });
+
       delete data.walletPwd
       return HttpResponse.success("communities saved successfully").withData(
         data
@@ -543,19 +574,19 @@ export class CommunitiesController {
   @Put(":id/wallet")
   @Auth(RESOURCE_NAME)
   async createWallet(@Param("id") id: string, @Body() body: SaveCommunitiesDTO) {
-    
+
     let pk;
 
     try {
-      
+
       //get community
-      const community:any = await this.prisma.communities.findUnique({
+      const community: any = await this.prisma.communities.findUnique({
         where: {
           id: parseInt(id),
         },
       });
 
-      if(!community){
+      if (!community) {
         return HttpResponse.failure("Community not found", ErrorCode.NOT_FOUND)
       }
 
@@ -830,14 +861,14 @@ export class CommunitiesController {
     try {
       const { balance, pk } = body;
 
-       const payload = req.decodedToken;
-       const _user = payload.user;
+      const payload = req.decodedToken;
+      const _user = payload.user;
 
       const user: any = await this.usersDbRequestService.getUserById(_user._id)
       const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
       const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
       const community: any = await this.communityDbRequestService.getCommunityById(cups.communityId)
-      
+
       //transfer EKW balance from user social wallet to community wallet
       await this.blockchainService.transferERC20(pk, community.walletAddress, balance, "EKW");
 
@@ -874,13 +905,13 @@ export class CommunitiesController {
       const customer: any = await this.customersDbRequestService.getCustomerById(user.customer_id);
       const cups: any = await this.cupsDbRequestsService.getCupsByCustomerId(user.customer_id);
       const community: any = await this.communityDbRequestService.getCommunityById(cups.communityId)
-      
+
       //decoded community wallet address PK
       const decodedPK = await PasswordUtils.decryptData(community.walletPwd, process.env.JWT_SECRET!);
 
       //send from community wallet to customer social wallet
       await this.blockchainService.transferERC20(decodedPK, user.wallet_address, balance, "EKW");
-      
+
       //update customer balance
       const newBalance = customer?.balance - balance;
 
@@ -888,7 +919,7 @@ export class CommunitiesController {
         balance: newBalance
       }
 
-       await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
+      await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
 
       //NOTIFICATION: transfer balance. 
 

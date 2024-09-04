@@ -124,7 +124,7 @@ export class EnergyHourlyService {
         datadisRegistersByCommunity = this.orderArrByInfoDt(datadisRegistersByCommunity);
       }
 
-      console.log(datadisRegistersByCommunity, "datadisRegistersByCommunity")
+      console.log(datadisRegistersByCommunity.length, "datadisRegistersByCommunity")
       // Get all CUPS of the community
       const allCupsOfCommunity = await this.getCupsByCommunity(community.id);
 

@@ -124,6 +124,7 @@ export class EnergyHourlyService {
         datadisRegistersByCommunity = this.orderArrByInfoDt(datadisRegistersByCommunity);
       }
 
+      console.log(datadisRegistersByCommunity, "datadisRegistersByCommunity")
       // Get all CUPS of the community
       const allCupsOfCommunity = await this.getCupsByCommunity(community.id);
 
@@ -131,7 +132,7 @@ export class EnergyHourlyService {
         ? this.orderArrByInfoDt(datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity)))
         : [];
 
-      // console.log(filteredCups, "FILTERED")
+      console.log(filteredCups, "FILTERED")
 
       // Define the batch size
       const batchSize = 4000;
@@ -141,6 +142,7 @@ export class EnergyHourlyService {
         // Extract a slice of batchSize from filteredCups
         const batch = filteredCups.slice(start, start + batchSize);
 
+        console.log(batch, "BATCH")
         // Construct the query and parameters for this batch
         const query = `
           INSERT IGNORE INTO energy_hourly (info_dt, kwh_in, kwh_out, production, cups_id, origin, battery, shares)

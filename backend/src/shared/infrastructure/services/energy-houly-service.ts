@@ -165,6 +165,7 @@ export class EnergyHourlyService {
           }
         });
 
+        console.log(filteredCups.length, "filteredCups.length")
         if (filteredCups.length) {
           try {
             // Execute the query for this batch

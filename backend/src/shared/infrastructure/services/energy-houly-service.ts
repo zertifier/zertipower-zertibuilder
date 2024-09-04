@@ -63,8 +63,8 @@ export class EnergyHourlyService {
         SELECT 1
         FROM energy_hourly e
         WHERE e.info_dt = d.info_dt
-          AND e.cups_id = d.cups_id AND info_dt LIKE '2024-08%'
-      ) AND info_dt LIKE '2024-08%';
+          AND e.cups_id = d.cups_id
+      );
     `/*
     let query = `
       SELECT d.*, cups.type, cups.surplus_distribution, cups.community_id
@@ -117,7 +117,7 @@ export class EnergyHourlyService {
     for (const community of communities) {
       const datadisRegistersByCommunity = this.orderArrByInfoDt(datadisNewRegisters.filter(obj => obj.community_id === community.id));
 
-      console.log(datadisRegistersByCommunity.length, "datadisRegistersByCommunity");
+      // console.log(datadisRegistersByCommunity.length, "datadisRegistersByCommunity");
 
       const allCupsOfCommunity = await this.getCupsByCommunity(community.id);
       let filteredCups = [];

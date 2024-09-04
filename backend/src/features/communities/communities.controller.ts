@@ -222,6 +222,7 @@ export class CommunitiesController {
             WHERE c.type != 'community'
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
+              AND c.active = 1
             GROUP BY HOUR(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out)  AS surplus_community,
@@ -235,6 +236,7 @@ export class CommunitiesController {
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
+              AND c.active = 1
             GROUP BY HOUR(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
     `;
@@ -251,6 +253,7 @@ export class CommunitiesController {
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
                       AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
+                      AND c.active = 1
                     GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -259,6 +262,7 @@ export class CommunitiesController {
         FROM cups c
         WHERE community_id = ${id}
           AND TYPE != 'community'
+          AND c.active = 1
       ) AS totalMembers;
     `
 
@@ -274,6 +278,7 @@ export class CommunitiesController {
       WHERE c.type = 'community'
         AND eh.info_dt LIKE ${date}
         AND c.community_id = ${id}
+        AND c.active = 1
       GROUP BY HOUR(eh.info_dt), eh.cups_id
       ORDER BY filter_dt;
     `
@@ -333,6 +338,7 @@ export class CommunitiesController {
             WHERE c.type != 'community'
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
+              AND c.active = 1
             GROUP BY DAY(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out) AS surplus_community,
@@ -346,6 +352,7 @@ export class CommunitiesController {
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
+              AND c.active = 1
             GROUP BY DAY(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
     `
@@ -362,6 +369,7 @@ export class CommunitiesController {
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
                       AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
+                      AND c.active = 1
                     GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -370,6 +378,7 @@ export class CommunitiesController {
         FROM cups c
         WHERE community_id = ${id}
           AND TYPE != 'community'
+          AND c.active = 1
       ) AS totalMembers;
     `
 
@@ -385,6 +394,7 @@ export class CommunitiesController {
       WHERE c.type = 'community'
         AND eh.info_dt LIKE ${date}
         AND c.community_id = ${id}
+        AND c.active = 1
       GROUP BY DAY(eh.info_dt), eh.cups_id
       ORDER BY filter_dt;
     `
@@ -446,6 +456,7 @@ export class CommunitiesController {
             WHERE c.type != 'community'
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
+              AND c.active = 1
             GROUP BY MONTH(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out)   AS surplus_community,
@@ -459,6 +470,7 @@ export class CommunitiesController {
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
+              AND c.active = 1
             GROUP BY MONTH(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
     `
@@ -474,6 +486,7 @@ export class CommunitiesController {
                       AND eh.info_dt LIKE ${date}
                       AND c.community_id = ${id}
                       AND (eh.kwh_in IS NOT NULL OR eh.kwh_out IS NOT NULL)
+                      AND c.cups = 1
                       GROUP BY c.community_id
                   ) AS subquery1
            ) AS totalActiveMembers
@@ -482,6 +495,7 @@ export class CommunitiesController {
         FROM cups c
         WHERE community_id = ${id}
           AND TYPE != 'community'
+          AND c.active = 1
       ) AS totalMembers;
     `
 
@@ -497,6 +511,7 @@ export class CommunitiesController {
       WHERE c.type = 'community'
         AND eh.info_dt LIKE ${date}
         AND c.community_id = ${id}
+        AND c.active = 1
       GROUP BY MONTH(eh.info_dt), eh.cups_id
       ORDER BY filter_dt;
     `

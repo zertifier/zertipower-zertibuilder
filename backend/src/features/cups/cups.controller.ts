@@ -443,6 +443,7 @@ export class CupsController {
     mappedData.lng = data.lng
     mappedData.lat = data.lat
     mappedData.type = data.type
+    mappedData.active = data.active
     mappedData.datadisActive = data.datadis_active
     mappedData.datadisUser = data.datadis_user
     mappedData.datadisPassword = data.datadis_password
@@ -476,6 +477,7 @@ export class CupsController {
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
     mappedData.type = data.type;
+    mappedData.active = data.active ? data.active : 1;
     mappedData.production = data.production ? data.production : 0;
     mappedData.generation = data.generation;
     mappedData.createdAt = data.createdAt || data.created_at;

@@ -39,6 +39,7 @@ export class EnergyHourlyService {
     const communities = await this.communitiesDbRequestsService.getCommunities();
 
     const newRegisters: datadisCupsRegisters[] = await this.getNewDatadisRegisters();
+    console.log(newRegisters.length, "NEW REGISTERS TO ADD")
     await this.insertNewRegistersToEnergyHourly(newRegisters, communities);
 
     const registersToUpdate = await this.getDatadisRegistersToUpdateEnergyHourly();

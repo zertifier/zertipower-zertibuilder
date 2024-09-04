@@ -132,7 +132,7 @@ export class EnergyHourlyService {
         ? this.orderArrByInfoDt(datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity)))
         : [];
 
-      console.log(filteredCups, "FILTERED")
+      console.log(filteredCups.length, "FILTERED")
 
       // Define the batch size
       const batchSize = 4000;
@@ -142,7 +142,7 @@ export class EnergyHourlyService {
         // Extract a slice of batchSize from filteredCups
         const batch = filteredCups.slice(start, start + batchSize);
 
-        console.log(batch, "BATCH")
+        console.log(batch.length, "BATCH")
         // Construct the query and parameters for this batch
         const query = `
           INSERT IGNORE INTO energy_hourly (info_dt, kwh_in, kwh_out, production, cups_id, origin, battery, shares)

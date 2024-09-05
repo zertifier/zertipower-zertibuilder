@@ -1023,6 +1023,12 @@ export class CalculateComponent implements OnInit, AfterViewInit {
           this.resetCadastre();
           this.updateCommunityChart();
           this.cdr.detectChanges();
+          if(!this.addedAreas.length){
+            //return to point 4;
+            this.stepsCompleted[3] = 0;
+            this.stepsCompleted[4] = 0;
+            this.changeStep(4);
+          }
         } else if (result.isDenied) {
         }
       })

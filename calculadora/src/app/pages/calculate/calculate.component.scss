@@ -44,6 +44,7 @@ span {
     .btn-default {
         width: 100%;
     }
+
     .custom-chart {
         max-height: 500px;
     }
@@ -58,3 +59,18 @@ span {
 .container-body {
     background-color: #f4f6f6;
 }
+
+th {
+    font-weight: 500;
+}
+
+.btn-list {
+    border-radius: 30px;
+    height: 40px;
+    width: 40px;
+}
+
+// .swal-btn{
+//     height: 44px !important;
+//     width: 66px !important;
+// }

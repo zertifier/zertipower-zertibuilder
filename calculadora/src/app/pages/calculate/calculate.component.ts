@@ -41,6 +41,7 @@ interface cadastre {
   generationPrice?: number,
   surplusMonthlyProfits?: number,
   redeemYears?: number,
+  yearlySavings?: number,
   totalConsumptionPrice?: number,
   yearConsumption?: number,
   yearGeneration?: number,
@@ -53,7 +54,7 @@ interface cadastre {
   inversion?: number,
   savings?: number,
   amortization_years?: number,
-  feature?: any
+  feature?: any,
   totalCost?: number,
   monthlySavings?: number,
   InsalledPower?: number,
@@ -90,8 +91,8 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   communities: any = [];
   selectedCommunity: any = null;
   selectedCommunities: any;
-  newCommunity: any = { 
-    energy_price: 0.09 
+  newCommunity: any = {
+    energy_price: 0.09
   };
   communityCups: any = [];
 
@@ -559,23 +560,47 @@ export class CalculateComponent implements OnInit, AfterViewInit {
 
     let imports: number[] = [];
     let exports: number[] = [];
+    let surplus: number[] = [];
 
     this.communityEnergyData.forEach((item: any) => {
       //this.communityMonthChartLabels.push(item.month);
       //numeros_mes.push(item.month_number);
-      imports.push(item.import); // + item.export
-      exports.push(item.export);
+      if (item.import) {
+        imports.push(item.import)
+      } else {
+        imports.push(0)
+      }
+
+      if (item.export) {
+        exports.push(item.export)
+      } else {
+        exports.push(0)
+      }
+
+      if (item.import && item.export && item.import < item.export) {
+        surplus.push(item.export - item.import)
+      } else {
+        surplus.push(0)
+      }
+
     });
 
-    console.log("this.communityEnergyData",this.communityEnergyData)
+    console.log("this.communityEnergyData", this.communityEnergyData);
+
+    console.log("imports", imports)
+    console.log("exports", exports)
+    console.log("surplus", surplus)
 
     this.addedAreas.map((addedArea: any) => {
 
+      console.log("area consumtion", addedArea.monthsConsumption)
+      console.log("area generation", addedArea.monthsGeneration)
+
       addedArea.monthsConsumption?.map((monthConsumption: number, index: number) => {
 
-        console.log("addedArea",addedArea)
+        //console.log("addedArea",addedArea)
 
-        if (imports[index]) {
+        if (imports[index] != undefined && imports[index] != null) {
           imports[index] += monthConsumption;
           //imports[index] += monthConsumption;
           //total consumption implies the generation: 
@@ -588,17 +613,26 @@ export class CalculateComponent implements OnInit, AfterViewInit {
           // imports.push(monthConsumption + addedArea.monthsGeneration[index])
         }
 
-        if (exports[index]) {
+        if (exports[index] != undefined && exports[index] != null) {
           exports[index] += addedArea.monthsGeneration[index];
         }
 
         if (!exports[index]) {
           exports.push(addedArea.monthsGeneration[index])
         }
+
+        if (surplus[index] != undefined && surplus[index] != null) {
+          surplus[index] += addedArea.monthsGeneration[index] > monthConsumption ? addedArea.monthsGeneration[index] - monthConsumption : 0
+        }
+
+        if (!surplus[index]) {
+          surplus.push(addedArea.monthsGeneration[index] > monthConsumption ? addedArea.monthsGeneration[index] - monthConsumption : 0)
+        }
+
       })
     })
 
-    console.log("imports",imports,"exports",exports)
+    //console.log("imports",imports,"exports",exports)
 
     this.communityMonthChartDatasets = [
       {
@@ -611,6 +645,12 @@ export class CalculateComponent implements OnInit, AfterViewInit {
         label: 'Producció comunitària (Kwh)',
         data: exports,
         backgroundColor: '#229954',
+        borderColor: 'rgb(255,255,255)'
+      },
+      {
+        label: 'Excedent (Kwh)',
+        data: surplus,
+        backgroundColor: '#3498DB',
         borderColor: 'rgb(255,255,255)'
       }
     ]
@@ -914,7 +954,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
         borderColor: 'rgb(255,255,255)'
       },
       {
-        label: 'Surplus (Kwh)',
+        label: 'Excedent (Kwh)',
         data: this.selectedCadastre.monthsSurplus,
         backgroundColor: '#3498DB',
         borderColor: 'rgb(255,255,255)'
@@ -954,6 +994,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   }
 
   addArea() {
+    console.log(this.selectedCadastre)
     this.ngZone.run(() => {
       let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
       //console.log("add Area found", found)
@@ -974,7 +1015,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   }
 
   deleteArea(index: number) {
-    Swal.fire({ title: `Estàs a punt d'esborrar l'àrea`, text: 'Segur que vols fer-ho?', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: 'btn btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5', cancelButton: 'btn btn-danger' } })
+    Swal.fire({ title: `Estàs a punt d'esborrar l'àrea`, text: 'Segur que vols fer-ho?', showDenyButton: true, iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: ' btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5', cancelButton: ' btn-danger' } })
       .then((result) => {
         if (result.isConfirmed) {
           this.map.deleteArea(this.addedAreas[index])
@@ -1077,6 +1118,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     //the redeem years are the profits earned month by month:
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
     this.selectedCadastre.selfConsumption.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.selfConsumption.monthlySavings!)));
+    this.selectedCadastre.yearlySavings = Number((this.selectedCadastre.monthlySavings * 12).toFixed(2));
 
     //console.log(this.selectedCadastre)
 
@@ -1100,6 +1142,8 @@ export class CalculateComponent implements OnInit, AfterViewInit {
             let data = res.data
             const kWp = data.kWp
             const totalProduction = data.totalProduction
+            console.log(totalProduction) //todo check that is anual production
+            //this.selectedCadastre.anualProduction = totalProduction;
             const numberPanels = data.numberPanels
             const prodByMonth = data.prodByMonth
             const totalCost = data.totalCost
@@ -1204,6 +1248,31 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.isSpinning = false;
     }, 2000); // 2 segundos
+  }
+
+  isEqual(obj1: any, obj2: any): boolean {
+    // Si ambas referencias son iguales
+    //if (obj1 === obj2) return true;
+  
+    // Si alguno de los dos es null o no es un objeto, no son iguales
+    if (obj1 == null || obj2 == null || typeof obj1 !== 'object' || typeof obj2 !== 'object') {
+      return false;
+    }
+  
+    // Comparar el número de propiedades
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+  
+    if (keys1.length !== keys2.length) return false;
+  
+    // Comparar valores de cada propiedad
+    for (const key of keys1) {
+      if (!keys2.includes(key) || !this.isEqual(obj1[key], obj2[key])) {
+        return false;
+      }
+    }
+  
+    return true;
   }
 
 }

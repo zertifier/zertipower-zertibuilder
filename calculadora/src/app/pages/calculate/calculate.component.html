@@ -20,18 +20,17 @@
         </div>
 
         <div class="d-none d-md-block col-6 eslogan text-white text-end">
-            Uneix-te a la transició col·lectiva
+            Uneixi a la transició col·lectiva
         </div>
 
-        <div class="d-block d-md-none col-12 eslogan text-white text-center pb-3">Uneix-te a la transició col·lectiva
+        <div class="d-block d-md-none col-12 eslogan text-white text-center pb-3">Uneixi a la transició col·lectiva
         </div>
     </div>
 
     <div class="container my-4">
-        <h4 class="h4 d-flex justify-content-center">Calcula el teu estalvi energètic en 6 passos</h4>
-        <span class="d-flex justify-content-center">Explora i edita les pestanyes. Recorda que pots saltar d'una
-            pestanya a
-            una altre per a editar la informació abans de guardar</span>
+        <h4 class="h4 d-flex justify-content-center">Calculi el seu estalvi energètic en 6 passos.</h4>
+        <span class="d-flex justify-content-center">Explori i editi les pestanyes. Recordi que pot saltar d'una
+            pestanya a una altra per a editar la informació abans de guardar.</span>
     </div>
 
     <!-- END HEADER CALCULATE -->
@@ -101,7 +100,7 @@
 
                 <div class="row m-0 py-2 py-md-4">
 
-                    <span class="col-12"> Selecciona una població dins de la comunitat energètica.</span>
+                    <span class="col-12"> Seleccioni una població dins de la comunitat energètica.</span>
 
                     <!-- {{selectedLocation | json}} -->
 
@@ -201,9 +200,8 @@
 
                 <div class="row m-0 py-2 py-md-4">
 
-                    <span class="col-12">Tria una comunitat de la llista o fes clic en la ubicació del mapa. També
-                        podràs
-                        crear una nova comunitat.</span>
+                    <span class="col-12">Triï una comunitat de la llista o faci clic en la ubicació del mapa. També
+                        podrà crear una nova comunitat.</span>
 
                     <div class="col-12 col-md-4 mt-2 mt-md-4 d-flex align-items-center">
                         <span *ngIf="selectedLocation">Població seleccionada:
@@ -325,7 +323,7 @@
                     <div class="d-flex w-100 mb-2 mb-md-2 mt-2 mt-md-4">
 
                         <div *ngIf="!selectedCommunity || (!selectedCommunity.cups_number && !addedAreas.length)"
-                            class="chart-message">Agrega àrees per
+                            class="chart-message">Agregui àrees per
                             obtenir dades comunitàries.
                         </div>
 
@@ -426,7 +424,7 @@
                 id="collapse-area-step" [ngClass]="{'show':stepActive==4}">
                 <div class="row m-0 py-2 py-md-4">
 
-                    <span>Fes clic en una àrea per veure'n les dades i simular què passaria si s'incorpora a la
+                    <span>Faci clic en una àrea per veure'n les dades i simular què passaria si s'incorporés a la
                         comunitat.</span>
 
                     <div class="col-12 col-md-4 mt-2 mt-md-4">
@@ -450,7 +448,7 @@
                     <div class="w-100 mt-2 mt-md-4" style="height: 550px;">
                         <app-map [activeFeatures]="addedAreas" class="w-100 h-100"></app-map>
                     </div>
-                    <span class="d-none d-md-block"> Mantingues el Ctrl i usa el scroll per a fer zoom. </span>
+                    <span class="d-none d-md-block"> Mantingui el Ctrl i usa el scroll per a fer zoom. </span>
 
 
                     <div class="d-flex justify-content-between mt-2 mt-md-4">
@@ -544,7 +542,7 @@
                     <div class="row mt-2 mt-md-4 m-0 p-0 mb-2">
                         <div class="col-12 col-md-6 p-0">
                             <!-- <span *ngIf="!editingArea" class="">Tria el tipus de consum que vols afegir</span> -->
-                            <span *ngIf="editingArea" class="">Ajusta les dades</span>
+                            <span *ngIf="editingArea" class="">Ajusti les dades</span>
                         </div>
                         <div class="col-12 col-md-6 col-6 p-0">
                             <a *ngIf="!editingArea" class="d-flex justify-content-end text-end"
@@ -986,9 +984,9 @@
                     <!-- <div *ngIf="!this.addedAreas.includes(this.selectedCadastre)"> -->
                     <div
                         *ngIf="this.selectedCadastre.monthlySavings && !this.addedAreas.includes(this.selectedCadastre)">
-                        <span class="mb-2 mb-md-4">Dades completades! Fes clic a <b>Afegir comunitat</b> per a
+                        <span class="mb-2 mb-md-4">Dades completades! Faci clic a <b>Afegir comunitat</b> per a
                             finalitzar.<br>
-                            Edita dades i
+                            Editi les dades i
                             estadístiques més tard fent clic en <b>Dades i
                                 estadístiques de la comunitat</b> o <b>Seleccionar àrea</b>.</span>
 
@@ -1023,7 +1021,7 @@
                     <div *ngIf="this.addedAreas.length">
 
                         <div class="mb-2 mb-md-4">
-                            <span> Resum de dades afegides. Edita-les sempre que vulguis fent clic a
+                            <span> Resum de dades afegides. Editeu-les sempre que vulgueu fent clic a
                                 <b>Seleccionar àrea</b>.</span>
                         </div>
 

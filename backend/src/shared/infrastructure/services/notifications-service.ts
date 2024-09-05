@@ -294,7 +294,7 @@ export class NotificationsService {
     //console.log("activar sendMail", notificationId, userId, email, subject, text)
     try{
       console.log(`Enviando notificación ${notificationId} al usuario ${userId}: ${email}`);
-      this.mailService.sendEmail(email, subject, text); 
+      this.mailService.sendEmail(email, subject, text).catch(error => console.log("Error sending mail",error));
     } catch(error){
       console.log("Error sending mail",error)
     }

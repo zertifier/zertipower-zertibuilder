@@ -51,8 +51,21 @@ export class EnergyHourlyService {
    * @returns cups and new datadis energy registers
    */
   async getNewDatadisRegisters() {
-    const endData = moment().format('YYYY-MM-DD HH:mm:ss');
-    const initData = moment().subtract(this.datadisMonths, 'months').format('YYYY-MM-DD HH:mm:ss');
+    const endData = moment('2024-08-29').format('YYYY-MM-DD HH');
+    const initData = moment().subtract(this.datadisMonths, 'months').format('YYYY-MM-DD HH');
+
+    try {
+      let query = `
+      SELECT d.*, cups.type, cups.surplus_distribution, cups.community_id
+      FROM datadis_energy_registers d
+             LEFT JOIN cups ON d.cups_id = cups.id
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM energy_hourly e
+        WHERE e.info_dt = d.info_dt
+          AND e.cups_id = d.cups_id
+      );
+    `/*
     let query = `
       SELECT d.*, cups.type, cups.surplus_distribution, cups.community_id
       FROM datadis_energy_registers d
@@ -62,13 +75,19 @@ export class EnergyHourlyService {
                         FROM energy_hourly e
                         WHERE e.info_dt = d.info_dt
                           AND e.cups_id = d.cups_id
-                          AND e.info_dt >= ?);
-    `
+                          AND e.info_dt <= ?);
+    `*/
 
-    let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query, [initData, endData, initData]);
-    let datadisCupsRegisters: datadisCupsRegisters[] = result;
+      // let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query, [initData, endData, initData]);
+      let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
+      let datadisCupsRegisters: datadisCupsRegisters[] = result;
 
-    return datadisCupsRegisters;
+      return datadisCupsRegisters;
+    }catch (e) {
+      console.log(e)
+      return []
+    }
+
 
     // const endData = moment().format('YYYY-MM-DD HH:mm:ss');
     // const initData = moment().subtract(this.datadisMonths, 'months').format('YYYY-MM-DD HH:mm:ss');
@@ -93,65 +112,60 @@ export class EnergyHourlyService {
   }
 
   async insertNewRegistersToEnergyHourly(datadisNewRegisters: any[], communities: any[]) {
+    const batchSize = 100;  // Reducir el tamaño del lote a 100 registros por batch
 
     for (const community of communities) {
+      const datadisRegistersByCommunity = this.orderArrByInfoDt(datadisNewRegisters.filter(obj => obj.community_id === community.id));
 
-      // Get datadis registers for the community
-      let datadisRegistersByCommunity = datadisNewRegisters.filter(obj => obj.community_id === community.id);
+      // console.log(datadisRegistersByCommunity.length, "datadisRegistersByCommunity");
 
-      // Order registers by info_dt if there are any new registers
-      if (datadisNewRegisters.length > 0) {
-        datadisRegistersByCommunity = this.orderArrByInfoDt(datadisRegistersByCommunity);
+      const allCupsOfCommunity = await this.getCupsByCommunity(community.id);
+      let filteredCups = [];
+
+      if (allCupsOfCommunity.length > 0) {
+        filteredCups = this.orderArrByInfoDt(
+          datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity))
+        );
       }
 
-      // Get all CUPS of the community
-      const allCupsOfCommunity = await this.getCupsByCommunity(community.id);
-
-      const filteredCups = allCupsOfCommunity.length > 0
-        ? this.orderArrByInfoDt(datadisRegistersByCommunity.concat(this.addNotProvidedCups(datadisNewRegisters, allCupsOfCommunity)))
-        : [];
-
-      // Define the batch size
-      const batchSize = 4000;
-
-      // Iterate over the filteredCups array in batches
+      // Iterar sobre el array de filteredCups en pequeños lotes
       for (let start = 0; start < filteredCups.length; start += batchSize) {
-        // Extract a slice of batchSize from filteredCups
         const batch = filteredCups.slice(start, start + batchSize);
 
-        // Construct the query and parameters for this batch
+        const valuesPlaceholders = batch.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(',');
         const query = `
-          INSERT IGNORE INTO energy_hourly (info_dt, kwh_in, kwh_out, production, cups_id, origin, battery, shares)
-          VALUES ${batch.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(',')}
-        `;
+                INSERT IGNORE INTO energy_hourly (info_dt, kwh_in, kwh_out, production, cups_id, origin, battery, shares)
+                VALUES ${valuesPlaceholders}`;
 
         const queryParams = batch.flatMap(datadisRegister => {
-          const info_dt = moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm:ss');
+          const info_dt = moment(datadisRegister.info_dt).format('YYYY-MM-DD HH')
+
 
           if (datadisRegister.surplus_distribution) {
-            // Obtain community export kWh
             const communityExport = datadisRegistersByCommunity.find(obj =>
-              moment(obj.info_dt).format('YYYY-MM-DD HH:mm') === moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm'));
-            const production = communityExport ? datadisRegister.surplus_distribution * communityExport.export : null;
+              obj.type === 'community' &&
+              moment(obj.info_dt).format('YYYY-MM-DD HH') === moment(datadisRegister.info_dt).format('YYYY-MM-DD HH')
+            );
+            const production = communityExport ? communityExport.export * parseFloat(datadisRegister.surplus_distribution) : null;
             return [info_dt, datadisRegister.import, datadisRegister.export, production, datadisRegister.cups_id, 'datadis', 0, datadisRegister.surplus_distribution];
           } else {
             return [info_dt, datadisRegister.import, datadisRegister.export, null, datadisRegister.cups_id, 'datadis', null, null];
           }
         });
 
-        if (filteredCups.length) {
-          try {
-            // Execute the query for this batch
-            const [result] = await this.conn.execute<mysql.ResultSetHeader>(query, queryParams);
-            const insertedRows = result.affectedRows;
-            console.log(`Energy hourly of community ${community.id} inserted with a total of ${insertedRows} rows for batch starting at index ${start}`);
-          } catch (error) {
-            console.log("Error inserting on energy hourly", error)
-          }
+        try {
+          const [result] = await this.conn.execute<mysql.ResultSetHeader>(query, queryParams);
+          const insertedRows = result.affectedRows;
+          console.log(`Energy hourly of community ${community.id} inserted with ${insertedRows} rows for batch starting at index ${start}`);
+        } catch (error) {
+          console.log("Error inserting on energy hourly", error);
+          break;  // Opcional: Detener la inserción en caso de error
         }
       }
     }
   }
+
+
 
   async setPrices() {
     this.getTransactionsWithNullPrice().then(async (transactions) => {
@@ -340,7 +354,7 @@ export class EnergyHourlyService {
       FROM datadis_energy_registers der
              LEFT JOIN energy_hourly eh ON der.info_dt = eh.info_dt AND der.cups_id = eh.cups_id
              LEFT JOIN cups c ON der.cups_id = c.id
-      WHERE der.info_dt BETWEEN ? AND ?
+      WHERE (der.info_dt BETWEEN ? AND ?)
         AND (
         (eh.kwh_in IS NULL AND der.import IS NOT NULL) OR
         (eh.kwh_in IS NOT NULL AND der.import != eh.kwh_in) OR
@@ -415,6 +429,7 @@ export class EnergyHourlyService {
           if (datadisRegister.surplus_distribution) {
             const communityExport = datadisRegistersByCommunity.find(obj =>
               moment(obj.info_dt).format('YYYY-MM-DD HH:mm') === moment(datadisRegister.info_dt).format('YYYY-MM-DD HH:mm')
+              && obj.type == 'community'
             );
             production = communityExport ? communityExport.export *  parseFloat(datadisRegister.surplus_distribution) : 0;
           }

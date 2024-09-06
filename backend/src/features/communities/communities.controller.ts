@@ -59,7 +59,6 @@ export class CommunitiesController {
 
   @Get()
   async get() {
-
     let url = `SELECT communities.*, count(cups.id) as cups_number
                FROM communities
                       LEFT join cups ON community_id = communities.id
@@ -929,6 +928,25 @@ export class CommunitiesController {
       console.log(error)
       throw new UnexpectedError('witdraw error');
     }
+  }
+
+  @Get(":id/producers")
+  @Auth(RESOURCE_NAME)
+  async getProducersById(@Param("id") id: number) {
+    if (!id) {
+      return HttpResponse.failure("Missing parameter Id.", ErrorCode.MISSING_PARAMETERS)
+    }
+    const data = await this.prisma.cups.findMany({
+      where: {
+        communityId: id,
+        type: {in:['producer','prosumer']},
+        active: true
+      },
+    });
+    //let response = await this.prisma.$queryRaw`SELECT * FROM cups WHERE community_id = ${id} AND (type = 'producer' OR type='prosumer') AND active=1;`;
+    return HttpResponse.success("communities producers and prosumers fetched successfully").withData(
+      data
+    );
   }
 
 }

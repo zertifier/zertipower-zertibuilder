@@ -116,6 +116,48 @@ export class CustomersController {
     );
   }
 
+  @Get(":id/stats/:origin/daily/:date")
+  @Auth(RESOURCE_NAME)
+  async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+    try {
+      const data = await this.customersDbRequestsService.getByIdStatsDaily(id, origin, date)
+      return HttpResponse.success("cups fetched successfully").withData(
+        data
+      );
+    } catch (error) {
+      console.log(error)
+      return HttpResponse.failure('Error obtaining daily data', ErrorCode.INTERNAL_ERROR)
+    }
+  }
+
+  @Get(":id/stats/:origin/monthly/:date")
+  @Auth(RESOURCE_NAME)
+  async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+    try {
+      const data = await this.customersDbRequestsService.getByIdStatsMonthly(id, origin, date)
+      return HttpResponse.success("cups fetched successfully").withData(
+        data
+      );
+    } catch (error) {
+      console.log(error)
+      return HttpResponse.failure('Error obtaining monthly data', ErrorCode.INTERNAL_ERROR)
+    }
+  }
+
+  @Get(":id/stats/:origin/yearly/:date")
+  @Auth(RESOURCE_NAME)
+  async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+    try {
+      const data = await this.customersDbRequestsService.getByIdStatsYearly(id, origin, date)
+      return HttpResponse.success("cups fetched successfully").withData(
+        data
+      );
+    } catch (error) {
+      console.log(error)
+      return HttpResponse.failure('Error obtaining yearly data', ErrorCode.INTERNAL_ERROR)
+    }
+  }
+
   // @Put("/balance/:id")
   // @Auth(RESOURCE_NAME)
   // async updateBalance(@Param("id") id: string, @Body() body: SaveCustomersDTO) {
@@ -188,8 +230,8 @@ export class CustomersController {
     }
 
     try {
-      
-      const datadisActive = cupsInfo.find((cups:any)=>{cups.datadis_active});
+
+      const datadisActive = cupsInfo.find((cups: any) => { cups.datadis_active });
 
       if (datadisActive) {
         //user login

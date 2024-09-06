@@ -110,7 +110,17 @@ export class CustomersDbRequestsService {
 
     async getByIdStatsDaily(customerId: string, origin: string, date: string) {
         let data: any = await this.prisma.$queryRaw`
-        SELECT * 
+        SELECT 
+            SUM(kwh_in)                  AS kwh_in,
+               SUM(kwh_out)                 AS kwh_out,
+               SUM(kwh_out_virtual)         AS kwh_out_virtual,
+               SUM(kwh_in_virtual)         AS kwh_in_virtual,
+               kwh_in_price            AS kwh_in_price,
+               kwh_out_price           AS kwh_out_price,
+               kwh_in_price_community  AS kwh_in_price_community,
+               kwh_out_price_community AS kwh_out_price_community,
+               DATE(info_dt)                AS info_dt,
+               SUM(production) production
         FROM energy_hourly
         LEFT JOIN cups
         ON cups.id = energy_hourly.cups_id
@@ -223,7 +233,7 @@ export class CustomersDbRequestsService {
         const mappedData: any = {};
         mappedData.id = data.id;
         mappedData.infoDt = data.infoDt || data.info_dt;
-        mappedData.cupsId = data.cupsId || data.cups_id;
+        //mappedData.cupsId = data.cupsId || data.cups_id;
         mappedData.origin = data.origin;
         mappedData.kwhIn = data.kwhIn || data.kwh_in;
         mappedData.kwhOut = data.kwhOut || data.kwh_out;

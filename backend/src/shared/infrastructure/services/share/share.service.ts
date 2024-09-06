@@ -453,7 +453,7 @@ export class ShareService {
         if (tradeCost > 0.001) {
 
           //insufficient balance notification
-          console.log(`customer ${customerBuyer.name} with cups id ${partner.cupsId} has insufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost} / Trade cost is 0 `)
+          //console.log(`customer ${customerBuyer.name} with cups id ${partner.cupsId} has insufficient balance ${customerBuyer.balance} for the trade cost ${tradeCost} / Trade cost is 0 `)
 
           //TODO: obtain buyer userId , custom get notification;
 

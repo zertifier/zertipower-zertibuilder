@@ -39,7 +39,7 @@ export class NotificationsService {
   async sendNotification(userId: number, notificationCode: notificationCodes, subject: string, text: string) {
     try {
       if (!userId || !notificationCode || !subject) {
-        console.log('error sending notification, parameter not provided',userId,notificationCode,subject)
+        //console.log('error sending notification, parameter not provided',userId,notificationCode,subject)
         //console.log("userId:", userId, "notificationCode", notificationCode, "subject", subject, "text", text)
         return;
       }

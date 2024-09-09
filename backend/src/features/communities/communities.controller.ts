@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Request,
+  Query,
 } from "@nestjs/common";
 import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
 import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
@@ -192,12 +193,13 @@ export class CommunitiesController {
 
   @Get(":id/stats/:origin/daily/:date")
   // @Auth(RESOURCE_NAME)
-  async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string,@Body() body: any) {
+  async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string,@Query('excludeCupsIds') cupsToExclude: string) {
 
-    let {excludedCups} = body;
-    if(!excludedCups){
-      excludedCups=[''];
-    } 
+    let excludedCups:any = [0]
+
+    if(cupsToExclude){
+      excludedCups = cupsToExclude.split(',').map(Number);
+    }
 
     date = `${date}%`
 
@@ -228,7 +230,7 @@ export class CommunitiesController {
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND c.active = 1
-              AND c.cups NOT IN (${Prisma.join(excludedCups)})
+              AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY HOUR(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out)  AS surplus_community,
@@ -243,7 +245,7 @@ export class CommunitiesController {
               AND c.community_id = ${id}
               AND origin = ${origin}
               AND c.active = 1
-              AND c.cups NOT IN (${Prisma.join(excludedCups)})
+              AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY HOUR(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
     `;
@@ -314,12 +316,13 @@ export class CommunitiesController {
 
   @Get(":id/stats/:origin/monthly/:date")
   // @Auth(RESOURCE_NAME)
-  async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string,@Body() body: any) {
+  async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string,@Query('excludeCupsIds') cupsToExclude: string) {
     const [year, month] = date.split('-');
 
-    let {excludedCups} = body;
-    if(!excludedCups){
-      excludedCups=[''];
+    let excludedCups:any = [0]
+
+    if(cupsToExclude){
+      excludedCups = cupsToExclude.split(',').map(Number);
     }
 
     date = `${date}%`
@@ -351,7 +354,7 @@ export class CommunitiesController {
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND c.active = 1
-              AND c.cups NOT IN (${Prisma.join(excludedCups)})
+              AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY DAY(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out) AS surplus_community,
@@ -366,7 +369,7 @@ export class CommunitiesController {
               AND c.community_id = ${id}
               AND origin = ${origin}
               AND c.active = 1
-              AND c.cups NOT IN (${Prisma.join(excludedCups)})
+              AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY DAY(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
             ORDER BY info_dt
@@ -439,15 +442,16 @@ export class CommunitiesController {
 
   @Get(":id/stats/:origin/yearly/:date")
   // @Auth(RESOURCE_NAME)
-  async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string,@Body() body: any) {
+  async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string,@Query('excludeCupsIds') cupsToExclude: string) {
     const [year] = date.split('-');
 
     date = `${date}%`
 
-    let {excludedCups} = body;
-    if(!excludedCups){
-      excludedCups=[''];
-    } 
+    let excludedCups:any = [0]
+
+    if(cupsToExclude){
+      excludedCups = cupsToExclude.split(',').map(Number);
+    }
 
     let data: CommunityCupsStats[] = await this.prisma.$queryRaw`
       SELECT b.*,
@@ -477,7 +481,7 @@ export class CommunitiesController {
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND c.active = 1
-              AND c.cups NOT IN (${Prisma.join(excludedCups)})
+              AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY MONTH(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out)   AS surplus_community,
@@ -492,7 +496,7 @@ export class CommunitiesController {
               AND c.community_id = ${id}
               AND origin = ${origin}
               AND c.active = 1
-              AND c.cups NOT IN (${Prisma.join(excludedCups)})
+              AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY MONTH(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
     `
@@ -954,7 +958,7 @@ export class CommunitiesController {
     }
   }
 
-  @Post(":id/producers")
+  @Get(":id/producers")
   @Auth(RESOURCE_NAME)
   async getProducersById(@Param("id") id: number) {
     if (!id) {

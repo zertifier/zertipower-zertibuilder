@@ -1007,15 +1007,27 @@ export class CalculateComponent implements OnInit, AfterViewInit {
         this.updateCommunityChart()
         this.map.activeArea(this.selectedCadastre)
         Swal.fire({ text: 'Àrea afegida', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>', timer: 2000, customClass: { icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
+        this.resetCadastre(); //TO RESET SELECTED AREA WHEN AREA ADDED.
       }
       //console.log(this.addedAreas)
 
-      //this.resetCadastre(); //TO RESET SELECTED AREA WHEN AREA ADDED.
+      
     })
   }
 
   deleteArea(index: number) {
-    Swal.fire({ title: `Estàs a punt d'esborrar l'àrea`, text: 'Segur que vols fer-ho?', showDenyButton: true, iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>', customClass: { confirmButton: ' btn-secondary', icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5', cancelButton: ' btn-danger' } })
+    Swal.fire({
+      title: `Estàs a punt d'esborrar l'àrea`,
+      text: 'Segur que vols fer-ho?',
+      showDenyButton:true,
+      iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-exclamation"></i>',
+      customClass: {
+        confirmButton: 'px-4 py-2',
+        icon: 'border-0',
+        htmlContainer: 'd-flow justify-content-center px-md-5',
+        denyButton: 'px-4 py-2'
+      }
+    })
       .then((result) => {
         if (result.isConfirmed) {
           this.map.deleteArea(this.addedAreas[index])
@@ -1023,7 +1035,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
           this.resetCadastre();
           this.updateCommunityChart();
           this.cdr.detectChanges();
-          if(!this.addedAreas.length){
+          if (!this.addedAreas.length) {
             //return to point 4;
             this.stepsCompleted[3] = 0;
             this.stepsCompleted[4] = 0;
@@ -1259,25 +1271,25 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   isEqual(obj1: any, obj2: any): boolean {
     // Si ambas referencias son iguales
     //if (obj1 === obj2) return true;
-  
+
     // Si alguno de los dos es null o no es un objeto, no son iguales
     if (obj1 == null || obj2 == null || typeof obj1 !== 'object' || typeof obj2 !== 'object') {
       return false;
     }
-  
+
     // Comparar el número de propiedades
     const keys1 = Object.keys(obj1);
     const keys2 = Object.keys(obj2);
-  
+
     if (keys1.length !== keys2.length) return false;
-  
+
     // Comparar valores de cada propiedad
     for (const key of keys1) {
       if (!keys2.includes(key) || !this.isEqual(obj1[key], obj2[key])) {
         return false;
       }
     }
-  
+
     return true;
   }
 

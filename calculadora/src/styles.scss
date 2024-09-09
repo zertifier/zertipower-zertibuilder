@@ -268,5 +268,9 @@ h6 {
 //-----------------------------------------------------------------
 
 .swal2-confirm {
+  background-color: $primary !important;
+}
+
+.swal2-deny {
   background-color: $secondary !important;
 }

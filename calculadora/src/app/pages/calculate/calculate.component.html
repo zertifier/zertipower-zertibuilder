@@ -984,7 +984,7 @@
                     <!-- <div *ngIf="!this.addedAreas.includes(this.selectedCadastre)"> -->
                     <div
                         *ngIf="this.selectedCadastre.monthlySavings && !this.addedAreas.includes(this.selectedCadastre)">
-                        <span class="mb-2 mb-md-4">Dades completades! Faci clic a <b>Afegir comunitat</b> per a
+                        <span class="mb-2 mb-md-4">Dades completades! Faci clic a <b>Afegir àrea a la comunitat</b> per a
                             finalitzar.<br>
                             Editi les dades i
                             estadístiques més tard fent clic en <b>Dades i
@@ -992,7 +992,7 @@
 
                         <div class="row justify-content-center">
                             <div class="col-12 col-md-4 col-lg-4 d-flex">
-                                <button class="btn btn-secondary mt-4 mb-4 w-100" (click)="addArea()">Afegir a la
+                                <button class="btn btn-secondary mt-4 mb-4 w-100" (click)="addArea()">Afegir àrea a la
                                     comunitat
                                 </button>
                             </div>
@@ -1017,8 +1017,9 @@
 
                     <!-- <div *ngIf="!this.selectedCadastre.monthlySavings"> -->
                     <!-- <div *ngIf="this.addedAreas.includes(this.selectedCadastre)"> -->
-
-                    <div *ngIf="this.addedAreas.length">
+                    
+                    <!--  this.addedAreas.includes(this.selectedCadastre) -->
+                    <div *ngIf="this.addedAreas.length && (!this.selectedCadastre.id || this.addedAreas.includes(this.selectedCadastre))"> 
 
                         <div class="mb-2 mb-md-4">
                             <span> Resum de dades afegides. Editeu-les sempre que vulgueu fent clic a

@@ -954,7 +954,7 @@ export class CommunitiesController {
     }
   }
 
-  @Get(":id/producers")
+  @Post(":id/producers")
   @Auth(RESOURCE_NAME)
   async getProducersById(@Param("id") id: number) {
     if (!id) {

@@ -32,6 +32,7 @@ import { EnvironmentService } from "src/shared/infrastructure/services";
 import { BlockchainService } from "src/shared/infrastructure/services/blockchain-service";
 import { ErrorCode } from "src/shared/domain/error";
 import { ModifyByTradeDTO } from "./modify-by-trade-dto";
+import { Prisma } from "@prisma/client";
 
 
 export const RESOURCE_NAME = "communities";
@@ -191,8 +192,15 @@ export class CommunitiesController {
 
   @Get(":id/stats/:origin/daily/:date")
   // @Auth(RESOURCE_NAME)
-  async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+  async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string,@Body() body: any) {
+
+    let {excludedCups} = body;
+    if(!excludedCups){
+      excludedCups=[''];
+    } 
+
     date = `${date}%`
+
     let data: any = await this.prisma.$queryRaw`
       SELECT b.*,
              a.surplus_community
@@ -220,6 +228,7 @@ export class CommunitiesController {
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND c.active = 1
+              AND c.cups NOT IN (${Prisma.join(excludedCups)})
             GROUP BY HOUR(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out)  AS surplus_community,
@@ -234,6 +243,7 @@ export class CommunitiesController {
               AND c.community_id = ${id}
               AND origin = ${origin}
               AND c.active = 1
+              AND c.cups NOT IN (${Prisma.join(excludedCups)})
             GROUP BY HOUR(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
     `;
@@ -304,8 +314,13 @@ export class CommunitiesController {
 
   @Get(":id/stats/:origin/monthly/:date")
   // @Auth(RESOURCE_NAME)
-  async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+  async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string,@Body() body: any) {
     const [year, month] = date.split('-');
+
+    let {excludedCups} = body;
+    if(!excludedCups){
+      excludedCups=[''];
+    }
 
     date = `${date}%`
     let data: CommunityCupsStats[] = await this.prisma.$queryRaw`
@@ -336,6 +351,7 @@ export class CommunitiesController {
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND c.active = 1
+              AND c.cups NOT IN (${Prisma.join(excludedCups)})
             GROUP BY DAY(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out) AS surplus_community,
@@ -350,6 +366,7 @@ export class CommunitiesController {
               AND c.community_id = ${id}
               AND origin = ${origin}
               AND c.active = 1
+              AND c.cups NOT IN (${Prisma.join(excludedCups)})
             GROUP BY DAY(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
             ORDER BY info_dt
@@ -422,10 +439,15 @@ export class CommunitiesController {
 
   @Get(":id/stats/:origin/yearly/:date")
   // @Auth(RESOURCE_NAME)
-  async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
+  async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string,@Body() body: any) {
     const [year] = date.split('-');
 
     date = `${date}%`
+
+    let {excludedCups} = body;
+    if(!excludedCups){
+      excludedCups=[''];
+    } 
 
     let data: CommunityCupsStats[] = await this.prisma.$queryRaw`
       SELECT b.*,
@@ -455,6 +477,7 @@ export class CommunitiesController {
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND c.active = 1
+              AND c.cups NOT IN (${Prisma.join(excludedCups)})
             GROUP BY MONTH(eh.info_dt)) b
              LEFT JOIN
            (SELECT SUM(kwh_out)   AS surplus_community,
@@ -469,6 +492,7 @@ export class CommunitiesController {
               AND c.community_id = ${id}
               AND origin = ${origin}
               AND c.active = 1
+              AND c.cups NOT IN (${Prisma.join(excludedCups)})
             GROUP BY MONTH(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
     `

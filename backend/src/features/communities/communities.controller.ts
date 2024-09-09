@@ -209,6 +209,10 @@ export class CommunitiesController {
       FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
+                   (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))                 AS kwh_total,
+                   (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
+                   100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
+                         (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0))) AS shared_percentage,
                    SUM(
                      CASE
                        WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
@@ -333,6 +337,10 @@ export class CommunitiesController {
                    SUM(kwh_in_virtual)                              AS kwh_in_virtual,
                    SUM(eh.kwh_out)                                   AS kwh_out,
                    SUM(kwh_out_virtual)                              AS kwh_out_virtual,
+                   (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))                 AS kwh_total,
+                   (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
+                   100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
+                         (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0))) AS shared_percentage,
                    SUM(
                      CASE
                        WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
@@ -456,22 +464,28 @@ export class CommunitiesController {
     let data: CommunityCupsStats[] = await this.prisma.$queryRaw`
       SELECT b.*,
              a.surplus_community
-      FROM (SELECT SUM(kwh_in)                                       AS kwh_in,
-                   SUM(eh.kwh_out)                                   AS kwh_out,
-                   SUM(kwh_in_virtual)                              AS kwh_in_virtual,
-                   SUM(kwh_out_virtual)                              AS kwh_out_virtual,
+      FROM (SELECT SUM(kwh_in)                                                            AS kwh_in,
+                   SUM(eh.kwh_out)                                                        AS kwh_out,
+                   SUM(kwh_in_virtual)                                                    AS kwh_in_virtual,
+                   SUM(kwh_out_virtual)                                                   AS kwh_out_virtual,
+                   (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))                 AS kwh_total,
+                   (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
+                   100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
+                         (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0))) AS shared_percentage,
                    SUM(
                      CASE
                        WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0)
                        ELSE 0
                        END
-                     )                              AS surplus_community_active,
-                   kwh_in_price                                 AS kwh_in_price,
-                   kwh_out_price                                AS kwh_out_price,
-                   kwh_in_price_community                       AS kwh_in_price_community,
-                   kwh_out_price_community                      AS kwh_out_price_community,
-                   CAST(COUNT(DISTINCT CASE WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN customer_id END) AS VARCHAR(255)) AS active_members,
-                   MONTH(eh.info_dt)                                 AS filter_dt,
+                   )                                                                      AS surplus_community_active,
+                   kwh_in_price                                                           AS kwh_in_price,
+                   kwh_out_price                                                          AS kwh_out_price,
+                   kwh_in_price_community                                                 AS kwh_in_price_community,
+                   kwh_out_price_community                                                AS kwh_out_price_community,
+                   CAST(COUNT(DISTINCT CASE
+                                         WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL
+                                           THEN customer_id END) AS VARCHAR(255))         AS active_members,
+                   MONTH(eh.info_dt)                                                      AS filter_dt,
                    info_dt
             FROM energy_hourly eh
                    LEFT JOIN
@@ -760,8 +774,11 @@ export class CommunitiesController {
     mappedData.origin = data.origin;
     mappedData.kwhIn = data.kwhIn || data.kwh_in;
     mappedData.kwhOut = data.kwhOut || data.kwh_out;
+    mappedData.kwhTotal = data.kwhTotal || data.kwh_total;
     mappedData.kwhInVirtual = data.kwhInVirtual || data.kwh_in_virtual;
     mappedData.kwhOutVirtual = data.kwhOutVirtual || data.kwh_out_virtual;
+    mappedData.kwhVirtualTotal = data.kwhVirtualTotal || data.kwh_virtual_total;
+    mappedData.sharedPercentage = data.sharedPercentage || data.shared_percentage;
     mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;

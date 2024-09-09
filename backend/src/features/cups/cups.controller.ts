@@ -117,16 +117,20 @@ export class CupsController {
 
     let data: any = await this.prisma.$queryRaw`
       SELECT a.*,
-             SUM(kwh_in)                  AS kwh_in,
-             SUM(kwh_out)                 AS kwh_out,
-             SUM(kwh_out_virtual)         AS kwh_out_virtual,
-             SUM(kwh_in_virtual)         AS kwh_in_virtual,
-             kwh_in_price            AS kwh_in_price,
-             kwh_out_price           AS kwh_out_price,
-             kwh_in_price_community  AS kwh_in_price_community,
-             kwh_out_price_community AS kwh_out_price_community,
-             DATE(a.info_dt)                AS info_dt,
-             SUM(production) production
+             SUM(kwh_in)                                                            AS kwh_in,
+             SUM(kwh_out)                                                           AS kwh_out,
+             SUM(kwh_out_virtual)                                                   AS kwh_out_virtual,
+             SUM(kwh_in_virtual)                                                    AS kwh_in_virtual,
+             (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))                 AS kwh_total,
+             (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
+             100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
+                   (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))           AS shared_percentage,
+             kwh_in_price                                                           AS kwh_in_price,
+             kwh_out_price                                                          AS kwh_out_price,
+             kwh_in_price_community                                                 AS kwh_in_price_community,
+             kwh_out_price_community                                                AS kwh_out_price_community,
+             DATE(a.info_dt)                                                        AS info_dt,
+             SUM(production)                                                           production
       FROM energy_hourly a
              LEFT JOIN
            (SELECT sum(kwh_out) as total_surplus,
@@ -173,6 +177,10 @@ export class CupsController {
              SUM(kwh_out)                 AS         kwh_out,
              SUM(kwh_out_virtual)         AS         kwh_out_virtual,
              SUM(kwh_in_virtual)         AS kwh_in_virtual,
+             (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))                 AS kwh_total,
+             (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
+             100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
+                   (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0))) AS shared_percentage,
              kwh_in_price          AS         kwh_in_price,
              kwh_out_price           AS         kwh_out_price,
              kwh_in_price_community  AS         kwh_in_price_community,
@@ -472,6 +480,9 @@ export class CupsController {
     mappedData.kwhOut = data.kwhOut || data.kwh_out;
     mappedData.kwhOutVirtual = data.kwhOutVirtual || data.kwh_out_virtual;
     mappedData.kwhInVirtual = data.kwhInVirtual || data.kwh_in_virtual;
+    mappedData.kwhTotal = data.kwhTotal || data.kwh_total;
+    mappedData.kwhVirtualTotal = data.kwhVirtualTotal || data.kwh_virtual_total;
+    mappedData.sharedPercentage = data.sharedPercentage || data.shared_percentage;
     mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;

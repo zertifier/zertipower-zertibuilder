@@ -294,35 +294,35 @@ export class UserController {
     }
     const currentUser = users[0];
 
-    const notSameId = new Filter(
-      new FilterField("id"),
-      new FilterOperator(FilterOperators.NOT_EQUAL),
-      new FilterValue(user.id)
-    );
+    // const notSameId = new Filter(
+    //   new FilterField("id"),
+    //   new FilterOperator(FilterOperators.NOT_EQUAL),
+    //   new FilterValue(user.id)
+    // );
 
     // Creating criteria that search user by username that are not removed
-    const byUsernameCriteria = new ByUsernameCriteria(user.username);
-    byUsernameCriteria.filters.push(notSameId);
+    // const byUsernameCriteria = new ByUsernameCriteria(user.username);
+    // byUsernameCriteria.filters.push(notSameId);
 
     // Checking if user already exist
-    let fetchedUsers = await this.findUsersAction.run(byUsernameCriteria);
-    if (fetchedUsers.length > 0) {
-      throw new UserAlreadyExistsError(
-        `User with username '${user.username}' already exists`
-      );
-    }
+    // let fetchedUsers = await this.findUsersAction.run(byUsernameCriteria);
+    // if (fetchedUsers.length > 0) {
+    //   throw new UserAlreadyExistsError(
+    //     `User with username '${user.username}' already exists`
+    //   );
+    // }
 
     // Creating criteria that search user by email that are not removed
-    const byEmailCriteria = new ByEmailCriteria(user.email);
-    byEmailCriteria.filters.push(notSameId);
+    // const byEmailCriteria = new ByEmailCriteria(user.email);
+    // byEmailCriteria.filters.push(notSameId);
 
     // Checking if user already exist
-    fetchedUsers = await this.findUsersAction.run(byEmailCriteria);
-    if (fetchedUsers.length > 0) {
-      throw new UserAlreadyExistsError(
-        `User with email '${user.email}' already exists`
-      );
-    }
+    // fetchedUsers = await this.findUsersAction.run(byEmailCriteria);
+    // if (fetchedUsers.length > 0) {
+    //   throw new UserAlreadyExistsError(
+    //     `User with email '${user.email}' already exists`
+    //   );
+    // }
 
     if (!user.password) {
       if (!currentUser.encryptedPassword) {

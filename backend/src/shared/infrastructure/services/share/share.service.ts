@@ -263,7 +263,7 @@ export class ShareService {
           WHERE t.info_dt IS NULL
             AND cups.type != 'community'
           AND e.kwh_out > 0
-          ORDER BY e.info_dt DESC, e.kwh_out DESC;
+          ORDER BY e.info_dt ASC, e.kwh_out DESC;
         `
         let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
         /*let result: any = await this.prisma.$queryRaw`
@@ -317,7 +317,7 @@ export class ShareService {
         WHERE t.info_dt IS NULL
           AND cups.type != 'community'
         AND e.kwh_in > 0
-        ORDER BY e.info_dt DESC, e.kwh_in DESC;
+        ORDER BY e.info_dt ASC, e.kwh_in DESC;
       `)
       resolve(result);
     })

@@ -57,7 +57,9 @@ export class CupsController {
   // @Auth(RESOURCE_NAME)
   async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     let data: any = await this.prisma.$queryRaw`
-      SELECT *
+      SELECT *,
+             IFNULL(kwh_in_virtual, kwh_in) kwh_in_virtual,
+             IFNULL(kwh_out_virtual, kwh_out) kwh_out_virtual
       FROM energy_hourly
       WHERE DATE (info_dt) = ${date}
         AND cups_id = ${id}

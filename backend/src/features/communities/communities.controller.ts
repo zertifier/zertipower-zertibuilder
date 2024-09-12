@@ -330,6 +330,7 @@ export class CommunitiesController {
       excludedCups = cupsToExclude.split(',').map(Number);
     }
 
+
     date = `${date}%`
     let data: CommunityCupsStats[] = await this.prisma.$queryRaw`
       SELECT b.*,

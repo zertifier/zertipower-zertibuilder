@@ -103,7 +103,7 @@ export class CommunitiesController {
   //     let url = `
   //       SELECT *
   //       FROM cups AS c
-  //       WHERE c.community_id = ? AND type='prosumer' or type='community'; 
+  //       WHERE c.community_id = ? AND type='prosumer' or type='community';
   //   `;
   //     const [ROWS]: any[] = await this.conn.query(url, [id]);
   //     return HttpResponse.success("community producers fetched successfully").withData({ cups: ROWS });
@@ -466,8 +466,8 @@ export class CommunitiesController {
              a.surplus_community
       FROM (SELECT SUM(kwh_in)                                                            AS kwh_in,
                    SUM(eh.kwh_out)                                                        AS kwh_out,
-                   SUM(kwh_in_virtual)                                                    AS kwh_in_virtual,
-                   SUM(kwh_out_virtual)                                                   AS kwh_out_virtual,
+                   SUM(IFNULL(kwh_in_virtual, kwh_in))                                                    AS kwh_in_virtual,
+                   SUM(IFNULL(kwh_out_virtual, kwh_out))                                                   AS kwh_out_virtual,
                    (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))                 AS kwh_total,
                    (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
                    100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
@@ -925,7 +925,7 @@ export class CommunitiesController {
 
       await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
 
-      //NOTIFICATION: transfer balance. 
+      //NOTIFICATION: transfer balance.
 
       return HttpResponse.success("deposit balance success")
 
@@ -965,7 +965,7 @@ export class CommunitiesController {
 
       await this.customersDbRequestService.updateCustomerParams(customer.id, customerUpdate)
 
-      //NOTIFICATION: transfer balance. 
+      //NOTIFICATION: transfer balance.
 
       return HttpResponse.success("witdraw balance success")
 

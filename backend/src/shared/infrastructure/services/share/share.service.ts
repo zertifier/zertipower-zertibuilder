@@ -440,12 +440,12 @@ export class ShareService {
         //BUY
         query +=
           `(${partner.ehId}, ${trade.surplusEhId}, ${partner.cupsId}, ${trade.surplusCups}, 'BUY', ${tradedKwh}, ${tradeCost}, ${partner.consumption}, ${partner.resultConsumption}, "${infoDt}"),`
-        await this.updateHourlyVirtual(partner.cupsId, partner.resultConsumption, infoDt, 'BUY')
+        await this.updateHourlyVirtual(partner.cupsId, partner.resultConsumption,tradedKwh, infoDt, 'BUY')
 
         //SELL
         query +=
           `(${trade.surplusEhId}, ${partner.ehId}, ${trade.surplusCups}, ${partner.cupsId}, 'SELL', ${tradedKwh}, ${tradeCost}, ${totalSellSurplus}, ${resultSellTotalKwh}, "${infoDt}"),`
-        await this.updateHourlyVirtual(trade.surplusCups, resultSellTotalKwh, infoDt, 'SELL')
+        await this.updateHourlyVirtual(trade.surplusCups, resultSellTotalKwh,trade.totalSurplus - resultSellTotalKwh, infoDt, 'SELL')
 
 
       } else {
@@ -558,24 +558,26 @@ export class ShareService {
    * @param infoDt
    * @param type
    */
-  async updateHourlyVirtual(cupsId: number, virtual: number, infoDt: string, type: 'BUY' | 'SELL') {
+  async updateHourlyVirtual(cupsId: number, virtual: number, shared: number, infoDt: string, type: 'BUY' | 'SELL') {
     let query = ''
     if (type == 'BUY') {
       query = `UPDATE energy_hourly
-               SET kwh_in_virtual  = ?,
+               SET kwh_in_virtual  = ?, 
+                   kwh_in_shared  = ?,
                    kwh_out_virtual = NULL
                WHERE cups_id = ?
                  AND info_dt LIKE ?`
     } else {
       query = `UPDATE energy_hourly
                SET kwh_out_virtual = ?,
+                   kwh_out_shared = ?,
                    kwh_in_virtual  = NULL
                WHERE cups_id = ?
                  AND info_dt LIKE ?`
     }
 
     // console.log(query)
-    await this.conn.execute(query, [virtual, cupsId, infoDt])
+    await this.conn.execute(query, [virtual,shared, cupsId, infoDt])
   }
 
   async deleteDays(registers: RegistersFromDb[], daysToIgnore: number) {

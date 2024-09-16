@@ -10,14 +10,22 @@ jobs:
     outputs:
       front_changed: ${{ steps.check_front.outputs.changed }}
       calculadora_changed: ${{ steps.check_calculadora.outputs.changed }}
-      wiki_changed: ${{ steps.check_wiki.outputs.changed }}
-      api_changed: ${{ steps.check_api.outputs.changed }}
+      wiki-ris3cat_changed: ${{ steps.check_wiki.outputs.changed }}
+      api-ris3cat_changed: ${{ steps.check_api-ris3cat.outputs.changed }}
+      api-realtime_changed: ${{ steps.check_api-realtime-energy.outputs.changed }}
     steps:
       - name: Pull changes
         run: |
+          whoami
           cd /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
           git switch master
-          LAST_COMMIT=$(git rev-parse HEAD) # Getting last commit before changes
+
+          if [[ -f .LAST_COMMIT.txt ]]; then
+            LAST_COMMIT=$(cat .LAST_COMMIT.txt)
+          else
+            LAST_COMMIT=$(git rev-parse HEAD) # Getting last commit before changes
+          fi
+
           echo "Pulling and rebasing changes from github"
           git pull --rebase origin master
           echo "LAST_COMMIT=${LAST_COMMIT}" >> $GITHUB_ENV
@@ -73,7 +81,7 @@ jobs:
 
       
       - name: Detect changes in api
-        id: check_api
+        id: check_api-ris3cat
         run: |
           cd /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
           cd backend
@@ -88,6 +96,22 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
   
+      - name: Detect changes in api-dev-realtime-energy
+        id: check_api-realtime-energy
+        run: |
+          cd /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
+          cd realtime-energy-api
+          echo "Getting api-realtime-energy diff"
+          CHANGED_FILES=$(git diff --name-only HEAD $LAST_COMMIT | grep "^realtime-energy-api/" || true)
+          echo "Checking api-realtime diff"
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Changes detected in api-realtime-energy"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes in api-realtime-energy"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
   deploy-calculadora:
       needs: detect-changes
       runs-on: self-hosted
@@ -103,12 +127,12 @@ jobs:
             docker compose up -d calculadora-ris3cat --build --force-recreate
             echo "calculadora-ris3cat deployed"
   
-  deploy-wiki:
+  deploy-wiki-ris3cat:
       needs: detect-changes
       runs-on: self-hosted
       steps:
         - name: Deploy wiki-ris3cat if changed
-          if: needs.detect-changes.outputs.wiki_changed == 'true'
+          if: needs.detect-changes.outputs.wiki-ris3cat_changed  == 'true'
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
             echo "Deploying wiki-ris3cat"
@@ -118,17 +142,17 @@ jobs:
             docker compose up -d wiki-ris3cat --build --force-recreate
             echo "wiki-ris3cat deployed"
   
-  deploy-api:
+   deploy-api-ris3cat:
       needs: detect-changes
       runs-on: self-hosted
       steps:
         - name: Deploy api-ris3cat if changed
-          if: needs.detect-changes.outputs.api_changed == 'true'
+          if: needs.detect-changes.outputs.api-ris3cat_changed == 'true'
           run: |
             cd /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
             echo "Deploying api"
             cd backend
-            npm i
+            npm ci
             npx prisma generate
             docker compose up -d api-ris3cat --build --force-recreate
             echo "api-ris3cat deployed"
@@ -147,3 +171,31 @@ jobs:
             npm run build
             docker compose up -d app-ris3cat
             echo "frontend deployed"
+
+  deploy-api-realtime-energy:
+    needs: detect-changes
+    runs-on: self-hosted
+    steps:
+      - name: Deploy api-ris3cat if changed
+        if: needs.detect-changes.outputs.api-realtime_changed == 'true'
+        run: |
+          cd /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
+          echo "Deploying api-realtime-energy"
+          cd realtime-energy-api
+          npm ci
+          docker compose up -d api-realtime-energy --build --force-recreate
+          echo "api-realtime-energy deployed"
+
+  persist-last-commit:
+    needs: 
+      - deploy-api-realtime-energy
+      - deploy-api-ris3cat
+      - deploy-wiki-ris3cat
+      - deploy-frontend
+      - deploy-calculadora
+    runs-on: self-hosted
+    steps:
+      - name: Saving last deployed commit
+        run: |
+          cd /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
+          git rev-parse HEAD > .LAST_COMMIT.txt

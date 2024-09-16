@@ -172,6 +172,8 @@ jobs:
             cd /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
             echo "Deploying api-dev-ris3cat"
             cd backend
+            npm ci
+            npx prisma generate
             docker compose up -d api-dev-ris3cat --build --force-recreate
             echo "api-dev-ris3cat deployed"
 

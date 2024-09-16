@@ -4,6 +4,11 @@ on:
     branches:
       - dev
 
+defaults:
+  run:
+    shell: bash
+    working-directory: /home/megatro/apps/dockers/Ris3Cat/dev-zertipower-zertibuilder
+
 jobs:
   detect-changes:
     runs-on: self-hosted

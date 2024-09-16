@@ -406,9 +406,15 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       //this.stepsCompleted[3]=1;
     }
 
-    if (stepDestination == 5) {
+    if (stepDestination == 5 && this.stepActive<=stepDestination) {
       this.stepsCompleted[4] = 1;
       this.simulateGenerationConsumption()
+    }
+
+    if(this.stepActive==6 && this.stepActive !==stepDestination){
+      this.map.selectArea(this.addedAreas[this.addedAreas.length-1])
+      this.selectedCadastre = this.addedAreas[this.addedAreas.length-1];
+      this.simulateGenerationConsumption();
     }
 
     this.stepActive = stepDestination;
@@ -1160,7 +1166,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
             let data = res.data
             const kWp = data.kWp
             const totalProduction = data.totalProduction
-            console.log(totalProduction) //todo check that is anual production
+            //console.log(totalProduction) //todo check that is anual production
             //this.selectedCadastre.anualProduction = totalProduction;
             const numberPanels = data.numberPanels
             const prodByMonth = data.prodByMonth

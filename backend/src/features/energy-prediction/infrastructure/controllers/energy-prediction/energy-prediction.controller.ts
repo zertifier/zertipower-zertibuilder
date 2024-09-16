@@ -46,9 +46,9 @@ export class EnergyPredictionController {
 
     let response: { production: number, infoDt: Date }[];
     if (cupsId) {
-      response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} order by info_dt desc limit 192`;
+      response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} AND production IS NOT NULL order by info_dt desc limit 192`;
     } else if (communityId) {
-      response = await this.prisma.$queryRaw`select sum(production) as production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} and production IS not NULL group by info_dt order by info_dt desc LIMIT 192`;
+      response = await this.prisma.$queryRaw`select SUM(production) as production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} and production IS NOT NULL group by info_dt order by info_dt desc LIMIT 200`;
     } else {
       throw new BadRequestError('must specify cups or community')
     }
@@ -63,6 +63,7 @@ export class EnergyPredictionController {
 
     try {
       historicRadiation = await this.energyForecastService.getRadiation(ago, now);
+      // console.log({historicRadiation});
     } catch (err) {
       if (err instanceof AxiosError) {
         console.log(err.response?.data);

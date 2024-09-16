@@ -116,7 +116,6 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
-
   deploy-calculadora-ris3cat:
       needs: detect-changes
       runs-on: self-hosted

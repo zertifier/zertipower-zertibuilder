@@ -27,7 +27,7 @@ jobs:
           fi
 
           echo "Pulling and rebasing changes from github"
-          git pull --rebase origin master
+          git pull origin master --rebase
           echo "LAST_COMMIT=${LAST_COMMIT}" >> $GITHUB_ENV
 
       - name: Detect changes in frontend

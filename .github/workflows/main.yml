@@ -4,6 +4,11 @@ on:
     branches:
       - master
 
+defaults:
+  run:
+    shell: bash
+    working-directory: /home/megatro/apps/dockers/Ris3Cat/zertipower-zertibuilder
+
 jobs:
   detect-changes:
     runs-on: self-hosted
@@ -78,7 +83,6 @@ jobs:
             echo "No changes in wiki-ris3cat"
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
-
       
       - name: Detect changes in api
         id: check_api-ris3cat

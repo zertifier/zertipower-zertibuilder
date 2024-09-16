@@ -16,6 +16,16 @@ import { DatadisService } from "./datadis-service";
 import { MinterService } from "./minter-service";
 import { GovernanceService } from './governance/governance.service';
 import { BlockchainService } from "./blockchain-service";
+import { ShareService } from './share/share.service';
+import { NotificationsService } from "./notifications-service";
+import { EnergyHourlyService } from "./energy-houly-service";
+import { LogsService } from "./logs-service";
+import { CommunitiesDbRequestsService } from "src/features/communities/communities-db-requests.service";
+import { CupsDbRequestsService } from "src/features/cups/cups-db-requests.service";
+import { CustomersDbRequestsService } from "src/features/customers/customers-db-requests.service";
+import { UsersDbRequestsService } from "src/features/users/infrastructure/user-controller/user-db-requests.service";
+import { StripeService } from './stripe/stripe.service';
+import {MintSocket} from "./stripe/MintSocket";
 
 @Global()
 @Module({
@@ -34,7 +44,17 @@ import { BlockchainService } from "./blockchain-service";
     MinterService,
     { provide: Datatable, useClass: MysqlDatatable },
     GovernanceService,
-    BlockchainService
+    BlockchainService,
+    ShareService,
+    NotificationsService,
+    EnergyHourlyService,
+    LogsService,
+    CupsDbRequestsService,
+    CustomersDbRequestsService,
+    UsersDbRequestsService,
+    CommunitiesDbRequestsService,
+    StripeService,
+    MintSocket
   ],
   exports: [
     PrismaService,
@@ -50,7 +70,17 @@ import { BlockchainService } from "./blockchain-service";
     DatadisService,
     MinterService,
     GovernanceService,
-    BlockchainService
+    BlockchainService,
+    ShareService,
+    NotificationsService,
+    EnergyHourlyService,
+    LogsService,
+    CupsDbRequestsService,
+    CustomersDbRequestsService,
+    UsersDbRequestsService,
+    CommunitiesDbRequestsService,
+    StripeService,
+    MintSocket
   ],
 })
 export class SharedServicesModule {}

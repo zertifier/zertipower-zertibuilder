@@ -5,7 +5,13 @@
 
 @import "@ng-select/ng-select/themes/default.theme.css";
 
-html, body { height: 100%; width: 100%; margin: 0; font-family:'Montserrat'!important ; }
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  font-family: 'Montserrat' !important;
+}
 
 // Colors
 $primary: #0e2b4c;
@@ -20,7 +26,7 @@ $navbar-link-light: #E9E9E9;
 $navbar-link-dark: #525252;
 $hr-light: #E9E9E9;
 $hr-dark: #525252;
-$complement:#959150;
+$complement: #959150;
 
 // Icons
 $icon-standard: (
@@ -69,6 +75,10 @@ $button-status-radius: (
   standard: 25px
 );
 
+.btn {
+  font-style: normal;
+}
+
 $button-action-radius: 10px;
 $button-add-text: 20px;
 
@@ -77,14 +87,14 @@ $button-add-text: 20px;
 //@import "bootstrap-icons/font/bootstrap-icons";
 
 $theme-colors: (
-  "primary":    $primary,
-  "secondary":  $secondary,
-  "success":    $success,
-  "info":       $info,
-  "warning":    $warning,
-  "danger":     $danger,
-  "light":      $light,
-  "dark":       $dark
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark
 );
 
 $nav-pills-link-active-bg: $primary;
@@ -92,28 +102,53 @@ $primary-rgb: $primary;
 $body-bg: $bg-page-light-color;
 $btn-bg: $primary;
 
-.bg-primary{
+.bg-primary {
   background-color: $primary !important;
 }
 
-.bg-complement{
+.bg-complement {
   background-color: $complement !important;
+  color: $light;
 }
 
-.btn-primary{
+.bg-complement {
+  color: $light;
+}
+
+.btn-primary {
   color: #e8e8e8;
 }
 
-.nav-link{
+.btn-secondary {
+  background-color: #5F7187;
+  color: #ffffff;
+  border-color: #ffffff;
+  &:hover {
+    background-color: #6b7a8b;
+    color: #ffffff;
+  }
+}
+
+.btn-inactive {
+  background-color: #DFE2E5;
+  color: #5F7187;
+  &:hover {
+    background-color: #c2c5c7;
+    color: #5F7187;
+  }
+}
+
+.nav-link {
   color: $secondary;
 }
 
-.nav-link:hover, .nav-link:hover i {
+.nav-link:hover,
+.nav-link:hover i {
   color: #aaaaaa;
 }
 
 
-.nav-link.active:hover i{
+.nav-link.active:hover i {
   color: white;
 }
 
@@ -122,11 +157,15 @@ $btn-bg: $primary;
   text-align: center;
 }
 
-.ng-input input{
+.ng-input input {
   color: black !important;
 }
 
-h2, h3, h4, h5, h6{
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: $text-titles;
 }
 
@@ -153,38 +192,42 @@ h2, h3, h4, h5, h6{
 
 
 @include color-mode(dark) {
-  .nav-link{
+  .nav-link {
     color: $navbar-link-light;
   }
-  hr{
+
+  hr {
     border-color: $hr-light;
   }
+
   #div-shrink {
     &:hover {
       background-color: #0d2846;
     }
   }
 
-  .ng-select-container, .ng-option{
+  .ng-select-container,
+  .ng-option {
     background-color: $body-bg-dark !important;
     border: 1px solid #495057 !important;
     color: $navbar-link-light !important;
   }
 
-  .ng-dropdown-panel.ng-select-bottom{
+  .ng-dropdown-panel.ng-select-bottom {
     border: 0 !important;
   }
 
-  .ng-input input{
+  .ng-input input {
     color: rgb(255, 255, 255) !important;
   }
 }
 
 @include color-mode(light) {
-  .nav-link{
+  .nav-link {
     color: $navbar-link-light;
   }
-  hr{
+
+  hr {
     border-color: $hr-dark;
   }
 
@@ -195,29 +238,39 @@ h2, h3, h4, h5, h6{
   }
 
   .navbar-dropdown a {
-    color:$hr-dark;
+    color: $hr-dark;
   }
 
-  .ng-select-container, .ng-option{
+  .ng-select-container,
+  .ng-option {
     background-color: $bg-page-light-color;
     border: 1px solid $border-color;
     color: $navbar-link-dark;
   }
-  .ng-dropdown-panel.ng-select-bottom{
+
+  .ng-dropdown-panel.ng-select-bottom {
     border: 0 !important;
   }
 }
 
-.fs-7{
+.fs-7 {
   font-size: 0.9 rem;
 }
 
-.fs-8{
+.fs-8 {
   font-size: 0.8 rem;
 }
 
-.fs-9{
+.fs-9 {
   font-size: 0.7 rem;
 }
 
 //-----------------------------------------------------------------
+
+.swal2-confirm {
+  background-color: $primary !important;
+}
+
+.swal2-deny {
+  background-color: $secondary !important;
+}

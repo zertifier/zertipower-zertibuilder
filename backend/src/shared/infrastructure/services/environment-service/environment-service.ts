@@ -18,17 +18,30 @@ export class EnvironmentService implements OnModuleInit {
     SMTP_PORT: 0,
     SMTP_SERVER: "",
     SMTP_USER: "",
+    SMTP_DISPLAY_EMAIL:"",
     VIEWS_FOLDER: "",
     PORT: 0,
     JWT_SECRET: "",
     DATABASE_URL: "",
-    // DATABASE_URL: "",
+    DB_HOST: "",
+    DB_USER: "",
+    DB_PASSWORD: "",
+    DB_DATABASE: "",
     FRONTEND_URL: "",
+    COMPTADOR_FRONTEND_URL: "",
     GOOGLE_CLIENT_SECRET: "",
     GOOGLE_CLIENT_ID: "",
     RADIATION_API: "",
     RADIATION_API_CREDENTIALS: "",
-    DATADIS_MONTHS:0
+    DATADIS_MONTHS:0,
+    TRADE_UPDATE_DAYS: 0,
+    EMAIL:"",
+    EMAIL_PASSWORD:"",
+    ENERGY_PREDICTION_API:"",
+    STRIPE_PRICE_KEY:"",
+    STRIPE_PRODUCT_ID:"",
+    STRIPE_SECRET_KEY:"",
+    PK:""
   };
 
   onModuleInit(): any {

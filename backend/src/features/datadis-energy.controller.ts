@@ -59,28 +59,28 @@ import {
       return HttpResponse.success("datadis energy register saved successfully").withData(data);
     }
   
-    @Put(":id")
-    @Auth(RESOURCE_NAME)
-    async update(@Param("id") id: string, @Body() body: any) {
-      const data = await this.prisma.datadisEnergyRegister.updateMany({
-        where: {
-          id: parseInt(id),
-        },
-        data: body,
-      });
-      return HttpResponse.success("datadis energy register updated successfully").withData(data);
-    }
+    // @Put(":id")
+    // @Auth(RESOURCE_NAME)
+    // async update(@Param("id") id: string, @Body() body: any) {
+    //   const data = await this.prisma.datadisEnergyRegister.updateMany({
+    //     where: {
+    //       id: parseInt(id),
+    //     },
+    //     data: body,
+    //   });
+    //   return HttpResponse.success("datadis energy register updated successfully").withData(data);
+    // }
   
-    @Delete(":id")
-    @Auth(RESOURCE_NAME)
-    async remove(@Param("id") id: string) {
-      const data = await this.prisma.datadisEnergyRegister.delete({
-        where: {
-          id: parseInt(id),
-        },
-      });
-      return HttpResponse.success("datadis energy register removed successfully").withData(data);
-    }
+    // @Delete(":id")
+    // @Auth(RESOURCE_NAME)
+    // async remove(@Param("id") id: string) {
+    //   const data = await this.prisma.datadisEnergyRegister.delete({
+    //     where: {
+    //       id: parseInt(id),
+    //     },
+    //   });
+    //   return HttpResponse.success("datadis energy register removed successfully").withData(data);
+    // }
   
     @Post("datatable")
     @Auth(RESOURCE_NAME)

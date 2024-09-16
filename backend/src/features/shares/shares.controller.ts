@@ -145,7 +145,7 @@ export class SharesController {
   @Put("/participants/:id")
   @Auth(RESOURCE_NAME)
   async updateParticipant(@Param("id") id: string, @Body() body: SaveParticipantDto) {
-    await this.prisma.$transaction(async (prisma) => {
+    await this.prisma.$transaction(async (prisma:any) => {
       await prisma.shares.update({
         where: {
           id: parseInt(id),
@@ -214,7 +214,7 @@ export class SharesController {
   async removeParticipant(@Param("id") id: string) {
 
     const result =
-      await this.prisma.$transaction(async (prisma) => {
+      await this.prisma.$transaction(async (prisma:any) => {
         // First query: Delete from shares and get the deleted record data
         const deletedShare = await prisma.shares.delete({
           where: {

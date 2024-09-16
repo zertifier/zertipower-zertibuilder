@@ -4,7 +4,31 @@
       "name": "DATABASE_URL",
       "required": true,
       "type": "string",
-      "default": "mysql://root:1234@localhost:3306/example"
+      "default": ""
+    },
+    {
+      "name": "DB_HOST",
+      "required": true,
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "DB_USER",
+      "required": true,
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "DB_PASSWORD",
+      "required": true,
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "DB_DATABASE",
+      "required": true,
+      "type": "string",
+      "default": ""
     },
     {
       "name": "PORT",
@@ -28,7 +52,13 @@
       "name": "SMTP_USER",
       "required": true,
       "type": "string",
-      "default": "example_user"
+      "default": "info@zertifier.com"
+    },
+    {
+      "name": "SMTP_DISPLAY_EMAIL",
+      "required": true,
+      "type": "string",
+      "default": "no-reply@zertifier.com"
     },
     {
       "name": "SMTP_PASSWORD",
@@ -40,7 +70,7 @@
       "name": "SMTP_SERVER",
       "required": true,
       "type": "string",
-      "default": "smtp.example_server.com"
+      "default": "smtp.gmail.com"
     },
     {
       "name": "SMTP_PORT",
@@ -56,6 +86,12 @@
     },
     {
       "name": "FRONTEND_URL",
+      "required": true,
+      "type": "string",
+      "default": "http://localhost:4200"
+    },
+    {
+      "name": "COMPTADOR_FRONTEND_URL",
       "required": true,
       "type": "string",
       "default": "http://localhost:4200"
@@ -84,10 +120,41 @@
       "type": "string"
     },
     {
+      "name": "ENERGY_PREDICTION_API",
+      "required": true,
+      "description": "",
+      "type": "string"
+    },
+    {
       "name": "DATADIS_MONTHS",
       "required": true,
       "type": "int",
       "default": "1"
+    },
+    {
+      "name": "TRADE_UPDATE_DAYS",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "PK",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "STRIPE_PRODUCT_ID",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "STRIPE_PRICE_KEY",
+      "required": true,
+      "type": "string"
+    },
+    {
+      "name": "STRIPE_SECRET_KEY",
+      "required": true,
+      "type": "string"
     }
   ]
 }

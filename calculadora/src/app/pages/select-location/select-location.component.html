@@ -3,35 +3,39 @@
   <div class="row p-0 m-0" style="min-height: 30vh; height: 30vh;"></div>
 
   <div class="row p-0 m-0 d-flex justify-content-center">
-    <div class="bg-primary p-5 d-none d-md-block" style="max-width: 600px;">
-      <div class="row d-flex justify-content-center align-items-center">
+    <div class="bg-primary p-4 d-none d-md-block" style="max-width: 600px;">
+      <div class="row d-flex justify-content-center align-items-center m-1">
         <img  src="assets/img/navbar/zertipower-logo-white.png" class="px-4" alt="zertipower-logo" style="width: 510px;">
       </div>
 
       <div class="row p-0 m-0 d-flex justify-content-center align-items-center text-center">
         <div style="max-width: 500px;">
-          <label for="location" class="m-4 text-light">Uneix-te a la transició energètica col·lectiva</label>
-          <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
+          <label for="location" class="mb-4 mt-2 fs-5 fw-bold text-light">Uneix-te a la transició energètica col·lectiva</label>
+          <label class="m-0 fs-6 text-light">Utilitza la calculadora energètica per a optimitzar el teu consum i reduir la teva factura d'electricitat.</label>
+          <label class="mt-4 btn btn-secondary mb-1" [routerLink]="'/calculate'">Calcular energia</label>
+          <!-- <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
             <option></option>
             <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
-          </select>
+          </select> -->
       </div>
       </div>
     </div>
 
 <!--    MOBILE-->
     <div class="bg-primary px-2 py-5 d-block d-md-none" >
-      <div class="d-flex justify-content-center align-items-center">
+      <div class="d-flex justify-content-center align-items-center m-1">
         <img  src="assets/img/navbar/zertipower-logo-white.png" class="px-4" alt="zertipower-logo" style="width: 310px;">
       </div>
 
       <div class="p-0 m-0 d-flex justify-content-center align-items-center text-center">
         <div>
-          <label for="location" class="m-4 fs-4 text-light">Uneix-te a la transició energètica col·lectiva</label>
-          <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
+          <label for="location" class="mb-4 mt-2 fs-4 fw-bold text-light">Uneix-te a la transició energètica col·lectiva</label>
+          <label class="mt-2 fs-6 text-light">Utilitza la calculadora energètica per a optimitzar el teu consum i reduir la teva factura d'electricitat.</label>
+          <!-- <select id="location" [(ngModel)]="selectedLocation" class="form-select px-2" (change)="selectLocation(selectedLocation)">
             <option></option>
             <option *ngFor="let location of locations" [ngValue]="location">{{location.municipality}}</option>
-          </select>
+          </select> -->
+          <label class="mt-2 btn btn-light mb-1" [routerLink]="'/calculate'">Calcular</label>
         </div>
       </div>
     </div>

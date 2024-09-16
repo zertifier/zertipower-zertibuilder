@@ -45,6 +45,7 @@ export class PrismaAuthTokenRepository implements AuthTokenRepository {
           token: jwt,
           user_id: user.id,
           expiration_time: expirationTime,
+          permanent:0
         },
       });
     } catch (err) {

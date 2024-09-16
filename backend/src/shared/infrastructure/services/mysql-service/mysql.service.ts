@@ -10,14 +10,18 @@ export class MysqlService {
   public pool: mysql.Pool;
 
   constructor(private environment: EnvironmentService) {
+    //this.pool = mysql.createPool(this.environment.getEnv().DATABASE_URL);
+    const host = this.environment.getEnv().DB_HOST
+    const user = this.environment.getEnv().DB_USER 
+    const pwd = this.environment.getEnv().DB_PASSWORD
+    const database = this.environment.getEnv().DB_DATABASE
     this.pool = mysql.createPool({
-      uri: this.environment.getEnv().DATABASE_URL,
-      //host: "46.253.45.22",
-      //user: "root",
-      //password: "Meg@tr@IPFS_7a7s7d7f7g8h8j8k8l",
-      // database: "zertipowerv2",
-      //database: "zertipower-dev",
-      connectionLimit: 25,
-    });
+      host: host,
+      user: user,
+      password: pwd,
+      database: database,
+      connectionLimit: 30,
+  });
+      
   }
 }

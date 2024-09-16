@@ -41,6 +41,7 @@ import {Auth} from "../../../auth/infrastructure/decorators";
 import {UserRole} from "../../../roles/domain/UserRole";
 import {Datatable} from "../../../../shared/infrastructure/services/datatable/Datatable";
 import mysql from "mysql2/promise";
+import { UsersDbRequestsService } from "./user-db-requests.service";
 
 export const RESOURCE_NAME = "users";
 
@@ -57,7 +58,8 @@ export class UserController {
     private userRepository: UserRepository,
     private authRepository: AuthTokenRepository,
     private datatable: Datatable,
-    private mysql: MysqlService
+    private mysql: MysqlService,
+    private dbRequestsService:UsersDbRequestsService
   ) {
     this.conn = this.mysql.pool;
   }
@@ -92,12 +94,44 @@ export class UserController {
     );
   }
 
+  @Get("/customer/:id")
+  @Auth(RESOURCE_NAME)
+  //@ApiBearerAuth()
+  @UseGuards(AccessTokenGuard)
+  async getUserByCustomerId(@Param("id") id: number, @Headers('authorization') authHeader: string) {
+    try{
+      const user = await this.dbRequestsService.getUserByCustomerId(id);
+      return HttpResponse.success("user fetched successfully").withData(
+        user
+      );
+    } catch(error){
+      console.log(error)
+      throw new BadRequestError("User not found")
+    }
+    
+  }
+
+  @Get("/cups/:id")
+  @Auth(RESOURCE_NAME)
+  //@ApiBearerAuth()
+  @UseGuards(AccessTokenGuard)
+  async getUserByCupsId(@Param("id") id: number, @Headers('authorization') authHeader: string) {
+    try{
+      const user = await this.dbRequestsService.getUserByCupsId(id);
+      return HttpResponse.success("user fetched successfully").withData(
+        user
+      );
+    } catch(error){
+      console.log(error)
+      throw new BadRequestError("User not found")
+    }
+  }
+
   @Get("/:id/cups")
   @Auth(RESOURCE_NAME)
   //@ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   async getUserCups(@Param("id") id: number, @Headers('authorization') authHeader: string) {
-
     //authHeader
     //this.accessTokenGuard.canActivate;
 
@@ -260,35 +294,35 @@ export class UserController {
     }
     const currentUser = users[0];
 
-    const notSameId = new Filter(
-      new FilterField("id"),
-      new FilterOperator(FilterOperators.NOT_EQUAL),
-      new FilterValue(user.id)
-    );
+    // const notSameId = new Filter(
+    //   new FilterField("id"),
+    //   new FilterOperator(FilterOperators.NOT_EQUAL),
+    //   new FilterValue(user.id)
+    // );
 
     // Creating criteria that search user by username that are not removed
-    const byUsernameCriteria = new ByUsernameCriteria(user.username);
-    byUsernameCriteria.filters.push(notSameId);
+    // const byUsernameCriteria = new ByUsernameCriteria(user.username);
+    // byUsernameCriteria.filters.push(notSameId);
 
     // Checking if user already exist
-    let fetchedUsers = await this.findUsersAction.run(byUsernameCriteria);
-    if (fetchedUsers.length > 0) {
-      throw new UserAlreadyExistsError(
-        `User with username '${user.username}' already exists`
-      );
-    }
+    // let fetchedUsers = await this.findUsersAction.run(byUsernameCriteria);
+    // if (fetchedUsers.length > 0) {
+    //   throw new UserAlreadyExistsError(
+    //     `User with username '${user.username}' already exists`
+    //   );
+    // }
 
     // Creating criteria that search user by email that are not removed
-    const byEmailCriteria = new ByEmailCriteria(user.email);
-    byEmailCriteria.filters.push(notSameId);
+    // const byEmailCriteria = new ByEmailCriteria(user.email);
+    // byEmailCriteria.filters.push(notSameId);
 
     // Checking if user already exist
-    fetchedUsers = await this.findUsersAction.run(byEmailCriteria);
-    if (fetchedUsers.length > 0) {
-      throw new UserAlreadyExistsError(
-        `User with email '${user.email}' already exists`
-      );
-    }
+    // fetchedUsers = await this.findUsersAction.run(byEmailCriteria);
+    // if (fetchedUsers.length > 0) {
+    //   throw new UserAlreadyExistsError(
+    //     `User with email '${user.email}' already exists`
+    //   );
+    // }
 
     if (!user.password) {
       if (!currentUser.encryptedPassword) {

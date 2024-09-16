@@ -36,6 +36,14 @@ import { WeatherPredictionModule } from './features/weather-prediction/weather-p
 import { EnergyPredictionModule } from './features/energy-prediction/energy-prediction.module';
 import { CommunitiesModule } from './features/communities/communities.module';
 import {EnergyHourlyController} from "./features/energy-hourly/energy-hourly.controller";
+import {TradesController} from "./features/trades/trades.controller";
+import { UsersNotificationsCategoriesController } from './features/notifications/controllers/users-notifications-categories.controller';
+import { UsersNotificationsController } from './features/notifications/controllers/users-notifications.controller';
+import { NotificationsCategoriesController } from './features/notifications/controllers/notifications-categories.controller';
+import { NotificationsController } from './features/notifications/controllers/notifications.controller';
+import { UsersNotificationsHistoricController } from './features/notifications/controllers/users-notifications-historic.controller';
+import {StripeController} from "./features/stripe/stripe.controller";
+import {MintSocket} from "./shared/infrastructure/services/stripe/MintSocket";
 
 @Module({
   imports: [
@@ -54,6 +62,7 @@ import {EnergyHourlyController} from "./features/energy-hourly/energy-hourly.con
     WeatherPredictionModule,
     EnergyPredictionModule,
     CommunitiesModule,
+    MintSocket
   ],
   // Do not remove controllers section cuz zertibuilder
   // can create it if it doesn't exist
@@ -77,8 +86,16 @@ import {EnergyHourlyController} from "./features/energy-hourly/energy-hourly.con
     ResponsesController,
     SharesController,
     BlockchainEnergyDataController,
-    EnergyHourlyController
+    EnergyHourlyController,
+    TradesController,
+    UsersNotificationsCategoriesController,
+    UsersNotificationsController,
+    NotificationsCategoriesController,
+    NotificationsController,
+    UsersNotificationsHistoricController,
+    StripeController
 ],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

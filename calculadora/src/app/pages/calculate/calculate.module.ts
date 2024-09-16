@@ -10,6 +10,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ComponentsModule } from '../../components/components.module';
 import { HttpClientModule } from '@angular/common/http';
 import { CalculateComponent } from './calculate.component';
+import { QuestionBadgeComponent } from '../../components/question-badge/question-badge.component';
 
 const routes: Routes = [
   {
@@ -31,6 +32,7 @@ const routes: Routes = [
         GoogleMap,
         NgbModule,
         ComponentsModule,
+        QuestionBadgeComponent,
         RouterModule.forChild(routes)
     ]
 })

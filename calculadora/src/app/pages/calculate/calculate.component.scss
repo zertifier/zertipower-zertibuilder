@@ -1,3 +1,5 @@
+
+
 .header-calculate {
     background-color: #0e2b4c;
 }
@@ -7,11 +9,25 @@
 }
 
 .section-content-padding {
-    padding-left: 32px;
+    margin-left: 32px;
+    margin-right: 0px;
 }
 
 span {
     font-size: 14px;
+}
+
+
+.btn-default {
+    width: 115px;
+}
+
+.area-default {
+    width: 115px;
+}
+
+.custom-chart {
+    max-height: 300px;
 }
 
 @media only screen and (min-width: 768px) {
@@ -20,12 +36,39 @@ span {
         font-size: 16px;
     }
 
+    .w-md-50 {
+        width: 50% !important;
+    }
+
 }
 
-.custom-chart{
-    max-height: 300px;
+@media only screen and (max-width: 768px) {
+    .btn-default {
+        width: 100%;
+    }
+
+    .custom-chart {
+        max-height: 500px;
+    }
 }
 
-.collapser{
-    cursor:pointer;
+
+
+
+.collapser {
+    cursor: pointer;
+}
+
+.container-body {
+    background-color: #f4f6f6;
+}
+
+th {
+    font-weight: 500;
+}
+
+.btn-list {
+    border-radius: 30px;
+    height: 40px;
+    width: 40px;
 }

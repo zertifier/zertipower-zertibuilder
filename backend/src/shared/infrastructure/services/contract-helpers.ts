@@ -1,6 +1,7 @@
-const {ethers} = require("ethers");
+const { ethers } = require("ethers");
+const https = require('https');
 
-async function mintBatchERC20(batchContractAddress:any, contractAddresses:any, walletReceivers:any, amounts:any, privateKey:any, abi:any, chainId:any, rpcUrl:any) {
+async function mintBatchERC20(batchContractAddress: any, contractAddresses: any, walletReceivers: any, amounts: any, privateKey: any, abi: any, chainId: any, rpcUrl: any) {
 
     //console.log(batchContractAddress, contractAddresses, walletReceivers, amounts, privateKey, chainId, rpcUrl)
 
@@ -21,14 +22,14 @@ async function mintBatchERC20(batchContractAddress:any, contractAddresses:any, w
                 walletSigner
             )
 
-            amounts = amounts.map((amount:any) => {
+            amounts = amounts.map((amount: any) => {
                 amount = ethers.parseUnits(amount.toString())
                 return amount;
             })
 
             //console.log("fins aqui bé",amounts)
 
-            let tx = await contract.batchMint(contractAddresses,walletReceivers, amounts)
+            let tx = await contract.batchMint(contractAddresses, walletReceivers, amounts)
             await tx.wait(3)
             resolve(tx.hash)
 
@@ -39,7 +40,7 @@ async function mintBatchERC20(batchContractAddress:any, contractAddresses:any, w
     })
 }
 
-async function mintERC20(contractAddress:string, privateKey:string, addressToSend:string, rpcUrl:string, amount:any, chainId:number, abi:string) {
+async function mintERC20(contractAddress: string, privateKey: string, addressToSend: string, rpcUrl: string, amount: any, chainId: number, abi: string) {
     return new Promise(async (resolve, reject) => {
         console.log(contractAddress, privateKey, addressToSend, rpcUrl, amount, chainId);
         try {
@@ -68,10 +69,10 @@ async function mintERC20(contractAddress:string, privateKey:string, addressToSen
     })
 }
 
-async function mintERC1155(provider:string, privateKey:string, contractAbi:string, contractAddress:string, index:any, name:any, amount:any, chainId:number, chainTxUrl:string) {
+async function mintERC1155(provider: string, privateKey: string, contractAbi: string, contractAddress: string, index: any, name: any, amount: any, chainId: number, chainTxUrl: string) {
     try {
         if (await getChain(provider) === chainId) {
-            const wallet = getWallet(provider,privateKey)
+            const wallet = getWallet(provider, privateKey)
             const nonce = await getNonce(wallet)
             const gasFee = await getGasPrice(provider)
             const contractInstance = await createContractInstance(provider, contractAbi, contractAddress);
@@ -95,49 +96,49 @@ async function mintERC1155(provider:string, privateKey:string, contractAbi:strin
     }
 }
 
-async function getTokensAmount(contractInstance:any, walletAddress:string) {
+async function getTokensAmount(contractInstance: any, walletAddress: string) {
     return await contractInstance.getBalance(walletAddress)
 }
 
-async function createContractInstance(provider:any, contractAbi:string, contractAddress:string) {
+async function createContractInstance(provider: any, contractAbi: string, contractAddress: string) {
     return new ethers.Contract(contractAddress, contractAbi, provider)
 }
 
-async function createContractInstanceWithSigner(provider:any, contractAddress:string, abi:string) {
+async function createContractInstanceWithSigner(provider: any, contractAddress: string, abi: string) {
     let signer = ethers.Wallet.createRandom()
     signer = signer.connect(provider)
     return new ethers.Contract(contractAddress, abi, signer);
 }
 
-async function createProvider(rpcUrl:string) {
+async function createProvider(rpcUrl: string) {
     return new ethers.providers.JsonRpcProvider(rpcUrl)
 }
 
-async function getGasPrice(provider:any) {
+async function getGasPrice(provider: any) {
     let feeData = await provider.getFeeData()
     return feeData.gasPrice
 }
 
-async function getWallet(provider:string, privateKey:string) {
+async function getWallet(provider: string, privateKey: string) {
     const wallet = await new ethers.Wallet(privateKey, provider)
     return wallet
 }
 
-async function getChain(provider:any) {
+async function getChain(provider: any) {
     let chainId = await provider.getNetwork()
     return chainId.chainId
 }
 
-async function getContractInfo(contractInstance:any, index:any, id:number) {
+async function getContractInfo(contractInstance: any, index: any, id: number) {
     let contract = await contractInstance.getERC1155byIndexAndId(index, id)
     return contract;
 }
 
-async function getNonce(signer:any) {
+async function getNonce(signer: any) {
     return (await signer).getTransactionCount()
 }
 
-async function setSectionContracts(contracts:any) {
+async function setSectionContracts(contracts: any) {
     this.sectionContractAddress = contracts;
     let importIndex = 1;
     let exportIndex = 1;
@@ -155,12 +156,12 @@ async function setSectionContracts(contracts:any) {
     console.log(this.contracts, "CONTRACTS")
 }
 
-async function createContractCustom(contract:any) {
+async function createContractCustom(contract: any) {
     if (!this.connection || this.connectMethod == 'undefined') {
         const provider = await this.createRpcProvider(contract);
         let signer = ethers.Wallet.createRandom()
         signer = signer.connect(provider)
-        this.connection = {provider, signer};
+        this.connection = { provider, signer };
     }
     const providerNetwork = await this.connection.provider.getNetwork()
     const providerChain = providerNetwork.chainId
@@ -172,11 +173,94 @@ async function createContractCustom(contract:any) {
     return new ethers.Contract(contract, abi, this.connection.signer);
 }
 
-function createWalletByReference(reference:string | number){
+function createWalletByReference(reference: string | number) {
     const WALLET_CODE = reference + process.env.JWT_SECRET!;
     const KECCAK_HASH = ethers.keccak256(ethers.toUtf8Bytes(WALLET_CODE));
     const WALLET = new ethers.Wallet(KECCAK_HASH)
     return WALLET.address
+}
+
+async function getChainBalance(walletAddress: string) {
+    try {
+        const provider = new ethers.JsonRpcProvider(this.rpc)
+        const balance = ethers.formatEther(await provider.getBalance(walletAddress)).toString()
+        return parseFloat(balance)
+    } catch (error) {
+        console.log(error, "ERROR")
+        return 0
+    }
+}
+
+/** Obtain blockchain and smart contract data according to config smart contract version.
+ *  expect 3 smart contracts that are the current version
+ * @return {Promise<*>}
+ */
+async function getBlockchainAndScData() {
+    try {
+        const [ROWS]: any = await this.conn.query(
+            `SELECT * FROM smart_contracts LEFT JOIN blockchains 
+    ON smart_contracts.blockchain_id=blockchains.blockchain_id; 
+    `);
+        return ROWS;
+    } catch (e) {
+        console.log("error getting blockchain and sc data")
+        throw new Error(e);
+    }
+}
+
+async function getRpc(chainId: any) {
+    try {
+        let rpcsResponse: any = await this.httpGet(`https://zertirpc.zertifier.com/${chainId}/rpc`)
+        let rpcs = rpcsResponse.data[chainId];
+        let rpc = rpcs.find((rpc: any) => rpc.active && rpc.working)
+        return rpc.rpc;
+    }
+    catch (e) {
+        throw new Error(e)
+    }
+}
+
+
+
+async function httpGet(url: string) {
+
+    //HTTPS request config
+    const options = {
+        rejectUnauthorized: false // unable SSL verification
+    };
+
+    return new Promise((resolve, reject) => {
+
+        let req = https.get(url, options, (res: any) => {
+
+            let data = ''
+
+            res.on('data', (chunk: any) => { data += chunk })
+
+            res.on('end', () => {
+                try {
+                    let parsedData = JSON.parse(data);
+                    if (parsedData.status == 400) {
+                        reject(new Error(parsedData.message));
+                        console.log("Error:", url, parsedData)
+                    } else {
+                        resolve(JSON.parse(data));
+                    }
+                } catch (error) {
+                    console.log("Error:", url, data)
+                    reject(error)
+                }
+            })
+
+        })
+
+        req.on('error', (error: any) => {
+            console.log("Error making HTTP request:", error)
+            reject(new Error(error));
+        });
+
+    })
+
 }
 
 module.exports = {
@@ -186,5 +270,6 @@ module.exports = {
     createProvider,
     createContractInstanceWithSigner,
     mintBatchERC20,
-    createWalletByReference
+    createWalletByReference,
+    getChainBalance
 }

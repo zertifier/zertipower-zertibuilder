@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      
+
 jobs:
   detect-changes:
     runs-on: self-hosted
@@ -140,7 +140,7 @@ jobs:
             docker compose up -d wiki-ris3cat --build --force-recreate
             echo "wiki-ris3cat deployed"
   
-   deploy-api-ris3cat:
+  deploy-api-ris3cat:
       needs: detect-changes
       runs-on: self-hosted
       steps:

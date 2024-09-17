@@ -520,7 +520,7 @@ export class CommunitiesFormComponent implements OnInit {
 
   getYearEnergyByCups(cups: number, year: number): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.energyService.getYearByCups(year, cups!).subscribe((res: any) => {
+      this.energyService.getYearByCommunityCups(year,'datadis', cups!).subscribe((res: any) => {
 
         let monthlyCupsData = res.data;
 
@@ -661,7 +661,7 @@ export class CommunitiesFormComponent implements OnInit {
 
   getDayEnergyByCups(cups: number, date: string): Promise<any> {
     return new Promise((resolve, reject) => {
-        this.energyService.getHoursByCups(cups, this.selectedDate).subscribe((res: any) => {
+        this.energyService.getDayByCups(cups,'datadis',this.selectedDate).subscribe((res: any) => {
 
           let hourlyData = res.data
           const getHour = (datetimeString: any) => {

@@ -48,7 +48,7 @@ export class EnergyPredictionController {
     if (cupsId) {
       response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} AND production IS NOT NULL order by info_dt desc limit 192`;
     } else if (communityId) {
-      response = await this.prisma.$queryRaw`select SUM(production) as production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type != 'community' and community_id = ${communityId} and production IS NOT NULL group by info_dt order by info_dt desc LIMIT 200`;
+      response = await this.prisma.$queryRaw`select SUM(kwh_out) as production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type = 'community' and community_id = ${communityId} and kwh_out IS NOT NULL group by info_dt order by info_dt desc LIMIT 200`;
     } else {
       throw new BadRequestError('must specify cups or community')
     }

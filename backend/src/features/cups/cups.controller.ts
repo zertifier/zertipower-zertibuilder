@@ -434,6 +434,7 @@ export class CupsController {
               communities.name       as community,
               locations.municipality as municipality,
               customers.name         as customer,
+              active,
               cups.created_at        as created_at,
               cups.updated_at        as updated_at
        FROM cups

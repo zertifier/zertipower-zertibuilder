@@ -44,15 +44,35 @@ export class CustomersTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'WalletAddress',
-      data: 'wallet_address',
+      title: 'DNI',
+      data: 'dni',
       width: '100px',
     },
- /*   {
-      title: 'CreatedAt',
-      data: 'created_at',
+    {
+      title: 'Correu electrónic',
+      data: 'email',
       width: '100px',
-    },*/
+    },
+    {
+      title: 'Saldo (EKW)',
+      data: 'balance',
+      width: '100px',
+    },
+    {
+      title: 'Comunitat',
+      data: 'community_name',
+      width: '100px',
+    },
+    {
+      title: 'Betas',
+      data: 'shares',
+      width: '100px',
+    },   
+    // {
+    //   title: 'Estat',
+    //   data: 'status',
+    //   width: '100px',
+    // },
     {
       title: '',
       data: 'id',
@@ -78,26 +98,70 @@ export class CustomersTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'wallet_address',
+        title: 'DNI',
         description: '',
         value: '',
         type: 0,
         defaultData: 0,
         options: [],
       },
-  /*    {
-        title: 'created_at',
+      {
+        title: 'email',
         description: '',
         value: '',
         type: 0,
         defaultData: 0,
         options: [],
-      },*/
+      },
+      {
+        title: 'balance',
+        description: '',
+        value: '',
+        type: 1,
+        defaultData: 0,
+        options: [],
+      },
+      {
+        title: 'community_name',
+        description: '',
+        value: '',
+        type: 0,
+        defaultData: 0,
+        options: [],
+      },
+      {
+        title: 'shares',
+        description: '',
+        value: '',
+        type: 1,
+        defaultData: 0,
+        options: [],
+      },
+      // {
+      //   title: 'status',
+      //   description: '',
+      //   value: '',
+      //   type: 0,
+      //   defaultData: 0,
+      //   options: [],
+      // }
   ];
 
   columnDefs:any[] = [
     {
       orderable: false, targets: [this.filterParams.length],
+    },
+    {
+      targets: 4,
+      render: (data: any, type: any, row: any) => {
+        return `${Number(data).toFixed(2)}`
+      }
+    },
+    {
+      targets: 6,
+      render: (data: any, type: any, row: any) => {
+        return `${Number(data).toFixed(2)}`
+      }
     },
 /*    {
       targets: 3,
@@ -133,7 +197,7 @@ export class CustomersTableComponent implements OnDestroy {
   async deleteRequest(id:any) {
     const response = await Swal.fire({
       icon: 'question',
-      title: 'Are you sure?',
+      title: 'Segur que vol esborrar el client?',
       showCancelButton: true,
     });
 

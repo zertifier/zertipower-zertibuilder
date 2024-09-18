@@ -33,13 +33,16 @@ export class CustomersFormComponent {
   id: number = 0;
   form = this.formBuilder.group({
     id: new FormControl<number | null>(null),
-    name: new FormControl<string | null>(null),
+    name: ['', [Validators.required, Validators.minLength(2)]],
     dni: new FormControl<string | null>(null),
+    email: ['',[Validators.required, Validators.email]],
+    balance: new FormControl<number | null>(null),
     walletAddress: new FormControl<string | null>(null),
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
   });
   customerCups:any[]=[];
+  formChecked:boolean=false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -59,6 +62,8 @@ export class CustomersFormComponent {
       this.form.controls.id.setValue(data.id);
       this.form.controls.name.setValue(data.name);
       this.form.controls.dni.setValue(data.dni);
+      this.form.controls.email.setValue(data.email);
+      this.form.controls.balance.setValue(data.balance);
       this.form.controls.walletAddress.setValue(data.walletAddress);
       this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
       this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
@@ -105,6 +110,8 @@ export class CustomersFormComponent {
     // values.id = this.form.value.id;
     values.name = this.form.value.name;
     values.dni = this.form.value.dni;
+    values.email = this.form.value.email;
+    values.balance = this.form.value.balance;
     values.walletAddress = this.form.value.walletAddress;
     // values.createdAt = this.form.value.createdAt;
     // values.updatedAt = this.form.value.updatedAt;
@@ -113,14 +120,20 @@ export class CustomersFormComponent {
   }
 
   checkFormValid() {
-    if (!this.form.value.name) return {status: false, message: "El nom del client no pot estar buit"}
-
+    this.formChecked = true
+    if (!this.form.value.name) return {status: false, message: "El nom del client no pot quedar buit"}
+    if (!this.form.value.email) return {status: false, message: "El correu electrónic del client no pot quedar buit"}
     return {status: true, message: ''}
   }
 
-  editRequest(id:any) {
+  editCups(id:any) {
     const modalRef = this.ngbModal.open(CupsFormComponent);
     modalRef.componentInstance.setEditingId(parseInt(id));
+  }
+
+  editShares(id:any){
+    //const modalRef = this.ngbModal.open(SharesFormComponent);
+    //modalRef.componentInstance.setEditingId(parseInt(id));
   }
 
 }

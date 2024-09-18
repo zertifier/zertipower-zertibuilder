@@ -9,7 +9,7 @@ import {environment} from "../../../environments/environment";
 })
 export class EnergyService {
 
-   baseUrl = `${environment.api_url}/energy-registers-hourly`;
+   baseUrl = `${environment.api_url}/energy-hourly`;
   
   cupsBaseUrl = `${environment.api_url}/cups`;
   communityBaseUrl = `${environment.api_url}/community`;
@@ -20,6 +20,11 @@ export class EnergyService {
   //   let url = `${this.baseUrl}/monthly/${year}?cups=${cups}`;
   //   return this.http.get(url);
   // }
+
+  getDatatable(){
+    let url = `${this.baseUrl}/datatable`;
+    return this.http.get(url);
+  }
 
   getYearByCups(year:number,origin:string,cups:number){
     let url = `${this.cupsBaseUrl}/${cups}/stats/${origin}/yearly/${year}`;
@@ -56,11 +61,5 @@ export class EnergyService {
     let url = ''//`${this.baseUrl}/hourly/${date}?cups=${cups}`;
     return this.http.get(url);
   }
-
-
-
-
-
-
 
 }

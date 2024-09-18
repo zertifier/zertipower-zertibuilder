@@ -1,0 +1,43 @@
+<div class="modal-header">
+    <h2>Participació</h2>
+</div>
+<div class="modal-body">
+    <form id="form" [formGroup]="form" (ngSubmit)="save()">
+
+        <div class="my-3">
+            <label class="form-label" for="status-input">Estat</label>
+            <select formControlName="status" class="form-select">
+                <option [ngValue]="'ACTIVE'">Actiu</option>
+                <option [ngValue]="'INACTIVE'">Inactiu</option>
+            </select>
+        </div>
+
+        <div class="my-3">
+            <label class="form-label" for="status-select">Client</label>
+            <select formControlName="customer_id" class="form-select">
+                @if(customers){
+                    <option *ngFor="let customer of customers" [ngValue]="customer.id">{{customer.name}}</option>
+                }
+            </select>
+        </div>
+
+        <div class="my-3">
+            <label class="form-label" for="community-select">Comunitat</label>
+            <select formControlName="community_id" class="form-select">
+                @if(communities){
+                    <option *ngFor="let community of communities" [ngValue]="community.id">{{community.name}}</option>
+                }
+            </select>
+        </div>
+
+        <div class="my-3">
+            <label class="form-label" for="shares-input">Betas</label>
+            <input formControlName="shares" id="shares-input" class="form-control" type="number">
+        </div>
+
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="submit" class="btn btn-primary" form="form">Guardar</button>
+    <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel·lar</button>
+</div>

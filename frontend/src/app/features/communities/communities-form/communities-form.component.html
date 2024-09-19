@@ -1,17 +1,19 @@
-
 <div class="modal-header">
   <h2>Comunitat {{community.name}}</h2>
-  <button *ngIf="!isEdit" class="btn btn-warning ms-auto" (click)="isEdit=true; isEditChange()">Edit</button>
-  <button *ngIf="isEdit && communityId" (click)="isEdit=false; isEditChange()" class="btn btn-warning ms-auto">View</button>
+  <!-- <button *ngIf="!isEdit" class="btn btn-primary ms-auto" (click)="isEdit=true; isEditChange()">Edit</button>
+  <button *ngIf="isEdit && communityId" (click)="isEdit=false; isEditChange()"
+    class="btn btn-primary ms-auto">View</button> -->
 </div>
 
-<div *ngIf="isEdit" class="modal-body">
+<div class="modal-body p-2">
+
+  <!-- <div *ngIf="isEdit" class="modal-body"> -->
   <div class="row p-2">
     <div class="col-12 col-md-6">
       <form id="form" [formGroup]="form" (ngSubmit)="save()">
         <div class="row row-cols-2 row-cols-md-1">
           <div class="col my-3" *ngIf="id">
-            <label for="id-input">id</label>
+            <label class="form-label" for="id-input">id</label>
             <input id="id-input" type="number" formControlName="id" class="form-control" [readonly]="true">
           </div>
           <div class="col my-3">
@@ -26,35 +28,34 @@
             </select>
           </div>
 
-          <div class="col my-3" *ngIf="form.get('createdAt')!.value!">
-            <label class="form-label" for="created-at-input">created at</label>
-            <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control disabled"
-                   [readonly]="true">
-          </div>
-          <div class="col my-3" *ngIf="form.get('updatedAt')!.value!">
-            <label class="form-label" for="updated-at-input">updated at</label>
-            <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control disabled"
-                   [readonly]="true">
-          </div>
+          <!-- <div class="col my-3" *ngIf="form.get('createdAt')!.value!">
+          <label class="form-label" for="created-at-input">created at</label>
+          <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control disabled"
+            [readonly]="true">
+        </div>
+        <div class="col my-3" *ngIf="form.get('updatedAt')!.value!">
+          <label class="form-label" for="updated-at-input">updated at</label>
+          <input id="updated-at-input" type="datetime-local" formControlName="updatedAt" class="form-control disabled"
+            [readonly]="true">
+        </div> -->
         </div>
       </form>
 
       <div class="row row-cols-2 row-cols-md-1">
         <div class="col my-3">
           <label class="form-label" for="cups-select">Cups de comunitat</label>
-          <ng-select id="cups-select" [items]="customers" [multiple]="true"
-                     [(ngModel)]="communityCups" (change)="changeCommunityCups(communityCups)" bindLabel="cups">
+          <ng-select id="cups-select" [items]="customers" [multiple]="true" [(ngModel)]="communityCups"
+            (change)="changeCommunityCups(communityCups)" bindLabel="cups">
             <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
-              <input id="item-{{index}}" type="checkbox"
-                     [ngModel]="item$.selected"/>
+              <input id="item-{{index}}" type="checkbox" [ngModel]="item$.selected" />
               {{item.name}} {{item.ubication}} {{item.cups}}
             </ng-template>
           </ng-select>
         </div>
         <div class="col my-3">
-          <label class="form-label" for="cups-select">Simulate generation</label>
+          <label class="form-label" for="cups-select">Simula generació</label>
           <select class=" px-2 form-select" placeholder="Select cups" (change)="changeSelectedCups(selectedCups)"
-                  [(ngModel)]="selectedCups"> <!---->
+            [(ngModel)]="selectedCups"> <!---->
             <option></option>
             <option *ngFor="let cups of communityCups" [ngValue]=cups>{{cups.name}} {{cups.ubication}}</option>
           </select>
@@ -67,19 +68,19 @@
 
         <div class="col-4 d-flex align-items-center">
           <input disabled placeholder="generation" value="{{selectedCups.yearEnergy.sumGeneration}}"
-                 class="form-control" type="number">
+            class="form-control" type="number">
         </div>
 
         <div class="col-4 d-flex align-items-center ">
           x
           <input (input)="multiplyGeneration($event)" class="form-control mx-2" type="number"
-                 value="{{selectedCups.yearEnergy.factor}}">
+            value="{{selectedCups.yearEnergy.factor}}">
           =
         </div>
 
         <div class="col-4">
           <input disabled placeholder="generation" value="{{multiplyGenerationResult}}" class="form-control"
-                 type="number">
+            type="number">
         </div>
 
       </div>
@@ -87,46 +88,82 @@
     </div>
     <div class="col-12 col-md-6 text-center">
 
+      <!-- Chart type selector -->
       <div class="d-flex justify-content-center mt-2">
-        <button class="btn btn-primary m-1" (click)="selectedTab='yearly'; getYearEnergy()"> Year simulation</button>
-        <button class="btn btn-primary m-1" (click)="selectedTab='monthly';getMonthEnergy()"> Month simulation</button>
-        <button class="btn btn-primary m-1" (click)="selectedTab='daily'; getDayEnergy()"> Day simulation</button>
+        
+        <button 
+        class="btn btn-primary m-1 w-100" 
+        [ngClass]="{'btn-primary': selectedTab=='yearly', 'btn-secondary': selectedTab!='yearly'}"
+        (click)="selectedTab='yearly'; getMonthsEnergy()"
+        >
+          Estadística anual
+        </button>
+
+        <button 
+        class="btn btn-primary m-1 w-100" 
+        [ngClass]="{'btn-primary': selectedTab=='monthly', 'btn-secondary': selectedTab!='monthly'}"
+        (click)="selectedTab='monthly';getMonthEnergy()"
+        >
+          Estadística mensual
+        </button>
+
+        <button 
+        class="btn btn-primary m-1 w-100" 
+        [ngClass]="{'btn-primary': selectedTab=='daily', 'btn-secondary': selectedTab!='daily'}"
+        (click)="selectedTab='daily'; getDayEnergy()"
+        >
+          Estadística diaria
+        </button>
+
       </div>
+
+      <!-- Type yearly -->
+
       <div *ngIf="selectedTab=='yearly'">
         <div class="d-flex justify-content-center my-2">
           <input type="number" placeholder="year" class="form-control" style="max-width: 150px"
-                 [(ngModel)]="selectedYear" (change)="changeYear()">
+            [(ngModel)]="selectedYear" (change)="changeYear()">
         </div>
         <div class="d-flex justify-content-center">
           <div class="custom-chart">
-            <app-chart [chartType]="yearChartType" [labels]="yearChartLabels" [data]="yearChartData"
-                       [backgroundColor]="yearChartBackgroundColor"
-                       [updateSubject]="updateYearChartSubject.asObservable()"></app-chart>
+            <app-chart [chartType]="yearChartType" [labels]="yearChartLabels" [datasets]="yearChartDatasets"
+              [updateSubject]="updateYearChartSubject.asObservable()"></app-chart>
           </div>
         </div>
       </div>
+
+      <!-- Type monthly -->
+
       <div *ngIf="selectedTab=='monthly'">
         <div class="d-flex justify-content-center my-2">
-          <input type="number" placeholder="year" class="form-control" style="max-width: 150px"
-                 [(ngModel)]="selectedYear" (change)="changeMonth()">
+          <!-- <input type="number" placeholder="year" class="form-control" style="max-width: 150px" [(ngModel)]="selectedYear"
+          (change)="changeMonth()"> -->
+
+          <input type="month" placeholder="year" class="form-control" style="max-width: 250px"
+            [(ngModel)]="selectedMonth" (change)="changeMonth()">
         </div>
         <div class="d-flex justify-content-center">
           <div class="custom-chart">
             <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
-                        [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
+              [updateSubject]="updateMonthChartSubject.asObservable()"></app-chart>
           </div>
         </div>
       </div>
+
+      <!-- Type daily -->
+
       <div *ngIf="selectedTab=='daily'">
         <div class="d-flex justify-content-center my-2">
+
           <input id="textinput" [(ngModel)]="selectedDate" (change)="changeDay()" name="textinput" type="date"
-                 placeholder="Start Date" class="form-control input-md" style="max-width: 150px">
+            placeholder="Start Date" class="form-control input-md" style="max-width: 150px">
+
         </div>
         <div class="d-flex justify-content-center">
           <div class="custom-chart">
             <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
-                       [backgroundColor]="dayChartBackgroundColor"
-                       [updateSubject]="updateDayChartSubject.asObservable()"></app-chart>
+              [backgroundColor]="dayChartBackgroundColor"
+              [updateSubject]="updateDayChartSubject.asObservable()"></app-chart>
           </div>
         </div>
       </div>
@@ -134,50 +171,56 @@
     </div>
   </div>
 </div>
+<!-- </div> -->
 
-<div *ngIf="!isEdit" class="modal-body">
+<!-- <div *ngIf="!isEdit" class="modal-body">
+
+  <div class="row my-2">
+    <div class="d-flex justify-content-center my-2">
+      <input type="number" placeholder="year" class="form-control" style="max-width: 150px" [(ngModel)]="selectedYear"
+        (change)="changeYear(); changeMonth()">
+    </div>
+  </div>
 
   <div class="row row-cols-1 row-cols-md-2 g-2">
     <div class="col">
-      <div class="d-flex justify-content-center my-2">
-        <input type="number" placeholder="year" class="form-control" style="max-width: 150px"
-               [(ngModel)]="selectedYear" (change)="changeYear(); changeMonth()">
-      </div>
       <div class="d-flex justify-content-center">
         <div class="custom-chart">
           <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
-                      [updateSubject]="updateMonthChartSubject.asObservable()"
-                     chartId="month-chart"></app-chart>
+            [updateSubject]="updateMonthChartSubject.asObservable()" chartId="month-chart"></app-chart>
         </div>
-
       </div>
     </div>
 
     <div class="col">
       <div class="d-flex justify-content-center">
-        <div class="custom-chart">
+        <div class="custom-chart-pie">
           <app-chart [chartType]="yearChartType" [labels]="yearChartLabels" [data]="yearChartData"
-                     [backgroundColor]="yearChartBackgroundColor"
-                     [updateSubject]="updateYearChartSubject.asObservable()" chartId="year-chart"></app-chart>
-        </div>
-      </div>
-    </div>
-
-    <div class="col">
-      <div class="d-flex justify-content-center my-2">
-        <input [(ngModel)]="selectedDate" (change)="changeDay()" name="textinput" type="date"
-               placeholder="Start Date" class="form-control input-md" style="max-width: 150px">
-      </div>
-      <div class="d-flex justify-content-center">
-        <div class="custom-chart">
-          <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
-                     [backgroundColor]="dayChartBackgroundColor"
-                     [updateSubject]="updateDayChartSubject.asObservable()" chartId="day-chart"></app-chart>
+            [backgroundColor]="yearChartBackgroundColor" [updateSubject]="updateYearChartSubject.asObservable()"
+            chartId="year-chart"></app-chart>
         </div>
       </div>
     </div>
   </div>
-</div>
+
+  <div class="row my-2">
+    <div class="d-flex justify-content-center my-2">
+      <input [(ngModel)]="selectedDate" (change)="changeDay()" name="textinput" type="date" placeholder="Start Date"
+        class="form-control input-md" style="max-width: 150px">
+    </div>
+  </div>
+  <div class="row row-cols-1 row-cols-md-2 g-2">
+    <div class="col">
+      <div class="d-flex justify-content-center">
+        <div class="custom-chart">
+          <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
+            [backgroundColor]="dayChartBackgroundColor" [updateSubject]="updateDayChartSubject.asObservable()"
+            chartId="day-chart"></app-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
 
 <div class="modal-footer">
   <button type="submit" class="btn btn-primary" form="form">Save</button>

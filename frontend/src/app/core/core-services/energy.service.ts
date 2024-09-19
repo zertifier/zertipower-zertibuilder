@@ -12,7 +12,7 @@ export class EnergyService {
    baseUrl = `${environment.api_url}/energy-hourly`;
   
   cupsBaseUrl = `${environment.api_url}/cups`;
-  communityBaseUrl = `${environment.api_url}/community`;
+  communityBaseUrl = `${environment.api_url}/communities`;
 
   constructor(private http:HttpClient) {}
 
@@ -53,6 +53,11 @@ export class EnergyService {
 
   getDayByCups(cups:number,origin:string,date:string){
     let url = `${this.cupsBaseUrl}/${cups}/stats/${origin}/daily/${date}`;
+    return this.http.get(url);
+  }
+
+  getDayByCommunityCups(cups:number,origin:string,date:string){
+    let url = `${this.communityBaseUrl}/${cups}/stats/${origin}/daily/${date}`;
     return this.http.get(url);
   }
 

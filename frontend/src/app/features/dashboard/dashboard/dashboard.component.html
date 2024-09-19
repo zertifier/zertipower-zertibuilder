@@ -20,7 +20,6 @@
   <div class="mb-2 col-4">
     <label for="originDataTypeSelector">Origen</label>
     <select id="originDataTypeSelector" [(ngModel)]="selectedCupsOriginDataType" class="form-select px-2">
-      <option></option>
       <option *ngFor="let originDataType of originDataTypes" [ngValue]="originDataType">{{ originDataType }}</option>
     </select>
   </div>

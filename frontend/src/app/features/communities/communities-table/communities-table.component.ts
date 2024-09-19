@@ -41,22 +41,22 @@ export class CommunitiesTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'Name',
+      title: 'Nom',
       data: 'name',
       width: '100px',
     },
     {
-      title: 'Location',
+      title: 'Municipi',
       data: 'municipality',
       width: '100px',
     },
     {
-      title: 'Cups',
+      title: 'Participants',
       data: 'qty_cups',
       width: '100px',
     },
     {
-      title: 'Test',
+      title: 'En proves',
       data: 'test',
       width: '100px',
     },/*
@@ -106,21 +106,24 @@ export class CommunitiesTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'test',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      /*{
-        title: 'created_at',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },*/
+        title: "test",
+        description: "",
+        value: "",
+        type: 2,
+        defaultData: 1,
+        binarySelector:true,
+        defaultTranslation:["Sí","No"],
+        options: [
+          {
+            name: "Sí",
+            value: "No"
+          },
+          {
+            name: "Sí",
+            value: "No"
+          },
+        ]
+      }
   ];
 
   columnDefs:any[] = [

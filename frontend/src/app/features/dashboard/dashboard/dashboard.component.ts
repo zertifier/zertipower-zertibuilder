@@ -128,7 +128,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     } else if (this.selectedCupsCustomer.smart_meter_active) {
       this.selectedCupsOriginDataType = 'Smart meter';
     } else {
-      this.selectedCupsOriginDataType = 'Other';
+      this.selectedCupsOriginDataType = 'Datadis'; //default datadis ( authorized community users hasn't datadis_active)
     }
   }
 
@@ -201,7 +201,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const sumConsumption = yearEnergy.kwhConsumption.length > 0 ? yearEnergy.kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0) : 0;
     const sumExport = yearEnergy.kwhExport.length > 0 ? yearEnergy.kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0) : 0;
 
-    this.yearChartLabels = ['Consumption (Kwh)', 'Generation (Kwh)', 'Export (Kwh)'] //'Import (Kwh)'
+    this.yearChartLabels = ['Consumption (kWh)', 'Generation (kWh)', 'Export (kWh)'] //'Import (Kwh)'
 
     this.yearChartDatasets = [{
       data: [sumConsumption, sumGeneration, sumExport], //sumImport
@@ -223,17 +223,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     this.monthsChartDatasets = [
       {
-        label: 'Consum (Kwh)',
+        label: 'Consum (kWh)',
         data: yearEnergy.kwhConsumption,
         backgroundColor: '#D35400'
       },
       {
-        label: 'Generació (Kwh)',
+        label: 'Generació (kWh)',
         data: yearEnergy.kwhGeneration,
         backgroundColor: '#229954'
       },
       {
-        label: 'Exportació (Kwh)',
+        label: 'Exportació (kWh)',
         data: yearEnergy.kwhExport,
         backgroundColor: '#3498DB'
       },
@@ -247,15 +247,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.monthChartLabels = monthEnergy.monthDays
     this.monthChartDatasets = [
       {
-        label: 'Consum (Kwh)',
+        label: 'Consum (kWh)',
         data: monthEnergy.monthConsumption,
         backgroundColor: '#D35400'
       }, {
-        label: 'Generació (Kwh)',
+        label: 'Generació (kWh)',
         data: monthEnergy.monthGeneration,
         backgroundColor: '#229954'
       }, {
-        label: 'Exportació (Kwh)',
+        label: 'Exportació (kWh)',
         data: monthEnergy.monthExport,
         backgroundColor: '#3498DB'
       }]
@@ -268,17 +268,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     this.dayChartDatasets = [
       {
-        label: 'Consum (Kwh)',
+        label: 'Consum (kWh)',
         data: dayEnergy.dayConsumption,
         backgroundColor: '#D35400'
       },
       {
-        label: 'Generació (Kwh)',
+        label: 'Generació (kWh)',
         data: dayEnergy.dayGeneration,
         backgroundColor: '#229954'
       },
       {
-        label: 'Exportació (Kwh)',
+        label: 'Exportació (kWh)',
         data: dayEnergy.dayExport,
         backgroundColor: '#3498DB'
       }

@@ -93,9 +93,24 @@ export class EnergyBlocksTableComponent implements OnDestroy {
       title: 'reference',
       description: '',
       value: '',
-      type: 0,
-      defaultData: 0,
-      options: [],
+      type: 2,
+      defaultData: 1,
+      binarySelector:true,
+      defaultTranslation:["Vall","Pla","Punta"],
+      options: [
+        {
+          name: "Vall",
+          value: "Valle"
+        },
+        {
+          name: "Pla",
+          value: "Llano"
+        },
+        {
+          name: "Punta",
+          value: "Punta"
+        },
+      ]
     },
     {
       title: 'provider',
@@ -171,7 +186,6 @@ export class EnergyBlocksTableComponent implements OnDestroy {
       render: (data: any, type: any, row: any) => {
         // return `<i class="fa-solid fa-clock"></i> ${data}`
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
-
       }
     },
     {

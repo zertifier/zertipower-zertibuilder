@@ -13,23 +13,7 @@ import { ProvidersApiService } from '../../providers/providers.service';
   styleUrls: ['./energy-blocks-form.component.scss'],
 })
 export class EnergyBlocksFormComponent implements OnInit {
-  tinymceConfig = {
-    language: 'es',
-    language_url: '/assets/tinymce/langs/es.js',
-    plugins: 'lists link image table code help wordcount',
-    toolbar:
-      'blocks bold italic forecolor backcolor | ' +
-      'alignleft aligncenter alignright alignjustify | ' +
-      'bullist numlist outdent indent | ' +
-      'image table | ' +
-      'removeformat help',
-    base_url: '/assets/tinymce',
-    suffix: '.min',
-    height: 200,
-    statusbar: false,
-    menubar: false,
-    promotion: false
-  }
+
   id: number = 0;
 
   availableProviders:any[]=[];
@@ -133,10 +117,9 @@ export class EnergyBlocksFormComponent implements OnInit {
       request = this.apiService.update(this.id, values);
     }
     request.subscribe((data) => {
-      console.log(data, "DATA")
       Swal.fire({
         icon: 'success',
-        title: 'Success!'
+        title: `L'operació s'ha completat amb èxit!`
       });
       this.activeModal.close();
     });

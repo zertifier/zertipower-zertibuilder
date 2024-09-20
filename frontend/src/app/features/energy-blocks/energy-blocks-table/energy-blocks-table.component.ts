@@ -81,75 +81,90 @@ export class EnergyBlocksTableComponent implements OnDestroy {
   ];
 
   filterParams: filterParams[] = [
-      {
-        title: 'id',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'reference',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'provider',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'expiration_dt',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'active_init',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'active_end',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'consumption_price',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'generation_price',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
+    {
+      title: 'id',
+      description: '',
+      value: '',
+      type: 1,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'reference',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'provider',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'expiration_dt',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'active_init',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'active_end',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'consumption_price',
+      description: '',
+      value: '',
+      type: 1,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'generation_price',
+      description: '',
+      value: '',
+      type: 1,
+      defaultData: 0,
+      options: [],
+    },
   ];
 
-  columnDefs:any[] = [
+  columnDefs: any[] = [
     {
       orderable: false, targets: [this.filterParams.length],
+    },
+    {
+      targets: 1,
+      render: (data: any, type: any, row: any) => {
+        switch (data) {
+          case 'Valle':
+            return 'Vall';
+          case 'Llano':
+            return 'Pla';
+          case 'Punta':
+            return 'Punta';
+          default:
+            return data;
+        }
+      }
     },
     {
       targets: 3,
@@ -187,7 +202,7 @@ export class EnergyBlocksTableComponent implements OnDestroy {
     }
   ];
 
-  editRequest(id:any) {
+  editRequest(id: any) {
 
     const modalRef = this.ngbModal.open(EnergyBlocksFormComponent);
     modalRef.componentInstance.setEditingId(parseInt(id));
@@ -195,17 +210,17 @@ export class EnergyBlocksTableComponent implements OnDestroy {
     this.subscriptions.push(
       modalRef.closed.subscribe(() => this.datatable.updateTable()),
     )
-    
+
   }
 
-  async deleteRequest(id:any) {
+  async deleteRequest(id: any) {
     const response = await Swal.fire({
       icon: 'question',
       title: 'Are you sure?',
       showCancelButton: true,
     });
 
-    if(!response.isConfirmed) {
+    if (!response.isConfirmed) {
       return;
     }
 

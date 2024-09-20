@@ -61,6 +61,7 @@ export class ShareService {
   private conn: mysql.Pool;
   daysToIgnore = 7;
 
+  newRegisters:  RegistersFromDb[] = []
   constructor(
     private mysql: MysqlService,
     private environment: EnvironmentService,
@@ -92,62 +93,36 @@ export class ShareService {
 
       let surplusRegisters = await this.getNewSurplusRegisters();
       surplusRegisters = await this.deleteDays(surplusRegisters, this.daysToIgnore)
-      let newRegisters = await this.getNewRegisters()
+      this.newRegisters = await this.getNewRegisters()
 
       console.log(`Inserting ${surplusRegisters.length} trades...`)
 
       for (const surplusRegister of surplusRegisters) {
+        console.log(`Trades registers left: ${this.newRegisters.length}`)
         const communityPrice = await this.getCommunityPrice(surplusRegister.community_id)
         let totalSurplus = parseFloat(surplusRegister.kwh_out.toString())
 
-        if (surplusRegister.trade_type == 'PREFERRED'){
-          const customerCupsRegisters = newRegisters.filter((register) => register.customer_id == surplusRegister.customer_id)
-
-          const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, customerCupsRegisters, surplusRegister.trade_type)
-          const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
-          await this.insertToTrades(calculatedRedistribute, communityPrice)
-          totalSurplus = calculatedRedistribute.resultTotalSurplus
-          // if (calculatedRedistribute.redistributePartners.length) console.log(calculatedRedistribute)
-          //We remove the calculated trades of the cups of customer from newRegisters
-         /* newRegisters = newRegisters.filter(register => {
-            !calculatedRedistribute.redistributePartners.some(
-              partner => {
-                if (partner.ehId === register.eh_id) {
-                  console.log(partner)
-                  return partner
-                }
-              } )
-
-            }
-          );*/
-          if (calculatedRedistribute.redistributePartners.length){
-            const filteredRegisters = newRegisters.filter(register =>
-              !calculatedRedistribute.redistributePartners.some(partner =>
-                partner.cupsId === register.cups_id && moment(partner.infoDt).format('YYYY-MM-DD HH') == moment(register.info_dt).format('YYYY-MM-DD HH'))
-            );
+        if (totalSurplus > 0 && surplusRegister.trade_type == 'PREFERRED'){
+          const customerCupsRegisters = this.newRegisters
+            .filter(
+              (register) => register.customer_id == surplusRegister.customer_id)
 
 
-            if (filteredRegisters.length)
-              newRegisters = filteredRegisters;
+          if (customerCupsRegisters.length){
+            const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, customerCupsRegisters, surplusRegister.trade_type)
+            const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
+            await this.insertToTrades(calculatedRedistribute, communityPrice)
+            totalSurplus = calculatedRedistribute.resultTotalSurplus
           }
-
-
 
         }
 
+        if (totalSurplus > 0 && this.newRegisters.length) {
+          const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, this.newRegisters, "EQUITABLE")
+          const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
+          await this.insertToTrades(calculatedRedistribute, communityPrice)
+        }
 
-        // const redisitributePartners = this.getRegistersByDateAndCommunity(surplusRegister.info_dt, surplusRegister.community_id, newRegisters)
-        /*const redistributeObject = {
-          totalSurplus,
-          resultTotalSurplus: 0,
-          surplusCups: surplusRegister.cups_id,
-          surplusEhId: surplusRegister.eh_id,
-          redisitributePartners
-        }*/
-
-        const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, newRegisters, "EQUITABLE")
-        const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
-        await this.insertToTrades(calculatedRedistribute, communityPrice)
       }
     } catch (error) {
       console.log("Error updating trades:", error);
@@ -156,33 +131,35 @@ export class ShareService {
     console.log(`Trades updated.`)
   }
 
-  calculateRedistribution(redistributeObject: RedistributeObject = this.redistributeObject) {
-    /*if (redistributeObject.surplusCups == 22) console.log(redistributeObject)
-    if (redistributeObject.surplusCups == 22) console.log(moment(redistributeObject.redistributePartners[0].infoDt).format('YYYY-MM-DD HH:mm'))*/
+  /*calculateRedistribution(redistributeObject: RedistributeObject) {
     let total = redistributeObject.totalSurplus;
     let partners = redistributeObject.redistributePartners;
     let activePartners = partners.length;
-
-    // console.log(redistributeObject)
     partners.forEach(partner => {
       partner.resultConsumption = partner.consumption;
     });
 
+    console.log(redistributeObject)
+
     // Redistribute while it has energy and active partners with consumption
     while (total > 0 && activePartners > 0) {
-      // let subtractor = total / activePartners; // Treure decimals y posarlos a total
       let subtractor = Math.floor(total * 1000 / activePartners) / 1000;
       let distributed = 0;
       for (let i = 0; i < partners.length; i++) {
         const partner = partners[i];
-
         if (partner.resultConsumption > 0) {
           let result = partner.resultConsumption - subtractor;
+          console.log(result, "result of:", partner.cupsId)
 
           if (result < 0) {
             // If consumption == 0, readjust energy left
             distributed += partner.resultConsumption;
             partner.resultConsumption = 0;
+            /!*
+            this.newRegisters = this.newRegisters.filter(newRegister =>
+              !(moment(newRegister.info_dt).isSame( moment(partner.infoDt)) &&
+                newRegister.cups_id === partner.cupsId)
+            );*!/
             activePartners--;
           } else {
             // Subtract partner consumption
@@ -190,6 +167,8 @@ export class ShareService {
             partner.resultConsumption = result;
           }
         }
+        this.newRegisters = this.newRegisters.filter(newRegister => newRegister.eh_id != partner.ehId);
+
       }
 
       // If energy is not distributed we exit the loop
@@ -203,10 +182,51 @@ export class ShareService {
 
         if (partnersWithConsumption.length) {
           let index = 0
-          if (partnersWithConsumption.length > 1)
+
+          // Si hay más de un partner, generamos los índices posibles
+          let availableIndexes = [...Array(partnersWithConsumption.length).keys()];
+
+          if (availableIndexes.length > 1) {
+            index = this.getRandomInt(0, availableIndexes.length - 1);
+          }
+
+          let foundValidPartner = false;
+
+          while (!foundValidPartner && availableIndexes.length > 0) {
+            let partner = partnersWithConsumption[index];
+            let expectedResultConsumption = partner.resultConsumption - total;
+
+            if (expectedResultConsumption > 0) {
+              // Si el consumo es válido, actualizamos el valor
+              partnersWithConsumption[index].resultConsumption = expectedResultConsumption;
+              foundValidPartner = true;
+            } else {
+              // Si no es válido, eliminamos este índice de los disponibles
+              availableIndexes.splice(index, 1);
+
+              // Si todavía quedan índices disponibles, seleccionamos uno nuevo
+              if (availableIndexes.length > 0) {
+                index = this.getRandomInt(0, availableIndexes.length - 1);
+              }
+            }
+          }
+
+          /!*if (partnersWithConsumption.length > 1)
             index = this.getRandomInt(0, partnersWithConsumption.length - 1)
 
-          partnersWithConsumption[index].resultConsumption -= total
+
+          while (!foundValidPartner){
+            let expectedResultConsumption = partnersWithConsumption[index].resultConsumption-= total
+            if (expectedResultConsumption > 0){
+              partnersWithConsumption[index].resultConsumption = expectedResultConsumption
+              foundValidPartner = true
+            }else{
+              index = this.getRandomInt(0, partnersWithConsumption.length - 1)
+            }
+          }*!/
+
+
+
         }
 
         total = 0
@@ -216,6 +236,89 @@ export class ShareService {
     redistributeObject.resultTotalSurplus = total
 
     return redistributeObject
+  }*/
+
+  calculateRedistribution(redistributeObject: RedistributeObject) {
+    //config initial data
+    const epsilon = 0.0000000001;
+    const totalAvailablePower: number = redistributeObject.totalSurplus;
+    if (totalAvailablePower <= 0) {
+      redistributeObject.redistributePartners = []
+      return redistributeObject
+    }
+    const partners = redistributeObject.redistributePartners;
+    const consumers = partners
+      .filter(p => p.consumption > epsilon && p.cupsId != redistributeObject.surplusCups)
+      .map(p => {
+        return { partner: p, desiredPower: p.consumption };
+      });
+    redistributeObject.redistributePartners = consumers.map(c=> c.partner)
+
+    if (consumers.length === 0) {
+      console.log('No consumers found. Distribution canceled.');
+      redistributeObject.totalSurplus = totalAvailablePower
+      return redistributeObject;
+    }
+
+    const totalDesiredConsumption: number = consumers.map(consumer => consumer.desiredPower)
+      .reduce((a, b) => a + b);
+
+ /*   console.log('distribution begins for: ', redistributeObject);
+    console.log('total power to distribute: ', totalDesiredConsumption);
+    console.log('consumers: ', consumers);*/
+
+// if totalPower > sum then satisfy all
+    if (totalAvailablePower > totalDesiredConsumption) {
+      console.log('Enough power for all: choosing straightforward strategy');
+      redistributeObject.resultTotalSurplus = totalAvailablePower - totalDesiredConsumption;
+      consumers.forEach(c => {
+        c.partner.resultConsumption = 0
+        this.newRegisters = this.newRegisters.filter(newRegister => newRegister.eh_id != c.partner.ehId);
+      });
+
+      return redistributeObject;
+    }
+
+    // sort consumers and loop trough with recalculation even part
+    const sortedConsumers = consumers.sort((a, b) => a.desiredPower < b.desiredPower
+      ? -1 : (a.desiredPower - b.desiredPower) < epsilon ? 0 : 1);
+    // console.log('sorted consumers: ', sortedConsumers);
+    let availablePower = totalAvailablePower;
+    let i = 0;
+
+    // console.log('Eager strategy begin');
+    for (let consumer of sortedConsumers) {
+      const evenPart = availablePower / (sortedConsumers.length - i);
+      // console.log(`iteration: ${i}, evenPart: ${evenPart}`);
+      // if cant satisfy consumer, break the loop and go to next step
+      if (evenPart < consumer.desiredPower ) break;
+      i++
+      // console.log('consumer can be satisfied, loop continued')
+      availablePower -= consumer.desiredPower;
+      consumer.partner.resultConsumption = 0;
+      this.newRegisters = this.newRegisters.filter(newRegister => newRegister.eh_id != consumer.partner.ehId);
+
+    }
+
+// distribute the rest evenly
+    const notSatisfiedConsumers = sortedConsumers.slice(i)
+    const evenPart = availablePower / notSatisfiedConsumers.length;
+    for(let consumer of notSatisfiedConsumers){
+
+      let consumption = consumer.partner.consumption;
+      consumer.partner.resultConsumption = consumption - evenPart
+      const index = this.newRegisters.findIndex(newRegister => newRegister.eh_id === consumer.partner.ehId);
+
+      this.newRegisters[index].kwh_in = consumer.partner.resultConsumption
+
+    }
+    // notSatisfiedConsumers.forEach(c => c.partner.resultConsumption = c.partner.consumption - evenPart);
+   // console.log(notSatisfiedConsumers, "notSatisfiedConsumers22222")
+
+    redistributeObject.resultTotalSurplus = 0
+    // console.log(redistributeObject, "RETURNNN")
+    return redistributeObject;
+
   }
 
   getRegistersByDateAndCommunity(surplusRegisterDate: Date, communityId: number, newRegisters: RegistersFromDb[]) {
@@ -223,6 +326,7 @@ export class ShareService {
     const filteredRegisters = newRegisters.filter((register) =>
       moment(register.info_dt).format('YYYY-MM-DD HH') == date && communityId == register.community_id
     )
+
     return filteredRegisters.map(this.formatPartnerObjects)
   }
 
@@ -237,6 +341,7 @@ export class ShareService {
       }
       }
     )
+
     return filteredRegisters.map(this.formatPartnerObjects)
   }
 
@@ -256,14 +361,12 @@ export class ShareService {
                  cups.customer_id,
                  trade_type
           FROM energy_hourly e
-                 LEFT JOIN trades t ON e.info_dt = t.info_dt
                  LEFT JOIN cups ON e.cups_id = cups.id
                  LEFT JOIN users ON cups.customer_id = users.customer_id
                  LEFT JOIN communities ON cups.community_id = communities.id
-          WHERE t.info_dt IS NULL
-            AND cups.type != 'community'
+          WHERE  cups.type != 'community' 
           AND e.kwh_out > 0
-          ORDER BY e.info_dt ASC, e.kwh_out DESC;
+          ORDER BY e.info_dt ASC, e.kwh_out DESC ;
         `
         let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
         /*let result: any = await this.prisma.$queryRaw`
@@ -310,12 +413,10 @@ export class ShareService {
                cups.customer_id,
                trade_type
         FROM energy_hourly e
-               LEFT JOIN trades t ON e.info_dt = t.info_dt
                LEFT JOIN cups ON e.cups_id = cups.id
                LEFT JOIN users ON cups.customer_id = users.customer_id
                LEFT JOIN communities ON cups.community_id = communities.id
-        WHERE t.info_dt IS NULL
-          AND cups.type != 'community'
+        WHERE cups.type != 'community'
         AND e.kwh_in > 0
         ORDER BY e.info_dt ASC, e.kwh_in DESC;
       `)
@@ -405,17 +506,17 @@ export class ShareService {
     let cupsBalancesToUpdate: any = {};
     let transactionNumber = 0;
     const customerSeller = await this.getCustomerFromCupsId(trade.surplusCups);
-
     for (const partner of trade.redistributePartners) {
-
-      const tradedKwh = parseFloat((partner.consumption - partner.resultConsumption).toFixed(3))
+      const tradedKwh = parseFloat((partner.consumption - partner.resultConsumption).toFixed(3)) //deberiamos guardarlo en watts
       const tradeCost = parseFloat((tradedKwh * (communityPrice || 0)).toFixed(3));
       partner.tradeCost = tradeCost;
       partner.tradedKWh = tradedKwh;
 
       const infoDt = moment(partner.infoDt).format('YYYY-MM-DD HH:mm:ss')
+      /*const totalSellSurplus = resultSellTotalKwh
+      resultSellTotalKwh -= tradedKwh*/
       const totalSellSurplus = resultSellTotalKwh
-      resultSellTotalKwh -= tradedKwh
+      resultSellTotalKwh -= (partner.consumption - partner.resultConsumption)
 
       const customerBuyer = await this.getCustomerFromCupsId(partner.cupsId);
 
@@ -614,5 +715,6 @@ export class ShareService {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
+
   }
 }

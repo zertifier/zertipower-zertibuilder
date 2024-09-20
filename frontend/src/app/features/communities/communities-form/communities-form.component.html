@@ -151,7 +151,7 @@
         </div>
       </div>
 
-      <app-map class="w-100 mt-auto" style="height: 230px;"></app-map>
+      <app-map class="w-100 mt-auto" style="height: 230px;" (selectedLatLng)="updateLatLng($event)"></app-map>
 
     </div>
   </div>

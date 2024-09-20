@@ -36,7 +36,7 @@ export class CommunitiesFormComponent implements OnInit {
     name: new FormControl<string | null>(null),
     tradeType: new FormControl<string | null>(null),
     locationId: new FormControl<number | null>(null),
-    lat: new FormControl<number | null>(null),
+    lat: new FormControl<Number | null>(null),
     lng: new FormControl<number | null>(null),
     test: new FormControl<number | null>(null),
     createdAt: new FormControl<string | null>(null),
@@ -480,6 +480,14 @@ export class CommunitiesFormComponent implements OnInit {
     })
   }
 
+  updateLatLng(latLngObject:any){
+    console.log(latLngObject)
+    this.community.lat=latLngObject.lat
+    this.community.lng=latLngObject.lng
+    this.form.controls.lat.setValue(latLngObject.lat);
+    this.form.controls.lng.setValue(latLngObject.lng);
+  }
+
   //save comunnity changes:
 
   async save() {
@@ -599,8 +607,8 @@ export class CommunitiesFormComponent implements OnInit {
     values.name = this.form.value.name;
     values.test = parseInt(this.form.value.test?.toString() || '0');
     values.locationId = parseInt(this.form.value.locationId?.toString() || '0');
-    values.lat = parseInt(this.form.value.lat?.toString() || '0');
-    values.lng = parseInt(this.form.value.lng?.toString() || '0');
+    values.lat = Number(this.form.value.lat?.toString() || '0');
+    values.lng = Number(this.form.value.lng?.toString() || '0');
     values.tradeType = this.form.value.tradeType;
     values.createdAt = this.form.value.createdAt;
     values.updatedAt = this.form.value.updatedAt;

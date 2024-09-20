@@ -51,6 +51,11 @@ export class CommunitiesTableComponent implements OnDestroy {
       width: '100px',
     },
     {
+      title: 'Tipus de compartició',
+      data: 'trade_type',
+      width: '100px',
+    },
+    {
       title: 'Participants',
       data: 'qty_cups',
       width: '100px',
@@ -73,62 +78,95 @@ export class CommunitiesTableComponent implements OnDestroy {
   ];
 
   filterParams: filterParams[] = [
-      {
-        title: 'id',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'name',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'location',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'qty_cups',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: "test",
-        description: "",
-        value: "",
-        type: 2,
-        defaultData: 1,
-        binarySelector:true,
-        defaultTranslation:["Sí","No"],
-        options: [
-          {
-            name: "Sí",
-            value: "No"
-          },
-          {
-            name: "Sí",
-            value: "No"
-          },
-        ]
-      }
+    {
+      title: 'id',
+      description: '',
+      value: '',
+      type: 1,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'name',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'location',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: "trade_type",
+      description: "",
+      value: "",
+      type: 2,
+      defaultData: 1,
+      binarySelector: true,
+      defaultTranslation: ["Preferent", "Equitatiu"],
+      options: [
+        {
+          name: "Preferent",
+          value: "PREFERRED"
+        },
+        {
+          name: "Equitatiu",
+          value: "EQUITABLE"
+        }
+      ]
+    },
+    {
+      title: 'qty_cups',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: "test",
+      description: "",
+      value: "",
+      type: 2,
+      defaultData: 1,
+      binarySelector: true,
+      defaultTranslation: ["Sí", "No"],
+      options: [
+        {
+          name: "Sí",
+          value: "1"
+        },
+        {
+          name: "Sí",
+          value: "0"
+        },
+      ]
+    }
   ];
 
-  columnDefs:any[] = [
+  columnDefs: any[] = [
     {
       orderable: false, targets: [this.filterParams.length],
+    },
+    {
+      targets: 3,
+      render: (data: any, type: any, row: any) => {
+        if (data == 'PREFERRED') {
+          return 'Preferent'
+        }
+        else if (data == 'EQUITABLE') {
+          return 'Equitatiu'
+        }
+        else {
+          return '-'
+        }
+      }
     },
     /*{
       targets: 5,
@@ -152,8 +190,8 @@ export class CommunitiesTableComponent implements OnDestroy {
     }
   ];
 
-  editRequest(id:any) {
-    const modalRef = this.ngbModal.open(CommunitiesFormComponent, {size: 'xl'});
+  editRequest(id: any) {
+    const modalRef = this.ngbModal.open(CommunitiesFormComponent, { size: 'xl' });
     modalRef.componentInstance.setEditingId(parseInt(id));
 
     this.subscriptions.push(
@@ -161,14 +199,14 @@ export class CommunitiesTableComponent implements OnDestroy {
     )
   }
 
-  async deleteRequest(id:any) {
+  async deleteRequest(id: any) {
     const response = await Swal.fire({
       icon: 'question',
       title: 'Are you sure?',
       showCancelButton: true,
     });
 
-    if(!response.isConfirmed) {
+    if (!response.isConfirmed) {
       return;
     }
 
@@ -187,12 +225,12 @@ export class CommunitiesTableComponent implements OnDestroy {
       this.energyService.getYearByCommunity(year, communityId!).subscribe((res: any) => {
         console.log(res.data)
         let monthlyCommunityData = res.data;
-        let months: string[] = monthlyCommunityData .map((entry: any) => entry.month);
-        let kwhImport: number[] = monthlyCommunityData .map((entry: any) => entry.import);
-        let kwhGeneration: number[] = monthlyCommunityData .map((entry: any) => entry.generation);
-        let kwhExport: number[] = monthlyCommunityData .map((entry: any) => entry.export);
-        let kwhConsumption: number[] = monthlyCommunityData .map((entry: any) => entry.consumption);
-        let yearEnergy = {months, kwhImport, kwhGeneration,kwhConsumption,kwhExport}
+        let months: string[] = monthlyCommunityData.map((entry: any) => entry.month);
+        let kwhImport: number[] = monthlyCommunityData.map((entry: any) => entry.import);
+        let kwhGeneration: number[] = monthlyCommunityData.map((entry: any) => entry.generation);
+        let kwhExport: number[] = monthlyCommunityData.map((entry: any) => entry.export);
+        let kwhConsumption: number[] = monthlyCommunityData.map((entry: any) => entry.consumption);
+        let yearEnergy = { months, kwhImport, kwhGeneration, kwhConsumption, kwhExport }
         resolve(yearEnergy)
       })
       //}else if (community){

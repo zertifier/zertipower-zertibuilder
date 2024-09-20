@@ -27,7 +27,7 @@
 
           <div class="col my-3">
             <label class="form-label" for="test-select">Municipi</label>
-            <ng-select name="locationId" id="location-select" formControlName="locationId">
+            <ng-select name="locationId" id="location-select" formControlName="locationId" (change)="updateMapLocation()">
               <ng-option *ngFor="let location of locations" [value]="location.id">{{location.municipality}}</ng-option>
             </ng-select>
           </div>

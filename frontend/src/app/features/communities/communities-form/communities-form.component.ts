@@ -159,16 +159,6 @@ export class CommunitiesFormComponent implements OnInit {
       })
   }
 
-  setMapLocationByLocationId(locationId: number) {
-    let selectedLocation = this.locations.find(location => location.id == this.community.locationId)
-    if (!selectedLocation) {
-      console.log("Selected location not found")
-      return;
-    }
-    console.log(selectedLocation.municipality)
-    this.map.centerToAddress(`${selectedLocation.municipality}, España`)
-  }
-
   setMarker(lat: number, lng: number) {
     let marker = this.map.addMarker(lat, lng)
   }
@@ -478,6 +468,21 @@ export class CommunitiesFormComponent implements OnInit {
           resolve(yearEnergy)
         })
     })
+  }
+
+  updateMapLocation(){
+    this.community.locationId = parseInt(this.form.value.locationId?.toString() || '0');
+    this.setMapLocationByLocationId(this.community.locationId);
+  }
+
+  setMapLocationByLocationId(locationId: number) {
+    let selectedLocation = this.locations.find(location => location.id == this.community.locationId)
+    if (!selectedLocation) {
+      console.log("Selected location not found")
+      return;
+    }
+    console.log(selectedLocation.municipality)
+    this.map.centerToAddress(`${selectedLocation.municipality}, España`)
   }
 
   updateLatLng(latLngObject:any){

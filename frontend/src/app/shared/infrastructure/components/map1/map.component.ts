@@ -7,30 +7,38 @@ import {
   OnChanges,
   OnInit, SimpleChanges, ViewChild,
 } from "@angular/core";
-import {GoogleMap, GoogleMapsModule} from '@angular/google-maps';
+import {GoogleMap} from '@angular/google-maps';
 import {Output, EventEmitter} from '@angular/core';
+import {log} from "console";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-map',
-  standalone: true,
-  imports: [
-    GoogleMapsModule
-  ],
   templateUrl: './map.component.html',
   styles: `
+
     #map {
       object-fit: cover;
+      width: 100%;
+      max-height: 100%;
       border-radius: 6px;
+      height: 85vh;
+      min-height: 323.4px;
     }
 
-    // .custom-marker {
-    //   background: url("/assets/marker-blue.png");
-    // }
+    .custom-marker {
+      background: url("/assets/marker-blue.png");
+    }
 
     .custom-marker {
       max-width: 50px;
+    }
+
+    /* mapa.component.css */
+    #mapContainer {
+      height: 400px;
+      width: 100%;
     }
 
   `
@@ -93,7 +101,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   selectedStyle: any = {fillColor: 'white', fillOpacity: 0.5, strokeColor: 'white'}
   multipleSelection = false;
 
-  markerColor = '#0033cc'//'#000000'//'#959150'
+  markerColor = '#959150'
   selectedMarkerColor = '#0e2b4c'
 
   @Output() selectedFeature = new EventEmitter<any>();
@@ -182,7 +190,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
 
   addMarker(lat: any, lng: any) {
 
-    //console.log("add marker")
+    console.log("add marker")
 
     let coordinates = new google.maps.LatLng(lat, lng);
 
@@ -296,7 +304,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   }
 
   updateActiveFeatures(activeFeatures: any) {
-    //console.log("updateActiveFeatures")
+    console.log("updateActiveFeatures")
 
     // this.map.data.forEach((listedFeature) => {
     //   this.activeFeatures.find((activeFeature: any) => activeFeature.feature = listedFeature)
@@ -308,21 +316,21 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   }
 
   deleteArea(feature: any) {
-    //console.log("feature", feature)
+    console.log("feature", feature)
 
     //delete feature from active features by id
     this.activeFeatures = this.activeFeatures.filter((objeto: any) => objeto.id !== feature.id);
 
     this.map.data.forEach((listedFeature) => {
       if (feature.id == listedFeature.getProperty('localId')) {
-        //console.log("ENCONTRADA", listedFeature)
+        console.log("ENCONTRADA", listedFeature)
         listedFeature.setProperty('active', false);
         listedFeature.setProperty('selected', false);
         this.map.data.overrideStyle(listedFeature, this.originalStyle);
       }
     })
 
-    //console.log("active features", this.activeFeatures)
+    console.log("active features", this.activeFeatures)
 
   }
 
@@ -352,9 +360,9 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   }
 
   unselect() {
-    //console.log("unselect")
+    console.log("unselect")
     this.map.data.forEach((feature) => {
-      //console.log(feature)
+      console.log(feature)
       this.map.data.overrideStyle(feature, this.originalStyle);
       feature.setProperty('selected', false);
     })
@@ -363,7 +371,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
   activeArea(featureData: any) {
     this.map.data.forEach((feature) => {
       if (feature == featureData.feature) {
-        //console.log("activate feature", feature)
+        console.log("activate feature", feature)
         feature.setProperty('active', true);
         feature.setProperty('selected', false);
         this.map.data.overrideStyle(feature, this.activeStyle);
@@ -377,7 +385,7 @@ export class AppMapComponent implements AfterViewInit, OnChanges {
 
     for (var i = 0; i < geometry.length; i++) {
 
-      //console.log(geometry[i].getType())
+      console.log(geometry[i].getType())
 
       // Verificar si la geometría es un polígono
       if (geometry[i].getType() === 'Polygon') {

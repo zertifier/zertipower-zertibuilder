@@ -10,6 +10,7 @@ import { EnergyService } from "../../../core/core-services/energy.service";
 import Chart from "chart.js/auto";
 import { CupsInterface, CupsApiService } from "../../cups/cups.service";
 import { LocationService } from 'src/app/core/core-services/location.service';
+import { AppMapComponent } from 'src/app/shared/infrastructure/components/map/map.component';
 
 @Component({
   selector: 'communities-form',
@@ -35,6 +36,8 @@ export class CommunitiesFormComponent implements OnInit {
     name: new FormControl<string | null>(null),
     tradeType: new FormControl<string | null>(null),
     locationId: new FormControl<number | null>(null),
+    lat: new FormControl<number | null>(null),
+    lng: new FormControl<number | null>(null),
     test: new FormControl<number | null>(null),
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
@@ -68,7 +71,8 @@ export class CommunitiesFormComponent implements OnInit {
   updateDayChart: boolean = false;
   updateDayChartSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  locations:any[]=[]
+  locations: any[] = [];
+  @ViewChild(AppMapComponent) map!: AppMapComponent;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -78,7 +82,7 @@ export class CommunitiesFormComponent implements OnInit {
     private energyService: EnergyService,
     private cdr: ChangeDetectorRef,
     private cupsApiService: CupsApiService,
-    private locationService:LocationService
+    private locationService: LocationService
   ) {
   }
 
@@ -96,51 +100,77 @@ export class CommunitiesFormComponent implements OnInit {
       return;
     }
     this.apiService.getById(id)
-    .pipe(take(1))
-    .subscribe((data) => {
+      .pipe(take(1))
+      .subscribe((data) => {
 
-      this.community = data;
-      this.form.controls.id.setValue(data.id);
-      this.communityId = data.id;
-      this.form.controls.name.setValue(data.name);
-      this.form.controls.tradeType.setValue(data.tradeType);
-      this.form.controls.locationId.setValue(data.locationId);
-      this.form.controls.test.setValue(data.test);
-      this.test = data.test;
-      this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
-      this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
+        this.community = data;
+        this.form.controls.id.setValue(data.id);
+        this.communityId = data.id;
+        this.form.controls.name.setValue(data.name);
+        this.form.controls.tradeType.setValue(data.tradeType);
+        this.form.controls.locationId.setValue(data.locationId);
+        this.form.controls.lat.setValue(data.lat);
+        this.form.controls.lng.setValue(data.lng);
+        this.form.controls.test.setValue(data.test);
+        this.test = data.test;
+        this.form.controls.createdAt.setValue(moment.utc(data.createdAt).format('YYYY-MM-DDTHH:mm'));
+        this.form.controls.updatedAt.setValue(moment.utc(data.updatedAt).format('YYYY-MM-DDTHH:mm'));
 
-      this.getInfo();
+        this.getInfo();
 
-    });
+      });
   }
 
   getInfo() {
     this.customersService.getCustomersCups()
-    .pipe(take(1))
-    .subscribe(async (res: any) => {
-      this.allCups = res.data;
-      //get the cups that doesnt own to other communities
-      this.customers = this.allCups.filter((cups: any) =>
-        cups.community_id == this.id || cups.community_id == null || cups.community_id == 0
-      )
-      if (!this.communityId) {
-        return;
-      }
-      //get the cups that own to the selected community
-      this.communityCups = this.customers.filter((cups: any) =>
-        cups.community_id == this.id
-      )
-      this.updateData();
-      // notify changes to ng-select
-      this.cdr.detectChanges();
-    })
+      .pipe(take(1))
+      .subscribe(async (res: any) => {
+        this.allCups = res.data;
+        //get the cups that doesnt own to other communities
+        this.customers = this.allCups.filter((cups: any) =>
+          cups.community_id == this.id || cups.community_id == null || cups.community_id == 0
+        )
+        if (!this.communityId) {
+          return;
+        }
+        //get the cups that own to the selected community
+        this.communityCups = this.customers.filter((cups: any) =>
+          cups.community_id == this.id
+        )
+        this.updateData();
+        // notify changes to ng-select
+        this.cdr.detectChanges();
+      })
     this.locationService.getLocations()
-    .pipe(take(1))
-    .subscribe(async (res: any) => {
-      console.log(res.data);
-      this.locations=res.data;
-    })
+      .pipe(take(1))
+      .subscribe(async (res: any) => {
+        console.log(res.data);
+        this.locations = res.data;
+        if (this.community.locationId) {
+          this.setMapLocationByLocationId(this.community.locationId)
+          if(this.community.lat && this.community.lng){
+            this.setMarker(this.community.lat, this.community.lng)
+          } else {
+            console.log("Community haven't latlng")  
+          }
+        } else {
+          console.log("Community haven't location id")
+        }
+      })
+  }
+
+  setMapLocationByLocationId(locationId: number) {
+    let selectedLocation = this.locations.find(location => location.id == this.community.locationId)
+    if (!selectedLocation) {
+      console.log("Selected location not found")
+      return;
+    }
+    console.log(selectedLocation.municipality)
+    this.map.centerToAddress(`${selectedLocation.municipality}, España`)
+  }
+
+  setMarker(lat: number, lng: number) {
+    let marker = this.map.addMarker(lat, lng)
   }
 
   changeDay() {
@@ -361,7 +391,7 @@ export class CommunitiesFormComponent implements OnInit {
       this.monthChartDatasets[index].data = element;
       this.monthChartDatasets[index].backgroundColor = colors[index]
     })
-    
+
     this.updateMonthChartSubject.next(true);
   }
 
@@ -374,7 +404,7 @@ export class CommunitiesFormComponent implements OnInit {
       this.yearChartDatasets[index].data = element;
       this.yearChartDatasets[index].backgroundColor = colors[index]
     })
-    
+
     this.updateYearChartSubject.next(true);
   }
 
@@ -384,16 +414,16 @@ export class CommunitiesFormComponent implements OnInit {
   getDayEnergyByCups(cups: number, date: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.energyService.getDayByCups(cups, 'datadis', this.selectedDate)
-      .pipe(take(1))
-      .subscribe((res: any) => {
-        let hourlyData = res.data.stats
-        let hours = hourlyData.map((entry: any) => moment.utc(entry.infoDt).format('HH'));
-        let kwhGeneration = hourlyData.map((entry: any) => entry.production);
-        let kwhConsumption = hourlyData.map((entry: any) => entry.kwhIn);
-        let kwhExport = hourlyData.map((entry: any) => entry.kwhOut);
-        let dayEnergy = { hours, kwhGeneration, kwhConsumption, kwhExport }
-        resolve(dayEnergy)
-      })
+        .pipe(take(1))
+        .subscribe((res: any) => {
+          let hourlyData = res.data.stats
+          let hours = hourlyData.map((entry: any) => moment.utc(entry.infoDt).format('HH'));
+          let kwhGeneration = hourlyData.map((entry: any) => entry.production);
+          let kwhConsumption = hourlyData.map((entry: any) => entry.kwhIn);
+          let kwhExport = hourlyData.map((entry: any) => entry.kwhOut);
+          let dayEnergy = { hours, kwhGeneration, kwhConsumption, kwhExport }
+          resolve(dayEnergy)
+        })
     }
     )
   }
@@ -401,52 +431,52 @@ export class CommunitiesFormComponent implements OnInit {
   getMonthEnergyByCups(cups: number, date: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.energyService.getMonthByCups(this.selectedMonth, 'datadis', cups!)
-      .pipe(take(1))
-      .subscribe((res: any) => {
-        let monthCupsData = res.data.stats;
-        let monthDays = monthCupsData.map((entry: any) => moment(entry.infoDt).format('DD/MM/YYYY'));
-        // let weekImport = weekCupsData.map((entry: any) => entry.import);
-        let monthGeneration = monthCupsData.map((entry: any) => entry.production);
-        let monthConsumption = monthCupsData.map((entry: any) => entry.kwhIn);
-        let monthExport = monthCupsData.map((entry: any) => entry.kwhOut);
-        let monthEnergy = { monthDays, monthGeneration, monthConsumption, monthExport, } // weekImport, weekDateLimits
-        resolve(monthEnergy)
-      })
+        .pipe(take(1))
+        .subscribe((res: any) => {
+          let monthCupsData = res.data.stats;
+          let monthDays = monthCupsData.map((entry: any) => moment(entry.infoDt).format('DD/MM/YYYY'));
+          // let weekImport = weekCupsData.map((entry: any) => entry.import);
+          let monthGeneration = monthCupsData.map((entry: any) => entry.production);
+          let monthConsumption = monthCupsData.map((entry: any) => entry.kwhIn);
+          let monthExport = monthCupsData.map((entry: any) => entry.kwhOut);
+          let monthEnergy = { monthDays, monthGeneration, monthConsumption, monthExport, } // weekImport, weekDateLimits
+          resolve(monthEnergy)
+        })
     })
   }
 
   getYearEnergyByCups(cups: number, year: number): Promise<any> {
     return new Promise((resolve, reject) => {
       this.energyService.getYearByCups(year, 'datadis', cups!)
-      .pipe(take(1))
-      .subscribe((res: any) => {
+        .pipe(take(1))
+        .subscribe((res: any) => {
 
-        let monthlyCupsData = res.data.stats;
+          let monthlyCupsData = res.data.stats;
 
-        let months: string[] = monthlyCupsData.map((entry: any) => {
-          entry.infoDt = moment(entry.infoDt).format('MMMM')
-        }
+          let months: string[] = monthlyCupsData.map((entry: any) => {
+            entry.infoDt = moment(entry.infoDt).format('MMMM')
+          }
 
-        );
-        let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.kwhIn);
-        let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.production);
-        let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.kwhOut);
+          );
+          let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.kwhIn);
+          let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.production);
+          let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.kwhOut);
 
-        let sumImport = kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
-        const sumGeneration = kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
-        const sumExport = kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+          let sumImport = kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+          const sumGeneration = kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+          const sumExport = kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
 
-        let yearEnergy = {
-          months,
-          kwhGeneration,
-          kwhConsumption,
-          kwhExport,
-          sumImport,
-          sumGeneration,
-          sumExport
-        }
-        resolve(yearEnergy)
-      })
+          let yearEnergy = {
+            months,
+            kwhGeneration,
+            kwhConsumption,
+            kwhExport,
+            sumImport,
+            sumGeneration,
+            sumExport
+          }
+          resolve(yearEnergy)
+        })
     })
   }
 
@@ -489,70 +519,70 @@ export class CommunitiesFormComponent implements OnInit {
     }
 
     request
-    .pipe(take(1))
-    .subscribe((res) => {
+      .pipe(take(1))
+      .subscribe((res) => {
 
-      //res id is community id
-      this.communityCups.map((cups: CupsInterface) => {
+        //res id is community id
+        this.communityCups.map((cups: CupsInterface) => {
 
-        cups.communityId = res.id | this.communityId;
+          cups.communityId = res.id | this.communityId;
 
-        let cupsToUpdate: any = {
-          id: cups.id,
-          cups: cups.cups,
-          providerId: cups.providerId,
-          communityId: cups.communityId,
-          locationId: cups.locationId,
-          customerId: cups.customerId
-        }
-
-        this.cupsApiService.update(cups.id, cupsToUpdate)
-        .pipe(take(1))
-        .subscribe((res) => {
-          console.log("change community id from cups: ", res)
-        })
-      })
-
-      //delete community id from cups that dont pertain to community anymore:
-      if (this.communityCups.length) {
-        this.allCups.map((cups: any) => {
-
-          // if cups contains the community id but dont includes in community cups, delete it:
-          if (cups.community_id == this.communityId) {
-
-            let found = this.communityCups.find(cc =>
-              cc.id == cups.id
-            )
-
-            if (!found) {
-
-              let cupsToUpdate: any = {
-                id: cups.id,
-                cups: cups.cups,
-                providerId: cups.provider_id,
-                communityId: 0,
-                locationId: cups.location_id,
-                customerId: cups.customer_id
-              }
-
-              this.cupsApiService.update(cups.id, cupsToUpdate)
-              .pipe(take(1))
-              .subscribe((res) => {
-                console.log("change community id from cups: ", res)
-              })
-            }
-
+          let cupsToUpdate: any = {
+            id: cups.id,
+            cups: cups.cups,
+            providerId: cups.providerId,
+            communityId: cups.communityId,
+            locationId: cups.locationId,
+            customerId: cups.customerId
           }
 
+          this.cupsApiService.update(cups.id, cupsToUpdate)
+            .pipe(take(1))
+            .subscribe((res) => {
+              console.log("change community id from cups: ", res)
+            })
         })
-      }
 
-      Swal.fire({
-        icon: 'success',
-        title: `L'operació s'ha completat amb èxit.`
+        //delete community id from cups that dont pertain to community anymore:
+        if (this.communityCups.length) {
+          this.allCups.map((cups: any) => {
+
+            // if cups contains the community id but dont includes in community cups, delete it:
+            if (cups.community_id == this.communityId) {
+
+              let found = this.communityCups.find(cc =>
+                cc.id == cups.id
+              )
+
+              if (!found) {
+
+                let cupsToUpdate: any = {
+                  id: cups.id,
+                  cups: cups.cups,
+                  providerId: cups.provider_id,
+                  communityId: 0,
+                  locationId: cups.location_id,
+                  customerId: cups.customer_id
+                }
+
+                this.cupsApiService.update(cups.id, cupsToUpdate)
+                  .pipe(take(1))
+                  .subscribe((res) => {
+                    console.log("change community id from cups: ", res)
+                  })
+              }
+
+            }
+
+          })
+        }
+
+        Swal.fire({
+          icon: 'success',
+          title: `L'operació s'ha completat amb èxit.`
+        });
+        this.activeModal.close();
       });
-      this.activeModal.close();
-    });
   }
 
   //exit from modal
@@ -569,6 +599,8 @@ export class CommunitiesFormComponent implements OnInit {
     values.name = this.form.value.name;
     values.test = parseInt(this.form.value.test?.toString() || '0');
     values.locationId = parseInt(this.form.value.locationId?.toString() || '0');
+    values.lat = parseInt(this.form.value.lat?.toString() || '0');
+    values.lng = parseInt(this.form.value.lng?.toString() || '0');
     values.tradeType = this.form.value.tradeType;
     values.createdAt = this.form.value.createdAt;
     values.updatedAt = this.form.value.updatedAt;

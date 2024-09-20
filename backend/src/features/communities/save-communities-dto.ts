@@ -23,6 +23,12 @@ export class SaveCommunitiesDTO {
   locationId: number;
 
   @IsOptional()
+  lat: number;
+
+  @IsOptional()
+  lng: number;
+
+  @IsOptional()
   walletAddress: string;
 
   @IsOptional()

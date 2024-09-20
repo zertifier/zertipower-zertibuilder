@@ -759,6 +759,8 @@ export class CommunitiesController {
     mappedData.tradeType = data.tradeType || data.trade_type;
     mappedData.daoAddress = data.daoAddress || data.dao_address;
     mappedData.locationId = data.locationId || data.location_id;
+    mappedData.lat = data.lat;
+    mappedData.lng = data.lng;
     mappedData.daoName = data.daoName || data.dao_name;
     mappedData.daoSymbol = data.daoSymbol || data.dao_symbol;
     mappedData.createdAt = data.createdAt;
@@ -807,6 +809,8 @@ export class CommunitiesController {
     mappedData.cupsId = data.cupsId || data.cups_id;
     mappedData.tradeType = data.tradeType || data.trade_type;
     mappedData.locationId = data.locationId || data.location_id;
+    mappedData.lat = data.lat;
+    mappedData.lng = data.lng;
     mappedData.cups = data.cups;
     mappedData.reference = data.reference;
     return mappedData

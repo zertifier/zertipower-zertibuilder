@@ -144,6 +144,30 @@ export class TradesController {
     }
   }
 
+
+  @Post("datatable")
+  @Auth(RESOURCE_NAME)
+  async datatables(@Body() body: any) {
+    const data = await this.datatable.getData(
+      body,
+      `SELECT 
+      id,
+      info_dt, 
+      from_cups_id, 
+      to_cups_id, 
+      action, 
+      traded_kwh, 
+      cost, 
+      previous_kwh, 
+      current_kwh 
+      FROM trades
+      `
+    );
+    return HttpResponse.success("Datatables fetched successfully").withData(
+      data
+    );
+  }
+
   mapData(data: any) {
     const mappedData: any = {};
     mappedData.id = data.id
@@ -166,4 +190,5 @@ export class TradesController {
 
     return mappedData;
   }
+
 }

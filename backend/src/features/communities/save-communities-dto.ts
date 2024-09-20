@@ -20,6 +20,9 @@ export class SaveCommunitiesDTO {
   dao_address: string;
 
   @IsOptional()
+  locationId: number;
+
+  @IsOptional()
   walletAddress: string;
 
   @IsOptional()

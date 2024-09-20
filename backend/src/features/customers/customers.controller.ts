@@ -273,8 +273,7 @@ export class CustomersController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,name,wallet_address,created_at,updated_at
-                  FROM customers`
+      `SELECT customers.id,customers.name,dni,email,balance,communities.name as community_name, shares, status FROM customers LEFT JOIN shares ON shares.customer_id = customers.id LEFT JOIN communities ON communities.id = shares.community_id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data
@@ -286,6 +285,7 @@ export class CustomersController {
     mappedData.id = data.id;
     mappedData.name = data.name;
     mappedData.dni = data.dni;
+    mappedData.email = data.email;
     mappedData.balance = data.balance;
     mappedData.walletAddress = data.walletAddress ? data.walletAddress.toString() : '';
     mappedData.createdAt = data.createdAt | data.created_at;

@@ -241,18 +241,19 @@ export class SharesController {
     );
   }
 
-  /*@Post("datatable")
+  @Post("datatable")
   @Auth(RESOURCE_NAME)
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT id,provider
-                  FROM providers`
+      `SELECT shares.id,communities.name as community_name, customers.name as customer_name, shares.shares, shares.status 
+      FROM shares LEFT JOIN communities ON communities.id = community_id 
+      LEFT JOIN customers ON customers.id = customer_id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data
     );
-  }*/
+  }
 
   mapData(data: any) {
     const mappedData: any = {};

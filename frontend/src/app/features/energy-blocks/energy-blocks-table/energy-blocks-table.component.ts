@@ -1,7 +1,7 @@
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { dtColumns } from "src/app/shared/infrastructure/components/app-datatable/interfaces/dtColumns.interface";
-import { filterParams } from "src/app/shared/infrastructure/components/app-datatable/interfaces/filterParams.interface";
+import { filterParams, filterType } from "src/app/shared/infrastructure/components/app-datatable/interfaces/filterParams.interface";
 import { environment } from 'src/environments/environment';
 import { EnergyBlocksFormComponent } from '../energy-blocks-form/energy-blocks-form.component';
 import { Subscription } from "rxjs";
@@ -124,7 +124,7 @@ export class EnergyBlocksTableComponent implements OnDestroy {
       title: 'expiration_dt',
       description: '',
       value: '',
-      type: 0,
+      type:  filterType.datetime,
       defaultData: 0,
       options: [],
     },

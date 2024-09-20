@@ -103,36 +103,32 @@ export class TradesController {
 
     const query =
       `
-    SELECT
-    trades.id, 
-    action, 
-    traded_kwh, 
-    cost, 
-    previous_kwh, 
-    current_kwh, 
-    trades.info_dt, 
-    trades.from_cups_id, 
-    from_cups.customer_id AS from_customer_id,
-    from_users.wallet_address AS from_wallet_address,
-    trades.to_cups_id, 
-    to_cups.customer_id AS to_customer_id,
-    to_users.wallet_address AS to_wallet_address
-    FROM 
-        trades
-    LEFT JOIN 
-        cups AS from_cups ON trades.from_cups_id = from_cups.id 
-    LEFT JOIN 
-        users AS from_users ON from_cups.customer_id = from_users.customer_id
-    LEFT JOIN 
-        cups AS to_cups ON trades.to_cups_id = to_cups.id
-    LEFT JOIN 
-        users AS to_users ON to_cups.customer_id = to_users.customer_id
-    WHERE 
-        from_cups.customer_id = ${customerId}
-        AND DATE(trades.info_dt) BETWEEN '${from}' AND '${to}'
-    ORDER BY 
-        trades.info_dt DESC, trades.id;
-    `;
+        SELECT trades.id,
+               action,
+               traded_kwh,
+               cost,
+               previous_kwh,
+               current_kwh,
+               trades.info_dt,
+               trades.from_cups_id,
+               from_cups.customer_id     AS from_customer_id,
+               from_users.wallet_address AS from_wallet_address,
+               trades.to_cups_id,
+               to_cups.customer_id       AS to_customer_id,
+               to_users.wallet_address   AS to_wallet_address
+        FROM trades
+               LEFT JOIN
+             cups AS from_cups ON trades.from_cups_id = from_cups.id
+               LEFT JOIN
+             users AS from_users ON from_cups.customer_id = from_users.customer_id
+               LEFT JOIN
+             cups AS to_cups ON trades.to_cups_id = to_cups.id
+               LEFT JOIN
+             users AS to_users ON to_cups.customer_id = to_users.customer_id
+        WHERE from_cups.customer_id = ${customerId}
+          AND DATE(trades.info_dt) BETWEEN '${from}' AND '${to}'
+        ORDER BY trades.info_dt DESC, trades.id;
+      `;
 
     try {
       const [ROWS]: any[] = await this.conn.query(query);

@@ -72,7 +72,7 @@ export class ShareService {
     this.conn = this.mysql.pool;
 
     try {
-      //this.redistribute()
+      this.redistribute()
     } catch (error) {
       console.log("shares redistribution error", error)
     }
@@ -243,6 +243,7 @@ export class ShareService {
     //config initial data
     const epsilon = 0.0000000001; // for float comparisons: Math.abs(f1 - f2) < epsilon;
     const totalAvailablePower: number = redistributeObject.totalSurplus;
+    let arrForRemove = [];
     //if no power available - early exit
     if (totalAvailablePower <= 0) {
       // set parners to empty array, because
@@ -273,6 +274,7 @@ export class ShareService {
     if (totalAvailablePower > totalDesiredConsumption) {
       console.log('Enough power for all: choosing straightforward strategy');
       redistributeObject.resultTotalSurplus = totalAvailablePower - totalDesiredConsumption;
+      arrForRemove = consumers
       consumers.forEach(c => {
         c.partner.resultConsumption = 0
         this.newRegisters =
@@ -372,7 +374,7 @@ export class ShareService {
                  LEFT JOIN cups ON e.cups_id = cups.id
                  LEFT JOIN users ON cups.customer_id = users.customer_id
                  LEFT JOIN communities ON cups.community_id = communities.id
-          WHERE   e.info_dt LIKE '2024-02%' AND cups.type != 'community'
+          WHERE  cups.type != 'community'
             AND e.kwh_out > 0
           ORDER BY e.info_dt ASC, e.kwh_out DESC;
         `
@@ -424,7 +426,7 @@ export class ShareService {
                LEFT JOIN cups ON e.cups_id = cups.id
                LEFT JOIN users ON cups.customer_id = users.customer_id
                LEFT JOIN communities ON cups.community_id = communities.id
-        WHERE e.info_dt LIKE '2024-02%' AND cups.type != 'community'
+        WHERE cups.type != 'community'
           AND e.kwh_in > 0
         ORDER BY e.info_dt ASC, e.kwh_in DESC;
       `)
@@ -708,7 +710,7 @@ export class ShareService {
       ehId: 0,
       resultConsumption: 0,
       infoDt: new Date,
-      userId: 0
+      userId: 0,
     }
     /* if (data.cups_id == 23 || data.cups_id == 22) console.log(data, "DATAAA")
      if (data.cups_id == 23 || data.cups_id == 22) console.log(moment(data.info_dt).format('YYYY-MM-DD HH'), "DATAAA")*/

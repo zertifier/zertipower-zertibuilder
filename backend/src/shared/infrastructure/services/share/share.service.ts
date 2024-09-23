@@ -80,7 +80,7 @@ export class ShareService {
     setInterval(() => {
       //TODO: introduïr condició de si es dia 1 de qualsevol mes, faci el següent:
       try {
-        this.redistribute()
+        //this.redistribute()
       } catch (error) {
         console.log("shares redistribution error", error)
       }

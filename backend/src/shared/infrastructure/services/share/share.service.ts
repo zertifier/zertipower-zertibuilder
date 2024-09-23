@@ -72,7 +72,7 @@ export class ShareService {
     this.conn = this.mysql.pool;
 
     try {
-      this.redistribute()
+      //this.redistribute()
     } catch (error) {
       console.log("shares redistribution error", error)
     }

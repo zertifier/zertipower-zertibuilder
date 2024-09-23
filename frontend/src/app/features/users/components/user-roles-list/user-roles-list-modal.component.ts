@@ -15,6 +15,7 @@ import { FilterValue } from "../../../../shared/domain/criteria/filter/FilterVal
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { Confirmable } from "../../../../shared/infrastructure/decorators/Confirmable";
 import { Router } from "@angular/router";
+import Swal from "sweetalert2";
 
 @Component({
 	selector: "app-user-roles-list",
@@ -48,12 +49,16 @@ export class UserRolesListModalComponent implements OnInit {
 	}
 
 	async saveRole(name: string) {
+		if(!name.length){
+			Swal.fire('Cal posar un nom al rol','','warning')
+			return;
+		}
 		await ObservableUtils.toPromise(this.userRolesApi.save({ name }));
 		await this.loadRoles();
 		this.newRoleName = "";
 	}
 
-	@Confirmable("Are you sure?")
+	@Confirmable("Estàs a punt de borrar un rol")
 	async removeRole(roleToRemove: UserRoleResponseDTO) {
 		await ObservableUtils.toPromise(
 			this.userRolesApi.delete(

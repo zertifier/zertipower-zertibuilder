@@ -229,8 +229,8 @@ export class EnergyBlocksTableComponent implements OnDestroy {
 
   async deleteRequest(id: any) {
     const response = await Swal.fire({
-      icon: 'question',
-      title: 'Are you sure?',
+      icon: 'warning',
+      title: `Estàs a punt d'esborrar el registre`,
       showCancelButton: true,
     });
 

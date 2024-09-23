@@ -84,11 +84,10 @@ export class CommunitiesFormComponent implements OnInit {
     private cupsApiService: CupsApiService,
     private locationService: LocationService
   ) {
+    moment.locale('ca');
   }
 
   async ngOnInit() {
-    moment.locale('ca');
-
     if (!this.id) {
       this.getInfo();
     }
@@ -195,63 +194,14 @@ export class CommunitiesFormComponent implements OnInit {
 
   async getMonthEnergy() {
 
-    // Array to store data for all cups
-    let monthEnergyData: any[] = [];
-
-    // Arrays to store accumulated energies
-    let sumMonthConsumption: number[] = [];
-    let sumMonthGeneration: number[] = [];
-    let sumMonthExport: number[] = [];
-
     let monthDays: string[] = []
+    let monthEnergyData: any;
 
-    // Fetch data for all cups concurrently
-    const energyPromises = this.communityCups.map(async (cup) => {
-      return await this.getMonthEnergyByCups(cup.id, this.selectedMonth);
-    });
-
-    // Wait for all promises to resolve
-    try {
-      monthEnergyData = await Promise.all(energyPromises);
-    } catch (error) {
-      console.error("Error fetching month energy:", error);
-      return;
-    }
-
-    // Accumulate consumption across all cups
-    monthEnergyData.forEach(data => {
-
-      data.monthDays.forEach((day: string, index: number) => {
-        if (!monthDays[index]) {
-          monthDays.push(day)
-          sumMonthConsumption.push(0)
-          sumMonthGeneration.push(0)
-          sumMonthExport.push(0)
-        }
-      })
-
-      data.monthConsumption.forEach((consumptionValue: number, index: number) => {
-        sumMonthConsumption[index] += Number(consumptionValue) || 0;
-      });
-    });
-
-    // Accumulate export across all cups
-    monthEnergyData.forEach(data => {
-      data.monthExport.forEach((exportValue: number, index: number) => {
-        sumMonthExport[index] += Number(exportValue) || 0;
-      });
-    });
-
-    // Accumulate generation across all cups
-    monthEnergyData.forEach(data => {
-      data.monthGeneration.forEach((generationValue: number, index: number) => {
-        sumMonthGeneration[index] += Number(generationValue) || 0;
-      });
-    });
-
-    let labels = monthDays;
+    monthEnergyData = await this.getMonthEnergyByCommunity(this.communityId, this.selectedMonth);
+    
+    let labels = monthEnergyData.monthDays;
     let dataLabels = ['Consum (kWh)', 'Generació (kWh)', 'Excedent (kWh)']
-    let chartData = [sumMonthConsumption, sumMonthGeneration, sumMonthExport]
+    let chartData = [monthEnergyData.monthConsumption, monthEnergyData.monthGeneration, monthEnergyData.monthExport]
     let chartColors = [
       '#D35400',
       '#229954',
@@ -259,95 +209,152 @@ export class CommunitiesFormComponent implements OnInit {
     ]
 
     this.updateMonthChartValues(labels, dataLabels, chartData, chartColors)
+
+    // // Arrays to store accumulated energies
+    // let sumMonthConsumption: number[] = [];
+    // let sumMonthGeneration: number[] = [];
+    // let sumMonthExport: number[] = [];
+
+    // // Array to store data for all cups
+    // let monthEnergyData: any[] = [];
+
+    // // Fetch data for all cups concurrently
+    // const energyPromises = this.communityCups.map(async (cup) => {
+    //   return await this.getMonthEnergyByCups(cup.id, this.selectedMonth);
+    // });
+
+    // // Wait for all promises to resolve
+    // try {
+    //   monthEnergyData = await Promise.all(energyPromises);
+    // } catch (error) {
+    //   console.error("Error fetching month energy:", error);
+    //   return;
+    // }
+
+    // // Accumulate consumption across all cups
+    // monthEnergyData.forEach(data => {
+
+    //   data.monthDays.forEach((day: string, index: number) => {
+    //     if (!monthDays[index]) {
+    //       monthDays.push(day)
+    //       sumMonthConsumption.push(0)
+    //       sumMonthGeneration.push(0)
+    //       sumMonthExport.push(0)
+    //     }
+    //   })
+
+    //   data.monthConsumption.forEach((consumptionValue: number, index: number) => {
+    //     sumMonthConsumption[index] += Number(consumptionValue) || 0;
+    //   });
+    // });
+
+    // // Accumulate export across all cups
+    // monthEnergyData.forEach(data => {
+    //   data.monthExport.forEach((exportValue: number, index: number) => {
+    //     sumMonthExport[index] += Number(exportValue) || 0;
+    //   });
+    // });
+
+    // // Accumulate generation across all cups
+    // monthEnergyData.forEach(data => {
+    //   data.monthGeneration.forEach((generationValue: number, index: number) => {
+    //     sumMonthGeneration[index] += Number(generationValue) || 0;
+    //   });
+    // });
+
+    // let labels = monthDays;
+    // let dataLabels = ['Consum (kWh)', 'Generació (kWh)', 'Excedent (kWh)']
+    // let chartData = [sumMonthConsumption, sumMonthGeneration, sumMonthExport]
+    // let chartColors = [
+    //   '#D35400',
+    //   '#229954',
+    //   '#3498DB',
+    // ]
+
+    // this.updateMonthChartValues(labels, dataLabels, chartData, chartColors)
   }
 
   async getMonthsEnergy() {
 
-    let sumMonthsGeneration = Array.apply(null, Array(12)).map(function () {
-      return 0
-    });
-    let sumMonthsConsumption = Array.apply(null, Array(12)).map(function () {
-      return 0;
-    });
-    let sumMonthsExport = Array.apply(null, Array(12)).map(function () {
-      return 0;
-    });
+    let yearEnergyData: any;
 
-    const getAllEnergy = this.communityCups.map(async (cups: any) => {
-      //get energy by cups
-      let yearEnergy: any = await this.getYearEnergyByCups(cups.id, this.selectedYear);
-
-      cups.yearEnergy = yearEnergy;
-      cups.yearEnergy.factor = 0;
-
-      //create sum of month energy cups:
-
-      sumMonthsExport = sumMonthsExport.map((monthExport, index) => {
-        monthExport += Number(yearEnergy.kwhExport[index]) || 0;
-        return monthExport;
-      })
-      sumMonthsGeneration = sumMonthsGeneration.map((monthGeneration, index) => {
-        monthGeneration += Number(yearEnergy.kwhGeneration[index]) || 0;
-        return monthGeneration;
-      })
-      sumMonthsConsumption = sumMonthsConsumption.map((monthConsumption, index) => {
-        monthConsumption += Number(yearEnergy.kwhConsumption[index]) || 0
-        return monthConsumption;
-      })
-
-    })
-
-    await Promise.all(getAllEnergy)
-
-    let labels = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octubre', 'Novembre', 'Desembre'];
+    yearEnergyData = await this.getYearEnergyByCommunity(this.communityId, this.selectedYear);
+    
+    let labels = yearEnergyData.months;
     let dataLabels = ['Consum (kWh)', 'Generació (kWh)', 'Excedent (kWh)']
-    let chartData = [sumMonthsConsumption, sumMonthsGeneration, sumMonthsExport]
+    let chartData = [yearEnergyData.kwhConsumption, 
+      yearEnergyData.kwhGeneration, 
+      yearEnergyData.kwhExport]
     let chartColors = [
       '#D35400',
       '#229954',
       '#3498DB',
     ]
 
-    this.updateMonthsChartValues(labels, dataLabels, chartData, chartColors);
+    this.updateMonthsChartValues(labels, dataLabels, chartData, chartColors)
+
+    // let monthDays: string[] = []
+    // let sumMonthsGeneration = Array.apply(null, Array(12)).map(function () {
+    //   return 0
+    // });
+    // let sumMonthsConsumption = Array.apply(null, Array(12)).map(function () {
+    //   return 0;
+    // });
+    // let sumMonthsExport = Array.apply(null, Array(12)).map(function () {
+    //   return 0;
+    // });
+
+    // //todo: getEnergyByCommunity
+
+    // const getAllEnergy = this.communityCups.map(async (cups: any) => {
+    //   //get energy by cups
+    //   let yearEnergy: any = await this.getYearEnergyByCups(cups.id, this.selectedYear);
+
+    //   cups.yearEnergy = yearEnergy;
+    //   cups.yearEnergy.factor = 0;
+
+    //   //create sum of month energy cups:
+
+    //   sumMonthsExport = sumMonthsExport.map((monthExport, index) => {
+    //     monthExport += Number(yearEnergy.kwhExport[index]) || 0;
+    //     return monthExport;
+    //   })
+    //   sumMonthsGeneration = sumMonthsGeneration.map((monthGeneration, index) => {
+    //     monthGeneration += Number(yearEnergy.kwhGeneration[index]) || 0;
+    //     return monthGeneration;
+    //   })
+    //   sumMonthsConsumption = sumMonthsConsumption.map((monthConsumption, index) => {
+    //     monthConsumption += Number(yearEnergy.kwhConsumption[index]) || 0
+    //     return monthConsumption;
+    //   })
+
+    // })
+
+    // await Promise.all(getAllEnergy)
+
+    // let labels = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octubre', 'Novembre', 'Desembre'];
+    // let dataLabels = ['Consum (kWh)', 'Generació (kWh)', 'Excedent (kWh)']
+    // let chartData = [sumMonthsConsumption, sumMonthsGeneration, sumMonthsExport]
+    // let chartColors = [
+    //   '#D35400',
+    //   '#229954',
+    //   '#3498DB',
+    // ]
+
+    // this.updateMonthsChartValues(labels, dataLabels, chartData, chartColors);
   }
 
   async getDayEnergy() {
 
-    let sumDayGeneration = Array.apply(null, Array(24)).map(function () {
-      return 0
-    });
-    let sumDayConsumption = Array.apply(null, Array(24)).map(function () {
-      return 0;
-    });
-    let sumDayExport = Array.apply(null, Array(24)).map(function () {
-      return 0;
-    });
+    let yearEnergyData: any;
 
-    const getAllEnergy = this.communityCups.map(async (cups: any) => {
-      //get energy by cups
-      let dayEnergy = await this.getDayEnergyByCups(cups.id, this.selectedDate);
-
-      cups.dayEnergy = dayEnergy;
-
-      sumDayExport = sumDayExport.map((dayExport, index) => {
-        dayExport += Number(dayEnergy.kwhExport[index]) || 0;
-        return dayExport;
-      })
-      sumDayGeneration = sumDayGeneration.map((dayGeneration, index) => {
-        dayGeneration += Number(dayEnergy.kwhGeneration[index]) || 0;
-        return dayGeneration;
-      })
-      sumDayConsumption = sumDayConsumption.map((dayConsumption, index) => {
-        dayConsumption += Number(dayEnergy.kwhConsumption[index]) || 0;
-        return dayConsumption;
-      })
-    })
-
-    await Promise.all(getAllEnergy)
-
-    let labels = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'];
+    yearEnergyData = await this.getDayEnergyByCommunity(this.communityId, this.selectedDate);
+    
+    let labels = yearEnergyData.hours;
     let dataLabels = ['Consum (kWh)', 'Generació (kWh)', 'Excedent (kWh)']
-    let chartData = [sumDayConsumption, sumDayGeneration, sumDayExport]
+    let chartData = [yearEnergyData.kwhConsumption, 
+      yearEnergyData.kwhGeneration, 
+      yearEnergyData.kwhExport]
     let chartColors = [
       '#D35400',
       '#229954',
@@ -355,6 +362,52 @@ export class CommunitiesFormComponent implements OnInit {
     ]
 
     this.updateDayChartValues(labels, dataLabels, chartData, chartColors)
+
+
+    // let sumDayGeneration = Array.apply(null, Array(24)).map(function () {
+    //   return 0
+    // });
+    // let sumDayConsumption = Array.apply(null, Array(24)).map(function () {
+    //   return 0;
+    // });
+    // let sumDayExport = Array.apply(null, Array(24)).map(function () {
+    //   return 0;
+    // });
+
+    // //todo: getEnergyByCommunity
+
+    // const getAllEnergy = this.communityCups.map(async (cups: any) => {
+    //   //get energy by cups
+    //   let dayEnergy = await this.getDayEnergyByCups(cups.id, this.selectedDate);
+
+    //   cups.dayEnergy = dayEnergy;
+
+    //   sumDayExport = sumDayExport.map((dayExport, index) => {
+    //     dayExport += Number(dayEnergy.kwhExport[index]) || 0;
+    //     return dayExport;
+    //   })
+    //   sumDayGeneration = sumDayGeneration.map((dayGeneration, index) => {
+    //     dayGeneration += Number(dayEnergy.kwhGeneration[index]) || 0;
+    //     return dayGeneration;
+    //   })
+    //   sumDayConsumption = sumDayConsumption.map((dayConsumption, index) => {
+    //     dayConsumption += Number(dayEnergy.kwhConsumption[index]) || 0;
+    //     return dayConsumption;
+    //   })
+    // })
+
+    // await Promise.all(getAllEnergy)
+
+    // let labels = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'];
+    // let dataLabels = ['Consum (kWh)', 'Generació (kWh)', 'Excedent (kWh)']
+    // let chartData = [sumDayConsumption, sumDayGeneration, sumDayExport]
+    // let chartColors = [
+    //   '#D35400',
+    //   '#229954',
+    //   '#3498DB',
+    // ]
+
+    // this.updateDayChartValues(labels, dataLabels, chartData, chartColors)
 
   }
 
@@ -469,6 +522,79 @@ export class CommunitiesFormComponent implements OnInit {
         })
     })
   }
+
+    //energy service requests ( daily, monthly, yearly)
+    getDayEnergyByCommunity(cups: number, date: string): Promise<any> {
+      return new Promise((resolve, reject) => {
+        this.energyService.getDayByCommunityCups(cups, 'datadis', this.selectedDate)
+          .pipe(take(1))
+          .subscribe((res: any) => {
+            let hourlyData = res.data.stats
+            let hours = hourlyData.map((entry: any) => moment.utc(entry.infoDt).format('HH'));
+            let kwhGeneration = hourlyData.map((entry: any) => entry.production);
+            let kwhConsumption = hourlyData.map((entry: any) => entry.kwhIn);
+            let kwhExport = hourlyData.map((entry: any) => entry.kwhOut);
+            let dayEnergy = { hours, kwhGeneration, kwhConsumption, kwhExport }
+            resolve(dayEnergy)
+          })
+      }
+      )
+    }
+  
+    getMonthEnergyByCommunity(cups: number, date: string): Promise<any> {
+      return new Promise((resolve, reject) => {
+        this.energyService.getMonthCommunityByCups(this.selectedMonth, 'datadis', cups!)
+          .pipe(take(1))
+          .subscribe((res: any) => {
+            let monthCupsData = res.data.stats;
+            let monthDays = monthCupsData.map((entry: any) => moment(entry.infoDt).format('DD/MM/YYYY'));
+            // let weekImport = weekCupsData.map((entry: any) => entry.import);
+            let monthGeneration = monthCupsData.map((entry: any) => entry.production);
+            let monthConsumption = monthCupsData.map((entry: any) => entry.kwhIn);
+            let monthExport = monthCupsData.map((entry: any) => entry.kwhOut);
+            let monthEnergy = { monthDays, monthGeneration, monthConsumption, monthExport } // weekImport, weekDateLimits
+            resolve(monthEnergy)
+          })
+      })
+    }
+  
+    getYearEnergyByCommunity(cups: number, year: number): Promise<any> {
+      return new Promise((resolve, reject) => {
+        this.energyService.getYearByCommunityCups(year, 'datadis', cups!)
+          .pipe(take(1))
+          .subscribe((res: any) => {
+  
+            let monthlyCupsData = res.data.stats;
+            console.log(moment.locale())
+
+            let months: string[] = monthlyCupsData.map((entry: any) => {
+              let infoDt = moment(entry.infoDt).format('MM')
+              return moment(infoDt).format('MMMM')
+            }
+  
+            );
+            let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.kwhIn);
+            let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.production);
+            let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.kwhOut);
+  
+            let sumImport = kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+            const sumGeneration = kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+            const sumExport = kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+  
+            let yearEnergy = {
+              months,
+              kwhGeneration,
+              kwhConsumption,
+              kwhExport,
+              sumImport,
+              sumGeneration,
+              sumExport
+            }
+            resolve(yearEnergy)
+          })
+      })
+    }
+  
 
   updateMapLocation(){
     this.community.locationId = parseInt(this.form.value.locationId?.toString() || '0');
@@ -621,4 +747,5 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   protected readonly undefined = undefined;
+
 }

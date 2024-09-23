@@ -47,7 +47,7 @@ export class EnergyService {
   }
 
   getMonthCommunityByCups(date:string,origin:string,cups:number){
-    let url = `${this.communityBaseUrl}/${cups}/stats/monthly/${date}`;
+    let url = `${this.communityBaseUrl}/${cups}/stats/${origin}/monthly/${date}`;
     return this.http.get(url);
   }
 

@@ -1,31 +1,31 @@
-import {Body, Controller, Delete, Get, Headers, Param, Post, Put, Query, UseGuards,} from "@nestjs/common";
-import {HttpResponse} from "../../../../shared/infrastructure/http/HttpResponse";
-import {MysqlService, PrismaService} from "../../../../shared/infrastructure/services";
-import {AccessTokenGuard, DecodedToken} from "../../../auth/infrastructure/guards/access-token-guard/access-token-guard";
-import {Token} from "../../../auth/domain/tokens/Token";
-import {HttpUtils} from "../../../../shared/infrastructure/http/HttpUtils";
-import {FindUsersAction} from "../../application/find-users-action/find-users-action";
-import {getUsersFilterSchema} from "./filter-schemas/get-user.filter-schema";
-import {SaveUserDTO} from "./DTOs/SaveUserDTO";
-import {User} from "../../domain/User";
-import {SaveUserAction} from "../../application/save-user-action/save-user-action";
-import {UserIdNotDefinedError} from "../../domain/UserId/UserIdNotDefinedError";
-import {ByUserIdCriteria} from "../../domain/UserId/ByUserIdCriteria";
-import {PasswordNotEncryptedError, UserAlreadyExistsError, UserNotFoundError,} from "../../domain/errors";
-import {FilterField} from "../../../../shared/domain/criteria/filter/FilterField";
-import {FilterOperator, FilterOperators,} from "../../../../shared/domain/criteria/filter/FilterOperator";
-import {FilterValue} from "../../../../shared/domain/criteria/filter/FilterValue";
-import {Filter} from "../../../../shared/domain/criteria/filter/Filter";
-import {ByUsernameCriteria} from "../../domain/Username/ByUsernameCriteria";
-import {Criteria} from "../../../../shared/domain/criteria/Criteria";
-import {ByEmailCriteria} from "../../domain/Email/ByEmailCriteria";
-import {PasswordUtils} from "../../domain/Password/PasswordUtils";
-import {UserRepository} from "../../domain/UserRepository";
-import {UpdateUserDTO} from "./DTOs/UpdateUserDTO";
-import {BadRequestError, UnexpectedError} from "../../../../shared/domain/error/common";
-import {AuthTokenRepository} from "../../../auth/domain/tokens/repositories/AuthTokenRepository";
-import {UserDTO} from "./DTOs/UserDTO";
-import {UserDTOMapper} from "./DTOs/UserDTOMapper";
+import { Body, Controller, Delete, Get, Headers, Param, Post, Put, Query, UseGuards, } from "@nestjs/common";
+import { HttpResponse } from "../../../../shared/infrastructure/http/HttpResponse";
+import { MysqlService, PrismaService } from "../../../../shared/infrastructure/services";
+import { AccessTokenGuard, DecodedToken } from "../../../auth/infrastructure/guards/access-token-guard/access-token-guard";
+import { Token } from "../../../auth/domain/tokens/Token";
+import { HttpUtils } from "../../../../shared/infrastructure/http/HttpUtils";
+import { FindUsersAction } from "../../application/find-users-action/find-users-action";
+import { getUsersFilterSchema } from "./filter-schemas/get-user.filter-schema";
+import { SaveUserDTO } from "./DTOs/SaveUserDTO";
+import { User } from "../../domain/User";
+import { SaveUserAction } from "../../application/save-user-action/save-user-action";
+import { UserIdNotDefinedError } from "../../domain/UserId/UserIdNotDefinedError";
+import { ByUserIdCriteria } from "../../domain/UserId/ByUserIdCriteria";
+import { PasswordNotEncryptedError, UserAlreadyExistsError, UserNotFoundError, } from "../../domain/errors";
+import { FilterField } from "../../../../shared/domain/criteria/filter/FilterField";
+import { FilterOperator, FilterOperators, } from "../../../../shared/domain/criteria/filter/FilterOperator";
+import { FilterValue } from "../../../../shared/domain/criteria/filter/FilterValue";
+import { Filter } from "../../../../shared/domain/criteria/filter/Filter";
+import { ByUsernameCriteria } from "../../domain/Username/ByUsernameCriteria";
+import { Criteria } from "../../../../shared/domain/criteria/Criteria";
+import { ByEmailCriteria } from "../../domain/Email/ByEmailCriteria";
+import { PasswordUtils } from "../../domain/Password/PasswordUtils";
+import { UserRepository } from "../../domain/UserRepository";
+import { UpdateUserDTO } from "./DTOs/UpdateUserDTO";
+import { BadRequestError, InvalidArgumentError, UnexpectedError } from "../../../../shared/domain/error/common";
+import { AuthTokenRepository } from "../../../auth/domain/tokens/repositories/AuthTokenRepository";
+import { UserDTO } from "./DTOs/UserDTO";
+import { UserDTOMapper } from "./DTOs/UserDTOMapper";
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -34,12 +34,12 @@ import {
   ApiTags,
   getSchemaPath,
 } from "@nestjs/swagger";
-import {QueryFilterDto} from "../../../../shared/infrastructure/http/QueryFiltersDto";
-import {OnEvent} from "@nestjs/event-emitter";
-import {CredentialsChangedEvent} from "../../domain/CredentialsChangedEvent";
-import {Auth} from "../../../auth/infrastructure/decorators";
-import {UserRole} from "../../../roles/domain/UserRole";
-import {Datatable} from "../../../../shared/infrastructure/services/datatable/Datatable";
+import { QueryFilterDto } from "../../../../shared/infrastructure/http/QueryFiltersDto";
+import { OnEvent } from "@nestjs/event-emitter";
+import { CredentialsChangedEvent } from "../../domain/CredentialsChangedEvent";
+import { Auth } from "../../../auth/infrastructure/decorators";
+import { UserRole } from "../../../roles/domain/UserRole";
+import { Datatable } from "../../../../shared/infrastructure/services/datatable/Datatable";
 import mysql from "mysql2/promise";
 import { UsersDbRequestsService } from "./user-db-requests.service";
 
@@ -59,7 +59,7 @@ export class UserController {
     private authRepository: AuthTokenRepository,
     private datatable: Datatable,
     private mysql: MysqlService,
-    private dbRequestsService:UsersDbRequestsService
+    private dbRequestsService: UsersDbRequestsService
   ) {
     this.conn = this.mysql.pool;
   }
@@ -69,7 +69,7 @@ export class UserController {
     description: "Users fetched successfully",
     schema: {
       allOf: [
-        {$ref: getSchemaPath(HttpResponse)},
+        { $ref: getSchemaPath(HttpResponse) },
         {
           properties: {
             data: {
@@ -99,16 +99,16 @@ export class UserController {
   //@ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   async getUserByCustomerId(@Param("id") id: number, @Headers('authorization') authHeader: string) {
-    try{
+    try {
       const user = await this.dbRequestsService.getUserByCustomerId(id);
       return HttpResponse.success("user fetched successfully").withData(
         user
       );
-    } catch(error){
+    } catch (error) {
       console.log(error)
       throw new BadRequestError("User not found")
     }
-    
+
   }
 
   @Get("/cups/:id")
@@ -116,12 +116,12 @@ export class UserController {
   //@ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   async getUserByCupsId(@Param("id") id: number, @Headers('authorization') authHeader: string) {
-    try{
+    try {
       const user = await this.dbRequestsService.getUserByCupsId(id);
       return HttpResponse.success("user fetched successfully").withData(
         user
       );
-    } catch(error){
+    } catch (error) {
       console.log(error)
       throw new BadRequestError("User not found")
     }
@@ -183,7 +183,7 @@ export class UserController {
 
   @Post('/wallet/email')
   @Auth(RESOURCE_NAME)
-  async getWalletByEmail(@Body() body: {email: string}){
+  async getWalletByEmail(@Body() body: { email: string }) {
     const data: any = await this.prisma.$queryRaw`
       SELECT wallet_address walletAddress FROM users WHERE email LIKE ${body.email}
     `
@@ -200,7 +200,7 @@ export class UserController {
   @ApiCreatedResponse({
     schema: {
       allOf: [
-        {$ref: getSchemaPath(HttpResponse)},
+        { $ref: getSchemaPath(HttpResponse) },
         {
           properties: {
             data: {
@@ -213,9 +213,16 @@ export class UserController {
   })
   async saveUser(
     @DecodedToken() token: Token,
-    @Body() body: SaveUserDTO
+    @Body() body: any
   ): Promise<HttpResponse> {
-    const {
+
+    const getUserQuery = `SELECT * FROM users WHERE email = ?`;
+    const getCustomerEmail = `SELECT * FROM customers WHERE email = ?`;
+    const insertCustomerDniQuery = `INSERT INTO customers (name,dni,email,balance) VALUES (?,?,?,?)`
+    const insertCustomerQuery = `INSERT INTO customers (name,email,balance) VALUES (?,?,?)`
+    const defaultBalance = 45;
+
+    let {
       username,
       firstname,
       lastname,
@@ -224,22 +231,54 @@ export class UserController {
       customer_id,
       role,
       wallet_address,
+      dni
     } = body;
-    const user = new User({
-      username,
-      firstname,
-      lastname,
-      email,
-      password,
-      customerId:customer_id,
-      walletAddress: wallet_address,
-      role: new UserRole({name: role}),
-    });
 
-    const savedUser = await this.saveUserAction.run(user);
-    return HttpResponse.success("User saved").withData(
-      UserDTOMapper.toDto(savedUser)
-    );
+    let customerId: number;
+
+    try {
+
+      let [ROWS]: any = await this.conn.query(getUserQuery, [body.email]);
+      //check if user exists
+      if (ROWS.length) {
+        throw new InvalidArgumentError("There is a user with this email");
+      }
+
+      if (!body.customer_id) {
+        //check if customer exists
+        [ROWS] = await this.conn.query(getCustomerEmail, [body.email]);
+        if (ROWS.length == 1) {
+          customer_id = ROWS[0].id;
+        } else {
+          if (dni) {
+            const result: any = await this.conn.query(insertCustomerDniQuery, [`${firstname} ${lastname}`, dni, email, defaultBalance]);
+            customer_id = result[0].insertId;
+          } else {
+            const result: any = await this.conn.query(insertCustomerQuery, [`${firstname} ${lastname}`, email, defaultBalance]);
+            customer_id = result[0].insertId;
+          }
+        }
+      }
+
+      const user = new User({
+        username,
+        firstname,
+        lastname,
+        email,
+        password,
+        customerId: customer_id ,
+        walletAddress: wallet_address,
+        role: new UserRole({ name: role }),
+      });
+
+      const savedUser = await this.saveUserAction.run(user);
+      return HttpResponse.success("User saved").withData(
+        UserDTOMapper.toDto(savedUser)
+      );
+    } catch (error) {
+      console.log("Error registering user:", error)
+      throw new UnexpectedError(error);
+    }
   }
 
   @Put("/:id")
@@ -249,7 +288,7 @@ export class UserController {
     description: "User updated successfully",
     schema: {
       allOf: [
-        {$ref: getSchemaPath(HttpResponse)},
+        { $ref: getSchemaPath(HttpResponse) },
         {
           properties: {
             data: {
@@ -261,8 +300,15 @@ export class UserController {
     },
   })
 
-  async updateUser(@Body() body: UpdateUserDTO, @Param("id") id: string) {
-    const {
+  async updateUser(@Body() body: any, @Param("id") id: string) {
+
+    const getUserQuery = `SELECT * FROM users WHERE email = ?`;
+    const getCustomerEmail = `SELECT * FROM customers WHERE email = ?`;
+    const insertCustomerDniQuery = `INSERT INTO customers (name,dni,email,balance) VALUES (?,?,?,?)`
+    const insertCustomerQuery = `INSERT INTO customers (name,email,balance) VALUES (?,?,?)`
+    const defaultBalance = 45;
+
+    let {
       username,
       firstname,
       lastname,
@@ -270,17 +316,35 @@ export class UserController {
       password,
       customer_id,
       role,
+      dni,
       wallet_address,
     } = body;
+
+    if (!body.customer_id) {
+      //check if customer exists
+      let [ROWS]: any = await this.conn.query(getCustomerEmail, [body.email]);
+      if (ROWS.length == 1) {
+        customer_id = ROWS[0].id;
+      } else {
+        if (dni) {
+          const result: any = await this.conn.query(insertCustomerDniQuery, [`${firstname} ${lastname}`, dni, email, defaultBalance]);
+          customer_id = result[0].insertId;
+        } else {
+          const result: any = await this.conn.query(insertCustomerQuery, [`${firstname} ${lastname}`, email, defaultBalance]);
+          customer_id = result[0].insertId;
+        }
+      }
+    }
+
     const user = new User({
       username,
       firstname,
       lastname,
       email,
-      customerId:customer_id,
+      customerId: customer_id,
       password,
       walletAddress: wallet_address,
-      role: new UserRole({name: role}),
+      role: new UserRole({ name: role }),
     });
     user.withId(parseInt(id));
     if (!user.id) {

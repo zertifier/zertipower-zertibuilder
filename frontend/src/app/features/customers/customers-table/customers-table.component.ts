@@ -196,8 +196,8 @@ export class CustomersTableComponent implements OnDestroy {
 
   async deleteRequest(id:any) {
     const response = await Swal.fire({
-      icon: 'question',
-      title: 'Segur que vol esborrar el client?',
+      icon: 'warning',
+      title: `Estàs a punt d'esborrar el registre`,
       showCancelButton: true,
     });
 

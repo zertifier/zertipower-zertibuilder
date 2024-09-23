@@ -59,10 +59,9 @@
       <div class="row row-cols-2 row-cols-md-1">
         <div class="col my-3">
           <label class="form-label" for="cups-select">Cups de comunitat</label>
-          <ng-select id="cups-select" [items]="customers" [multiple]="true" [(ngModel)]="communityCups"
-            (change)="updateData()" bindLabel="cups">
+          <ng-select id="cups-select" [items]="customers" [multiple]="true" [(ngModel)]="communityCups" bindLabel="cups" > <!-- (change)="updateData()" -->
             <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
-              <input id="item-{{index}}" type="checkbox" [ngModel]="item$.selected" />
+              <input id="item-{{index}}" type="checkbox" [ngModel]="item$.selected" /> <!--  -->
               {{item.name}} {{item.ubication}} {{item.cups}}
             </ng-template>
           </ng-select>
@@ -150,6 +149,8 @@
           </div>
         </div>
       </div>
+
+      <!-- <span>* Les dades visualitzades són les sumes dels consums, generacions i excedents dels CUPS </span> -->
 
       <app-map class="w-100 mt-auto" style="height: 230px;" (selectedLatLng)="updateLatLng($event)"></app-map>
 

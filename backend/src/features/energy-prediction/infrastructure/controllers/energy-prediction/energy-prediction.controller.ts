@@ -7,7 +7,6 @@ import { Predictor } from "./predictor";
 import { HttpResponse } from "../../../../../shared/infrastructure/http/HttpResponse";
 import { BadRequestError, InfrastructureError } from "../../../../../shared/domain/error/common";
 import { AxiosError } from "axios";
-import { ShareService } from "../../../../../shared/infrastructure/services/share/share.service";
 import { ConsumptionPredictionService } from '../../services/consumption-prediction.service';
 import { ErrorCode } from 'src/shared/domain/error';
 

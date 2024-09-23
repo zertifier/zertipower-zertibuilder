@@ -117,9 +117,9 @@ export class ShareService {
           }
 
         }
-
         if (totalSurplus > 0 && this.newRegisters.length) {
           const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, this.newRegisters, "EQUITABLE")
+
           const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
           await this.insertToTrades(calculatedRedistribute, communityPrice)
         }
@@ -241,9 +241,11 @@ export class ShareService {
 
   calculateRedistribution(redistributeObject: RedistributeObject) {
     //config initial data
-    const epsilon = 0.0000000001;
+    const epsilon = 0.0000000001; // for float comparisons: Math.abs(f1 - f2) < epsilon;
     const totalAvailablePower: number = redistributeObject.totalSurplus;
+    //if no power available - early exit
     if (totalAvailablePower <= 0) {
+      // set parners to empty array, because
       redistributeObject.redistributePartners = []
       return redistributeObject
     }
@@ -553,7 +555,8 @@ export class ShareService {
         //SELL
         query +=
           `(${trade.surplusEhId}, ${partner.ehId}, ${trade.surplusCups}, ${partner.cupsId}, 'SELL', ${tradedKwh}, ${tradeCost}, ${totalSellSurplus}, ${resultSellTotalKwh}, "${infoDt}"),`
-        await this.updateHourlyVirtual(trade.surplusCups, resultSellTotalKwh, trade.totalSurplus - resultSellTotalKwh, infoDt, 'SELL')
+        // await this.updateHourlyVirtual(trade.surplusCups, resultSellTotalKwh, trade.totalSurplus - resultSellTotalKwh, infoDt, 'SELL')
+        await this.updateHourlyVirtual(trade.surplusCups, trade.resultTotalSurplus, trade.totalSurplus - resultSellTotalKwh, infoDt, 'SELL')
 
 
       } else {

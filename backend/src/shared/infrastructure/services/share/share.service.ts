@@ -372,7 +372,7 @@ export class ShareService {
                  LEFT JOIN cups ON e.cups_id = cups.id
                  LEFT JOIN users ON cups.customer_id = users.customer_id
                  LEFT JOIN communities ON cups.community_id = communities.id
-          WHERE   e.info_dt LIKE '2024-02%' AND cups.type != 'community'
+          WHERE   e.info_dt LIKE '2024-02-22%' AND cups.type != 'community'
             AND e.kwh_out > 0
           ORDER BY e.info_dt ASC, e.kwh_out DESC;
         `
@@ -424,7 +424,7 @@ export class ShareService {
                LEFT JOIN cups ON e.cups_id = cups.id
                LEFT JOIN users ON cups.customer_id = users.customer_id
                LEFT JOIN communities ON cups.community_id = communities.id
-        WHERE e.info_dt LIKE '2024-02%' AND cups.type != 'community'
+        WHERE e.info_dt LIKE '2024-02-22%' AND cups.type != 'community'
           AND e.kwh_in > 0
         ORDER BY e.info_dt ASC, e.kwh_in DESC;
       `)
@@ -534,7 +534,7 @@ export class ShareService {
 
       const isSuficientBalance = await this.customerHasSufficientBalance(tradeCost, customerBuyer.balance);
 
-      if (isSuficientBalance && (tradeCost > 0.001)) {
+      if (isSuficientBalance && (tradeCost >= 0.001)) {
 
         transactionNumber++;
 

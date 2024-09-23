@@ -89,7 +89,6 @@ export class CupsFormComponent {
     }
 
     this.apiService.getById(id).subscribe((data) => {
-      console.log(data, "DATA")
       this.form.controls.id.setValue(data.id);
       this.form.controls.cups.setValue(data.cups);
       this.form.controls.type.setValue(data.type);
@@ -135,8 +134,6 @@ export class CupsFormComponent {
         delete values[key];
       }
     }
-
-    console.log("values", values)
 
     let request: Observable<any>;
     if (!this.id) {

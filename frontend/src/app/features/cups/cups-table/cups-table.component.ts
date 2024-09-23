@@ -185,7 +185,7 @@ export class CupsTableComponent implements OnDestroy {
       render: (data: any, type: any, row: any) => {
         // Variable para almacenar el estilo del círculo
         let circleStyle = '';
-        console.log(data)
+        
         // Asignar el estilo de acuerdo al valor de los datos
         switch (data) {
           case 'Inactiu':

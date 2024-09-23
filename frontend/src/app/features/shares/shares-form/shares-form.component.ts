@@ -39,12 +39,10 @@ export class SharesFormComponent {
   ) {
 
     this.communityService.get().subscribe((data:any)=>{
-      console.log(data.data);
       this.communities=data.data;
     })
 
     this.customerService.getCustomers().subscribe((data:any)=>{
-      console.log(data.data);
       this.customers=data.data;
     })
 
@@ -56,7 +54,6 @@ export class SharesFormComponent {
       return;
     }
     this.apiService.getById(id).subscribe((data:any) => {
-      console.log(data);
       this.form.controls.id.setValue(data.id);
       this.form.controls.community_id.setValue(data.communityId);
       this.form.controls.customer_id.setValue(data.customerId);

@@ -888,8 +888,6 @@ export class CommunitiesController {
 
       if (!production) production = 0
       else production = production.production
-      console.log(cups.surplus_distribution, 'cups.surplus_distribution')
-
       cups.production = production
       cups.production_active = production * parseFloat(cups.surplus_distribution)
 

@@ -143,14 +143,13 @@ export class CommunitiesFormComponent implements OnInit {
     this.locationService.getLocations()
       .pipe(take(1))
       .subscribe(async (res: any) => {
-        console.log(res.data);
         this.locations = res.data;
         if (this.community.locationId) {
           this.setMapLocationByLocationId(this.community.locationId)
-          if(this.community.lat && this.community.lng){
+          if (this.community.lat && this.community.lng) {
             this.setMarker(this.community.lat, this.community.lng)
           } else {
-            console.log("Community haven't latlng")  
+            console.log("Community haven't latlng")
           }
         } else {
           console.log("Community haven't location id")
@@ -167,7 +166,6 @@ export class CommunitiesFormComponent implements OnInit {
   }
 
   changeMonth() {
-    console.log(this.selectedMonth)
     this.getMonthEnergy();
   }
 
@@ -198,7 +196,7 @@ export class CommunitiesFormComponent implements OnInit {
     let monthEnergyData: any;
 
     monthEnergyData = await this.getMonthEnergyByCommunity(this.communityId, this.selectedMonth);
-    
+
     let labels = monthEnergyData.monthDays;
     let dataLabels = ['Consum (kWh)', 'Generació (kWh)', 'Excedent (kWh)']
     let chartData = [monthEnergyData.monthConsumption, monthEnergyData.monthGeneration, monthEnergyData.monthExport]
@@ -279,12 +277,12 @@ export class CommunitiesFormComponent implements OnInit {
     let yearEnergyData: any;
 
     yearEnergyData = await this.getYearEnergyByCommunity(this.communityId, this.selectedYear);
-    
+
     let labels = yearEnergyData.months;
     let dataLabels = ['Consum (kWh)', 'Generació (kWh)', 'Excedent (kWh)']
-    let chartData = [yearEnergyData.kwhConsumption, 
-      yearEnergyData.kwhGeneration, 
-      yearEnergyData.kwhExport]
+    let chartData = [yearEnergyData.kwhConsumption,
+    yearEnergyData.kwhGeneration,
+    yearEnergyData.kwhExport]
     let chartColors = [
       '#D35400',
       '#229954',
@@ -349,12 +347,12 @@ export class CommunitiesFormComponent implements OnInit {
     let yearEnergyData: any;
 
     yearEnergyData = await this.getDayEnergyByCommunity(this.communityId, this.selectedDate);
-    
+
     let labels = yearEnergyData.hours;
     let dataLabels = ['Consum (kWh)', 'Generació (kWh)', 'Excedent (kWh)']
-    let chartData = [yearEnergyData.kwhConsumption, 
-      yearEnergyData.kwhGeneration, 
-      yearEnergyData.kwhExport]
+    let chartData = [yearEnergyData.kwhConsumption,
+    yearEnergyData.kwhGeneration,
+    yearEnergyData.kwhExport]
     let chartColors = [
       '#D35400',
       '#229954',
@@ -523,80 +521,79 @@ export class CommunitiesFormComponent implements OnInit {
     })
   }
 
-    //energy service requests ( daily, monthly, yearly)
-    getDayEnergyByCommunity(cups: number, date: string): Promise<any> {
-      return new Promise((resolve, reject) => {
-        this.energyService.getDayByCommunityCups(cups, 'datadis', this.selectedDate)
-          .pipe(take(1))
-          .subscribe((res: any) => {
-            let hourlyData = res.data.stats
-            let hours = hourlyData.map((entry: any) => moment.utc(entry.infoDt).format('HH'));
-            let kwhGeneration = hourlyData.map((entry: any) => entry.production);
-            let kwhConsumption = hourlyData.map((entry: any) => entry.kwhIn);
-            let kwhExport = hourlyData.map((entry: any) => entry.kwhOut);
-            let dayEnergy = { hours, kwhGeneration, kwhConsumption, kwhExport }
-            resolve(dayEnergy)
-          })
-      }
-      )
+  //energy service requests ( daily, monthly, yearly)
+  getDayEnergyByCommunity(cups: number, date: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.energyService.getDayByCommunityCups(cups, 'datadis', this.selectedDate)
+        .pipe(take(1))
+        .subscribe((res: any) => {
+          let hourlyData = res.data.stats
+          let hours = hourlyData.map((entry: any) => moment.utc(entry.infoDt).format('HH'));
+          let kwhGeneration = hourlyData.map((entry: any) => entry.production);
+          let kwhConsumption = hourlyData.map((entry: any) => entry.kwhIn);
+          let kwhExport = hourlyData.map((entry: any) => entry.kwhOut);
+          let dayEnergy = { hours, kwhGeneration, kwhConsumption, kwhExport }
+          resolve(dayEnergy)
+        })
     }
-  
-    getMonthEnergyByCommunity(cups: number, date: string): Promise<any> {
-      return new Promise((resolve, reject) => {
-        this.energyService.getMonthCommunityByCups(this.selectedMonth, 'datadis', cups!)
-          .pipe(take(1))
-          .subscribe((res: any) => {
-            let monthCupsData = res.data.stats;
-            let monthDays = monthCupsData.map((entry: any) => moment(entry.infoDt).format('DD/MM/YYYY'));
-            // let weekImport = weekCupsData.map((entry: any) => entry.import);
-            let monthGeneration = monthCupsData.map((entry: any) => entry.production);
-            let monthConsumption = monthCupsData.map((entry: any) => entry.kwhIn);
-            let monthExport = monthCupsData.map((entry: any) => entry.kwhOut);
-            let monthEnergy = { monthDays, monthGeneration, monthConsumption, monthExport } // weekImport, weekDateLimits
-            resolve(monthEnergy)
-          })
-      })
-    }
-  
-    getYearEnergyByCommunity(cups: number, year: number): Promise<any> {
-      return new Promise((resolve, reject) => {
-        this.energyService.getYearByCommunityCups(year, 'datadis', cups!)
-          .pipe(take(1))
-          .subscribe((res: any) => {
-  
-            let monthlyCupsData = res.data.stats;
-            console.log(moment.locale())
+    )
+  }
 
-            let months: string[] = monthlyCupsData.map((entry: any) => {
-              let infoDt = moment(entry.infoDt).format('MM')
-              return moment(infoDt).format('MMMM')
-            }
-  
-            );
-            let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.kwhIn);
-            let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.production);
-            let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.kwhOut);
-  
-            let sumImport = kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
-            const sumGeneration = kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
-            const sumExport = kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
-  
-            let yearEnergy = {
-              months,
-              kwhGeneration,
-              kwhConsumption,
-              kwhExport,
-              sumImport,
-              sumGeneration,
-              sumExport
-            }
-            resolve(yearEnergy)
-          })
-      })
-    }
-  
+  getMonthEnergyByCommunity(cups: number, date: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.energyService.getMonthCommunityByCups(this.selectedMonth, 'datadis', cups!)
+        .pipe(take(1))
+        .subscribe((res: any) => {
+          let monthCupsData = res.data.stats;
+          let monthDays = monthCupsData.map((entry: any) => moment(entry.infoDt).format('DD/MM/YYYY'));
+          // let weekImport = weekCupsData.map((entry: any) => entry.import);
+          let monthGeneration = monthCupsData.map((entry: any) => entry.production);
+          let monthConsumption = monthCupsData.map((entry: any) => entry.kwhIn);
+          let monthExport = monthCupsData.map((entry: any) => entry.kwhOut);
+          let monthEnergy = { monthDays, monthGeneration, monthConsumption, monthExport } // weekImport, weekDateLimits
+          resolve(monthEnergy)
+        })
+    })
+  }
 
-  updateMapLocation(){
+  getYearEnergyByCommunity(cups: number, year: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.energyService.getYearByCommunityCups(year, 'datadis', cups!)
+        .pipe(take(1))
+        .subscribe((res: any) => {
+
+          let monthlyCupsData = res.data.stats;
+
+          let months: string[] = monthlyCupsData.map((entry: any) => {
+            let infoDt = moment(entry.infoDt).format('MM')
+            return moment(infoDt).format('MMMM')
+          }
+
+          );
+          let kwhConsumption: number[] = monthlyCupsData.map((entry: any) => entry.kwhIn);
+          let kwhGeneration: number[] = monthlyCupsData.map((entry: any) => entry.production);
+          let kwhExport: number[] = monthlyCupsData.map((entry: any) => entry.kwhOut);
+
+          let sumImport = kwhConsumption.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+          const sumGeneration = kwhGeneration.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+          const sumExport = kwhExport.reduce((partialSum: number, a: number) => partialSum + (a | 0), 0);
+
+          let yearEnergy = {
+            months,
+            kwhGeneration,
+            kwhConsumption,
+            kwhExport,
+            sumImport,
+            sumGeneration,
+            sumExport
+          }
+          resolve(yearEnergy)
+        })
+    })
+  }
+
+
+  updateMapLocation() {
     this.community.locationId = parseInt(this.form.value.locationId?.toString() || '0');
     this.setMapLocationByLocationId(this.community.locationId);
   }
@@ -607,14 +604,12 @@ export class CommunitiesFormComponent implements OnInit {
       console.log("Selected location not found")
       return;
     }
-    console.log(selectedLocation.municipality)
     this.map.centerToAddress(`${selectedLocation.municipality}, España`)
   }
 
-  updateLatLng(latLngObject:any){
-    console.log(latLngObject)
-    this.community.lat=latLngObject.lat
-    this.community.lng=latLngObject.lng
+  updateLatLng(latLngObject: any) {
+    this.community.lat = latLngObject.lat
+    this.community.lng = latLngObject.lng
     this.form.controls.lat.setValue(latLngObject.lat);
     this.form.controls.lng.setValue(latLngObject.lng);
   }
@@ -653,7 +648,6 @@ export class CommunitiesFormComponent implements OnInit {
       delete values.createdAt;
       request = this.apiService.save(values)
     } else {
-      console.log(values)
       request = this.apiService.update(this.id, values);
     }
 
@@ -678,7 +672,6 @@ export class CommunitiesFormComponent implements OnInit {
           this.cupsApiService.update(cups.id, cupsToUpdate)
             .pipe(take(1))
             .subscribe((res) => {
-              console.log("change community id from cups: ", res)
             })
         })
 
@@ -707,7 +700,6 @@ export class CommunitiesFormComponent implements OnInit {
                 this.cupsApiService.update(cups.id, cupsToUpdate)
                   .pipe(take(1))
                   .subscribe((res) => {
-                    console.log("change community id from cups: ", res)
                   })
               }
 

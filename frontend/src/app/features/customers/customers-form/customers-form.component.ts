@@ -58,7 +58,6 @@ export class CustomersFormComponent {
       return;
     }
     this.apiService.getById(id).subscribe((data) => {
-      console.log(data);
       this.form.controls.id.setValue(data.id);
       this.form.controls.name.setValue(data.name);
       this.form.controls.dni.setValue(data.dni);
@@ -70,7 +69,6 @@ export class CustomersFormComponent {
     });
 
     this.apiService.getCustomerCups(id).subscribe((data)=>{
-      console.log(data)
       this.customerCups = data
     })
   }

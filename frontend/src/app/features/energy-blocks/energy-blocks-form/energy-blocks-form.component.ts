@@ -60,7 +60,6 @@ export class EnergyBlocksFormComponent implements OnInit {
 
     this.providersApiService.get().subscribe((providers:any) => {
       this.availableProviders = providers;
-      console.log("providers",providers)
     })
 
   }
@@ -73,12 +72,7 @@ export class EnergyBlocksFormComponent implements OnInit {
       return;
     }
 
-    console.log(id)
-
     this.apiService.getById(id).subscribe((data) => {
-
-      console.log(data)
-
       this.form.controls.id.setValue(data.id);
       this.form.controls.reference.setValue(data.reference);
       this.form.controls.expirationDt.setValue(moment.utc(data.expirationDt).format('YYYY-MM-DDTHH:mm'));

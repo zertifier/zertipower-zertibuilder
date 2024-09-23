@@ -73,8 +73,6 @@ export class UserFormComponent implements OnInit, OnDestroy {
 			throw new Error("User not found");
 		}
 
-		console.log(user)
-
 		if(user.customer_id){
 			this.selectedCustomerId=user.customer_id;
 		}

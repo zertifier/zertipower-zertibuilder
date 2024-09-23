@@ -61,7 +61,8 @@ export class ShareService {
   private conn: mysql.Pool;
   daysToIgnore = 7;
 
-  newRegisters:  RegistersFromDb[] = []
+  newRegisters: RegistersFromDb[] = []
+
   constructor(
     private mysql: MysqlService,
     private environment: EnvironmentService,
@@ -102,23 +103,23 @@ export class ShareService {
         const communityPrice = await this.getCommunityPrice(surplusRegister.community_id)
         let totalSurplus = parseFloat(surplusRegister.kwh_out.toString())
 
-        if (totalSurplus > 0 && surplusRegister.trade_type == 'PREFERRED'){
+        if (totalSurplus > 0 && surplusRegister.trade_type == 'PREFERRED') {
           const customerCupsRegisters = this.newRegisters
             .filter(
               (register) => register.customer_id == surplusRegister.customer_id)
 
 
-          if (customerCupsRegisters.length){
+          if (customerCupsRegisters.length) {
             const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, customerCupsRegisters, surplusRegister.trade_type)
             const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
             await this.insertToTrades(calculatedRedistribute, communityPrice)
-            totalSurplus = calculatedRedistribute.resultTotalSurplus
+            if (redistributeObject.redistributePartners.length) totalSurplus = calculatedRedistribute.resultTotalSurplus
           }
 
         }
-
         if (totalSurplus > 0 && this.newRegisters.length) {
           const redistributeObject = this.getRedistributeObject(totalSurplus, surplusRegister, this.newRegisters, "EQUITABLE")
+
           const calculatedRedistribute = this.calculateRedistribution(redistributeObject)
           await this.insertToTrades(calculatedRedistribute, communityPrice)
         }
@@ -240,9 +241,11 @@ export class ShareService {
 
   calculateRedistribution(redistributeObject: RedistributeObject) {
     //config initial data
-    const epsilon = 0.0000000001;
+    const epsilon = 0.0000000001; // for float comparisons: Math.abs(f1 - f2) < epsilon;
     const totalAvailablePower: number = redistributeObject.totalSurplus;
+    //if no power available - early exit
     if (totalAvailablePower <= 0) {
+      // set parners to empty array, because
       redistributeObject.redistributePartners = []
       return redistributeObject
     }
@@ -250,22 +253,21 @@ export class ShareService {
     const consumers = partners
       .filter(p => p.consumption > epsilon && p.cupsId != redistributeObject.surplusCups)
       .map(p => {
-        return { partner: p, desiredPower: p.consumption };
+        return {partner: p, desiredPower: p.consumption};
       });
-    redistributeObject.redistributePartners = consumers.map(c=> c.partner)
+    redistributeObject.redistributePartners = consumers.map(c => c.partner)
 
     if (consumers.length === 0) {
       console.log('No consumers found. Distribution canceled.');
-      redistributeObject.totalSurplus = totalAvailablePower
       return redistributeObject;
     }
 
     const totalDesiredConsumption: number = consumers.map(consumer => consumer.desiredPower)
       .reduce((a, b) => a + b);
 
- /*   console.log('distribution begins for: ', redistributeObject);
-    console.log('total power to distribute: ', totalDesiredConsumption);
-    console.log('consumers: ', consumers);*/
+    /*   console.log('distribution begins for: ', redistributeObject);
+       console.log('total power to distribute: ', totalDesiredConsumption);
+       console.log('consumers: ', consumers);*/
 
 // if totalPower > sum then satisfy all
     if (totalAvailablePower > totalDesiredConsumption) {
@@ -273,7 +275,9 @@ export class ShareService {
       redistributeObject.resultTotalSurplus = totalAvailablePower - totalDesiredConsumption;
       consumers.forEach(c => {
         c.partner.resultConsumption = 0
-        this.newRegisters = this.newRegisters.filter(newRegister => newRegister.eh_id != c.partner.ehId);
+        this.newRegisters =
+          this.newRegisters.filter(newRegister =>
+            !((newRegister.cups_id == c.partner.cupsId) && moment(newRegister.info_dt).isSame(moment(c.partner.infoDt))));
       });
 
       return redistributeObject;
@@ -291,20 +295,24 @@ export class ShareService {
       const evenPart = availablePower / (sortedConsumers.length - i);
       // console.log(`iteration: ${i}, evenPart: ${evenPart}`);
       // if cant satisfy consumer, break the loop and go to next step
-      if (evenPart < consumer.desiredPower ) break;
+      if (evenPart < consumer.desiredPower) break;
       i++
       // console.log('consumer can be satisfied, loop continued')
       availablePower -= consumer.desiredPower;
       consumer.partner.resultConsumption = 0;
-      this.newRegisters = this.newRegisters.filter(newRegister => newRegister.eh_id != consumer.partner.ehId);
+      // this.newRegisters = this.newRegisters.filter(newRegister => newRegister.eh_id != consumer.partner.ehId);
+      this.newRegisters =
+        this.newRegisters.filter(newRegister =>
+          !((newRegister.cups_id == consumer.partner.cupsId) && moment(newRegister.info_dt).isSame(moment(consumer.partner.infoDt))));
 
     }
 
-// distribute the rest evenly
+    // distribute the rest evenly
     const notSatisfiedConsumers = sortedConsumers.slice(i)
     const evenPart = availablePower / notSatisfiedConsumers.length;
-    for(let consumer of notSatisfiedConsumers){
+    if (!notSatisfiedConsumers.length) console.log("notSatisfiedConsumers is empty!!")
 
+    for (let consumer of notSatisfiedConsumers) {
       let consumption = consumer.partner.consumption;
       consumer.partner.resultConsumption = consumption - evenPart
       const index = this.newRegisters.findIndex(newRegister => newRegister.eh_id === consumer.partner.ehId);
@@ -313,7 +321,7 @@ export class ShareService {
 
     }
     // notSatisfiedConsumers.forEach(c => c.partner.resultConsumption = c.partner.consumption - evenPart);
-   // console.log(notSatisfiedConsumers, "notSatisfiedConsumers22222")
+    // console.log(notSatisfiedConsumers, "notSatisfiedConsumers22222")
 
     redistributeObject.resultTotalSurplus = 0
     // console.log(redistributeObject, "RETURNNN")
@@ -333,12 +341,12 @@ export class ShareService {
   getRegistersByDateAndCommunityAndCustomer(surplusRegisterDate: Date, communityId: number, customerId: number, newRegisters: RegistersFromDb[]) {
     const date = moment(surplusRegisterDate).format('YYYY-MM-DD HH')
     const filteredRegisters = newRegisters.filter((register) => {
-      if (
-        moment(register.info_dt).format('YYYY-MM-DD HH') == date && communityId == register.community_id
-        && customerId == register.customer_id) {
+        if (
+          moment(register.info_dt).format('YYYY-MM-DD HH') == date && communityId == register.community_id
+          && customerId == register.customer_id) {
 
-        return register
-      }
+          return register
+        }
       }
     )
 
@@ -351,22 +359,22 @@ export class ShareService {
       try {
 
         let query = `
-          SELECT e.id                   eh_id,
+          SELECT e.id              eh_id,
                  e.kwh_in,
                  e.kwh_out,
                  e.info_dt,
-                 cups.id                cups_id,
-                 cups.community_id      community_id,
-                 users.id               user_id,
+                 cups.id           cups_id,
+                 cups.community_id community_id,
+                 users.id          user_id,
                  cups.customer_id,
                  trade_type
           FROM energy_hourly e
                  LEFT JOIN cups ON e.cups_id = cups.id
                  LEFT JOIN users ON cups.customer_id = users.customer_id
                  LEFT JOIN communities ON cups.community_id = communities.id
-          WHERE  cups.type != 'community' 
-          AND e.kwh_out > 0
-          ORDER BY e.info_dt ASC, e.kwh_out DESC ;
+          WHERE   e.info_dt LIKE '2024-02%' AND cups.type != 'community'
+            AND e.kwh_out > 0
+          ORDER BY e.info_dt ASC, e.kwh_out DESC;
         `
         let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
         /*let result: any = await this.prisma.$queryRaw`
@@ -403,21 +411,21 @@ export class ShareService {
       // let [result]: any = await this.conn.execute<mysql.ResultSetHeader>(query);
       // let result: any = await this.prisma.$queryRaw`
       let [result]: any = await this.conn.execute(`
-      SELECT e.id                   eh_id,
+        SELECT e.id              eh_id,
                e.kwh_in,
                e.kwh_out,
                e.info_dt,
-               cups.id                cups_id,
-               cups.community_id      community_id,
-               users.id               user_id,
+               cups.id           cups_id,
+               cups.community_id community_id,
+               users.id          user_id,
                cups.customer_id,
                trade_type
         FROM energy_hourly e
                LEFT JOIN cups ON e.cups_id = cups.id
                LEFT JOIN users ON cups.customer_id = users.customer_id
                LEFT JOIN communities ON cups.community_id = communities.id
-        WHERE cups.type != 'community'
-        AND e.kwh_in > 0
+        WHERE e.info_dt LIKE '2024-02%' AND cups.type != 'community'
+          AND e.kwh_in > 0
         ORDER BY e.info_dt ASC, e.kwh_in DESC;
       `)
       resolve(result);
@@ -444,7 +452,7 @@ export class ShareService {
     }
   }
 
-  getRedistributeObject(totalSurplus: number, surplusRegister: RegistersFromDb, newRegisters: RegistersFromDb[],type: TradeTypes): RedistributeObject{
+  getRedistributeObject(totalSurplus: number, surplusRegister: RegistersFromDb, newRegisters: RegistersFromDb[], type: TradeTypes): RedistributeObject {
     let redistributePartners!: RedistributePartner[];
     if (type == 'PREFERRED')
       redistributePartners =
@@ -460,6 +468,7 @@ export class ShareService {
       redistributePartners
     }
   }
+
   async getCustomerFromCupsId(cupsId: number) {
     let query = `SELECT customers.*, users.id as userId
                  FROM customers
@@ -525,7 +534,7 @@ export class ShareService {
 
       const isSuficientBalance = await this.customerHasSufficientBalance(tradeCost, customerBuyer.balance);
 
-      if (isSuficientBalance && (tradeCost > 0.001)) {
+      if (isSuficientBalance && (tradeCost >= 0.001)) {
 
         transactionNumber++;
 
@@ -541,12 +550,13 @@ export class ShareService {
         //BUY
         query +=
           `(${partner.ehId}, ${trade.surplusEhId}, ${partner.cupsId}, ${trade.surplusCups}, 'BUY', ${tradedKwh}, ${tradeCost}, ${partner.consumption}, ${partner.resultConsumption}, "${infoDt}"),`
-        await this.updateHourlyVirtual(partner.cupsId, partner.resultConsumption,tradedKwh, infoDt, 'BUY')
+        await this.updateHourlyVirtual(partner.cupsId, partner.resultConsumption, tradedKwh, infoDt, 'BUY')
 
         //SELL
         query +=
           `(${trade.surplusEhId}, ${partner.ehId}, ${trade.surplusCups}, ${partner.cupsId}, 'SELL', ${tradedKwh}, ${tradeCost}, ${totalSellSurplus}, ${resultSellTotalKwh}, "${infoDt}"),`
-        await this.updateHourlyVirtual(trade.surplusCups, resultSellTotalKwh,trade.totalSurplus - resultSellTotalKwh, infoDt, 'SELL')
+        // await this.updateHourlyVirtual(trade.surplusCups, resultSellTotalKwh, trade.totalSurplus - resultSellTotalKwh, infoDt, 'SELL')
+        await this.updateHourlyVirtual(trade.surplusCups, trade.resultTotalSurplus, trade.totalSurplus - resultSellTotalKwh, infoDt, 'SELL')
 
 
       } else {
@@ -663,22 +673,22 @@ export class ShareService {
     let query = ''
     if (type == 'BUY') {
       query = `UPDATE energy_hourly
-               SET kwh_in_virtual  = ?, 
-                   kwh_in_shared  = ?,
+               SET kwh_in_virtual  = ?,
+                   kwh_in_shared   = ?,
                    kwh_out_virtual = NULL
                WHERE cups_id = ?
                  AND info_dt LIKE ?`
     } else {
       query = `UPDATE energy_hourly
                SET kwh_out_virtual = ?,
-                   kwh_out_shared = ?,
+                   kwh_out_shared  = ?,
                    kwh_in_virtual  = NULL
                WHERE cups_id = ?
                  AND info_dt LIKE ?`
     }
 
     // console.log(query)
-    await this.conn.execute(query, [virtual,shared, cupsId, infoDt])
+    await this.conn.execute(query, [virtual, shared, cupsId, infoDt])
   }
 
   async deleteDays(registers: RegistersFromDb[], daysToIgnore: number) {
@@ -700,8 +710,8 @@ export class ShareService {
       infoDt: new Date,
       userId: 0
     }
-   /* if (data.cups_id == 23 || data.cups_id == 22) console.log(data, "DATAAA")
-    if (data.cups_id == 23 || data.cups_id == 22) console.log(moment(data.info_dt).format('YYYY-MM-DD HH'), "DATAAA")*/
+    /* if (data.cups_id == 23 || data.cups_id == 22) console.log(data, "DATAAA")
+     if (data.cups_id == 23 || data.cups_id == 22) console.log(moment(data.info_dt).format('YYYY-MM-DD HH'), "DATAAA")*/
     partner.consumption = parseFloat(data.kwh_in.toString())
     partner.infoDt = data.info_dt
     partner.cupsId = data.cups_id

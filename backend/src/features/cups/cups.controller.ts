@@ -502,6 +502,8 @@ export class CupsController {
     mappedData.sharedPercentage = data.sharedPercentage || data.shared_percentage;
     mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
+    mappedData.totalKwhInPrice = data.totalKwhInPrice || data.total_kwh_in_price;
+    mappedData.totalKwhOutPrice = data.totalKwhOutPrice || data.total_kwh_out_price;
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
     mappedData.type = data.type;

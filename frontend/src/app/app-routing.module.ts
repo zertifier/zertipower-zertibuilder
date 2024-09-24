@@ -107,6 +107,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/responses/responses.module').then(m => m.ResponsesModule),
     canActivate: [loggedIn, pageAccess('responses')],
   },
+  {
+    path: 'betas',
+    loadChildren: () => import('./features/shares/shares.module').then(m => m.SharesModule),
+    canActivate: [loggedIn, pageAccess('betas')],
+  },
   // {
   //   path: 'search',
   //   loadChildren: () => import('./features/search/search.module').then(m => m.SearchModule),

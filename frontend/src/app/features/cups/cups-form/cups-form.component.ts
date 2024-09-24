@@ -5,10 +5,10 @@ import Swal from 'sweetalert2';
 import { Observable } from 'rxjs';
 import { CupsApiService } from '../cups.service';
 import moment from 'moment';
-import {CustomersApiService} from "../../customers/customers.service";
-import {ProvidersApiService} from "../../providers/providers.service";
-import {CommunitiesApiService} from "../../communities/communities.service";
-import {LocationService} from "../../../core/core-services/location.service";
+import { CustomersApiService } from "../../customers/customers.service";
+import { ProvidersApiService } from "../../providers/providers.service";
+import { CommunitiesApiService } from "../../communities/communities.service";
+import { LocationService } from "../../../core/core-services/location.service";
 
 @Component({
   selector: 'cups-form',
@@ -20,7 +20,7 @@ export class CupsFormComponent {
   //TODO: update form
 
   id: number = 0;
-  cupsTypes:string[]=['consumer','producer','prosumer']
+  cupsTypes: string[] = ['consumer', 'producer', 'prosumer']
 
   form = this.formBuilder.group({
     id: new FormControl<number | null>(null),
@@ -36,23 +36,23 @@ export class CupsFormComponent {
     customerId: new FormControl<number | null>(null),
     createdAt: new FormControl<string | null>(null),
     updatedAt: new FormControl<string | null>(null),
-    datadisActive:new FormControl<boolean>(false),
+    datadisActive: new FormControl<boolean>(false),
     datadisUser: new FormControl<string | null>(null),
     datadisPwd: new FormControl<string | null>(null),
-    smartMeterActive:new FormControl<boolean>(false),
-    smartMeterModel:new FormControl<string|null>(null),
-    smartMeterApiKey:new FormControl<string|null>(null),
-    inverterActive:new FormControl<boolean>(false),
-    inverterModel:new FormControl<string|null>(null),
-    inverterApiKey:new FormControl<string|null>(null),
-    sensorActive:new FormControl<boolean>(false),
-    sensorModel:new FormControl<string|null>(null),
-    sensorApiKey:new FormControl<string|null>(null),
+    smartMeterActive: new FormControl<boolean>(false),
+    smartMeterModel: new FormControl<string | null>(null),
+    smartMeterApiKey: new FormControl<string | null>(null),
+    inverterActive: new FormControl<boolean>(false),
+    inverterModel: new FormControl<string | null>(null),
+    inverterApiKey: new FormControl<string | null>(null),
+    sensorActive: new FormControl<boolean>(false),
+    sensorModel: new FormControl<string | null>(null),
+    sensorApiKey: new FormControl<string | null>(null),
   });
 
-  smartMeterModels=['Fronius 63A-3','Fronius TS 100A-1','SMETS 1','SMETS 2']
-  inverterModels=['Turbo Energy 5000W 48V','Soiis S6-GR1P5K Monofásico 2MPPT 5000W','Huawei SUN2000-6KTL-L1 6kW']
-  sensorModels=['iEM2000','PowerLogic PM5000']
+  smartMeterModels = ['Fronius 63A-3', 'Fronius TS 100A-1', 'SMETS 1', 'SMETS 2']
+  inverterModels = ['Turbo Energy 5000W 48V', 'Soiis S6-GR1P5K Monofásico 2MPPT 5000W', 'Huawei SUN2000-6KTL-L1 6kW']
+  sensorModels = ['iEM2000', 'PowerLogic PM5000']
 
   availableCustomers: any;
   availableProviders: any;
@@ -75,7 +75,7 @@ export class CupsFormComponent {
     this.getAvailableDropdownData()
     this.form.get('surplusDist')?.valueChanges.subscribe(value => {
       if (value && (value >= 100 || value == 0)) {
-        this.form.get('surplusDist')?.setErrors({'exceedsLimit': true});
+        this.form.get('surplusDist')?.setErrors({ 'exceedsLimit': true });
       } else {
         this.form.get('surplusDist')?.setErrors(null);
       }
@@ -89,7 +89,6 @@ export class CupsFormComponent {
     }
 
     this.apiService.getById(id).subscribe((data) => {
-      console.log(data, "DATA")
       this.form.controls.id.setValue(data.id);
       this.form.controls.cups.setValue(data.cups);
       this.form.controls.type.setValue(data.type);
@@ -103,9 +102,7 @@ export class CupsFormComponent {
       this.form.controls.smartMeterActive.setValue(data.smartMeterActive);
       this.form.controls.inverterActive.setValue(data.inverterActive);
       this.form.controls.datadisUser.setValue(data.datadisUser);
-      this.form.controls.surplusDist.setValue(
-        typeof data.surplusDistribution == 'string' ? parseFloat(data.surplusDistribution) : data.surplusDistribution
-      );
+      this.form.controls.surplusDist.setValue(Number(data.surplusDistribution));
       // this.form.controls.datadisPwd.setValue(data.datadisPassword);
       this.form.controls.smartMeterModel.setValue(data.smartMeterModel);
       this.form.controls.smartMeterApiKey.setValue(data.smartMeterApiKey);
@@ -134,12 +131,10 @@ export class CupsFormComponent {
 
     for (let key in values) {
       if (values[key] === null) {
-          delete values[key];
+        delete values[key];
       }
     }
 
-    console.log("values",values)
-    
     let request: Observable<any>;
     if (!this.id) {
       request = this.apiService.save(values);
@@ -149,7 +144,7 @@ export class CupsFormComponent {
     request.subscribe(() => {
       Swal.fire({
         icon: 'success',
-        title: 'Success!'
+        title: `L'operació s'ha completat amb èxit!`
       });
       this.activeModal.close();
     });
@@ -184,15 +179,15 @@ export class CupsFormComponent {
     values.sensorActive = this.form.value.sensorActive
     values.sensorModel = this.form.value.sensorModel
     values.sensorApiKey = this.form.value.sensorApiKey
-    values.surplusDistribution = this.form.value.surplusDist!.toString()
+    values.surplusDistribution = Number(this.form.value.surplusDist)
 
-/*    values.createdAt = this.form.value.createdAt;
-    values.updatedAt = this.form.value.updatedAt;*/
+    /*    values.createdAt = this.form.value.createdAt;
+        values.updatedAt = this.form.value.updatedAt;*/
 
     return values;
   }
 
-  getAvailableDropdownData(){
+  getAvailableDropdownData() {
     this.providerApiService.get().subscribe((providers) => {
       this.availableProviders = providers
     })
@@ -208,12 +203,12 @@ export class CupsFormComponent {
     })
   }
 
-  checkFormValid(){
-    if (!this.form.value.cups) return {status: false, message: "El cups no pot estar buit"}
+  checkFormValid() {
+    if (!this.form.value.cups) return { status: false, message: "El cups no pot estar buit" }
 
-    if (!this.selectedCustomerId) return {status: false, message: "El client no pot estar buit"}
+    if (!this.selectedCustomerId) return { status: false, message: "El client no pot estar buit" }
 
-    if (!this.selectedProviderId) return {status: false, message: "El proveïdor no pot estar buit"}
+    if (!this.selectedProviderId) return { status: false, message: "El proveïdor no pot estar buit" }
 
     //if (!this.selectedCommunityId) return {status: false, message: "La comunitat no pot estar buida"}
 
@@ -221,8 +216,8 @@ export class CupsFormComponent {
 
     //if (!this.form.value.address) return {status: false, message: "L'adreça no pot estar buida"}
 
-    if (this.form.get('surplusDist')?.errors) return {status: false, message: 'La distribució comunitaria no pot excedir els 100€'}
+    if (this.form.get('surplusDist')?.errors) return { status: false, message: 'La distribució comunitaria no pot excedir els 100€' }
 
-    return {status: true, message: ''}
+    return { status: true, message: '' }
   }
 }

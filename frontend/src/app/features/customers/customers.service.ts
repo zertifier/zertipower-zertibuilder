@@ -9,6 +9,8 @@ export interface CustomersApiInterface {
   id: number;
   name: string;
   dni: string;
+  email:string;
+  balance:number;
   walletAddress: string;
   createdAt: Date;
   updatedAt: Date;
@@ -18,6 +20,8 @@ export interface CustomersApiDTO {
   id: number;
   name: string;
   dni: string;
+  email:string;
+  balance:number;
   walletAddress: string;
   createdAt: string;
   updatedAt: string;
@@ -65,6 +69,8 @@ function mapToApiInterface(dto: CustomersApiDTO): CustomersApiInterface {
     id: dto.id,
     name: dto.name,
     dni:dto.dni,
+    email:dto.email,
+    balance:dto.balance,
     walletAddress: dto.walletAddress,
     createdAt: moment(dto.createdAt, "YYYY-MM-DD HH:mm").toDate(),
     updatedAt: moment(dto.updatedAt, "YYYY-MM-DD HH:mm").toDate(),
@@ -76,6 +82,8 @@ function mapToDTO(dto: CustomersApiInterface): CustomersApiDTO {
     id: dto.id,
     name: dto.name,
     dni: dto.dni,
+    email: dto.email,
+    balance: dto.balance,
     walletAddress: dto.walletAddress,
     createdAt: moment.utc(dto.createdAt).format("YYYY-MM-DD HH:mm"),
     updatedAt: moment.utc(dto.updatedAt).format("YYYY-MM-DD HH:mm"),

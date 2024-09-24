@@ -713,6 +713,7 @@ export class CommunitiesController {
               com.lng,
               com.location_id,
               com.created_at,
+              com.trade_type,
               com.updated_at,
               loc.municipality,
               COUNT(cups.id) qty_cups
@@ -735,6 +736,9 @@ export class CommunitiesController {
     mappedData.energyPrice = data.energyPrice;
     mappedData.tradeType = data.tradeType || data.trade_type;
     mappedData.daoAddress = data.daoAddress || data.dao_address;
+    mappedData.locationId = data.locationId || data.location_id;
+    mappedData.lat = data.lat;
+    mappedData.lng = data.lng;
     mappedData.daoName = data.daoName || data.dao_name;
     mappedData.daoSymbol = data.daoSymbol || data.dao_symbol;
     mappedData.createdAt = data.createdAt;
@@ -782,6 +786,9 @@ export class CommunitiesController {
     mappedData.infoDt = data.infoDt || data.info_dt;
     mappedData.cupsId = data.cupsId || data.cups_id;
     mappedData.tradeType = data.tradeType || data.trade_type;
+    mappedData.locationId = data.locationId || data.location_id;
+    mappedData.lat = data.lat;
+    mappedData.lng = data.lng;
     mappedData.cups = data.cups;
     mappedData.reference = data.reference;
     return mappedData;
@@ -857,12 +864,10 @@ export class CommunitiesController {
       });
 
 
-      if (!production) production = 0;
-      else production = production.production;
-      console.log(cups.surplus_distribution, "cups.surplus_distribution");
-
-      cups.production = production;
-      cups.production_active = production * parseFloat(cups.surplus_distribution);
+      if (!production) production = 0
+      else production = production.production
+      cups.production = production
+      cups.production_active = production * parseFloat(cups.surplus_distribution)
 
     }
 

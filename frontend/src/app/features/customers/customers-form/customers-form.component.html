@@ -8,17 +8,36 @@
       <input id="id-input" type="number" formControlName="id" class="form-control">
     </div>-->
     <div class="my-3">
-      <label class="form-label" for="name-input">Nom</label>
+      <label class="form-label" for="name-input">Nom *</label>
       <input formControlName="name" id="name-input" class="form-control">
+      <span *ngIf="this.form.get('name')?.errors?.['minlength'] && formChecked">
+        (El nom ha de tenir com a mínim 2 caràcters)
+      </span>
     </div>
     <div class="my-3">
-      <label class="form-label" for="wallet-address-input">DNI</label>
+      <label class="form-label" for="wallet-address-input">DNI (* per usuaris vinculats a un usuari de Datadis comunitari)</label>
       <input formControlName="dni" id="dni-input" class="form-control">
+    </div>
+    <div class="my-3">
+      <label class="form-label" for="email-input">Email *</label>
+      <input formControlName="email" id="email-input" class="form-control">
+      <span *ngIf="this.form.get('email')?.errors?.['required'] && formChecked">
+        (El correu no pot quedar buit)
+      </span>
+      <span *ngIf="this.form.get('email')?.errors?.['email']">
+        (El correu no és vàlid)
+      </span>
     </div>
     <div class="my-3">
       <label class="form-label" for="wallet-address-input">Wallet Address</label>
       <input formControlName="walletAddress" id="wallet-address-input" class="form-control">
     </div>
+
+    <!-- <div class="my-3">
+      <label class="form-label" for="wallet-address-input">Saldo</label>
+      <input formControlName="balance" id="balance-input" class="form-control disabled" type="number" readonly>
+    </div> -->
+
     <!--<div>
       <label for="created-at-input">created_at</label>
       <input id="created-at-input" type="datetime-local" formControlName="createdAt" class="form-control">
@@ -29,14 +48,15 @@
     </div>-->
   </form>
 
-  <div>Cups</div>
-  <div *ngFor="let element of customerCups">
-    <div class="d-flex align-items-center">
-      <div>{{element.cups}}</div>
-      <button type="button" class="btn btn-column column btn-transparent editRow" (click)="editRequest(element.id)"><i class="fa-solid fa-pen-to-square hoverPrimary editRow"></i></button>
+  <div *ngIf="customerCups.length">
+    <div>Cups</div>
+    <div *ngFor="let element of customerCups">
+      <div class="d-flex align-items-center">
+        <div>{{element.cups}}</div>
+        <button type="button" class="btn btn-column column btn-transparent editRow" (click)="editCups(element.id)"><i class="fa-solid fa-pen-to-square hoverPrimary editRow"></i></button>
+      </div>
     </div>
   </div>
-
 
 </div>
 <div class="modal-footer">

@@ -194,6 +194,8 @@ export class DatatablesFeatures {
                 break;
               case 3: // datetime
                 let inputDatetime = that.renderer.createElement("input");
+                that.renderer.addClass(inputDatetime, "form-control");
+                that.renderer.addClass(inputDatetime, "form-control-sm");
                 that.renderer.setProperty(inputDatetime, "type", "date");
                 that.renderer.setProperty(
                   inputDatetime,

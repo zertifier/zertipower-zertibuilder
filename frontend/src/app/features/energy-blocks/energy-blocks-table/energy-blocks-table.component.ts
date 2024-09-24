@@ -1,7 +1,7 @@
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { dtColumns } from "src/app/shared/infrastructure/components/app-datatable/interfaces/dtColumns.interface";
-import { filterParams } from "src/app/shared/infrastructure/components/app-datatable/interfaces/filterParams.interface";
+import { filterParams, filterType } from "src/app/shared/infrastructure/components/app-datatable/interfaces/filterParams.interface";
 import { environment } from 'src/environments/environment';
 import { EnergyBlocksFormComponent } from '../energy-blocks-form/energy-blocks-form.component';
 import { Subscription } from "rxjs";
@@ -81,82 +81,111 @@ export class EnergyBlocksTableComponent implements OnDestroy {
   ];
 
   filterParams: filterParams[] = [
-      {
-        title: 'id',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'reference',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'provider',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'expiration_dt',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'active_init',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'active_end',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'consumption_price',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'generation_price',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
+    {
+      title: 'id',
+      description: '',
+      value: '',
+      type: 1,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'reference',
+      description: '',
+      value: '',
+      type: 2,
+      defaultData: 1,
+      binarySelector:true,
+      defaultTranslation:["Vall","Pla","Punta"],
+      options: [
+        {
+          name: "Vall",
+          value: "Valle"
+        },
+        {
+          name: "Pla",
+          value: "Llano"
+        },
+        {
+          name: "Punta",
+          value: "Punta"
+        },
+      ]
+    },
+    {
+      title: 'provider',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'expiration_dt',
+      description: '',
+      value: '',
+      type:  filterType.datetime,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'active_init',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'active_end',
+      description: '',
+      value: '',
+      type: 0,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'consumption_price',
+      description: '',
+      value: '',
+      type: 1,
+      defaultData: 0,
+      options: [],
+    },
+    {
+      title: 'generation_price',
+      description: '',
+      value: '',
+      type: 1,
+      defaultData: 0,
+      options: [],
+    },
   ];
 
-  columnDefs:any[] = [
+  columnDefs: any[] = [
     {
       orderable: false, targets: [this.filterParams.length],
+    },
+    {
+      targets: 1,
+      render: (data: any, type: any, row: any) => {
+        switch (data) {
+          case 'Valle':
+            return 'Vall';
+          case 'Llano':
+            return 'Pla';
+          case 'Punta':
+            return 'Punta';
+          default:
+            return data;
+        }
+      }
     },
     {
       targets: 3,
       render: (data: any, type: any, row: any) => {
         // return `<i class="fa-solid fa-clock"></i> ${data}`
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
-
       }
     },
     {
@@ -187,7 +216,7 @@ export class EnergyBlocksTableComponent implements OnDestroy {
     }
   ];
 
-  editRequest(id:any) {
+  editRequest(id: any) {
 
     const modalRef = this.ngbModal.open(EnergyBlocksFormComponent);
     modalRef.componentInstance.setEditingId(parseInt(id));
@@ -195,17 +224,17 @@ export class EnergyBlocksTableComponent implements OnDestroy {
     this.subscriptions.push(
       modalRef.closed.subscribe(() => this.datatable.updateTable()),
     )
-    
+
   }
 
-  async deleteRequest(id:any) {
+  async deleteRequest(id: any) {
     const response = await Swal.fire({
-      icon: 'question',
-      title: 'Are you sure?',
+      icon: 'warning',
+      title: `Estàs a punt d'esborrar el registre`,
       showCancelButton: true,
     });
 
-    if(!response.isConfirmed) {
+    if (!response.isConfirmed) {
       return;
     }
 

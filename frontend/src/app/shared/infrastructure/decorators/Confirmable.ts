@@ -7,7 +7,7 @@ export function Confirmable(message: string): MethodDecorator {
 		descriptor.value = async function (...args: any[]) {
 			const response = await Swal.fire({
 				icon: "question",
-				title: "Need confirmation",
+				title: "",
 				text: message,
 				showCancelButton: true,
 			});

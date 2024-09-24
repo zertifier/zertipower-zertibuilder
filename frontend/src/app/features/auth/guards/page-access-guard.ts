@@ -20,7 +20,7 @@ export function pageAccess(page: string): () => Promise<boolean> {
     await permissionsStore.fetchPermissions();
     const permissions = permissionsStore.permissions();
 
-    console.log('error?',permissions[user.role][page]['pageAccess'],permissions[user.role][page],permissions[user.role]);
+    //console.log('error?',permissions[user.role][page]['pageAccess'],permissions[user.role][page],permissions[user.role]);
 
     if (user.role !== 'ADMIN' && user.role !== 'PRESIDENT' && !permissions[user.role][page]['pageAccess']){
       console.log("Not permitted" , permissions[user.role][page]['pageAccess'])

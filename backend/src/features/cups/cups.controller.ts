@@ -58,7 +58,9 @@ export class CupsController {
   async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     let data: any = await this.prisma.$queryRaw`
       SELECT *,
-             IFNULL(kwh_in_virtual, kwh_in) kwh_in_virtual,
+             kwh_in * kwh_in_price                                             AS total_kwh_in_price,
+             kwh_out * kwh_in_price                                           AS total_kwh_out_price,
+             IFNULL(kwh_in_virtual, kwh_in)   kwh_in_virtual,
              IFNULL(kwh_out_virtual, kwh_out) kwh_out_virtual
       FROM energy_hourly
       WHERE DATE (info_dt) = ${date}
@@ -128,13 +130,15 @@ export class CupsController {
              (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
              100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
                    (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))           AS shared_percentage,
+             SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
+             SUM(kwh_out * kwh_in_price)                                            AS total_kwh_out_price,
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
-             kwh_out_price_community                                                AS kwh_out_price_community, DATE (a.info_dt) AS info_dt, SUM(production) production
+             kwh_out_price_community                                                AS kwh_out_price_community, DATE (a.info_dt) AS info_dt, SUM (production) production
       FROM energy_hourly a
         LEFT JOIN
-        (SELECT SUM(kwh_out) as total_surplus, info_dt
+        (SELECT SUM (kwh_out) as total_surplus, info_dt
         FROM energy_hourly eh
         LEFT JOIN
         cups cu
@@ -172,21 +176,23 @@ export class CupsController {
     const [year] = date.split("-");
     let data: any = await this.prisma.$queryRaw`
       SELECT a.*,
-              SUM(COALESCE(kwh_in, 0)) AS kwh_in,
-              SUM(COALESCE(kwh_out, 0)) AS kwh_out,
-              SUM(COALESCE(kwh_out_virtual, kwh_out, 0)) AS kwh_out_virtual,
-              SUM(COALESCE(kwh_in_virtual, kwh_in, 0)) AS kwh_in_virtual,
-              (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0))) AS kwh_total,
-              (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
-              100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
-              NULLIF(SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)), 0) AS shared_percentage,
+             SUM(COALESCE(kwh_in, 0))                                               AS kwh_in,
+             SUM(COALESCE(kwh_out, 0))                                              AS kwh_out,
+             SUM(COALESCE(kwh_out_virtual, kwh_out, 0))                             AS kwh_out_virtual,
+             SUM(COALESCE(kwh_in_virtual, kwh_in, 0))                               AS kwh_in_virtual,
+             (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))                 AS kwh_total,
+             (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
+             100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
+                   NULLIF(SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)), 0)  AS shared_percentage,
+            SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
+             SUM(kwh_out * kwh_in_price)                                            AS total_kwh_out_price,
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
-             kwh_out_price_community                                                AS kwh_out_price_community, DATE (a.info_dt) AS info_dt, SUM(production) production
+             kwh_out_price_community                                                AS kwh_out_price_community, DATE (a.info_dt) AS info_dt, SUM (production) production
       FROM energy_hourly a
         LEFT JOIN
-        (SELECT SUM(kwh_out) as total_surplus, info_dt
+        (SELECT SUM (kwh_out) as total_surplus, info_dt
         FROM energy_hourly eh
         LEFT JOIN
         cups cu

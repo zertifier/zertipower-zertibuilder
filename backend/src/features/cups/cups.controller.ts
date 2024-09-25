@@ -66,7 +66,7 @@ export class CupsController {
              IFNULL(kwh_in_virtual, kwh_in)   kwh_in_virtual,
              IFNULL(kwh_out_virtual, kwh_out) kwh_out_virtual
       FROM energy_hourly
-      WHERE DATE (info_dt) = ${date}
+      WHERE DATE(info_dt) = ${date}
         AND cups_id = ${id}
         AND origin = ${origin}
       GROUP BY HOUR (info_dt)
@@ -79,7 +79,7 @@ export class CupsController {
              LEFT JOIN cups cu
                        ON eh.cups_id = cu.id
       where cu.type = 'community'
-        AND DATE (info_dt) = ${date}
+        AND DATE(info_dt) = ${date}
       GROUP BY HOUR (info_dt)
     `;
 
@@ -95,12 +95,12 @@ export class CupsController {
                  cups cu
                  ON eh.cups_id = cu.id
             WHERE (cu.type = 'community' OR cu.type = 'prosumer')
-              AND DATE (info_dt) = ${date}
+              AND DATE(info_dt) = ${date}
       GROUP BY HOUR (info_dt)
       ORDER BY info_dt) b
       ON a.info_dt = b.info_dt
         LEFT JOIN cups cp ON cp.id = a.cups_id
-      WHERE DATE (a.info_dt) = ${date}
+      WHERE DATE(a.info_dt) = ${date}
         AND cups_id = ${id}
         AND origin = ${origin}
       GROUP BY HOUR (a.info_dt)
@@ -142,7 +142,7 @@ export class CupsController {
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
-             kwh_out_price_community                                                AS kwh_out_price_community, DATE (a.info_dt) AS info_dt, SUM(production) production
+             kwh_out_price_community                                                AS kwh_out_price_community, DATE(a.info_dt) AS info_dt, SUM(production) production
       FROM energy_hourly a
         LEFT JOIN
         (SELECT SUM (kwh_out) as total_surplus, info_dt

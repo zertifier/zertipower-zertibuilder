@@ -208,7 +208,8 @@ export class CommunitiesController {
 
     let data: any = await this.prisma.$queryRaw`
       SELECT b.*,
-             a.surplus_community
+             a.surplus_community,
+             a.total_surplus_community_price
       FROM (SELECT SUM(kwh_in)                                                            AS kwh_in,
                    SUM(eh.kwh_out)                                                        AS kwh_out,
                    SUM(IFNULL(kwh_in_virtual, kwh_in))                                    AS kwh_in_virtual,
@@ -223,8 +224,16 @@ export class CommunitiesController {
                        ELSE 0
                        END
                    )                                                                      AS surplus_community_active,
+                    SUM(
+                     CASE
+                       WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0) * kwh_in_price
+                       ELSE 0
+                       END
+                   )                                                                      AS total_surplus_community_active_price,
                    SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
-                   SUM(kwh_out * kwh_in_price)                                            AS total_kwh_out_price,
+                   SUM(kwh_out * kwh_out_price)                                            AS total_kwh_out_price,
+                   SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
+                   SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
                    kwh_in_price                                                           AS kwh_in_price,
                    kwh_out_price                                                          AS kwh_out_price,
                    kwh_in_price_community                                                 AS kwh_in_price_community,
@@ -243,7 +252,7 @@ export class CommunitiesController {
               AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY HOUR (eh.info_dt)) b
              LEFT JOIN
-           (SELECT SUM(kwh_out) AS surplus_community, HOUR (info_dt) AS filter_dt, info_dt
+           (SELECT SUM(kwh_out) AS surplus_community, SUM(kwh_out * kwh_in_price) AS total_surplus_community_price, HOUR (info_dt) AS filter_dt, info_dt
             FROM energy_hourly eh
               LEFT JOIN
               cups c
@@ -329,7 +338,8 @@ export class CommunitiesController {
     date = `${date}%`;
     let data: CommunityCupsStats[] = await this.prisma.$queryRaw`
       SELECT b.*,
-             a.surplus_community
+             a.surplus_community,
+             a.total_surplus_community_price
       FROM (SELECT SUM(kwh_in)                                                            AS kwh_in,
                    SUM(eh.kwh_out)                                                        AS kwh_out,
                    SUM(IFNULL(eh.kwh_in_virtual, eh.kwh_in))                              AS kwh_in_virtual,
@@ -351,7 +361,9 @@ export class CommunitiesController {
                        END
                    )                                                                      AS total_surplus_community_active_price,
                    SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
-                   SUM(kwh_out * kwh_in_price)                                            AS total_kwh_out_price,
+                   SUM(kwh_out * kwh_out_price)                                            AS total_kwh_out_price,
+                   SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
+                   SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
                    kwh_in_price                                                           AS kwh_in_price,
                    kwh_out_price                                                          AS kwh_out_price,
                    kwh_in_price_community                                                 AS kwh_in_price_community,
@@ -460,7 +472,8 @@ export class CommunitiesController {
 
     let data: CommunityCupsStats[] = await this.prisma.$queryRaw`
       SELECT b.*,
-             a.surplus_community
+             a.surplus_community,
+             a.total_surplus_community_price
       FROM (SELECT SUM(kwh_in)                                                            AS kwh_in,
                    SUM(eh.kwh_out)                                                        AS kwh_out,
                    SUM(IFNULL(eh.kwh_in_virtual, eh.kwh_in))                              AS kwh_in_virtual,
@@ -475,16 +488,18 @@ export class CommunitiesController {
                        ELSE 0
                        END
                    )                                                                      AS surplus_community_active,
-              SUM(
+                    SUM(
                      CASE
                        WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0) * kwh_in_price
                        ELSE 0
                        END
                    ) AS total_surplus_community_active_price,
                    SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
-                  SUM(kwh_out * kwh_in_price)                                             AS total_kwh_out_price,
+                  SUM(kwh_out * kwh_out_price)                                             AS total_kwh_out_price,
                    kwh_in_price                                                           AS kwh_in_price,
                    kwh_out_price                                                          AS kwh_out_price,
+                   SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
+                   SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
                    kwh_in_price_community                                                 AS kwh_in_price_community,
                    kwh_out_price_community                                                AS kwh_out_price_community,
                    CAST(COUNT(DISTINCT CASE
@@ -787,14 +802,12 @@ export class CommunitiesController {
     mappedData.totalProductionActivePrice = data.totalProductionActivePrice || data.total_surplus_community_active_price;
     mappedData.totalKwhInPrice = data.totalKwhInPrice || data.total_kwh_in_price;
     mappedData.totalKwhOutPrice = data.totalKwhOutPrice || data.total_kwh_out_price;
-    // mappedData.communitySurplusActive = data.surplusCommunityActive || data.total_surplus_community_active;
+    mappedData.totalKwhInVirtualPrice = data.totalKwhInVirtualPrice || data.total_kwh_in_virtual_price;
+    mappedData.totalKwhOutVirtualPrice = data.totalKwhOutVirtualPrice || data.total_kwh_out_virtual_price;
     mappedData.productionActives = data.surplusCommunityActive || data.surplus_community_active;
-    // mappedData.communitySurplus = data.surplusCommunity || data.surplus_community;
     mappedData.production = data.surplusCommunity || data.surplus_community;
     mappedData.activeMembers = parseInt(data.activeMembers) || parseInt(data.active_members);
     mappedData.type = data.type;
-    /*    mappedData.createdAt = data.createdAt || data.created_at;
-        mappedData.updatedAt = data.updatedAt || data.updated_at;*/
     mappedData.communityId = data.communityId || data.community_id;
     mappedData.communitiesCups = data.communitiesCups;
     return mappedData;

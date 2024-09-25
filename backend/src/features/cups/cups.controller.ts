@@ -59,7 +59,10 @@ export class CupsController {
     let data: any = await this.prisma.$queryRaw`
       SELECT *,
              kwh_in * kwh_in_price                                             AS total_kwh_in_price,
-             kwh_out * kwh_in_price                                           AS total_kwh_out_price,
+             kwh_out * kwh_out_price                                           AS total_kwh_out_price,
+             production * kwh_in_price                                             AS total_production_price,
+             IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community           AS total_kwh_in_virtual_price,
+             IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community       AS total_kwh_out_virtual_price,
              IFNULL(kwh_in_virtual, kwh_in)   kwh_in_virtual,
              IFNULL(kwh_out_virtual, kwh_out) kwh_out_virtual
       FROM energy_hourly
@@ -131,7 +134,11 @@ export class CupsController {
              100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
                    (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))           AS shared_percentage,
              SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
-             SUM(kwh_out * kwh_in_price)                                            AS total_kwh_out_price,
+             SUM(kwh_out * kwh_out_price)                                           AS total_kwh_out_price,
+             SUM(production * kwh_in_price)                                         AS total_production_price,
+             SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
+             SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
+             
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
@@ -185,7 +192,11 @@ export class CupsController {
              100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
                    NULLIF(SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)), 0)  AS shared_percentage,
             SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
-             SUM(kwh_out * kwh_in_price)                                            AS total_kwh_out_price,
+             SUM(kwh_out * kwh_out_price)                                            AS total_kwh_out_price,
+             SUM(production * kwh_in_price)                                         AS total_production_price,
+             SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
+             SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
+             
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
@@ -504,8 +515,13 @@ export class CupsController {
     mappedData.sharedPercentage = data.sharedPercentage || data.shared_percentage;
     mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
+
+    mappedData.totalProductionPrice = data.totalProductionPrice || data.total_production_price;
     mappedData.totalKwhInPrice = data.totalKwhInPrice || data.total_kwh_in_price;
     mappedData.totalKwhOutPrice = data.totalKwhOutPrice || data.total_kwh_out_price;
+    mappedData.totalKwhInVirtualPrice = data.totalKwhInVirtualPrice || data.total_kwh_in_virtual_price;
+    mappedData.totalKwhOutVirtualPrice = data.totalKwhOutVirtualPrice || data.total_kwh_out_virtual_price;
+
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
     mappedData.type = data.type;

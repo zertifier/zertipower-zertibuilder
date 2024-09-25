@@ -240,7 +240,7 @@ export class CommunitiesController {
                    kwh_out_price_community                                                AS kwh_out_price_community,
                    CAST(COUNT(DISTINCT CASE
                                          WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL
-                                           THEN customer_id END) AS VARCHAR(255))         AS active_members, HOUR (eh.info_dt) AS filter_dt, info_dt
+                                           THEN customer_id END) AS VARCHAR(255))         AS active_members, HOUR(eh.info_dt) AS filter_dt, info_dt
             FROM energy_hourly eh
               LEFT JOIN
               cups c
@@ -250,9 +250,9 @@ export class CommunitiesController {
               AND c.community_id = ${id}
               AND c.active = 1
               AND c.id NOT IN (${Prisma.join(excludedCups)})
-            GROUP BY HOUR (eh.info_dt)) b
+            GROUP BY HOUR(eh.info_dt)) b
              LEFT JOIN
-           (SELECT SUM(kwh_out) AS surplus_community, SUM(kwh_out * kwh_in_price) AS total_surplus_community_price, HOUR (info_dt) AS filter_dt, info_dt
+           (SELECT SUM(kwh_out) AS surplus_community, SUM(kwh_out * kwh_in_price) AS total_surplus_community_price, HOUR(info_dt) AS filter_dt, info_dt
             FROM energy_hourly eh
               LEFT JOIN
               cups c
@@ -264,7 +264,7 @@ export class CommunitiesController {
               AND origin = ${origin}
               AND c.active = 1
               AND c.id NOT IN (${Prisma.join(excludedCups)})
-            GROUP BY HOUR (eh.info_dt)) a
+            GROUP BY HOUR(eh.info_dt)) a
            ON a.filter_dt = b.filter_dt
     `;
 
@@ -289,7 +289,7 @@ export class CommunitiesController {
     `;
 
     let communityCups: CommunityCups[] = await this.prisma.$queryRaw`
-      SELECT SUM(eh.kwh_out) AS kwh_out, HOUR (eh.info_dt) AS filter_dt, eh.info_dt, eh.cups_id, c.cups, c.reference
+      SELECT SUM(eh.kwh_out) AS kwh_out, HOUR(eh.info_dt) AS filter_dt, eh.info_dt, eh.cups_id, c.cups, c.reference
       FROM energy_hourly eh
         LEFT JOIN cups c
       ON eh.cups_id = c.id
@@ -297,7 +297,7 @@ export class CommunitiesController {
         AND eh.info_dt LIKE ${date}
         AND c.community_id = ${id}
         AND c.active = 1
-      GROUP BY HOUR (eh.info_dt), eh.cups_id
+      GROUP BY HOUR(eh.info_dt), eh.cups_id
       ORDER BY filter_dt;
     `;
 

@@ -69,7 +69,7 @@ export class CupsController {
       WHERE DATE(info_dt) = ${date}
         AND cups_id = ${id}
         AND origin = ${origin}
-      GROUP BY HOUR (info_dt)
+      GROUP BY HOUR(info_dt)
       ORDER BY info_dt;
     `;
 
@@ -80,7 +80,7 @@ export class CupsController {
                        ON eh.cups_id = cu.id
       where cu.type = 'community'
         AND DATE(info_dt) = ${date}
-      GROUP BY HOUR (info_dt)
+      GROUP BY HOUR(info_dt)
     `;
 
     let test: any = await this.prisma.$queryRaw`
@@ -96,14 +96,14 @@ export class CupsController {
                  ON eh.cups_id = cu.id
             WHERE (cu.type = 'community' OR cu.type = 'prosumer')
               AND DATE(info_dt) = ${date}
-      GROUP BY HOUR (info_dt)
+      GROUP BY HOUR(info_dt)
       ORDER BY info_dt) b
       ON a.info_dt = b.info_dt
         LEFT JOIN cups cp ON cp.id = a.cups_id
       WHERE DATE(a.info_dt) = ${date}
         AND cups_id = ${id}
         AND origin = ${origin}
-      GROUP BY HOUR (a.info_dt)
+      GROUP BY HOUR(a.info_dt)
       ORDER BY a.info_dt;
     `;
 

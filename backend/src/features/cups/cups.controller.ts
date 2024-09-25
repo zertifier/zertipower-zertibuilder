@@ -135,7 +135,7 @@ export class CupsController {
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
-             kwh_out_price_community                                                AS kwh_out_price_community, DATE (a.info_dt) AS info_dt, SUM (production) production
+             kwh_out_price_community                                                AS kwh_out_price_community, DATE (a.info_dt) AS info_dt, SUM(production) production
       FROM energy_hourly a
         LEFT JOIN
         (SELECT SUM (kwh_out) as total_surplus, info_dt
@@ -145,16 +145,16 @@ export class CupsController {
         ON eh.cups_id = cu.id
         WHERE (cu.type = 'community' OR cu.type = 'prosumer')
         AND YEAR (info_dt) = ${parseInt(year)}
-        AND MONTH (info_dt) = ${parseInt(month)}
-        GROUP BY DAY (info_dt)
+        AND MONTH(info_dt) = ${parseInt(month)}
+        GROUP BY DAY(info_dt)
         ORDER BY info_dt) b
       ON a.info_dt = b.info_dt
         LEFT JOIN cups cp ON cp.id = a.cups_id
       WHERE YEAR (a.info_dt) = ${parseInt(year)}
-        AND MONTH (a.info_dt) = ${parseInt(month)}
+        AND MONTH(a.info_dt) = ${parseInt(month)}
         AND cups_id = ${id}
         AND origin = ${origin}
-      GROUP BY DAY (a.info_dt)
+      GROUP BY DAY(a.info_dt)
       ORDER BY a.info_dt;
     `;
 
@@ -189,24 +189,26 @@ export class CupsController {
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
-             kwh_out_price_community                                                AS kwh_out_price_community, DATE (a.info_dt) AS info_dt, SUM (production) production
+             kwh_out_price_community                                                AS kwh_out_price_community, 
+        DATE(a.info_dt) AS info_dt, 
+        SUM(production) production
       FROM energy_hourly a
         LEFT JOIN
-        (SELECT SUM (kwh_out) as total_surplus, info_dt
+        (SELECT SUM(kwh_out) as total_surplus, info_dt
         FROM energy_hourly eh
         LEFT JOIN
         cups cu
         ON eh.cups_id = cu.id
         WHERE (cu.type = 'community' OR cu.type = 'prosumer')
-        AND YEAR (info_dt) = ${parseInt(year)}
-        GROUP BY MONTH (info_dt)
+        AND YEAR(info_dt) = ${parseInt(year)}
+        GROUP BY MONTH(info_dt)
         ORDER BY info_dt) b
       ON a.info_dt = b.info_dt
         LEFT JOIN cups cp ON cp.id = a.cups_id
-      WHERE YEAR (a.info_dt) = ${parseInt(year)}
+      WHERE YEAR(a.info_dt) = ${parseInt(year)}
         AND cups_id = ${id}
         AND origin = ${origin}
-      GROUP BY MONTH (a.info_dt)
+      GROUP BY MONTH(a.info_dt)
       ORDER BY a.info_dt;
     `;
 

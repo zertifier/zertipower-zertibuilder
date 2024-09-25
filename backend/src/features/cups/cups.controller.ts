@@ -145,7 +145,7 @@ export class CupsController {
              kwh_out_price_community                                                AS kwh_out_price_community, DATE(a.info_dt) AS info_dt, SUM(production) production
       FROM energy_hourly a
         LEFT JOIN
-        (SELECT SUM (kwh_out) as total_surplus, info_dt
+        (SELECT SUM(kwh_out) as total_surplus, info_dt
         FROM energy_hourly eh
         LEFT JOIN
         cups cu

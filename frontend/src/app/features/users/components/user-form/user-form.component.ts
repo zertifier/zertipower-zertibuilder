@@ -9,6 +9,7 @@ import { UserEventEmitterService } from "../../services/user-event-emitter.servi
 import { ById } from "../../../../shared/domain/criteria/common/ById";
 import { UserRoleApiService } from "../../services/user-role-api.service";
 import { Criteria } from "../../../../shared/domain/criteria/Criteria";
+import { CustomersApiService } from "src/app/features/customers/customers.service";
 
 @Component({
 	selector: "app-user-form",
@@ -25,10 +26,13 @@ export class UserFormComponent implements OnInit, OnDestroy {
 		email: new FormControl<string | null>(null, [Validators.required, Validators.email]),
 		firstname: new FormControl<string | null>(null, Validators.required),
 		lastname: new FormControl<string | null>(null, Validators.required),
+		customerId: new FormControl<number | null>(null),
 		wallet: new FormControl<string | null>(null, Validators.pattern(/^0x\w{40}$/)),
 		password: new FormControl<string | null>(null),
 		role: new FormControl<string | null>(null, Validators.required),
 	});
+	availableCustomers:any[]=[];
+	selectedCustomerId!: number;
 
 	constructor(
 		private userStore: UserStoreService,
@@ -38,6 +42,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
 		private userApi: UserApiService,
 		private userEventEmitter: UserEventEmitterService,
 		private userRoleApi: UserRoleApiService,
+		private customerApiService: CustomersApiService
 	) {
 		this.editing = !!userStore.editingUserId();
 		if (!this.editing) {
@@ -48,6 +53,10 @@ export class UserFormComponent implements OnInit, OnDestroy {
 	async ngOnInit() {
 		const roles = await ObservableUtils.toPromise(this.userRoleApi.get(Criteria.none()));
 		this.availableRoles.set(roles.map((role:any) => role.name));
+
+		this.customerApiService.get().subscribe((customers:any) => {
+			this.availableCustomers = customers
+		})
 
 		if (!this.userStore.editingUserId()) {
 			return;
@@ -64,10 +73,15 @@ export class UserFormComponent implements OnInit, OnDestroy {
 			throw new Error("User not found");
 		}
 
+		if(user.customer_id){
+			this.selectedCustomerId=user.customer_id;
+		}
+
 		this.formGroup.controls.username.setValue(user.username);
 		this.formGroup.controls.firstname.setValue(user.firstname);
 		this.formGroup.controls.lastname.setValue(user.lastname);
 		this.formGroup.controls.wallet.setValue(user.wallet_address);
+		this.formGroup.controls.customerId.setValue(user.customer_id!);
 		this.formGroup.controls.email.setValue(user.email);
 		this.formGroup.controls.role.setValue(user.role);
 	}
@@ -92,7 +106,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
 			throw new Error("Form not valid");
 		}
 
-		const { username, role, firstname, lastname, wallet, email, password } = this.formGroup.value;
+		const { username, role, firstname, lastname, wallet, customerId, email, password } = this.formGroup.value;
 
 		if (!this.editing) {
 			try {
@@ -103,6 +117,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
 						firstname: firstname!,
 						lastname: lastname!,
 						password: password!,
+						customer_id:customerId!,
 						wallet_address: wallet || undefined,
 						role: role!,
 					}),
@@ -123,7 +138,8 @@ export class UserFormComponent implements OnInit, OnDestroy {
 							lastname: lastname!,
 							password: password || undefined,
 							wallet_address: wallet || undefined,
-							role: role!,
+							customer_id:customerId || undefined,
+							role: role!
 						},
 						this.userStore.editingUserId()!,
 					),

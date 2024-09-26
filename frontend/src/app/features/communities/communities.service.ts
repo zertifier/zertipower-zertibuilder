@@ -10,6 +10,10 @@ export interface CommunitiesApiInterface {
   name: string;
   test: number;
   energyPrice: number,
+  locationId: number,
+  lat: number,
+  lng: number,
+  tradeType: string,
   geolocation: string,
   createdAt: Date;
   updatedAt: Date;
@@ -19,7 +23,11 @@ export interface CommunitiesApiDTO {
   id: number;
   name: string;
   test: number;
+  locationId: number,
+  lat: number,
+  lng: number,
   energyPrice: number,
+  tradeType: string,
   geolocation: string,
   createdAt: string;
   updatedAt: string;
@@ -29,7 +37,7 @@ export interface CommunitiesApiDTO {
   providedIn: "root",
 })
 export class CommunitiesApiService {
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) { }
 
   get() {
     return this.httpClient.get(`${environment.api_url}/communities`);
@@ -55,11 +63,11 @@ export class CommunitiesApiService {
       .pipe(map(response => response.data));
   }
 
-  getEnergy(id:number,date:string){
+  getEnergy(id: number, date: string) {
     return this.httpClient.get(`${environment.api_url}/communities/energy/${id}/${date}`);
   }
 
-  getEnergyActivesById(id:number){
+  getEnergyActivesById(id: number) {
     return this.httpClient.get(`${environment.api_url}/communities/energy/actives/${id}`);
   }
 
@@ -72,6 +80,10 @@ function mapToApiInterface(dto: CommunitiesApiDTO): CommunitiesApiInterface {
     name: dto.name,
     test: dto.test,
     energyPrice: dto.energyPrice,
+    tradeType: dto.tradeType,
+    locationId: dto.locationId,
+    lat: dto.lat,
+    lng: dto.lng,
     geolocation: dto.geolocation,
     createdAt: moment(dto.createdAt, "YYYY-MM-DD HH:mm").toDate(),
     updatedAt: moment(dto.updatedAt, "YYYY-MM-DD HH:mm").toDate(),
@@ -84,6 +96,10 @@ function mapToDTO(dto: CommunitiesApiInterface): CommunitiesApiDTO {
     name: dto.name,
     test: dto.test,
     energyPrice: dto.energyPrice,
+    tradeType: dto.tradeType,
+    locationId: dto.locationId,
+    lat: dto.lat,
+    lng: dto.lng,
     geolocation: dto.geolocation,
     createdAt: moment.utc(dto.createdAt).format("YYYY-MM-DD HH:mm"),
     updatedAt: moment.utc(dto.updatedAt).format("YYYY-MM-DD HH:mm"),

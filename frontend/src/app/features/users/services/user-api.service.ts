@@ -12,6 +12,7 @@ export interface ApiUserResponse {
 	firstname: string;
 	lastname: string;
 	email: string;
+	customer_id?:number,
 	wallet_address: string;
 	role: string;
 }
@@ -42,6 +43,7 @@ export class UserApiService {
 		lastname: string;
 		email: string;
 		password?: string;
+		customer_id?:number;
 		role: string;
 		wallet_address?: string;
 	}) {
@@ -57,6 +59,7 @@ export class UserApiService {
 			lastname: string;
 			email: string;
 			password?: string;
+			customer_id?:number;
 			role: string;
 			wallet_address?: string;
 		},

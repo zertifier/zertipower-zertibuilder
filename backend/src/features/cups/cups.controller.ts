@@ -58,13 +58,18 @@ export class CupsController {
   async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     let data: any = await this.prisma.$queryRaw`
       SELECT *,
-             IFNULL(kwh_in_virtual, kwh_in) kwh_in_virtual,
+             kwh_in * kwh_in_price                                             AS total_kwh_in_price,
+             kwh_out * kwh_out_price                                           AS total_kwh_out_price,
+             production * kwh_in_price                                             AS total_production_price,
+             IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community           AS total_kwh_in_virtual_price,
+             IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community       AS total_kwh_out_virtual_price,
+             IFNULL(kwh_in_virtual, kwh_in)   kwh_in_virtual,
              IFNULL(kwh_out_virtual, kwh_out) kwh_out_virtual
       FROM energy_hourly
-      WHERE DATE (info_dt) = ${date}
+      WHERE DATE(info_dt) = ${date}
         AND cups_id = ${id}
         AND origin = ${origin}
-      GROUP BY HOUR (info_dt)
+      GROUP BY HOUR(info_dt)
       ORDER BY info_dt;
     `;
 
@@ -74,8 +79,8 @@ export class CupsController {
              LEFT JOIN cups cu
                        ON eh.cups_id = cu.id
       where cu.type = 'community'
-        AND DATE (info_dt) = ${date}
-      GROUP BY HOUR (info_dt)
+        AND DATE(info_dt) = ${date}
+      GROUP BY HOUR(info_dt)
     `;
 
     let test: any = await this.prisma.$queryRaw`
@@ -90,15 +95,15 @@ export class CupsController {
                  cups cu
                  ON eh.cups_id = cu.id
             WHERE (cu.type = 'community' OR cu.type = 'prosumer')
-              AND DATE (info_dt) = ${date}
-      GROUP BY HOUR (info_dt)
+              AND DATE(info_dt) = ${date}
+      GROUP BY HOUR(info_dt)
       ORDER BY info_dt) b
       ON a.info_dt = b.info_dt
         LEFT JOIN cups cp ON cp.id = a.cups_id
-      WHERE DATE (a.info_dt) = ${date}
+      WHERE DATE(a.info_dt) = ${date}
         AND cups_id = ${id}
         AND origin = ${origin}
-      GROUP BY HOUR (a.info_dt)
+      GROUP BY HOUR(a.info_dt)
       ORDER BY a.info_dt;
     `;
 
@@ -128,10 +133,16 @@ export class CupsController {
              (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
              100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
                    (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))           AS shared_percentage,
+             SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
+             SUM(kwh_out * kwh_out_price)                                           AS total_kwh_out_price,
+             SUM(production * kwh_in_price)                                         AS total_production_price,
+             SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
+             SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
+             
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
-             kwh_out_price_community                                                AS kwh_out_price_community, DATE (a.info_dt) AS info_dt, SUM(production) production
+             kwh_out_price_community                                                AS kwh_out_price_community, DATE(a.info_dt) AS info_dt, SUM(production) production
       FROM energy_hourly a
         LEFT JOIN
         (SELECT SUM(kwh_out) as total_surplus, info_dt
@@ -141,16 +152,16 @@ export class CupsController {
         ON eh.cups_id = cu.id
         WHERE (cu.type = 'community' OR cu.type = 'prosumer')
         AND YEAR (info_dt) = ${parseInt(year)}
-        AND MONTH (info_dt) = ${parseInt(month)}
-        GROUP BY DAY (info_dt)
+        AND MONTH(info_dt) = ${parseInt(month)}
+        GROUP BY DAY(info_dt)
         ORDER BY info_dt) b
       ON a.info_dt = b.info_dt
         LEFT JOIN cups cp ON cp.id = a.cups_id
       WHERE YEAR (a.info_dt) = ${parseInt(year)}
-        AND MONTH (a.info_dt) = ${parseInt(month)}
+        AND MONTH(a.info_dt) = ${parseInt(month)}
         AND cups_id = ${id}
         AND origin = ${origin}
-      GROUP BY DAY (a.info_dt)
+      GROUP BY DAY(a.info_dt)
       ORDER BY a.info_dt;
     `;
 
@@ -172,18 +183,26 @@ export class CupsController {
     const [year] = date.split("-");
     let data: any = await this.prisma.$queryRaw`
       SELECT a.*,
-              SUM(COALESCE(kwh_in, 0)) AS kwh_in,
-              SUM(COALESCE(kwh_out, 0)) AS kwh_out,
-              SUM(COALESCE(kwh_out_virtual, kwh_out, 0)) AS kwh_out_virtual,
-              SUM(COALESCE(kwh_in_virtual, kwh_in, 0)) AS kwh_in_virtual,
-              (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0))) AS kwh_total,
-              (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
-              100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
-              NULLIF(SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)), 0) AS shared_percentage,
+             SUM(COALESCE(kwh_in, 0))                                               AS kwh_in,
+             SUM(COALESCE(kwh_out, 0))                                              AS kwh_out,
+             SUM(COALESCE(kwh_out_virtual, kwh_out, 0))                             AS kwh_out_virtual,
+             SUM(COALESCE(kwh_in_virtual, kwh_in, 0))                               AS kwh_in_virtual,
+             (SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)))                 AS kwh_total,
+             (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
+             100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
+                   NULLIF(SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)), 0)  AS shared_percentage,
+            SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
+             SUM(kwh_out * kwh_out_price)                                            AS total_kwh_out_price,
+             SUM(production * kwh_in_price)                                         AS total_production_price,
+             SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
+             SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
+             
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
-             kwh_out_price_community                                                AS kwh_out_price_community, DATE (a.info_dt) AS info_dt, SUM(production) production
+             kwh_out_price_community                                                AS kwh_out_price_community, 
+        DATE(a.info_dt) AS info_dt, 
+        SUM(production) production
       FROM energy_hourly a
         LEFT JOIN
         (SELECT SUM(kwh_out) as total_surplus, info_dt
@@ -192,15 +211,15 @@ export class CupsController {
         cups cu
         ON eh.cups_id = cu.id
         WHERE (cu.type = 'community' OR cu.type = 'prosumer')
-        AND YEAR (info_dt) = ${parseInt(year)}
-        GROUP BY MONTH (info_dt)
+        AND YEAR(info_dt) = ${parseInt(year)}
+        GROUP BY MONTH(info_dt)
         ORDER BY info_dt) b
       ON a.info_dt = b.info_dt
         LEFT JOIN cups cp ON cp.id = a.cups_id
-      WHERE YEAR (a.info_dt) = ${parseInt(year)}
+      WHERE YEAR(a.info_dt) = ${parseInt(year)}
         AND cups_id = ${id}
         AND origin = ${origin}
-      GROUP BY MONTH (a.info_dt)
+      GROUP BY MONTH(a.info_dt)
       ORDER BY a.info_dt;
     `;
 
@@ -434,6 +453,7 @@ export class CupsController {
               communities.name       as community,
               locations.municipality as municipality,
               customers.name         as customer,
+              active,
               cups.created_at        as created_at,
               cups.updated_at        as updated_at
        FROM cups
@@ -495,6 +515,13 @@ export class CupsController {
     mappedData.sharedPercentage = data.sharedPercentage || data.shared_percentage;
     mappedData.kwhInPrice = data.kwhInPrice || data.kwh_in_price;
     mappedData.kwhOutPrice = data.kwhOutPrice || data.kwh_out_price;
+
+    mappedData.totalProductionPrice = data.totalProductionPrice || data.total_production_price;
+    mappedData.totalKwhInPrice = data.totalKwhInPrice || data.total_kwh_in_price;
+    mappedData.totalKwhOutPrice = data.totalKwhOutPrice || data.total_kwh_out_price;
+    mappedData.totalKwhInVirtualPrice = data.totalKwhInVirtualPrice || data.total_kwh_in_virtual_price;
+    mappedData.totalKwhOutVirtualPrice = data.totalKwhOutVirtualPrice || data.total_kwh_out_virtual_price;
+
     mappedData.kwhInPriceCommunity = data.kwhInPriceCommunity || data.kwh_in_price_community;
     mappedData.kwhOutPriceCommunity = data.kwhOutPriceCommunity || data.kwh_out_price_community;
     mappedData.type = data.type;

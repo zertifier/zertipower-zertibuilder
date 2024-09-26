@@ -12,7 +12,7 @@
     </div>
     <div class="row my-3">
       <div class="col-12 col-md-6">
-        <label class="form-label"> Cliente </label>
+        <label class="form-label"> Client</label>
 <!--        <input id="customer-id-input" type="number" formControlName="customerId" class="form-control">-->
         <ng-select [clearable]="false" [(ngModel)]="selectedCustomerId" name="customer-id-input" formControlName="customerId">
           <ng-option *ngFor="let customer of availableCustomers" [value]="customer.id">

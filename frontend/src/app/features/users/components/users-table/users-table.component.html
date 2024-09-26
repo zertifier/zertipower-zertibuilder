@@ -1,5 +1,15 @@
-<div class="card">
-  <div class="card-body">
-    <table [dtOptions]="dtOptions" class="w-100 table table-striped" datatable></table>
-  </div>
-</div>
+<!-- <table [dtOptions]="dtOptions" class="w-100 table table-striped" datatable></table> -->
+
+<app-datatable
+[title]="title"
+[columns]="columns"
+[columnDefs]="columnDefs"
+[url]="url"
+[addRows]="addRows"
+[editRows]="editRows"
+[filterParams]="filterParams"
+[filterColumns]="filterColumns"
+[refreshRows]="refreshRows"
+(editRequest)="editRequest($event)"
+(deleteRequest)="deleteRequest($event)"
+/>

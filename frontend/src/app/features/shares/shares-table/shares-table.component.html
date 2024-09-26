@@ -1,0 +1,17 @@
+<div class="container-fluid">
+
+    <app-datatable
+      [title]="title"
+      [columns]="columns"
+      [columnDefs]="columnDefs"
+      [url]="url"
+      [addRows]="addRows"
+      [editRows]="editRows"
+      [filterParams]="filterParams"
+      [filterColumns]="filterColumns"
+      [refreshRows]="refreshRows"
+      (editRequest)="editRequest($event)"
+      (deleteRequest)="deleteRequest($event)"
+    />
+
+</div>

@@ -156,9 +156,24 @@ export class EnergyHourlyTableComponent implements OnDestroy {
       title: 'type',
       description: '',
       value: '',
-      type: filterType.text,
-      defaultData: 0,
-      options: [],
+      type: filterType.selection,
+      defaultData: 1,
+      binarySelector:true,
+      defaultTranslation:["Vall","Pla","Punta"],
+      options: [
+        {
+          name: "Vall",
+          value: "Valle"
+        },
+        {
+          name: "Pla",
+          value: "Llano"
+        },
+        {
+          name: "Punta",
+          value: "Punta"
+        },
+      ]
     },
     {
       title: 'origin',
@@ -176,7 +191,22 @@ export class EnergyHourlyTableComponent implements OnDestroy {
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
-    }
+    },
+    {
+      targets: 8,
+      render: (data: any, type: any, row: any) => {
+        switch (data) {
+          case 'Valle':
+            return 'Vall';
+          case 'Llano':
+            return 'Pla';
+          case 'Punta':
+            return 'Punta';
+          default:
+            return data;
+        }
+      }
+    },
   ];
 
   ngOnDestroy(): void {

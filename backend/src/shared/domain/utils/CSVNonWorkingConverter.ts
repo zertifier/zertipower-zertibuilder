@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as moment from 'moment';
 import * as path from 'path';
-import {ShareService} from "../../infrastructure/services/share/share.service"; // Import the path module
 
 export class CSVNonWorkingConverter{
 

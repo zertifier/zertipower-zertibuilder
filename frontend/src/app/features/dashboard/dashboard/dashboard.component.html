@@ -20,79 +20,75 @@
   <div class="mb-2 col-4">
     <label for="originDataTypeSelector">Origen</label>
     <select id="originDataTypeSelector" [(ngModel)]="selectedCupsOriginDataType" class="form-select px-2">
-      <option></option>
       <option *ngFor="let originDataType of originDataTypes" [ngValue]="originDataType">{{ originDataType }}</option>
     </select>
   </div>
 
 </div>
 
-<div class="row m-0 p-0">
-
-  <div class="col-12 p-0">
-    <div class="d-flex align-items-center justify-content-center p-2 text-dark" style="background-color: #d2d2d2"><b
-      class="text-center" id="yearTitle">Any {{ year }}</b>
-    </div>
-  </div>
-
-  <div class="col-12 col-md-6 m-0 p-0" style="height: 350px; max-height: 350px">
-    <div class="d-flex align-items-center justify-content-center p-2 h-100">
-      <app-chart [chartId]="'monthChart'" [chartType]="monthChartType" [labels]="monthChartLabels"
-                 [datasets]="monthChartDatasets"
-                 [updateSubject]="updateMonthChartSubject.asObservable()"
-                 style="width: 600px; max-height: 300px;"></app-chart>
-    </div>
-  </div>
-
-  <div class="col-12 col-md-6 m-0 p-0" style="height: 350px; max-height: 350px">
-    <div class="d-flex align-items-center justify-content-center p-2 h-100">
-      <app-chart [chartId]="'yearChart'" [chartType]="yearChartType" [datasets]="yearChartDatasets"
-                 [labels]="yearChartLabels"
-                 [updateSubject]="updateYearChartSubject.asObservable()"
-                 style="width:300px;  height:300px; max-height: 300px;"></app-chart>
-    </div>
-  </div>
-
+<div *ngIf="!selectedCupsCustomer" class=" w-100 text-center mt-5"> Seleccioni un usuari per veure les seves dades
 </div>
 
-<div class="row m-0 p-0">
+<div *ngIf="selectedCupsCustomer">
+  <div class="row m-0 p-0">
 
-  <div class="col-12 col-md-6 m-0 p-0">
-    <div class="d-flex align-items-center justify-content-center p-2 text-dark" style="background-color: #d2d2d2 ">
-
-      <b> Setmana </b>
-      &nbsp;
-      @if (week) {
-        <b> {{ week }}</b>
-      }
-      @if (simpleWeekDateInit && simpleWeekDateEnd) {
-        <b> : {{ simpleWeekDateInit }} - {{ simpleWeekDateEnd }}</b>
-      }
-
+    <div class="col-12 p-0">
+      <div class="d-flex align-items-center justify-content-center p-2 text-dark" style="background-color: #d2d2d2"><b
+          class="text-center" id="yearTitle">KWh de l'any {{ year }}</b>
+      </div>
     </div>
 
-    <div class="d-flex align-items-center justify-content-center p-2 h-100">
-      <app-chart [chartType]="weekChartType" [labels]="weekChartLabels" [datasets]="weekChartDatasets"
-                 [chartId]="'weekChart'"
-                 [updateSubject]="updateWeekChartSubject.asObservable()"
-                 style="width: 600px; max-height: 300px;"></app-chart>
+    <div class="col-12 col-md-6 m-0 p-0" style="height: 350px; max-height: 350px">
+      <div class="d-flex align-items-center justify-content-center p-2 h-100">
+        <app-chart [chartId]="'monthsChart'" [chartType]="monthsChartType" [labels]="monthsChartLabels"
+          [datasets]="monthsChartDatasets" [updateSubject]="updateMonthsChartSubject.asObservable()"
+          style="width: 600px; max-height: 300px;"></app-chart>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 m-0 p-0" style="height: 350px; max-height: 350px">
+      <div class="d-flex align-items-center justify-content-center p-2 h-100">
+        <app-chart [chartId]="'yearChart'" [chartType]="yearChartType" [datasets]="yearChartDatasets"
+          [labels]="yearChartLabels" [updateSubject]="updateYearChartSubject.asObservable()"
+          style="width:300px;  height:300px; max-height: 300px;"></app-chart>
+      </div>
     </div>
 
   </div>
 
-  <div class="col-12 col-md-6 m-0 p-0">
+  <div class="row m-0 p-0">
 
-    <div class="d-flex align-items-center justify-content-center p-2 text-dark" style="background-color: #d2d2d2 ">
-      <b>Dia &nbsp;{{ date }}</b><b id="dayTitle"></b>
+    <div class="col-12 col-md-6 m-0 p-0">
+      <div class="d-flex align-items-center justify-content-center p-2 text-dark" style="background-color: #d2d2d2 ">
+
+        <b> KWh de </b>
+        &nbsp;
+        @if (month) {
+        <b> {{ month }}</b>
+        }
+
+      </div>
+
+      <div class="d-flex align-items-center justify-content-center p-2 h-100">
+        <app-chart [chartType]="monthChartType" [labels]="monthChartLabels" [datasets]="monthChartDatasets"
+          [chartId]="'monthChart'" [updateSubject]="updateMonthChartSubject.asObservable()"
+          style="width: 600px; max-height: 300px;"></app-chart>
+      </div>
+
     </div>
 
-    <div class="d-flex align-items-center justify-content-center p-2 h-100">
-      <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
-                 [chartId]="'dayChart'"
-                 [updateSubject]="updateDayChartSubject.asObservable()"
-                 style="width: 600px; max-height: 300px;"></app-chart>
-    </div>
+    <div class="col-12 col-md-6 m-0 p-0">
 
+      <div class="d-flex align-items-center justify-content-center p-2 text-dark" style="background-color: #d2d2d2 ">
+        <b>KWh del dia &nbsp;{{ date }}</b><b id="dayTitle"></b>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-center p-2 h-100">
+        <app-chart [chartType]="dayChartType" [labels]="dayChartLabels" [datasets]="dayChartDatasets"
+          [chartId]="'dayChart'" [updateSubject]="updateDayChartSubject.asObservable()"
+          style="width: 600px; max-height: 300px;"></app-chart>
+      </div>
+
+    </div>
   </div>
 </div>
-

@@ -5,11 +5,10 @@ import { InvalidFeedbackComponent } from "./invalid-feedback/invalid-feedback.co
 import { AppDatatableComponent } from "./app-datatable/app-datatable.component";
 import { DataTablesModule } from "angular-datatables";
 import {AppChartComponent} from "./chart/chart.component";
-import {GoogleMap} from "@angular/google-maps";
 
 @NgModule({
 	declarations: [RequiredFieldComponent, InvalidFeedbackComponent, AppDatatableComponent,AppChartComponent],
 	exports: [RequiredFieldComponent, InvalidFeedbackComponent, AppDatatableComponent, AppChartComponent],
-	imports: [CommonModule, DataTablesModule,GoogleMap],
+	imports: [CommonModule, DataTablesModule]
 })
 export class SharedComponentsModule {}

@@ -26,7 +26,7 @@ export class ProvidersTableComponent implements OnDestroy {
 
   readonly subscriptions: Array<Subscription> = []
 
-  title: string = 'providers';
+  title: string = 'Proveïdors';
   addRows: boolean = true;
   editRows: boolean = true;
   refreshRows: boolean = true;
@@ -39,7 +39,7 @@ export class ProvidersTableComponent implements OnDestroy {
       width: '100px',
     },
     {
-      title: 'Provider',
+      title: 'Proveïdor',
       data: 'provider',
       width: '100px',
     },

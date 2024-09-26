@@ -8,11 +8,17 @@
       <input id="id-input" type="number" formControlName="id" class="form-control">
     </div>-->
     <div class="my-3">
-      <label  class="form-label"for="ref-input">Referència</label>
-      <input formControlName="reference" id="ref-input" class="form-control">
+      <label class="form-label" for="ref-input">Referència</label>
+      <!-- <input formControlName="reference" id="ref-input" class="form-control"> -->
+      <select name="reference" id="tradeType-select" class="form-select" formControlName="reference">
+        <option value="Valle">Vall</option>
+        <option value="Llano">Pla</option>
+        <option value="Punta">Punta</option>
+      </select>
+
     </div>
     <div class="my-3">
-      <label  class="form-label"for="ref-input">Proveïdor</label>
+      <label class="form-label" for="ref-input">Proveïdor</label>
       <ng-select [(ngModel)]="selectedProviderId" name="provider-id-input" formControlName="providerId">
         <ng-option *ngFor="let provider of availableProviders" [value]="provider.id">
           <span class="text-capitalize">{{ provider.provider }}</span>

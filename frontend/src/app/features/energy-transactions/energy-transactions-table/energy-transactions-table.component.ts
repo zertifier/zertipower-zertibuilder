@@ -26,12 +26,12 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
 
   readonly subscriptions: Array<Subscription> = []
 
-  title: string = 'energy_transactions';
+  title: string = 'Comparticions';
   addRows: boolean = false;
   editRows: boolean = true;
   refreshRows: boolean = true;
   filterColumns: boolean = true;
-  url: string = `${environment.api_url}/energy-transactions/datatable`;
+  url: string = `${environment.api_url}/trades/datatable`;
   columns: dtColumns[] = [
     {
       title: 'Id',
@@ -39,55 +39,35 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
       width: '60px',
     },
     {
-      title: 'Cups',
-      data: 'cups',
-      width: '100px',
-    },
-    {
-      title: 'InfoDt',
+      title: 'Data',
       data: 'info_dt',
       width: '100px',
     },
     {
-      title: 'Kwh entrada',
-      data: 'kwh_in',
+      title: 'Emisor (Cups id)',
+      data: 'from_cups_id',
       width: '100px',
     },
     {
-      title: 'Kwh sortida',
-      data: 'kwh_out',
+      title: 'Receptor (Cups id)',
+      data: 'to_cups_id',
       width: '100px',
     },
     {
-      title: 'KwhSurplus',
-      data: 'kwh_surplus',
+      title: 'Moviment',
+      data: 'action',
       width: '100px',
     },
     {
-      title: 'Tram',
-      data: 'reference',
+      title: 'Kwh',
+      data: 'traded_kwh',
       width: '100px',
     },
     {
-      title: 'Tx kwh entrada',
-      data: 'tx_kwh_in',
+      title: 'Cost',
+      data: 'cost',
       width: '100px',
-    },
-    {
-      title: 'Tx kwh sortida',
-      data: 'tx_kwh_out',
-      width: '100px',
-    }/*,
-    {
-       title: 'CreatedAt',
-       data: 'created_at',
-       width: '100px',
-     },
-     {
-       title: '',
-       data: 'id',
-       width: '100px'
-     }*/
+    }
   ];
 
   filterParams: filterParams[] = [
@@ -100,14 +80,6 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'cups',
-        description: '',
-        value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },
-      {
         title: 'info_dt',
         description: '',
         value: '',
@@ -116,39 +88,7 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'kwh_in',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'kwh_out',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'kwh_surplus',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'block_id',
-        description: '',
-        value: '',
-        type: 1,
-        defaultData: 0,
-        options: [],
-      },
-      {
-        title: 'tx_kwh_in',
+        title: 'from_cups_id',
         description: '',
         value: '',
         type: 0,
@@ -156,21 +96,37 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
         options: [],
       },
       {
-        title: 'tx_kwh_out',
+        title: 'to_cups_id',
         description: '',
         value: '',
         type: 0,
         defaultData: 0,
         options: [],
       },
-      /*{
-        title: 'created_at',
+      {
+        title: 'action',
         description: '',
         value: '',
-        type: 0,
+        type: 1,
         defaultData: 0,
         options: [],
-      },*/
+      },
+      {
+        title: 'traded_kwh',
+        description: '',
+        value: '',
+        type: 1,
+        defaultData: 0,
+        options: [],
+      },
+      {
+        title: 'cost',
+        description: '',
+        value: '',
+        type: 1,
+        defaultData: 0,
+        options: [],
+      }
   ];
 
   columnDefs:any[] = [
@@ -178,29 +134,29 @@ export class EnergyTransactionsTableComponent implements OnDestroy {
       orderable: false, targets: [this.filterParams.length],
     },*/
     {
-      targets: 2,
+      targets:1,
       render: (data: any, type: any, row: any) => {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('DD-MM-YYYY')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },
-    {
-      targets: 7,
-      render: (data: any, type: any, row: any) => {
-        if (row.tx_kwh_in){
-          return `<span>${data}<a href="https://gnosisscan.io/tx/${row.tx_kwh_in}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square ms-2"></i></a></span>`
-        }
-        return `<span>${data}</span>`
-      }
-    },
-    {
-      targets: 8,
-      render: (data: any, type: any, row: any) => {
-        if (row.tx_kwh_out){
-          return `<span>${data}<a href="https://gnosisscan.io/tx/${row.tx_kwh_out}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square ms-2"></i></a></span>`
-        }
-        return `<span>${data}</span>`
-      }
-    },
+    // {
+    //   targets: 7,
+    //   render: (data: any, type: any, row: any) => {
+    //     if (row.tx_kwh_in){
+    //       return `<span>${data}<a href="https://gnosisscan.io/tx/${row.tx_kwh_in}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square ms-2"></i></a></span>`
+    //     }
+    //     return `<span>${data}</span>`
+    //   }
+    // },
+    // {
+    //   targets: 8,
+    //   render: (data: any, type: any, row: any) => {
+    //     if (row.tx_kwh_out){
+    //       return `<span>${data}<a href="https://gnosisscan.io/tx/${row.tx_kwh_out}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square ms-2"></i></a></span>`
+    //     }
+    //     return `<span>${data}</span>`
+    //   }
+    // },
     /*{
       targets: 7,
       render: (data: any, type: any, row: any) => {

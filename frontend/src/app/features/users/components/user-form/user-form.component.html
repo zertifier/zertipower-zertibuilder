@@ -1,14 +1,14 @@
 <div class="modal-header">
   <h2>
-    {{editing ? 'Edit user' : 'Create user'}}
+    {{editing ? 'Editar usuari' : 'Crear usuari'}}
   </h2>
 </div>
 <div class="modal-body">
   <form [formGroup]="formGroup" class="d-flex flex-column gap-2" id="form">
     <div class="row">
       <div class="col-12 col-md-3">
-        <label for="username">Username
-          <app-required-field/>
+        <label for="username">Nom d'usuari
+          <app-required-field />
         </label>
       </div>
       <div class="col">
@@ -19,8 +19,8 @@
     </div>
     <div class="row">
       <div class="col-12 col-md-3">
-        <label for="email">Email
-          <app-required-field/>
+        <label for="email">Correu electrònic
+          <app-required-field />
         </label>
       </div>
       <div class="col">
@@ -31,8 +31,8 @@
     </div>
     <div class="row">
       <div class="col-12 col-md-3">
-        <label for="firstname">Firstname
-          <app-required-field/>
+        <label for="firstname">Nom
+          <app-required-field />
         </label>
       </div>
       <div class="col">
@@ -43,8 +43,8 @@
     </div>
     <div class="row">
       <div class="col-12 col-md-3">
-        <label for="lastname">Lastname
-          <app-required-field/>
+        <label for="lastname">Cognom
+          <app-required-field />
         </label>
       </div>
       <div class="col">
@@ -55,7 +55,23 @@
     </div>
     <div class="row">
       <div class="col-12 col-md-3">
-        <label for="wallet">Wallet</label>
+        <label class="form-label"> Client</label>
+      </div>
+      <div class="col">
+        <div class="d-flex gap-2">
+          <ng-select [clearable]="false" [(ngModel)]="selectedCustomerId" name="customer-id-input"
+            formControlName="customerId" class="w-100">
+            <ng-option *ngFor="let customer of availableCustomers" [value]="customer.id">
+              <span class="text-capitalize">{{ customer.name }}</span>
+            </ng-option>
+          </ng-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12 col-md-3">
+        <label for="wallet">Wallet address</label>
       </div>
       <div class="col">
         <div class="d-flex gap-2">
@@ -64,33 +80,33 @@
             wallet
           </button>
         </div>
-        <app-invalid-feedback *ngIf="formGroup.controls.wallet.invalid && !firstAttempt()">Wallet not valid
+        <app-invalid-feedback *ngIf="formGroup.controls.wallet.invalid && !firstAttempt()">Wallet invàlida
         </app-invalid-feedback>
       </div>
     </div>
     <div class="row">
       <div class="col-12 col-md-3">
-        <label for="password">Password
-          <app-required-field *ngIf="!editing"/>
+        <label for="password">Contrasenya
+          <app-required-field *ngIf="!editing" />
         </label>
       </div>
       <div class="col">
         <div class="d-flex gap-2">
-          <input class="form-control" formControlName="password" id="password" appInputHide/>
+          <input class="form-control" formControlName="password" id="password" appInputHide />
         </div>
-        <app-invalid-feedback *ngIf="formGroup.controls.password.invalid && !firstAttempt()">Invalid password
+        <app-invalid-feedback *ngIf="formGroup.controls.password.invalid && !firstAttempt()">Contrasenya invàlida
         </app-invalid-feedback>
       </div>
     </div>
     <div class="row">
       <div class="col-12 col-md-3">
-        <label for="role">Role
-          <app-required-field/>
+        <label for="role">Rol
+          <app-required-field />
         </label>
       </div>
       <div class="col">
         <ng-select [clearable]="false" [items]="availableRoles()" formControlName="role" id="role"></ng-select>
-        <app-invalid-feedback *ngIf="formGroup.controls.username.invalid && !firstAttempt()">Role not valid
+        <app-invalid-feedback *ngIf="formGroup.controls.username.invalid && !firstAttempt()">Rol invàlid
         </app-invalid-feedback>
       </div>
     </div>
@@ -99,10 +115,10 @@
 <div class="modal-footer">
   <div class="row w-100 justify-content-end">
     <div class="col-12 col-md-6 col-lg-3 mb-2 mb-md-0">
-      <button (click)="save()" class="w-100 btn btn-primary" form="form" type="submit">Save</button>
+      <button (click)="save()" class="w-100 btn btn-primary" form="form" type="submit">Guardar</button>
     </div>
     <div class="col-12 col-md-6 col-lg-3">
-      <button (click)="cancel()" class="w-100 btn btn-secondary" type="button">Cancel</button>
+      <button (click)="cancel()" class="w-100 btn btn-secondary" type="button">Cancel·lar</button>
     </div>
   </div>
 

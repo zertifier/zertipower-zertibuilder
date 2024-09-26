@@ -68,12 +68,11 @@ export class CupsTableComponent implements OnDestroy {
       data: 'surplus_distribution',
       width: '100px',
     },
-/*
     {
-      title: 'Data creació',
-      data: 'created_at',
+      title: 'Actiu',
+      data: 'active',
       width: '100px',
-    },*/
+    },
     {
       title: '',
       data: 'id',
@@ -139,14 +138,29 @@ export class CupsTableComponent implements OnDestroy {
         options: [],
       },
 
-    /*  {
-        title: 'created_at',
+      {
+        title: 'active',
         description: '',
         value: '',
-        type: 0,
-        defaultData: 0,
-        options: [],
-      },*/
+        type: 2,
+        defaultData: 1,
+        binarySelector:true,
+        defaultTranslation:["Actiu","Inactiu"],
+        options: [
+          {
+            name: "",
+            value: ""
+          },
+          {
+            name: "Inactiu",
+            value: "0"
+          },
+          {
+            name: "Actiu",
+            value: "1"
+          },
+        ]
+      },
   ];
 
   columnDefs:any[] = [
@@ -166,6 +180,30 @@ export class CupsTableComponent implements OnDestroy {
         return `<i class="fa-solid fa-calendar-days"></i> ${moment(data).format('YYYY-MM-DD')}<br> <i class="fa-solid fa-clock"></i> ${moment(data).format('HH:mm')}`
       }
     },*/
+    {
+      targets: 7,
+      render: (data: any, type: any, row: any) => {
+        // Variable para almacenar el estilo del círculo
+        let circleStyle = '';
+        
+        // Asignar el estilo de acuerdo al valor de los datos
+        switch (data) {
+          case 'Inactiu':
+            circleStyle = 'background-color: red;';
+            break;
+          case 'Actiu':
+            circleStyle = 'background-color: green;';
+            break;
+          default:
+            circleStyle = '';
+        }
+
+        // Generar HTML con el círculo y la fecha
+        return `<div class="w-100">
+                        <div class="mx-auto" style="width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; ${circleStyle}"></div>
+                    </div>`;
+      }
+    },
     {
       targets: this.filterParams.length,
       title: '',
@@ -193,8 +231,8 @@ export class CupsTableComponent implements OnDestroy {
 
   async deleteRequest(id:any) {
     const response = await Swal.fire({
-      icon: 'question',
-      title: 'Are you sure?',
+      icon: 'warning',
+      title: `Estàs a punt d'esborrar el registre`,
       showCancelButton: true,
     });
 

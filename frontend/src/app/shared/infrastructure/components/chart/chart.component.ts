@@ -108,10 +108,17 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
 
   updateChart() {
 
+    //this.datasets?.map(dataset=>dataset.radius='2.5rem')
+
     //console.log("update chart","labels",this.labels,"datasets",this.datasets,"data:",this.data,this.backgroundColor, "options" ,this.options)
 
     if (!this.chart) {
-      this.chart = new Chart(this.chartCanvasContent, {type: this.chartType, data: {labels: [], datasets: []},options:this.options})
+      this.chart = new Chart(this.chartCanvasContent, 
+        {
+          type: this.chartType, 
+          data: {labels: [], datasets: []},
+          options:this.options
+      })
     }
 
     this.chart.data = {
@@ -119,7 +126,8 @@ export class AppChartComponent implements OnChanges, AfterViewInit {
       datasets: this.datasets || [{
         data: this.data,
         backgroundColor: this.backgroundColor,
-        color: '#fff'
+        color: '#fff',
+        radius:'2.5rem'
       }],
       options:this.options
     }

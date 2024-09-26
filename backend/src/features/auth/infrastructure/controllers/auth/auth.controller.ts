@@ -205,8 +205,12 @@ export class AuthController {
       if (!dbUser) {
         throw new UserNotFoundError();
       }
+
+      console.log("start passwordMatch");
       //two methods to two password types: migrating to decrypt method (in order to balance transaction purposes)
       let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
+
+      console.log("end passwordMatch");
       // const decodedPK = await PasswordUtils.decryptData(dbUser.password, process.env.JWT_SECRET!);
       // if (!passwordMatch && decodedPK !== private_key) {
       //   throw new PasswordNotMatchError();

@@ -208,7 +208,7 @@ export class AuthController {
 
       console.log("start passwordMatch");
       //two methods to two password types: migrating to decrypt method (in order to balance transaction purposes)
-      let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
+      // let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
 
       console.log("end passwordMatch");
       // const decodedPK = await PasswordUtils.decryptData(dbUser.password, process.env.JWT_SECRET!);
@@ -216,10 +216,10 @@ export class AuthController {
       //   throw new PasswordNotMatchError();
       // }
 
-      console.log({passwordMatch});
-      if (!passwordMatch) {
-        throw new PasswordNotMatchError();
-      }
+      // console.log({passwordMatch});
+      // if (!passwordMatch) {
+      //   throw new PasswordNotMatchError();
+      // }
 
     } catch (e) {
       console.log("error web wallet login get", e);

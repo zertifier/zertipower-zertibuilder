@@ -133,7 +133,7 @@ export class AuthController {
         throw new InvalidArgumentError("There is a user with this email");
       }
 
-      let encryptedPassword = await PasswordUtils.encrypt(private_key); 
+      let encryptedPassword = await PasswordUtils.encrypt(private_key);
       //let encryptedPassword = await PasswordUtils.encryptData(private_key, process.env.JWT_SECRET!);
 
       //check if customer exists
@@ -185,6 +185,8 @@ export class AuthController {
 
     const { wallet_address, private_key, email } = body;
 
+    console.log({ wallet_address, private_key, email });
+
     if (!wallet_address || !private_key || !email) {
       throw new MissingParameters("Error logging in: missing parameters");
     }
@@ -197,6 +199,9 @@ export class AuthController {
     try {
       const [ROWS]: any = await this.conn.query(getUserQuery, [wallet_address]);
       dbUser = ROWS[0];
+
+      console.log({dbUser});
+
       if (!dbUser) {
         throw new UserNotFoundError();
       }
@@ -206,6 +211,8 @@ export class AuthController {
       // if (!passwordMatch && decodedPK !== private_key) {
       //   throw new PasswordNotMatchError();
       // }
+
+      console.log({passwordMatch});
       if (!passwordMatch) {
         throw new PasswordNotMatchError();
       }
@@ -222,13 +229,19 @@ export class AuthController {
       );
       user = fetchedUsers[0];
 
+      console.log({user});
+
       const { signedRefreshToken, signedAccessToken } =
         await this.generateUserTokensAction.run(user);
+
+      console.log({ signedRefreshToken, signedAccessToken });
 
       const responseData: LoggedInDTO = new LoggedInDTO(
         signedAccessToken,
         signedRefreshToken
       );
+
+      console.log({responseData});
 
       return HttpResponse.success("Logged in successfully").withData(
         responseData

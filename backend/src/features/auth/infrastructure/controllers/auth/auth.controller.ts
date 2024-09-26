@@ -211,6 +211,7 @@ export class AuthController {
       let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
 
       console.log("end passwordMatch");
+
       // const decodedPK = await PasswordUtils.decryptData(dbUser.password, process.env.JWT_SECRET!);
       // if (!passwordMatch && decodedPK !== private_key) {
       //   throw new PasswordNotMatchError();

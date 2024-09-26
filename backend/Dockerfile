@@ -21,7 +21,10 @@ FROM base AS build
 WORKDIR /app
 COPY --from=prisma /src .
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+## NOTE instead of installig --prod we are installing all
+## because the build command uses nest cli that is a dev dependency
+## this should be optimized
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm build
 
 ### Final image just node, node_modules and dist

@@ -139,7 +139,7 @@ model Cups {
   cups                String    @default("") @db.VarChar(50)
   reference           String?   @db.VarChar(255)
   providerId          Int       @default(0) @map("provider_id")
-  communityId         Int       @default(0) @map("community_id")
+  communityId         Int?      @map("community_id")
   surplusDistribution Float?    @map("surplus_distribution")
   locationId          Int       @default(0) @map("location_id")
   address             String    @default("") @db.VarChar(50)

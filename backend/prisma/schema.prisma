@@ -118,7 +118,7 @@ model Communities {
   id            Int         @id @default(autoincrement())
   name          String?     @db.VarChar(50)
   test          Int?        @default(dbgenerated("(current_timestamp())")) @db.TinyInt
-  energyPrice   Float?      @map("energy_price")
+  energyPrice   Float?      @default(0.09) @map("energy_price")
   tradeType     TradeTypes? @default(PREFERRED) @map("trade_type")
   lat           Float?
   lng           Float?

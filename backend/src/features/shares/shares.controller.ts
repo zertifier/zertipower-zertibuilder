@@ -49,6 +49,26 @@ export class SharesController {
     );
   }
 
+  @Get("/participants/:participantId")
+  @Auth(RESOURCE_NAME)
+  async getParticipantById(@Param("participantId") participantId: string) {
+    /*const data = await this.prisma.shares.findUnique({
+      where: {
+        id: parseInt(participantId),
+      },
+    });*/
+
+    const data: any = await this.prisma.$queryRaw`
+      SELECT communities.name, shares.id, shares.community_id communityId, shares.status FROM shares
+      LEFT JOIN communities ON shares.community_id = communities.id
+      WHERE customer_id = ${participantId} AND status = 'PENDING'
+    `
+    return HttpResponse.success("providers fetched successfully").withData(
+      // this.mapData(data)
+      data
+    );
+  }
+
   @Get("/community/:communityId/customer/:customerId")
   @Auth(RESOURCE_NAME)
   async getByCommunityAndCustomer(@Param("communityId") communityId: string, @Param("customerId") customerId: string) {

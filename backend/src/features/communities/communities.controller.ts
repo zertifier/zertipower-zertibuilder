@@ -1,39 +1,27 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Delete,
-  Put,
-  Body,
-  Param,
-  Request,
-  Query
-} from "@nestjs/common";
-import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
-import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
-import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
-import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
-import { SaveCommunitiesDTO, SaveDaoDTO } from "./save-communities-dto";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Request} from "@nestjs/common";
+import {HttpResponse} from "src/shared/infrastructure/http/HttpResponse";
+import {PrismaService} from "src/shared/infrastructure/services/prisma-service/prisma-service";
+import {MysqlService} from "src/shared/infrastructure/services/mysql-service/mysql.service";
+import {Datatable} from "src/shared/infrastructure/services/datatable/Datatable";
+import {SaveCommunitiesDTO, SaveDaoDTO} from "./save-communities-dto";
 import * as moment from "moment";
-import { ApiTags } from "@nestjs/swagger";
-import { Auth } from "src/features/auth/infrastructure/decorators";
+import {ApiTags} from "@nestjs/swagger";
+import {Auth} from "src/features/auth/infrastructure/decorators";
 import mysql from "mysql2/promise";
-import { UnexpectedError } from "src/shared/domain/error/common";
-import { CommunityCups, CommunityCupsStats } from "./communities.interface";
-import { CommunitiesStatsService } from "./communities-stats/communities-stats.service";
-import { CustomersDbRequestsService } from "../customers/customers-db-requests.service";
-import { UsersDbRequestsService } from "../users/infrastructure/user-controller/user-db-requests.service";
-import { CommunitiesDbRequestsService } from "./communities-db-requests.service";
-import { UserDTO } from "../users/infrastructure/user-controller/DTOs/UserDTO";
-import { CupsDbRequestsService } from "../cups/cups-db-requests.service";
-import { SaveUserDTO } from "../users/infrastructure/user-controller/DTOs/SaveUserDTO";
-import { SaveCustomersDTO } from "../customers/save-customers-dto";
-import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
-import { EnvironmentService } from "src/shared/infrastructure/services";
-import { BlockchainService } from "src/shared/infrastructure/services/blockchain-service";
-import { ErrorCode } from "src/shared/domain/error";
-import { ModifyByTradeDTO } from "./modify-by-trade-dto";
-import { Prisma } from "@prisma/client";
+import {UnexpectedError} from "src/shared/domain/error/common";
+import {CommunityCups, CommunityCupsStats} from "./communities.interface";
+import {CommunitiesStatsService} from "./communities-stats/communities-stats.service";
+import {CustomersDbRequestsService} from "../customers/customers-db-requests.service";
+import {UsersDbRequestsService} from "../users/infrastructure/user-controller/user-db-requests.service";
+import {CommunitiesDbRequestsService} from "./communities-db-requests.service";
+import {CupsDbRequestsService} from "../cups/cups-db-requests.service";
+import {SaveCustomersDTO} from "../customers/save-customers-dto";
+import {PasswordUtils} from "../users/domain/Password/PasswordUtils";
+import {EnvironmentService} from "src/shared/infrastructure/services";
+import {BlockchainService} from "src/shared/infrastructure/services/blockchain-service";
+import {ErrorCode} from "src/shared/domain/error";
+import {ModifyByTradeDTO} from "./modify-by-trade-dto";
+import {Prisma} from "@prisma/client";
 
 
 export const RESOURCE_NAME = "communities";
@@ -157,29 +145,29 @@ export class CommunitiesController {
   async getByIdEnergy(@Param("id") id: number, @Param("date") date: string) {
 
     let importDataQuery = `SELECT MONTHNAME(info_dt) as month,
-                      MONTH(info_dt)     as month_number,
-                      SUM(import)        AS import
+                                  MONTH(info_dt)     as month_number,
+                                  SUM(import)        AS import
                            FROM communities
-                             LEFT join cups
-                           ON community_id = communities.id
-                             LEFT join datadis_energy_registers ON cups_id = cups.id
+                                  LEFT join cups
+                                            ON community_id = communities.id
+                                  LEFT join datadis_energy_registers ON cups_id = cups.id
                            WHERE cups.community_id = ?
-                             AND YEAR (info_dt) = ?
+                             AND YEAR(info_dt) = ?
                              AND cups.type != 'community'
-                           GROUP BY MONTH (info_dt);
+                           GROUP BY MONTH(info_dt);
     `;
 
     let productionDataQuery = `SELECT MONTHNAME(info_dt) as month,
-      MONTH(info_dt)     as month_number,
-      SUM(export)        AS export
+                                      MONTH(info_dt)     as month_number,
+                                      SUM(export)        AS export
                                FROM communities
-                                 LEFT join cups
-                               ON community_id = communities.id
-                                 LEFT join datadis_energy_registers ON cups_id = cups.id
+                                      LEFT join cups
+                                                ON community_id = communities.id
+                                      LEFT join datadis_energy_registers ON cups_id = cups.id
                                WHERE cups.community_id = ?
-                                 AND YEAR (info_dt) = ?
+                                 AND YEAR(info_dt) = ?
                                  AND cups.type = 'community'
-                               GROUP BY MONTH (info_dt);
+                               GROUP BY MONTH(info_dt);
     `;
 
     let year = moment(date, "YYYY-MM-DD").format("YYYY").toString();
@@ -190,7 +178,7 @@ export class CommunitiesController {
     [ROWS] = await this.conn.query(productionDataQuery, [id, year]);
     let productionData = ROWS;
 
-    return HttpResponse.success("communities fetched successfully").withData({ importData, productionData });
+    return HttpResponse.success("communities fetched successfully").withData({importData, productionData});
 
   }
 
@@ -224,14 +212,14 @@ export class CommunitiesController {
                        ELSE 0
                        END
                    )                                                                      AS surplus_community_active,
-                    SUM(
+                   SUM(
                      CASE
                        WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0) * kwh_in_price
                        ELSE 0
                        END
                    )                                                                      AS total_surplus_community_active_price,
                    SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
-                   SUM(kwh_out * kwh_out_price)                                            AS total_kwh_out_price,
+                   SUM(kwh_out * kwh_out_price)                                           AS total_kwh_out_price,
                    SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
                    SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
                    kwh_in_price                                                           AS kwh_in_price,
@@ -240,11 +228,13 @@ export class CommunitiesController {
                    kwh_out_price_community                                                AS kwh_out_price_community,
                    CAST(COUNT(DISTINCT CASE
                                          WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL
-                                           THEN customer_id END) AS VARCHAR(255))         AS active_members, HOUR(eh.info_dt) AS filter_dt, info_dt
+                                           THEN customer_id END) AS VARCHAR(255))         AS active_members,
+                   HOUR(eh.info_dt)                                                       AS filter_dt,
+                   info_dt
             FROM energy_hourly eh
-              LEFT JOIN
-              cups c
-            ON cups_id = c.id
+                   LEFT JOIN
+                 cups c
+                 ON cups_id = c.id
             WHERE c.type != 'community'
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
@@ -252,13 +242,16 @@ export class CommunitiesController {
               AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY HOUR(eh.info_dt)) b
              LEFT JOIN
-           (SELECT SUM(kwh_out) AS surplus_community, SUM(kwh_out * kwh_in_price) AS total_surplus_community_price, HOUR(info_dt) AS filter_dt, info_dt
+           (SELECT SUM(kwh_out)                AS surplus_community,
+                   SUM(kwh_out * kwh_in_price) AS total_surplus_community_price,
+                   HOUR(info_dt)               AS filter_dt,
+                   info_dt
             FROM energy_hourly eh
-              LEFT JOIN
-              cups c
-            ON cups_id = c.id
+                   LEFT JOIN
+                 cups c
+                 ON cups_id = c.id
             WHERE (c.type = 'community'
-               OR c.type = 'prosumer')
+              OR c.type = 'prosumer')
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
@@ -275,24 +268,24 @@ export class CommunitiesController {
                   FROM energy_hourly eh
                          LEFT JOIN cups c ON eh.cups_id = c.id
                   WHERE c.type != 'community'
-                      AND eh.info_dt LIKE ${date}
+                    AND eh.info_dt LIKE ${date}
                     AND c.community_id = ${id}
                     AND (eh.kwh_in IS NOT NULL
-                     OR eh.kwh_out IS NOT NULL)
+                    OR eh.kwh_out IS NOT NULL)
                     AND c.active = 1
                   GROUP BY c.community_id) AS subquery1) AS totalActiveMembers
              CROSS JOIN (SELECT COUNT(*) AS totalMembers
                          FROM cups c
                          WHERE community_id = ${id}
                            AND TYPE != 'community'
-          AND c.active = 1) AS totalMembers;
+                           AND c.active = 1) AS totalMembers;
     `;
 
     let communityCups: CommunityCups[] = await this.prisma.$queryRaw`
       SELECT SUM(eh.kwh_out) AS kwh_out, HOUR(eh.info_dt) AS filter_dt, eh.info_dt, eh.cups_id, c.cups, c.reference
       FROM energy_hourly eh
-        LEFT JOIN cups c
-      ON eh.cups_id = c.id
+             LEFT JOIN cups c
+                       ON eh.cups_id = c.id
       WHERE c.type = 'community'
         AND eh.info_dt LIKE ${date}
         AND c.community_id = ${id}
@@ -354,14 +347,14 @@ export class CommunitiesController {
                        ELSE 0
                        END
                    )                                                                      AS surplus_community_active,
-              SUM(
+                   SUM(
                      CASE
                        WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0) * kwh_in_price
                        ELSE 0
                        END
                    )                                                                      AS total_surplus_community_active_price,
                    SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
-                   SUM(kwh_out * kwh_out_price)                                            AS total_kwh_out_price,
+                   SUM(kwh_out * kwh_out_price)                                           AS total_kwh_out_price,
                    SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
                    SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
                    kwh_in_price                                                           AS kwh_in_price,
@@ -370,13 +363,13 @@ export class CommunitiesController {
                    kwh_out_price_community                                                AS kwh_out_price_community,
                    CAST(COUNT(DISTINCT CASE
                                          WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL
-                                           THEN customer_id END) AS VARCHAR(255))         AS active_members, 
-              DAY(eh.info_dt) AS filter_dt, 
-              info_dt
+                                           THEN customer_id END) AS VARCHAR(255))         AS active_members,
+                   DAY(eh.info_dt)                                                        AS filter_dt,
+                   info_dt
             FROM energy_hourly eh
-              LEFT JOIN
-              cups c
-            ON cups_id = c.id
+                   LEFT JOIN
+                 cups c
+                 ON cups_id = c.id
             WHERE c.type != 'community'
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
@@ -384,13 +377,16 @@ export class CommunitiesController {
               AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY DAY(eh.info_dt)) b
              LEFT JOIN
-           (SELECT SUM(kwh_out) AS surplus_community, SUM(kwh_out * kwh_in_price) AS total_surplus_community_price, DAY(info_dt) AS filter_dt, info_dt
+           (SELECT SUM(kwh_out)                AS surplus_community,
+                   SUM(kwh_out * kwh_in_price) AS total_surplus_community_price,
+                   DAY(info_dt)                AS filter_dt,
+                   info_dt
             FROM energy_hourly eh
-              LEFT JOIN
-              cups c
-            ON cups_id = c.id
+                   LEFT JOIN
+                 cups c
+                 ON cups_id = c.id
             WHERE (c.type = 'community'
-               OR c.type = 'prosumer')
+              OR c.type = 'prosumer')
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
@@ -407,24 +403,24 @@ export class CommunitiesController {
                   FROM energy_hourly eh
                          LEFT JOIN cups c ON eh.cups_id = c.id
                   WHERE c.type != 'community'
-                      AND eh.info_dt LIKE ${date}
+                    AND eh.info_dt LIKE ${date}
                     AND c.community_id = ${id}
                     AND (eh.kwh_in IS NOT NULL
-                     OR eh.kwh_out IS NOT NULL)
+                    OR eh.kwh_out IS NOT NULL)
                     AND c.active = 1
                   GROUP BY c.community_id) AS subquery1) AS totalActiveMembers
              CROSS JOIN (SELECT COUNT(*) AS totalMembers
                          FROM cups c
                          WHERE community_id = ${id}
                            AND TYPE != 'community'
-          AND c.active = 1) AS totalMembers;
+                           AND c.active = 1) AS totalMembers;
     `;
 
     let communityCups: CommunityCups[] = await this.prisma.$queryRaw`
       SELECT SUM(eh.kwh_out) AS kwh_out, DAY(eh.info_dt) AS filter_dt, eh.info_dt, eh.cups_id, c.cups, c.reference
       FROM energy_hourly eh
-        LEFT JOIN cups c
-      ON eh.cups_id = c.id
+             LEFT JOIN cups c
+                       ON eh.cups_id = c.id
       WHERE c.type = 'community'
         AND eh.info_dt LIKE ${date}
         AND c.community_id = ${id}
@@ -488,14 +484,14 @@ export class CommunitiesController {
                        ELSE 0
                        END
                    )                                                                      AS surplus_community_active,
-                    SUM(
+                   SUM(
                      CASE
                        WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL THEN IFNULL(production, 0) * kwh_in_price
                        ELSE 0
                        END
-                   ) AS total_surplus_community_active_price,
+                   )                                                                      AS total_surplus_community_active_price,
                    SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
-                  SUM(kwh_out * kwh_out_price)                                             AS total_kwh_out_price,
+                   SUM(kwh_out * kwh_out_price)                                           AS total_kwh_out_price,
                    kwh_in_price                                                           AS kwh_in_price,
                    kwh_out_price                                                          AS kwh_out_price,
                    SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
@@ -504,13 +500,13 @@ export class CommunitiesController {
                    kwh_out_price_community                                                AS kwh_out_price_community,
                    CAST(COUNT(DISTINCT CASE
                                          WHEN kwh_in IS NOT NULL OR kwh_out IS NOT NULL
-                                           THEN customer_id END) AS VARCHAR(255))         AS active_members, 
-              MONTH(eh.info_dt) AS filter_dt, 
-              info_dt
+                                           THEN customer_id END) AS VARCHAR(255))         AS active_members,
+                   MONTH(eh.info_dt)                                                      AS filter_dt,
+                   info_dt
             FROM energy_hourly eh
-              LEFT JOIN
-              cups c
-            ON cups_id = c.id
+                   LEFT JOIN
+                 cups c
+                 ON cups_id = c.id
             WHERE c.type != 'community'
               AND eh.info_dt LIKE ${date}
               AND c.community_id = ${id}
@@ -518,13 +514,16 @@ export class CommunitiesController {
               AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY MONTH(eh.info_dt)) b
              LEFT JOIN
-           (SELECT SUM(kwh_out) AS surplus_community, SUM(kwh_out * kwh_in_price) AS total_surplus_community_price, MONTH(info_dt) AS filter_dt, info_dt
+           (SELECT SUM(kwh_out)                AS surplus_community,
+                   SUM(kwh_out * kwh_in_price) AS total_surplus_community_price,
+                   MONTH(info_dt)              AS filter_dt,
+                   info_dt
             FROM energy_hourly eh
-              LEFT JOIN
-              cups c
-            ON cups_id = c.id
+                   LEFT JOIN
+                 cups c
+                 ON cups_id = c.id
             WHERE (c.type = 'community'
-               OR c.type = 'prosumer')
+              OR c.type = 'prosumer')
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
               AND origin = ${origin}
@@ -540,24 +539,24 @@ export class CommunitiesController {
                   FROM energy_hourly eh
                          LEFT JOIN cups c ON eh.cups_id = c.id
                   WHERE c.type != 'community'
-                      AND eh.info_dt LIKE ${date}
+                    AND eh.info_dt LIKE ${date}
                     AND c.community_id = ${id}
                     AND (eh.kwh_in IS NOT NULL
-                     OR eh.kwh_out IS NOT NULL)
+                    OR eh.kwh_out IS NOT NULL)
                     AND c.cups = 1
                   GROUP BY c.community_id) AS subquery1) AS totalActiveMembers
              CROSS JOIN (SELECT COUNT(*) AS totalMembers
                          FROM cups c
                          WHERE community_id = ${id}
                            AND TYPE != 'community'
-          AND c.active = 1) AS totalMembers;
+                           AND c.active = 1) AS totalMembers;
     `;
 
     let communityCups: CommunityCups[] = await this.prisma.$queryRaw`
       SELECT SUM(eh.kwh_out) AS kwh_out, MONTH(eh.info_dt) AS filter_dt, eh.info_dt, eh.cups_id, c.cups, c.reference
       FROM energy_hourly eh
-        LEFT JOIN cups c
-      ON eh.cups_id = c.id
+             LEFT JOIN cups c
+                       ON eh.cups_id = c.id
       WHERE c.type = 'community'
         AND eh.info_dt LIKE ${date}
         AND c.community_id = ${id}
@@ -587,10 +586,13 @@ export class CommunitiesController {
 
   @Post()
   @Auth(RESOURCE_NAME)
-  async create(@Body() body: SaveCommunitiesDTO) {
-
+  async create(@Body() body: SaveCommunitiesDTO, @Req() request: Request) {
     let pk;
-
+    let customerId = undefined
+    if (body.customerId) {
+      customerId = body.customerId
+      delete body.customerId
+    }
     try {
       //create new wallet
       if (body.walletPwd) {
@@ -607,10 +609,20 @@ export class CommunitiesController {
       const encriptedPk = await PasswordUtils.encryptData(pk, process.env.JWT_SECRET!);
       body.walletPwd = encriptedPk;
       body.walletAddress = wallet.address;
-
+      if (body.locationId && typeof body.locationId == "string") body.locationId = parseInt(body.locationId)
       //insert new community:
-      const data: any = await this.prisma.communities.create({ data: body });
-
+      const data: any = await this.prisma.communities.create({data: body});
+      if (customerId) {
+        await this.prisma.cups.updateMany({
+          where: {
+            customerId
+          },
+          data: {
+            communityId: data.id,
+            locationId: data.locationId
+          }
+        })
+      }
       delete data.walletPwd;
       return HttpResponse.success("communities saved successfully").withData(
         data
@@ -658,7 +670,7 @@ export class CommunitiesController {
       community.walletPwd = encriptedPk;
       community.walletAddress = wallet.address;
 
-      const data = await this.prisma.communities.update({ where: { id: parseInt(id) }, data: community });
+      const data = await this.prisma.communities.update({where: {id: parseInt(id)}, data: community});
 
       delete community.walletPwd;
 
@@ -921,7 +933,7 @@ export class CommunitiesController {
   @Auth(RESOURCE_NAME)
   async depositBalance(@Body() body: any, @Request() req: any) {
     try {
-      const { balance, pk } = body;
+      const {balance, pk} = body;
 
       const payload = req.decodedToken;
       const _user = payload.user;
@@ -958,7 +970,7 @@ export class CommunitiesController {
   @Auth(RESOURCE_NAME)
   async witdrawBalance(@Body() body: any, @Request() req: any) {
     try {
-      const { balance } = body;
+      const {balance} = body;
 
       const payload = req.decodedToken;
       const _user = payload.user;
@@ -1002,7 +1014,7 @@ export class CommunitiesController {
     const data = await this.prisma.cups.findMany({
       where: {
         communityId: id,
-        type: { in: ["producer", "prosumer"] },
+        type: {in: ["producer", "prosumer"]},
         active: true
       }
     });

@@ -48,6 +48,9 @@ export class SaveCommunitiesDTO {
   )
   @IsOptional()
   updatedAt: Date;
+
+  @IsOptional()
+  customerId?: number;
 }
 
 export class SaveDaoDTO{

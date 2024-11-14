@@ -117,7 +117,7 @@ model Calendar {
 model Communities {
   id            Int         @id @default(autoincrement())
   name          String?     @db.VarChar(50)
-  test          Int?        @default(dbgenerated("(current_timestamp())")) @db.TinyInt
+  test          Int?        @db.TinyInt
   energyPrice   Float?      @default(0.09) @map("energy_price")
   tradeType     TradeTypes? @default(PREFERRED) @map("trade_type")
   lat           Float?

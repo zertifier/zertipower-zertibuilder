@@ -222,6 +222,17 @@ export class SharesController {
         id: parseInt(id),
       },
     });
+    if (data.customerId && data.communityId) {
+
+      await this.prisma.cups.updateMany({
+        where: {
+          customerId: data.customerId
+        },
+        data: {
+          communityId: null,
+        }
+      })
+    }
     return HttpResponse.success("shares removed successfully").withData(
       data
     );

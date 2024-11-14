@@ -125,7 +125,8 @@ export class SharesController {
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveSharesDto) {
     const data = await this.prisma.shares.create({data: body});
-    return HttpResponse.success("providers saved successfully").withData(data);
+
+    return HttpResponse.success("shares saved successfully").withData(data);
   }
 
   @Put(":id")
@@ -137,7 +138,7 @@ export class SharesController {
       },
       data: body,
     });
-    return HttpResponse.success("providers updated successfully").withData(
+    return HttpResponse.success("shares updated successfully").withData(
       data
     );
   }
@@ -182,7 +183,7 @@ export class SharesController {
   @Put("/participants/:id/activate")
   @Auth(RESOURCE_NAME)
   async activateParticipant(@Param("id") id: string, @Body() body: SaveSharesDto) {
-    const data = await this.prisma.shares.updateMany({
+    const data = await this.prisma.shares.update({
       where: {
         id: parseInt(id),
       },
@@ -191,6 +192,23 @@ export class SharesController {
         shares: parseFloat(body.shares.toString())
       },
     });
+
+    if (data.customerId && data.communityId) {
+      const community: any = await this.prisma.communities.findUnique({
+        where: {
+          id: data.communityId
+        }
+      })
+      await this.prisma.cups.updateMany({
+        where: {
+          customerId: data.customerId
+        },
+        data: {
+          communityId: data.communityId,
+          locationId: community!.locationId || null
+        }
+      })
+    }
     return HttpResponse.success("participant updated successfully").withData(
       data
     );

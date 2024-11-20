@@ -17,7 +17,8 @@ export interface TableData {
   standalone: true,
   imports: [
     NgTemplateOutlet,
-    NgClass
+    NgClass,
+    NgIf
   ],
   templateUrl: './calculate-info-modal.component.html',
   styleUrl: './calculate-info-modal.component.scss'
@@ -217,6 +218,11 @@ export class CalculateInfoModalComponent {
   ]
 
   tables: Table[] = [
+    {
+      title: "Costos fixes",
+      headers: [],
+      data: this.constants
+    },
     {
       title: "Instal·lació",
       headers: ['Potència (kWp)', 'Ratio (€/kWp)'],

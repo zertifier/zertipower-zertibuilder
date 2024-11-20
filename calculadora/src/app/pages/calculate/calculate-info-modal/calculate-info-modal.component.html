@@ -1,10 +1,10 @@
 <div class="modal-header border-0">
   <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
 </div>
-<div class="modal-body container">
+<div class="modal-body container px-5">
   <h4 class="modal-title text-center mb-5 text-dark">Com calculem l’inversió</h4>
 
-  <div class="div-border row">
+ <!-- <div class="div-border row">
     <div class="col ps-md-4 pe-md-5">
       <table class="table">
         <caption class="caption-top">Constants</caption>
@@ -19,7 +19,7 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </div>-->
   <div class="row mt-4 div-border">
     <div class="col-auto">
       <nav class="nav flex-column">
@@ -48,7 +48,7 @@
 <ng-template #tableTemplate let-table="table">
   <table class="table">
     <caption class="caption-top fw-bold">{{ table.title }}</caption>
-    <thead>
+    <thead *ngIf="table.headers.length">
     <tr>
       @for (header of table.headers; track header; let i = $index) {
         <th scope="col" [ngClass]="i == table.headers.length-1 ? 'text-end' : ''">{{ header }}</th>

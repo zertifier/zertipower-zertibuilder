@@ -298,7 +298,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       console.log("location unselected")
     }
 
-    // this.openCalculateInfoModal()
+    this.openCalculateInfoModal()
   }
 
   @HostListener('window:resize', ['$event'])
@@ -1156,7 +1156,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   }
 
   openCalculateInfoModal() {
-    const modalRef = this.modalService.open(CalculateInfoModalComponent, {fullscreen: true, scrollable: true});
+    const modalRef = this.modalService.open(CalculateInfoModalComponent, {size: 'xl', scrollable: true});
   }
 
   async calculateSolarParams() {

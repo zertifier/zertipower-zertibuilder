@@ -1,0 +1,67 @@
+<div class="modal-header border-0">
+  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
+</div>
+<div class="modal-body container">
+  <h4 class="modal-title text-center mb-5 text-dark">Com calculem l’inversió</h4>
+
+  <div class="div-border row">
+    <div class="col ps-md-4 pe-md-5">
+      <table class="table">
+        <caption class="caption-top">Constants</caption>
+
+        <tbody>
+          @for (constant of constants; track constant.title; let i = $index) {
+            <tr>
+              <td>{{ constant.title }}</td>
+              <td class="text-end">{{ constant.value }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="row mt-4 div-border">
+    <div class="col-auto">
+      <nav class="nav flex-column">
+        @for (table of tables; track table.title; let i = $index) {
+          <button class="btn text-start" [ngClass]="selectedTable == tables[i] ? 'btn-primary' : ''"
+                  (click)="changeType(i)">{{ table.title }}
+          </button>
+        }
+      </nav>
+    </div>
+
+    <div class="col-12 col-md px-md-5">
+      <ng-container *ngTemplateOutlet="tableTemplate; context: {table: selectedTable} ">
+      </ng-container>
+    </div>
+
+  </div>
+</div>
+<div class="modal-footer border-0">
+  <button type="button" class="btn btn-dark mx-auto w-100 mt-4" style="max-width: 200px"
+          (click)="activeModal.close('Close click')">Tancar
+  </button>
+</div>
+
+
+<ng-template #tableTemplate let-table="table">
+  <table class="table">
+    <caption class="caption-top fw-bold">{{ table.title }}</caption>
+    <thead>
+    <tr>
+      @for (header of table.headers; track header; let i = $index) {
+        <th scope="col" [ngClass]="i == table.headers.length-1 ? 'text-end' : ''">{{ header }}</th>
+      }
+    </tr>
+    </thead>
+    <tbody>
+      @for (object of table.data; track object.title) {
+        <tr>
+          <td>{{ object.title }}</td>
+          <td class="text-end">{{ object.value }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</ng-template>

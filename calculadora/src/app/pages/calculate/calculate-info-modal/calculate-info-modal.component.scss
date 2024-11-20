@@ -1,0 +1,23 @@
+.table > :not(caption) > * > * {
+  border: none
+}
+
+.div-border {
+  border: solid 2px #0E2B4CFF;
+  border-radius: 6px;
+  padding: 20px;
+}
+
+th{
+  font-weight: normal;
+  font-size: 22px;
+}
+
+caption{
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  color: black;
+  font-size: 22px;
+  font-weight: bold;
+  border-bottom: solid 1px black;
+}

@@ -24,6 +24,7 @@ import { EnergyBlocksApiService } from '../../services/energy-blocks.service';
 import { LocationService } from '../../services/location.service';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ChartModalComponent } from '../../components/chart-modal/chart-modal.component';
+import {CalculateInfoModalComponent} from "./calculate-info-modal/calculate-info-modal.component";
 
 interface cadastre {
   id?: string;
@@ -78,6 +79,7 @@ interface selfConsumption {
   styleUrl: './calculate.component.scss'
 })
 export class CalculateComponent implements OnInit, AfterViewInit {
+  private modalService = inject(NgbModal);
 
   stepActive: number = 1;
   stepsCompleted: number[] = [0, 0, 0, 0, 0, 0];
@@ -296,6 +298,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       console.log("location unselected")
     }
 
+    this.openCalculateInfoModal()
   }
 
   @HostListener('window:resize', ['$event'])
@@ -609,7 +612,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
         if (imports[index] != undefined && imports[index] != null) {
           imports[index] += monthConsumption;
           //imports[index] += monthConsumption;
-          //total consumption implies the generation: 
+          //total consumption implies the generation:
           // imports[index] += addedArea.monthsGeneration[index];
         }
 
@@ -1017,7 +1020,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       }
       //console.log(this.addedAreas)
 
-      
+
     })
   }
 
@@ -1150,6 +1153,10 @@ export class CalculateComponent implements OnInit, AfterViewInit {
 
   optimizeSolarPanels() {
     //TODO: change algorithm to insert solar panels or accept consumption
+  }
+
+  openCalculateInfoModal() {
+    const modalRef = this.modalService.open(CalculateInfoModalComponent, {fullscreen: true, scrollable: true});
   }
 
   async calculateSolarParams() {

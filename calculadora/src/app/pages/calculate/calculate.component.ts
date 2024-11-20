@@ -298,7 +298,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       console.log("location unselected")
     }
 
-    this.openCalculateInfoModal()
+    // this.openCalculateInfoModal()
   }
 
   @HostListener('window:resize', ['$event'])

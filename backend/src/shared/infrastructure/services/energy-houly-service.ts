@@ -55,7 +55,7 @@ export class EnergyHourlyService {
     const initData = moment().subtract(this.datadisMonths, 'months').format('YYYY-MM-DD HH');
 
     try {
-      let query = `
+      /*let query = `
       SELECT d.*, cups.type, cups.surplus_distribution, cups.community_id
       FROM datadis_energy_registers d
              LEFT JOIN cups ON d.cups_id = cups.id
@@ -65,7 +65,26 @@ export class EnergyHourlyService {
         WHERE e.info_dt = d.info_dt
           AND e.cups_id = d.cups_id
       );
-    `/*
+    `*/
+      let query = `
+        SELECT
+          d.*,
+          cups.type,
+          cups.surplus_distribution,
+          cups.community_id
+        FROM
+          datadis_energy_registers d
+            INNER JOIN
+          cups ON d.cups_id = cups.id
+        WHERE
+          NOT EXISTS (
+            SELECT 1
+            FROM energy_hourly e
+            WHERE e.info_dt = d.info_dt
+              AND e.cups_id = d.cups_id
+          );
+    `
+      /*
     let query = `
       SELECT d.*, cups.type, cups.surplus_distribution, cups.community_id
       FROM datadis_energy_registers d
@@ -117,9 +136,10 @@ export class EnergyHourlyService {
     for (const community of communities) {
       const datadisRegistersByCommunity = this.orderArrByInfoDt(datadisNewRegisters.filter(obj => obj.community_id === community.id));
 
-      // console.log(datadisRegistersByCommunity.length, "datadisRegistersByCommunity");
+      if (!datadisRegistersByCommunity.length) continue
 
       const allCupsOfCommunity = await this.getCupsByCommunity(community.id);
+
       let filteredCups = [];
 
       if (allCupsOfCommunity.length > 0) {
@@ -130,6 +150,7 @@ export class EnergyHourlyService {
 
       // Iterar sobre el array de filteredCups en pequeños lotes
       for (let start = 0; start < filteredCups.length; start += batchSize) {
+      // for (let start = 0; start < 200; start += batchSize) {
         const batch = filteredCups.slice(start, start + batchSize);
 
         const valuesPlaceholders = batch.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(',');

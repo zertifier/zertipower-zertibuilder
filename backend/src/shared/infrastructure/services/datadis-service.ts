@@ -122,6 +122,7 @@ export class DatadisService {
     this.dbCups = await this.cupsDbService.getCups()
     this.dbCustomers = await this.customersDbService.getCustomers();
     this.dbCommunities = await this.communitiesDbService.getCommunities();
+    console.log(this.dbCommunities, "COMMUNITIES")
 
     this.supplies = [];
 

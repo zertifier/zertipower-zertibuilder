@@ -558,3 +558,17 @@ model UsersNotificationHistoric {
   // notification          Notification? @relation(fields: [notificationId], references: [id])
   @@map("users_notifications_historic")
 }
+
+model EnergyRealtime {
+  id                        Int       @id @default(autoincrement())         
+  origin                    String?   @map("origin") @db.VarChar(200)      
+  reference                 String?   @map("reference") @db.VarChar(50)
+  infoDt                    DateTime? @map("info_dt") @db.DateTime(0)
+  accumulative_consumption  Float?    @map("accumulative_consumption")
+  accumulative_production   Float?    @map("accumulative_production")
+  consumption               Float?    @map("consumption")
+  production                Float?    @map("production")
+  createdAt                 DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt                 DateTime? @default(now()) @map("updated_at") @db.DateTime(0)
+  @@map("energy_realtime")
+}

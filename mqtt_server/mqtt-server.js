@@ -64,19 +64,26 @@ aedes.on('publish', (packet, client) => {
     const accumulative_consumption = payloadJson.accumulative_consumption.total_act_energy 
     const accumulative_production = payloadJson.accumulative_production.total_act_energy
 
-    if (consumption < 0) {
-      consumption = 0;
-      production += -consumption;
-    }
-    
-    if (production < 0) {
-      production = 0;
-      consumption += -production;
+    let realConsumption;
+    let realProduction;
+
+    if (consumption >= 0 && production >= 0) {
+      realConsumption = consumption
+      realProduction = production
+    } else if (consumption < 0 && production < 0) {
+      realConsumption = (-1 * production)
+      realProduction = (-1 * consumption)
+    } else if (consumption >= 0 && production < 0) {
+      realConsumption = consumption + (-1 * production)
+      realProduction = 0
+    } else if (consumption < 0 && production >= 0) {
+      realConsumption = 0
+      realProduction = production + (-1 * consumption)
     }
 
     console.log(`Data on ${isoDate}. Production: ${production} and Consumption: ${consumption}`)
 
-    saveDataToMySQL(reference, isoDate, accumulative_consumption, accumulative_production, consumption, production, origin='Shelly');
+    saveDataToMySQL(reference, isoDate, accumulative_consumption, accumulative_production, realConsumption, realProduction, origin='Shelly');
   }
 });
 

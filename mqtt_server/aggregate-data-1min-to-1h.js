@@ -88,7 +88,7 @@ const saveAggregationHourData = (connection, info_dt, consumption, production, l
   });
 };
 
-async function aggregateData(flag) {
+async function aggregateData(connection, flag) {
 
   // Obtenir l'hora i els minuts en UTC
   const now = new Date()
@@ -100,14 +100,6 @@ async function aggregateData(flag) {
 
   const { startHourISO, endHourISO } = getDateIntervalForPreviousHour(now, hour)
 
-  // Conectar a MySQL
-  connection.connect((err) => {
-    if (err) {
-      console.error('Error al conectar a la base de datos: ' + err.stack);
-      return;
-    }
-  });
-
   const startHour = new Date(startHourISO).toISOString().slice(0, 19).replace('T', ' ');
   const endHour = new Date(endHourISO).toISOString().slice(0, 19).replace('T', ' ');
 
@@ -115,9 +107,7 @@ async function aggregateData(flag) {
   try {
     results = await getEnergyRealtimeData(connection, startHour, endHour);
   } catch (error) {
-    connection.end();
-    console.log("err")
-    return
+    throw new Error('Error getting energy real time data')
   }
 
   const firstRegisterMinute = results[0].info_dt.getUTCMinutes();
@@ -125,7 +115,6 @@ async function aggregateData(flag) {
 
   if (firstRegisterMinute !== 0 || lastRegisterMinute !== 59) {
     // No tenim la hora completa
-    connection.end();
     return { flag: true }
   }
 
@@ -142,11 +131,10 @@ async function aggregateData(flag) {
   try {
     await saveAggregationHourData(connection, inserDate, intervalConsumption, intervalProduction, 60);
   } catch (error) {
-    console.error('err');
+    throw new Error('Error saving aggregtion hour data')
   }
 
   if (!flag) {    
-    connection.end();
     return { flag: false }
   }
 
@@ -155,9 +143,7 @@ async function aggregateData(flag) {
   try {
     results = await getLastHourSaved(connection);
   } catch (error) {
-    connection.end();
-    console.log("err")
-    return
+    throw new Error('Error getting last hour saved data')
   }
 
   const lostHourSavedStartISO = lastRegister.info_dt
@@ -178,9 +164,7 @@ async function aggregateData(flag) {
   try {
     results = await getEnergyRealtimeData(connection, lostHourSavedStart, lostHourSavedEnd);
   } catch (error) {
-    connection.end();
-    console.log("err")
-    return
+    throw new Error('Error getting energy real time data for lost hours')
   }
 
   // Pillar el max i el min i fer l'interval
@@ -207,44 +191,25 @@ async function aggregateData(flag) {
     await saveAggregationHourData(connection, dateForDb, avgConsumption, avgProduction, 0);
   }
   
-  connection.end();
   return { flag: false }
 }
 
-// Función para calcular los minutos hasta el siguiente minuto 5
-function getNextRunTime() {
-  const now = new Date();
-  const minutes = now.getMinutes();
-  const nextRunMinutes = 5;
+let externalflag = true
 
-  // Si estamos en un minuto menor a 5, esperamos hasta el siguiente minuto 5
-  // Si estamos en 6-59 minutos, esperamos hasta el minuto 5 de la próxima hora
-  const delay = (60 - minutes + nextRunMinutes) % 60; // Cálculo de tiempo hasta el siguiente minuto 5
-
-  return delay;
-}
-
-// Función para ejecutar el cron job
-function scheduleCronJob() {
-  // Calcular el retraso en minutos
-  const delay = getNextRunTime();
-  let externalflag = false
-
-  console.log(`El cron empezará a ejecutarse a las ${new Date(Date.now() + delay * 60000)} (hora local).`);
-
-  setTimeout(() => {
-    console.log('Running cron job for the first time at:', new Date().toISOString());
-
-    // Ejecutar la tarea inicial (primer cron job) a la hora en punto y 5 minutos
-    cron.schedule('5 * * * *', () => {
-      console.log('Running cron job every hour at minute 5:', new Date().toISOString());
-      const { flag } = aggregateData(externalflag)
-
-      externalflag = flag
+setInterval(() => {
+  try {
+    connection.connect((err) => {
+      if (err) throw new Error('Error connecting to db: ' + err.stack);
     });
+    
+    const { flag } = aggregateData(connection, externalflag)
+    externalflag = flag
 
-  }, delay * 60000);
-}
+  } catch (error) {
+    console.error(error.message);
+    
+  } finally {
+    connection.end();
+  }
 
-// Iniciar el cron job
-scheduleCronJob();
+}, 60 * 60 * 1000); // 3600000

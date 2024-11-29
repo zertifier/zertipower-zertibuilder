@@ -23,7 +23,9 @@ Para la conexión con la base de datos.
    
 Poner la ip de nuestro servidor/pc a la configuración mqtt del shelly para que envie los datos correctamente y configurar el script para que envie los datos cada minuto.
 
-Ejecutar el cron
+6. **Ejecutar el cron**
+
+Para traspasar en minutos a horas.
 
 ```txt
 ┌────────────── minuto (0 - 59)

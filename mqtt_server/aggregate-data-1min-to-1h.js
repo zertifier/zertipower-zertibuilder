@@ -1,4 +1,4 @@
-// const cron = require('node-cron');
+const cron = require('node-cron');
 const mysql = require('mysql2');
 
 require('dotenv').config();
@@ -91,8 +91,7 @@ const saveAggregationHourData = (connection, info_dt, consumption, production, l
 async function aggregateData(flag) {
 
   // Obtenir l'hora i els minuts en UTC
-  // const now = new Date()
-  const now = new Date('2024-11-28T11:05:00.000Z')
+  const now = new Date()
   const hour = now.getUTCHours();  // Hora en UTC (0-23)
 
   if (hour < 0 || hour > 23) {

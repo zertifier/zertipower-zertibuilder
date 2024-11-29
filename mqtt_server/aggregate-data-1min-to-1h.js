@@ -1,0 +1,251 @@
+// const cron = require('node-cron');
+const mysql = require('mysql2');
+
+require('dotenv').config();
+
+// Crear una conexión a la base de datos
+const connection = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  timezone: 'Z'
+});
+
+function getDateIntervalForPreviousHour(now, hour) {
+
+  let startHourISO = new Date(now);
+  let endHourISO = new Date(now);
+
+  if (hour === 0) {
+    // The day before from 23:00 to 23:59
+    startHourISO.setUTCDate(now.getUTCDate() - 1);
+    startHourISO.setUTCHours(23, 0, 0, 0); 
+    
+    endHourISO.setUTCDate(now.getUTCDate() - 1); 
+    endHourISO.setUTCHours(23, 59, 59, 999); 
+    
+    return  { startHourISO, endHourISO }
+  }
+
+  // Interval before from xx:00 to xx:59 (if cron executes at 18:05 -> interval: from 17:00 to 17:59 )
+  startHourISO.setUTCDate(now.getUTCDate());
+  startHourISO.setUTCHours(hour -1, 0, 0, 0);
+  
+  endHourISO.setUTCDate(now.getUTCDate());  
+  endHourISO.setUTCHours(hour -1, 59, 59, 999); 
+
+  return  { startHourISO, endHourISO }
+
+}
+
+const getEnergyRealtimeData = (connection, startHour, endHour) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      'SELECT * FROM energy_realtime WHERE info_dt BETWEEN ? AND ? ORDER BY info_dt ASC',
+      [startHour, endHour],
+      (err, results) => {
+        if (err) {
+          reject('Error en la consulta: ' + err.stack);
+        } else {
+          resolve(results);
+        }
+      }
+    );
+  });
+};
+
+const getLastHourSaved = (connection) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      'SELECT * from datadis_energy_registers WHERE cups_id = ? ORDER BY info_dt DESC LIMIT 1',
+      [6566],
+      (err, results) => {
+        if (err) {
+          reject('Error en la consulta: ' + err.stack);
+        } else {
+          resolve(results);
+        }
+      }
+    );
+  });
+}
+
+const saveAggregationHourData = (connection, info_dt, consumption, production, lectures) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      'INSERT INTO datadis_energy_registers (info_dt, cups_id, transaction_id, import, export, tx_import, tx_export, battery, updates_counter, updates_historic, smart_contracts_version, created_at, updated_at, lectures) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)',
+      [info_dt, 6566, null, consumption, production, null, null, null, null, null, null, lectures],
+      (err, results) => {
+        if (err) {
+          console.error('Error en la consulta: ', err); // Mejor mostrar el error en la consola para facilitar la depuración.
+          reject('Error en la consulta: ' + err.stack); // Rechazar la promesa con el error.
+        } else {
+          resolve(results); // Resolver la promesa si la consulta es exitosa.
+        }
+      }
+    );
+  });
+};
+
+async function aggregateData(flag) {
+
+  // Obtenir l'hora i els minuts en UTC
+  // const now = new Date()
+  const now = new Date('2024-11-28T11:05:00.000Z')
+  const hour = now.getUTCHours();  // Hora en UTC (0-23)
+
+  if (hour < 0 || hour > 23) {
+    return;
+  }
+
+  const { startHourISO, endHourISO } = getDateIntervalForPreviousHour(now, hour)
+
+  // Conectar a MySQL
+  connection.connect((err) => {
+    if (err) {
+      console.error('Error al conectar a la base de datos: ' + err.stack);
+      return;
+    }
+  });
+
+  const startHour = new Date(startHourISO).toISOString().slice(0, 19).replace('T', ' ');
+  const endHour = new Date(endHourISO).toISOString().slice(0, 19).replace('T', ' ');
+
+  let results
+  try {
+    results = await getEnergyRealtimeData(connection, startHour, endHour);
+  } catch (error) {
+    connection.end();
+    console.log("err")
+    return
+  }
+
+  const firstRegisterMinute = results[0].info_dt.getUTCMinutes();
+  const lastRegisterMinute = results[results.length - 1].info_dt.getUTCMinutes();
+
+  if (firstRegisterMinute !== 0 || lastRegisterMinute !== 59) {
+    // No tenim la hora completa
+    connection.end();
+    return { flag: true }
+  }
+
+  // Fer aquest bloc normal
+
+  const firstRegister = results[0];
+  const lastRegister = results[results.length - 1];
+
+  const intervalConsumption = (Number(lastRegister.accumulative_consumption) - Number(firstRegister.accumulative_consumption)) / 1000 // From W to Kw
+  const intervalProduction = (Number(lastRegister.accumulative_production) - Number(firstRegister.accumulative_production)) / 1000
+  const inserDate = new Date(now.setUTCMinutes(hour -1, 0, 0))
+
+  // Insert amb aquestes dades. Si mirem les hores de 20:00 - 20:59 és la hora 21:00:00
+  try {
+    await saveAggregationHourData(connection, inserDate, intervalConsumption, intervalProduction, 60);
+  } catch (error) {
+    console.error('err');
+  }
+
+  if (!flag) {    
+    connection.end();
+    return { flag: false }
+  }
+
+  // Mirar com repartim la energia. Mirar a datadis_energy_registers l'últim que en té:
+
+  try {
+    results = await getLastHourSaved(connection);
+  } catch (error) {
+    connection.end();
+    console.log("err")
+    return
+  }
+
+  const lostHourSavedStartISO = lastRegister.info_dt
+  lostHourSavedStartISO.setMinutes(59);
+  lostHourSavedStartISO.setSeconds(59)
+  lostHourSavedStartISO.setMilliseconds(999);
+
+  const lostHourSavedEndISO = new Date(results[0].info_dt);
+  lostHourSavedEndISO.setHours(lostHourSavedEndISO.getHours() - 1);
+  lostHourSavedEndISO.setMinutes(59);
+  lostHourSavedEndISO.setSeconds(59);
+  lostHourSavedEndISO.setMilliseconds(999);
+
+  // Select de realtime_energy where dins del interval
+  const lostHourSavedStart = new Date(lostHourSavedStartISO).toISOString().slice(0, 19).replace('T', ' ');
+  const lostHourSavedEnd = new Date(lostHourSavedEndISO).toISOString().slice(0, 19).replace('T', ' ');
+
+  try {
+    results = await getEnergyRealtimeData(connection, lostHourSavedStart, lostHourSavedEnd);
+  } catch (error) {
+    connection.end();
+    console.log("err")
+    return
+  }
+
+  // Pillar el max i el min i fer l'interval
+  const first = results[0];
+  const last = results[results.length - 1];
+
+  const lostIntervalConsumption = (Number(last.accumulative_consumption) - Number(first.accumulative_consumption)) / 1000
+  const lostIntervalProduction = (Number(last.accumulative_production) - Number(first.accumulative_production)) / 1000
+
+  // Mirar quantes hores hi ha pel mig i fer la divisió (repartir la energia)
+  const hoursMissedStart = first.info_dt.getUTCHours()
+  const hoursMissedEnd = last.info_dt.getUTCHours() + 1
+  const hoursMissed = hoursMissedEnd - hoursMissedStart
+
+  const avgConsumption = lostIntervalConsumption / hoursMissed
+  const avgProduction = lostIntervalProduction / hoursMissed
+
+  // Fer insert a la taula hourly amb la energia repertida per cada hora (registers = 0)
+  let today = new Date();
+
+  for (let i = hoursMissedStart + 1; i <= hoursMissedEnd; i++) {
+    let adjustedTime = new Date(today.setUTCHours(i, 0, 0, 0));
+    const dateForDb = new Date(adjustedTime).toISOString().slice(0, 19).replace('T', ' ');
+    await saveAggregationHourData(connection, dateForDb, avgConsumption, avgProduction, 0);
+  }
+  
+  connection.end();
+  return { flag: false }
+}
+
+// Función para calcular los minutos hasta el siguiente minuto 5
+function getNextRunTime() {
+  const now = new Date();
+  const minutes = now.getMinutes();
+  const nextRunMinutes = 5;
+
+  // Si estamos en un minuto menor a 5, esperamos hasta el siguiente minuto 5
+  // Si estamos en 6-59 minutos, esperamos hasta el minuto 5 de la próxima hora
+  const delay = (60 - minutes + nextRunMinutes) % 60; // Cálculo de tiempo hasta el siguiente minuto 5
+
+  return delay;
+}
+
+// Función para ejecutar el cron job
+function scheduleCronJob() {
+  // Calcular el retraso en minutos
+  const delay = getNextRunTime();
+  let externalflag = false
+
+  console.log(`El cron empezará a ejecutarse a las ${new Date(Date.now() + delay * 60000)} (hora local).`);
+
+  setTimeout(() => {
+    console.log('Running cron job for the first time at:', new Date().toISOString());
+
+    // Ejecutar la tarea inicial (primer cron job) a la hora en punto y 5 minutos
+    cron.schedule('5 * * * *', () => {
+      console.log('Running cron job every hour at minute 5:', new Date().toISOString());
+      const { flag } = aggregateData(externalflag)
+
+      externalflag = flag
+    });
+
+  }, delay * 60000);
+}
+
+// Iniciar el cron job
+scheduleCronJob();

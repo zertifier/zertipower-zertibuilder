@@ -12,6 +12,7 @@
   "dependencies": {
     "aedes": "^0.51.3",
     "dotenv": "^16.4.5",
-    "mysql2": "^3.11.4"
+    "mysql2": "^3.11.4",
+    "node-cron": "^3.0.3"
   }
 }

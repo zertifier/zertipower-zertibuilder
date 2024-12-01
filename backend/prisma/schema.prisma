@@ -137,6 +137,7 @@ model Communities {
 model Cups {
   id                  Int       @id @default(autoincrement())
   cups                String    @default("") @db.VarChar(50)
+  origin              String?   @map("origin") @db.VarChar(200)
   reference           String?   @db.VarChar(255)
   providerId          Int       @default(0) @map("provider_id")
   communityId         Int?      @map("community_id")

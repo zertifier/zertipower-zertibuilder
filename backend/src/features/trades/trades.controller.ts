@@ -98,7 +98,7 @@ export class TradesController {
     //          LEFT JOIN cups ON trades.from_cups_id = cups.id
     //   WHERE cups.customer_id = ${customerId}
     //     AND DATE(trades.info_dt) BETWEEN '${from}' AND '${to}'
-    //   ORDER BY info_dt DESC, trades.id  
+    //   ORDER BY info_dt DESC, trades.id
     // `
 
     const query =
@@ -129,6 +129,7 @@ export class TradesController {
           AND DATE(trades.info_dt) BETWEEN '${from}' AND '${to}'
         ORDER BY trades.info_dt DESC, trades.id;
       `;
+
 
     try {
       const [ROWS]: any[] = await this.conn.query(query);

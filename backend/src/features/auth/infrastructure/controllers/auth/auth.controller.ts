@@ -185,8 +185,6 @@ export class AuthController {
 
     const { wallet_address, private_key, email } = body;
 
-    console.log({ wallet_address, private_key, email });
-
     if (!wallet_address || !private_key || !email) {
       throw new MissingParameters("Error logging in: missing parameters");
     }
@@ -200,24 +198,20 @@ export class AuthController {
       const [ROWS]: any = await this.conn.query(getUserQuery, [wallet_address]);
       dbUser = ROWS[0];
 
-      console.log({dbUser});
-
       if (!dbUser) {
         throw new UserNotFoundError();
       }
 
-      console.log("start passwordMatch");
+
       //two methods to two password types: migrating to decrypt method (in order to balance transaction purposes)
       let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
 
-      console.log("end passwordMatch");
 
       // const decodedPK = await PasswordUtils.decryptData(dbUser.password, process.env.JWT_SECRET!);
       // if (!passwordMatch && decodedPK !== private_key) {
       //   throw new PasswordNotMatchError();
       // }
 
-      console.log({passwordMatch});
       if (!passwordMatch) {
         throw new PasswordNotMatchError();
       }

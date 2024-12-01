@@ -254,7 +254,7 @@ export class CommunitiesController {
               OR c.type = 'prosumer')
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
-              AND origin = ${origin}
+              AND eh.origin = ${origin}
               AND c.active = 1
               AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY HOUR(eh.info_dt)) a
@@ -389,7 +389,7 @@ export class CommunitiesController {
               OR c.type = 'prosumer')
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
-              AND origin = ${origin}
+              AND eh.origin = ${origin}
               AND c.active = 1
               AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY DAY(eh.info_dt)) a
@@ -526,7 +526,7 @@ export class CommunitiesController {
               OR c.type = 'prosumer')
               AND info_dt LIKE ${date}
               AND c.community_id = ${id}
-              AND origin = ${origin}
+              AND eh.origin = ${origin}
               AND c.active = 1
               AND c.id NOT IN (${Prisma.join(excludedCups)})
             GROUP BY MONTH(eh.info_dt)) a

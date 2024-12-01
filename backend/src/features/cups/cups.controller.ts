@@ -65,10 +65,10 @@ export class CupsController {
              IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community       AS total_kwh_out_virtual_price,
              IFNULL(kwh_in_virtual, kwh_in)   kwh_in_virtual,
              IFNULL(kwh_out_virtual, kwh_out) kwh_out_virtual
-      FROM energy_hourly
+      FROM energy_hourly eh
       WHERE DATE(info_dt) = ${date}
         AND cups_id = ${id}
-        AND origin = ${origin}
+        AND eh.origin = ${origin}
       GROUP BY HOUR(info_dt)
       ORDER BY info_dt;
     `;
@@ -102,7 +102,7 @@ export class CupsController {
         LEFT JOIN cups cp ON cp.id = a.cups_id
       WHERE DATE(a.info_dt) = ${date}
         AND cups_id = ${id}
-        AND origin = ${origin}
+        AND a.origin = ${origin}
       GROUP BY HOUR(a.info_dt)
       ORDER BY a.info_dt;
     `;
@@ -160,7 +160,7 @@ export class CupsController {
       WHERE YEAR (a.info_dt) = ${parseInt(year)}
         AND MONTH(a.info_dt) = ${parseInt(month)}
         AND cups_id = ${id}
-        AND origin = ${origin}
+        AND a.origin = ${origin}
       GROUP BY DAY(a.info_dt)
       ORDER BY a.info_dt;
     `;
@@ -218,7 +218,7 @@ export class CupsController {
         LEFT JOIN cups cp ON cp.id = a.cups_id
       WHERE YEAR(a.info_dt) = ${parseInt(year)}
         AND cups_id = ${id}
-        AND origin = ${origin}
+        AND a.origin = ${origin}
       GROUP BY MONTH(a.info_dt)
       ORDER BY a.info_dt;
     `;

@@ -262,7 +262,7 @@ export class CustomersController {
           supplies = await this.datadisService.getSupplies(datadisToken);
 
 
-        } else { //can be datadis authorized one:
+        } else if (communityInfo.length) { //can be datadis authorized one:
 
           console.log('NOTdatadisActive');
           //community login

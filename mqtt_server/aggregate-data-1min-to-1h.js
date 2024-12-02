@@ -92,7 +92,7 @@ async function aggregateData(connection, flag) {
 
   // Obtenir l'hora i els minuts en UTC
   const now = new Date()
-  const hour = now.getUTCHours();  // Hora en UTC (0-23)
+  const hour = now.getUTCHours() + 1;  // Hora en UTC (0-23)
 
   if (hour < 0 || hour > 23) {
     return;
@@ -194,7 +194,7 @@ async function aggregateData(connection, flag) {
   return { flag: false }
 }
 
-let externalflag = true
+let externalflag = false
 
 setInterval(() => {
   try {
@@ -209,7 +209,7 @@ setInterval(() => {
     console.error(error.message);
     
   } finally {
-    connection.end();
+    // connection.end();
   }
 
-}, 60 * 60 * 1000); // 3600000
+}, 60 * 60 * 1000);

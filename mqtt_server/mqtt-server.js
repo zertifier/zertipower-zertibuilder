@@ -17,7 +17,10 @@ function saveDataToMySQL(reference, isoDate, accumulative_consumption, accumulat
     VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
   `;
 
-  const info_dt = isoDate.slice(0, 19).replace('T', ' ');
+  const dateObject = new Date(isoDate);
+  dateObject.setHours(dateObject.getHours() + 1);
+
+  const info_dt = dateObject.toISOString().slice(0, 19).replace('T', ' ');
 
   db.execute(query, [origin, reference, info_dt, accumulative_consumption, accumulative_production, consumption, production], (err, result) => {
     if (err) {

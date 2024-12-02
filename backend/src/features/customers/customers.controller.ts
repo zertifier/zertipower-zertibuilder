@@ -103,7 +103,7 @@ export class CustomersController {
   @Auth(RESOURCE_NAME)
   async update(@Param("id") id: string, @Body() body: SaveCustomersDTO) {
 
-    //todo: get customer, to compare balance, cannot upload balance. 
+    //todo: get customer, to compare balance, cannot upload balance.
 
     const data = await this.prisma.customers.updateMany({
       where: {
@@ -162,7 +162,7 @@ export class CustomersController {
   // @Auth(RESOURCE_NAME)
   // async updateBalance(@Param("id") id: string, @Body() body: SaveCustomersDTO) {
 
-  //   //todo: get and transfer from customer wallet to central wallet 
+  //   //todo: get and transfer from customer wallet to central wallet
   //   //todo: update balance
 
   //   const data = await this.prisma.customers.updateMany({
@@ -203,7 +203,7 @@ export class CustomersController {
 
       cupsInfo = await this.prisma.$queryRaw
         `
-      SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id, cups.datadis_active, customers.dni
+      SELECT cups.origin, cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id, cups.datadis_active, customers.dni
         FROM cups LEFT JOIN customers ON customers.id = cups.customer_id
         WHERE cups.customer_id = ${id}
       `;

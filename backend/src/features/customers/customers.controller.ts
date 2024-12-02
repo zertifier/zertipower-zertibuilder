@@ -283,7 +283,9 @@ export class CustomersController {
       return HttpResponse.success(e.toString()).withData({ cupsInfo });
     }
     console.log('cupsInforesult1');
-    await cupsInfo.map(async (cups: any) => {
+
+    for (const cups of cupsInfo) {
+
       let found = supplies.find((supply) => supply.cups == cups.cups);
       if (found) {
         cups.active = true;

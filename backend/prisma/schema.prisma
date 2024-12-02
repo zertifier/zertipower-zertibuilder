@@ -300,6 +300,21 @@ model EnergyHourly {
   @@map("energy_hourly")
 }
 
+model EnergyRealtime {
+  id                      Int       @id @default(autoincrement())
+  origin                  String?   @db.VarChar(255)
+  reference               String?   @db.VarChar(255)
+  infoDt                  DateTime? @map("info_dt") @db.DateTime(0)
+  accumulativeConsumption Float?    @map("accumulative_consumption")
+  accumulativeProduction  Float?    @map("accumulative_production")
+  consumption             Float?
+  production              Float?
+  createdAt               DateTime? @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt               DateTime? @map("updated_at") @db.DateTime(0)
+
+  @@map("energy_realtime")
+}
+
 model Location {
   id           Int     @id @default(autoincrement())
   municipality String? @map("municipality") @db.VarChar(50)

@@ -313,7 +313,7 @@ export class CustomersController {
       }
 
       console.log({cupsresult: cups});
-    });
+    }
     console.log('cupsInforesult2');
 
     console.log({cupsInforesult: cupsInfo});

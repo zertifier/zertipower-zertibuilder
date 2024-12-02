@@ -61,8 +61,8 @@ aedes.on('publish', (packet, client) => {
     const reference = client.id;
     const isoDate = payloadJson.hour
 
-    let consumption = payloadJson.current_consumption.act_power
-    let production = payloadJson.current_production.act_power
+    let consumption = payloadJson.current_consumption.act_power / 1000
+    let production = payloadJson.current_production.act_power / 1000
 
     const accumulative_consumption = payloadJson.accumulative_consumption.total_act_energy 
     const accumulative_production = payloadJson.accumulative_production.total_act_energy

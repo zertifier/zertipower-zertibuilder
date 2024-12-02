@@ -93,7 +93,7 @@ async function aggregateData(connection, flag) {
   // Obtenir l'hora i els minuts en UTC
   const now = new Date()
   now.setHours(now.getHours() + 1)
-  const hour = now.getUTCHours() + 1;  // Hora en UTC (0-23)
+  const hour = now.getUTCHours();  // Hora en UTC (0-23)
 
   if (hour < 0 || hour > 23) {
     return;
@@ -126,7 +126,7 @@ async function aggregateData(connection, flag) {
 
   const intervalConsumption = (Number(lastRegister.accumulative_consumption) - Number(firstRegister.accumulative_consumption)) / 1000 // From W to Kw
   const intervalProduction = (Number(lastRegister.accumulative_production) - Number(firstRegister.accumulative_production)) / 1000
-  const inserDate = new Date(now.setUTCMinutes(hour -1, 0, 0))
+  const inserDate = new Date(now.setUTCHours(hour -1, 0, 0, 0))
 
   // Insert amb aquestes dades. Si mirem les hores de 20:00 - 20:59 és la hora 21:00:00
   try {
@@ -196,6 +196,7 @@ async function aggregateData(connection, flag) {
 }
 
 let externalflag = false
+const timeout = 60
 
 setInterval(() => {
   try {
@@ -213,4 +214,4 @@ setInterval(() => {
     // connection.end();
   }
 
-}, 60 * 60 * 1000);
+}, timeout * 60 * 1000);

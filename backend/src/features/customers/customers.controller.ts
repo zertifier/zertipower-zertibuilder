@@ -275,6 +275,7 @@ export class CustomersController {
       // }
 
     } catch (e) {
+      console.log('Error datadis');
       console.log(e);
       cupsInfo.map((cups: any) => {
         cups.active = false;

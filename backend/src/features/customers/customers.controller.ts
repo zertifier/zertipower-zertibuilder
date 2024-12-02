@@ -294,7 +294,7 @@ export class CustomersController {
             SELECT *
             FROM energy_realtime
             WHERE info_dt > (NOW() - INTERVAL 2 MINUTE)
-              AND reference = "${cups.cups}"
+              AND reference = '${cups.cups}';
           `;
 
         console.log(isAlive.length, "isAlive.length");

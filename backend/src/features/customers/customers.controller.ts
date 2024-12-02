@@ -260,15 +260,17 @@ export class CustomersController {
       if (found) {
         cups.active = true;
       } else {
-
+        console.log(cups.cups, 'cups.cups');
         let isAlive: any[] = await this.prisma.$queryRaw
         `
       SELECT *
         FROM energy_realtime 
-        WHERE info_dt > (NOW() - INTERVAL 2 MINUTE) AND reference = ${cups.cups}
+        WHERE info_dt > (NOW() - INTERVAL 2 MINUTE) AND reference = "${cups.cups}"
       `;
 
-        if(isAlive.length){
+        console.log(isAlive.length, 'isAlive.length');
+
+        if (isAlive.length) {
           cups.active = true;
         } else {
           cups.active = false;

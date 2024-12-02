@@ -288,24 +288,7 @@ export class CustomersController {
       if (found) {
         cups.active = true;
       } else {
-        console.log(cups.cups, "cups.cups");
 
-        let test: any[] = await this.prisma.$queryRaw
-          `
-            SELECT *
-            FROM energy_realtime
-            LIMIT 1
-          `;
-
-        console.log({test});
-        console.log('aquest funciona');
-
-        console.log( `
-            SELECT *
-            FROM energy_realtime
-            WHERE info_dt > (NOW() - INTERVAL 2 MINUTE)
-              AND reference = ${cups.cups}
-          `, 'SQL PROD');
 
         let isAlive: any[] = await this.prisma.$queryRaw
           `
@@ -315,19 +298,22 @@ export class CustomersController {
               AND reference = ${cups.cups}
           `;
 
-        console.log(isAlive, "isAlive");
-        console.log(isAlive.length, "isAlive.length");
-
+        console.log('cupsbefore', cups);
         if (isAlive.length) {
+
           cups.active = true;
         } else {
           cups.active = false;
         }
+        console.log('cupsafter', cups);
 
 
       }
+
+      console.log({cupsresult: cups});
     });
 
+    console.log({cupsInforesult: cupsInfo});
     return HttpResponse.success("state of the cups obtained").withData({ cupsInfo });
 
   }

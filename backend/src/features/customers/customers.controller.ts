@@ -251,8 +251,10 @@ export class CustomersController {
         cups.datadis_active;
       });
 
-      if (cupsInfo[0].origin === "datadis") {
+      console.log({datadisActive});
+      // if (cupsInfo[0].origin === "datadis") {
         if (datadisActive) {
+          console.log('datadisActive');
           //user login
           loginData.username = cupsInfo[0].datadis_user;
           loginData.password = PasswordUtils.decryptData(cupsInfo[0].datadis_password, process.env.JWT_SECRET!);
@@ -261,6 +263,8 @@ export class CustomersController {
 
 
         } else { //can be datadis authorized one:
+
+          console.log('NOTdatadisActive');
           //community login
           let dni = cupsInfo[0].dni;
           loginData.username = communityInfo[0].datadis_user;
@@ -268,7 +272,7 @@ export class CustomersController {
           datadisToken = await this.datadisService.login(loginData.username, loginData.password);
           supplies = await this.datadisService.getAuthorizedSupplies(datadisToken, dni);
         }
-      }
+      // }
 
     } catch (e) {
       console.log(e);

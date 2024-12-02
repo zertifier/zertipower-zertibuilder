@@ -92,6 +92,7 @@ async function aggregateData(connection, flag) {
 
   // Obtenir l'hora i els minuts en UTC
   const now = new Date()
+  now.setHours(now.getHours() + 1)
   const hour = now.getUTCHours() + 1;  // Hora en UTC (0-23)
 
   if (hour < 0 || hour > 23) {

@@ -1,25 +1,14 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Delete,
-  Put,
-  Body,
-  Param
-} from "@nestjs/common";
-import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
-import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
-import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
-import { Datatable } from "src/shared/infrastructure/services/datatable/Datatable";
+import {Body, Controller, Delete, Get, Param, Post, Put} from "@nestjs/common";
+import {HttpResponse} from "src/shared/infrastructure/http/HttpResponse";
+import {PrismaService} from "src/shared/infrastructure/services/prisma-service/prisma-service";
+import {Datatable} from "src/shared/infrastructure/services/datatable/Datatable";
 import * as moment from "moment";
-import { ApiTags } from "@nestjs/swagger";
-import { Auth } from "src/features/auth/infrastructure/decorators";
-import { DatadisService } from "src/shared/infrastructure/services";
-import { SaveCupsDto } from "./save-cups-dto";
-import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
-import { CupsType } from "@prisma/client";
-import { ErrorCode } from "src/shared/domain/error";
-import mysql from "mysql2/promise";
+import {ApiTags} from "@nestjs/swagger";
+import {Auth} from "src/features/auth/infrastructure/decorators";
+import {DatadisService} from "src/shared/infrastructure/services";
+import {SaveCupsDto} from "./save-cups-dto";
+import {PasswordUtils} from "../users/domain/Password/PasswordUtils";
+import {ErrorCode} from "src/shared/domain/error";
 
 export const RESOURCE_NAME = "cups";
 
@@ -58,13 +47,13 @@ export class CupsController {
   async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     let data: any = await this.prisma.$queryRaw`
       SELECT *,
-             kwh_in * kwh_in_price                                             AS total_kwh_in_price,
-             kwh_out * kwh_out_price                                           AS total_kwh_out_price,
-             production * kwh_in_price                                             AS total_production_price,
-             IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community           AS total_kwh_in_virtual_price,
-             IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community       AS total_kwh_out_virtual_price,
-             IFNULL(kwh_in_virtual, kwh_in)   kwh_in_virtual,
-             IFNULL(kwh_out_virtual, kwh_out) kwh_out_virtual
+             kwh_in * kwh_in_price                                      AS total_kwh_in_price,
+             kwh_out * kwh_out_price                                    AS total_kwh_out_price,
+             production * kwh_in_price                                  AS total_production_price,
+             IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community    AS total_kwh_in_virtual_price,
+             IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community AS total_kwh_out_virtual_price,
+             IFNULL(kwh_in_virtual, kwh_in)                                kwh_in_virtual,
+             IFNULL(kwh_out_virtual, kwh_out)                              kwh_out_virtual
       FROM energy_hourly eh
       WHERE DATE(info_dt) = ${date}
         AND cups_id = ${id}
@@ -96,10 +85,10 @@ export class CupsController {
                  ON eh.cups_id = cu.id
             WHERE (cu.type = 'community' OR cu.type = 'prosumer')
               AND DATE(info_dt) = ${date}
-      GROUP BY HOUR(info_dt)
-      ORDER BY info_dt) b
-      ON a.info_dt = b.info_dt
-        LEFT JOIN cups cp ON cp.id = a.cups_id
+            GROUP BY HOUR(info_dt)
+            ORDER BY info_dt) b
+           ON a.info_dt = b.info_dt
+             LEFT JOIN cups cp ON cp.id = a.cups_id
       WHERE DATE(a.info_dt) = ${date}
         AND cups_id = ${id}
         AND a.origin = ${origin}
@@ -110,7 +99,7 @@ export class CupsController {
     data = this.dataWithEmpty(data, date, 24, "daily");
     const mappedData = data.map(this.energyRegistersMapData);
 
-    let dataToSend = { stats: [] };
+    let dataToSend = {stats: []};
     dataToSend.stats = mappedData;
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
@@ -138,26 +127,28 @@ export class CupsController {
              SUM(production * kwh_in_price)                                         AS total_production_price,
              SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
              SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
-             
+
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
-             kwh_out_price_community                                                AS kwh_out_price_community, DATE(a.info_dt) AS info_dt, SUM(production) production
+             kwh_out_price_community                                                AS kwh_out_price_community,
+             DATE(a.info_dt)                                                        AS info_dt,
+             SUM(production)                                                           production
       FROM energy_hourly a
-        LEFT JOIN
-        (SELECT SUM(kwh_out) as total_surplus, info_dt
-        FROM energy_hourly eh
-        LEFT JOIN
-        cups cu
-        ON eh.cups_id = cu.id
-        WHERE (cu.type = 'community' OR cu.type = 'prosumer')
-        AND YEAR (info_dt) = ${parseInt(year)}
-        AND MONTH(info_dt) = ${parseInt(month)}
-        GROUP BY DAY(info_dt)
-        ORDER BY info_dt) b
-      ON a.info_dt = b.info_dt
-        LEFT JOIN cups cp ON cp.id = a.cups_id
-      WHERE YEAR (a.info_dt) = ${parseInt(year)}
+             LEFT JOIN
+           (SELECT SUM(kwh_out) as total_surplus, info_dt
+            FROM energy_hourly eh
+                   LEFT JOIN
+                 cups cu
+                 ON eh.cups_id = cu.id
+            WHERE (cu.type = 'community' OR cu.type = 'prosumer')
+              AND YEAR(info_dt) = ${parseInt(year)}
+              AND MONTH(info_dt) = ${parseInt(month)}
+            GROUP BY DAY(info_dt)
+            ORDER BY info_dt) b
+           ON a.info_dt = b.info_dt
+             LEFT JOIN cups cp ON cp.id = a.cups_id
+      WHERE YEAR(a.info_dt) = ${parseInt(year)}
         AND MONTH(a.info_dt) = ${parseInt(month)}
         AND cups_id = ${id}
         AND a.origin = ${origin}
@@ -169,7 +160,7 @@ export class CupsController {
     data = this.dataWithEmpty(data, date, daysOfMonth, "monthly");
 
     const mappedData = data.map(this.energyRegistersMapData);
-    let dataToSend = { stats: [] };
+    let dataToSend = {stats: []};
     dataToSend.stats = mappedData;
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
@@ -191,31 +182,31 @@ export class CupsController {
              (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) AS kwh_virtual_total,
              100 - (SUM(COALESCE(kwh_in_virtual, 0)) + SUM(COALESCE(kwh_out_virtual, 0))) * 100.0 /
                    NULLIF(SUM(COALESCE(kwh_in, 0)) + SUM(COALESCE(kwh_out, 0)), 0)  AS shared_percentage,
-            SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
-             SUM(kwh_out * kwh_out_price)                                            AS total_kwh_out_price,
+             SUM(kwh_in * kwh_in_price)                                             AS total_kwh_in_price,
+             SUM(kwh_out * kwh_out_price)                                           AS total_kwh_out_price,
              SUM(production * kwh_in_price)                                         AS total_production_price,
              SUM(IFNULL(kwh_in_virtual, kwh_in) * kwh_in_price_community)           AS total_kwh_in_virtual_price,
              SUM(IFNULL(kwh_out_virtual, kwh_out) * kwh_out_price_community)        AS total_kwh_out_virtual_price,
-             
+
              kwh_in_price                                                           AS kwh_in_price,
              kwh_out_price                                                          AS kwh_out_price,
              kwh_in_price_community                                                 AS kwh_in_price_community,
-             kwh_out_price_community                                                AS kwh_out_price_community, 
-        DATE(a.info_dt) AS info_dt, 
-        SUM(production) production
+             kwh_out_price_community                                                AS kwh_out_price_community,
+             DATE(a.info_dt)                                                        AS info_dt,
+             SUM(production)                                                           production
       FROM energy_hourly a
-        LEFT JOIN
-        (SELECT SUM(kwh_out) as total_surplus, info_dt
-        FROM energy_hourly eh
-        LEFT JOIN
-        cups cu
-        ON eh.cups_id = cu.id
-        WHERE (cu.type = 'community' OR cu.type = 'prosumer')
-        AND YEAR(info_dt) = ${parseInt(year)}
-        GROUP BY MONTH(info_dt)
-        ORDER BY info_dt) b
-      ON a.info_dt = b.info_dt
-        LEFT JOIN cups cp ON cp.id = a.cups_id
+             LEFT JOIN
+           (SELECT SUM(kwh_out) as total_surplus, info_dt
+            FROM energy_hourly eh
+                   LEFT JOIN
+                 cups cu
+                 ON eh.cups_id = cu.id
+            WHERE (cu.type = 'community' OR cu.type = 'prosumer')
+              AND YEAR(info_dt) = ${parseInt(year)}
+            GROUP BY MONTH(info_dt)
+            ORDER BY info_dt) b
+           ON a.info_dt = b.info_dt
+             LEFT JOIN cups cp ON cp.id = a.cups_id
       WHERE YEAR(a.info_dt) = ${parseInt(year)}
         AND cups_id = ${id}
         AND a.origin = ${origin}
@@ -227,7 +218,7 @@ export class CupsController {
     data = this.dataWithEmpty(data, date, 12, "yearly");
 
     const mappedData = data.map(this.energyRegistersMapData);
-    let dataToSend = { stats: [] };
+    let dataToSend = {stats: []};
     dataToSend.stats = mappedData;
     return HttpResponse.success("cups fetched successfully").withData(
       // this.mapData(data)
@@ -240,7 +231,7 @@ export class CupsController {
   async datadisActive(@Param("id") id: string) {
 
     let datadisToken: string;
-    let loginData: { username: string, password: string } = { username: "", password: "" };
+    let loginData: { username: string, password: string } = {username: "", password: ""};
     let supplies: any[] = [];
     let cupsInfo: any;
     let communityInfo: any;
@@ -304,7 +295,7 @@ export class CupsController {
     } catch (e) {
       console.log(e);
       cupsInfo[0].active = false;
-      return HttpResponse.success(e.toString()).withData({ cupsInfo });
+      return HttpResponse.success(e.toString()).withData({cupsInfo});
     }
 
     let found = supplies.find((supply) => supply.cups == cupsInfo[0].cups);
@@ -314,7 +305,7 @@ export class CupsController {
       cupsInfo[0].active = false;
     }
 
-    return HttpResponse.success("state of the cups obtained").withData({ cupsInfo: cupsInfo[0] });
+    return HttpResponse.success("state of the cups obtained").withData({cupsInfo: cupsInfo[0]});
 
   }
 
@@ -327,7 +318,25 @@ export class CupsController {
         AND type != 'community'
     `;
 
-    return HttpResponse.success("the cups is active").withData({ total: parseInt(data[0].total) || 0 });
+    return HttpResponse.success("the cups is active").withData({total: parseInt(data[0].total) || 0});
+  }
+
+  @Get("/:reference/monitoring")
+  async monitoringCups(@Param("reference") cupsReference: string) {
+    const data: any = await this.prisma.$queryRaw`
+      SELECT consumption, production
+      FROM energy_realtime
+      WHERE reference = ${cupsReference}
+        AND info_dt >= DATE_SUB(NOW(), INTERVAL 2 MINUTE)
+      ORDER BY info_dt DESC
+      LIMIT 1;
+    `;
+
+    return HttpResponse.success("the cups is active").withData({
+      production: parseFloat(data[0].production) || 0,
+      consumption: parseFloat(data[0].consumption) || 0,
+      grid: 0
+    });
   }
 
   @Post("/datadis")
@@ -411,7 +420,7 @@ export class CupsController {
   @Auth(RESOURCE_NAME)
   async create(@Body() body: SaveCupsDto) {
     if (body.datadisPassword) body.datadisPassword = PasswordUtils.encryptData(body.datadisPassword, process.env.JWT_SECRET!);
-    const data = await this.prisma.cups.create({ data: body });
+    const data = await this.prisma.cups.create({data: body});
     if (data.datadisPassword) data.datadisPassword = PasswordUtils.decryptData(data.datadisPassword, process.env.JWT_SECRET!);
     return HttpResponse.success("cups saved successfully").withData(data);
   }

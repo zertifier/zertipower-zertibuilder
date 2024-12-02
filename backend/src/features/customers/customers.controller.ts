@@ -6,7 +6,7 @@ import {
   Put,
   Body,
   Param,
-  Query,
+  Query
 } from "@nestjs/common";
 import { HttpResponse } from "src/shared/infrastructure/http/HttpResponse";
 import { PrismaService } from "src/shared/infrastructure/services/prisma-service/prisma-service";
@@ -21,12 +21,14 @@ import { CustomersDbRequestsService } from "./customers-db-requests.service";
 import { ErrorCode } from "src/shared/domain/error";
 import { DatadisService } from "src/shared/infrastructure/services";
 import { PasswordUtils } from "../users/domain/Password/PasswordUtils";
+
 export const RESOURCE_NAME = "customers";
 
 @ApiTags(RESOURCE_NAME)
 @Controller("customers")
 export class CustomersController {
   private conn: mysql.Pool;
+
   constructor(
     private prisma: PrismaService,
     private datatable: Datatable,
@@ -51,9 +53,12 @@ export class CustomersController {
   @Get("/cups/:customerId")
   @Auth(RESOURCE_NAME)
   async getCustomersCups(@Param("customerId") customerId: string) {
-    console.log("cups customers")
+    console.log("cups customers");
     try {
-      let url = `SELECT cups.* , customers.name, customers.wallet_address FROM cups LEFT JOIN customers on cups.customer_id = customers.id WHERE customers.id = ?`;
+      let url = `SELECT cups.*, customers.name, customers.wallet_address
+                 FROM cups
+                        LEFT JOIN customers on cups.customer_id = customers.id
+                 WHERE customers.id = ?`;
       const [ROWS]: any[] = await this.conn.query(url, customerId);
 
       return HttpResponse.success("customers fetched successfully").withData(
@@ -68,7 +73,9 @@ export class CustomersController {
   @Auth(RESOURCE_NAME)
   async getByCups() {
     try {
-      let url = `SELECT cups.* , customers.name, customers.wallet_address FROM cups LEFT JOIN customers on cups.customer_id = customers.id`;
+      let url = `SELECT cups.*, customers.name, customers.wallet_address
+                 FROM cups
+                        LEFT JOIN customers on cups.customer_id = customers.id`;
       const [ROWS]: any[] = await this.conn.query(url);
 
       return HttpResponse.success("customers fetched successfully").withData(
@@ -84,8 +91,8 @@ export class CustomersController {
   async getById(@Param("id") id: string) {
     const data = await this.prisma.customers.findUnique({
       where: {
-        id: parseInt(id),
-      },
+        id: parseInt(id)
+      }
     });
     return HttpResponse.success("customers fetched successfully").withData(
       this.mapData(data)
@@ -107,9 +114,9 @@ export class CustomersController {
 
     const data = await this.prisma.customers.updateMany({
       where: {
-        id: parseInt(id),
+        id: parseInt(id)
       },
-      data: body,
+      data: body
     });
     return HttpResponse.success("customers updated successfully").withData(
       data
@@ -120,13 +127,13 @@ export class CustomersController {
   @Auth(RESOURCE_NAME)
   async getByIdStatsDaily(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     try {
-      const data = await this.customersDbRequestsService.getByIdStatsDaily(id, origin, date)
+      const data = await this.customersDbRequestsService.getByIdStatsDaily(id, origin, date);
       return HttpResponse.success("cups fetched successfully").withData(
         data
       );
     } catch (error) {
-      console.log(error)
-      return HttpResponse.failure('Error obtaining daily data', ErrorCode.INTERNAL_ERROR)
+      console.log(error);
+      return HttpResponse.failure("Error obtaining daily data", ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -134,13 +141,13 @@ export class CustomersController {
   @Auth(RESOURCE_NAME)
   async getByIdStatsMonthly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     try {
-      const data = await this.customersDbRequestsService.getByIdStatsMonthly(id, origin, date)
+      const data = await this.customersDbRequestsService.getByIdStatsMonthly(id, origin, date);
       return HttpResponse.success("cups fetched successfully").withData(
         data
       );
     } catch (error) {
-      console.log(error)
-      return HttpResponse.failure('Error obtaining monthly data', ErrorCode.INTERNAL_ERROR)
+      console.log(error);
+      return HttpResponse.failure("Error obtaining monthly data", ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -148,13 +155,13 @@ export class CustomersController {
   @Auth(RESOURCE_NAME)
   async getByIdStatsYearly(@Param("id") id: string, @Param("origin") origin: string, @Param("date") date: string) {
     try {
-      const data = await this.customersDbRequestsService.getByIdStatsYearly(id, origin, date)
+      const data = await this.customersDbRequestsService.getByIdStatsYearly(id, origin, date);
       return HttpResponse.success("cups fetched successfully").withData(
         data
       );
     } catch (error) {
-      console.log(error)
-      return HttpResponse.failure('Error obtaining yearly data', ErrorCode.INTERNAL_ERROR)
+      console.log(error);
+      return HttpResponse.failure("Error obtaining yearly data", ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -181,8 +188,8 @@ export class CustomersController {
   async remove(@Param("id") id: string) {
     const data = await this.prisma.customers.delete({
       where: {
-        id: parseInt(id),
-      },
+        id: parseInt(id)
+      }
     });
     return HttpResponse.success("customers removed successfully").withData(
       data
@@ -194,81 +201,98 @@ export class CustomersController {
   async datadisActive(@Param("id") id: string) {
 
     let datadisToken: string;
-    let loginData: { username: string, password: string } = { username: '', password: '' };
+    let loginData: { username: string, password: string } = { username: "", password: "" };
     let supplies: any[] = [];
     let cupsInfo: any;
     let communityInfo: any;
 
+    console.log("start");
     try {
 
       cupsInfo = await this.prisma.$queryRaw
         `
-      SELECT cups.origin, cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id, cups.datadis_active, customers.dni
-        FROM cups LEFT JOIN customers ON customers.id = cups.customer_id
-        WHERE cups.customer_id = ${id}
-      `;
+          SELECT cups.origin,
+                 cups.cups,
+                 cups.datadis_user,
+                 cups.datadis_password,
+                 cups.community_id,
+                 cups.datadis_active,
+                 customers.dni
+          FROM cups
+                 LEFT JOIN customers ON customers.id = cups.customer_id
+          WHERE cups.customer_id = ${id}
+        `;
 
       if (!cupsInfo.length) {
-        return HttpResponse.failure(`Cups with this customer id not found`, ErrorCode.BAD_REQUEST)
+        return HttpResponse.failure(`Cups with this customer id not found`, ErrorCode.BAD_REQUEST);
       }
 
     } catch (e) {
-      return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
+      return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR);
     }
 
     try {
       communityInfo = await this.prisma.$queryRaw
         `
-      SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id
-        FROM cups
-        WHERE community_id = ${cupsInfo[0].community_id} and type = 'community'
-      `;
+          SELECT cups.cups, cups.datadis_user, cups.datadis_password, cups.community_id
+          FROM cups
+          WHERE community_id = ${cupsInfo[0].community_id}
+            and type = 'community'
+        `;
 
     } catch (e) {
-      console.log(e)
-      return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR)
+      console.log(e);
+      return HttpResponse.failure(`${e}`, ErrorCode.INTERNAL_ERROR);
     }
 
     try {
 
-      const datadisActive = cupsInfo.find((cups: any) => { cups.datadis_active });
+      const datadisActive = cupsInfo.find((cups: any) => {
+        cups.datadis_active;
+      });
 
-      if (datadisActive) {
-        //user login
-        loginData.username = cupsInfo[0].datadis_user;
-        loginData.password = PasswordUtils.decryptData(cupsInfo[0].datadis_password, process.env.JWT_SECRET!);
-        datadisToken = await this.datadisService.login(loginData.username, loginData.password)
-        supplies = await this.datadisService.getSupplies(datadisToken);
+      if (cupsInfo[0].origin === "datadis") {
+        if (datadisActive) {
+          //user login
+          loginData.username = cupsInfo[0].datadis_user;
+          loginData.password = PasswordUtils.decryptData(cupsInfo[0].datadis_password, process.env.JWT_SECRET!);
+          datadisToken = await this.datadisService.login(loginData.username, loginData.password);
+          supplies = await this.datadisService.getSupplies(datadisToken);
 
-      } else { //can be datadis authorized one:
-        //community login
-        let dni = cupsInfo[0].dni;
-        loginData.username = communityInfo[0].datadis_user;
-        loginData.password = PasswordUtils.decryptData(communityInfo[0].datadis_password, process.env.JWT_SECRET!);
-        datadisToken = await this.datadisService.login(loginData.username, loginData.password)
-        supplies = await this.datadisService.getAuthorizedSupplies(datadisToken, dni);
+
+        } else { //can be datadis authorized one:
+          //community login
+          let dni = cupsInfo[0].dni;
+          loginData.username = communityInfo[0].datadis_user;
+          loginData.password = PasswordUtils.decryptData(communityInfo[0].datadis_password, process.env.JWT_SECRET!);
+          datadisToken = await this.datadisService.login(loginData.username, loginData.password);
+          supplies = await this.datadisService.getAuthorizedSupplies(datadisToken, dni);
+        }
       }
 
     } catch (e) {
-      console.log(e)
-      cupsInfo.map((cups: any) => { cups.active = false; })
-      return HttpResponse.success(e.toString()).withData({ cupsInfo })
+      console.log(e);
+      cupsInfo.map((cups: any) => {
+        cups.active = false;
+      });
+      return HttpResponse.success(e.toString()).withData({ cupsInfo });
     }
 
     cupsInfo.map(async (cups: any) => {
-      let found = supplies.find((supply) => supply.cups == cups.cups)
+      let found = supplies.find((supply) => supply.cups == cups.cups);
       if (found) {
         cups.active = true;
       } else {
-        console.log(cups.cups, 'cups.cups');
+        console.log(cups.cups, "cups.cups");
         let isAlive: any[] = await this.prisma.$queryRaw
-        `
-      SELECT *
-        FROM energy_realtime 
-        WHERE info_dt > (NOW() - INTERVAL 2 MINUTE) AND reference = "${cups.cups}"
-      `;
+          `
+            SELECT *
+            FROM energy_realtime
+            WHERE info_dt > (NOW() - INTERVAL 2 MINUTE)
+              AND reference = "${cups.cups}"
+          `;
 
-        console.log(isAlive.length, 'isAlive.length');
+        console.log(isAlive.length, "isAlive.length");
 
         if (isAlive.length) {
           cups.active = true;
@@ -278,9 +302,9 @@ export class CustomersController {
 
 
       }
-    })
+    });
 
-    return HttpResponse.success("state of the cups obtained").withData({ cupsInfo })
+    return HttpResponse.success("state of the cups obtained").withData({ cupsInfo });
 
   }
 
@@ -289,7 +313,17 @@ export class CustomersController {
   async datatables(@Body() body: any) {
     const data = await this.datatable.getData(
       body,
-      `SELECT customers.id,customers.name,dni,email,balance,communities.name as community_name, shares, status FROM customers LEFT JOIN shares ON shares.customer_id = customers.id LEFT JOIN communities ON communities.id = shares.community_id`
+      `SELECT customers.id,
+              customers.name,
+              dni,
+              email,
+              balance,
+              communities.name as community_name,
+              shares,
+              status
+       FROM customers
+              LEFT JOIN shares ON shares.customer_id = customers.id
+              LEFT JOIN communities ON communities.id = shares.community_id`
     );
     return HttpResponse.success("Datatables fetched successfully").withData(
       data
@@ -303,7 +337,7 @@ export class CustomersController {
     mappedData.dni = data.dni;
     mappedData.email = data.email;
     mappedData.balance = data.balance;
-    mappedData.walletAddress = data.walletAddress ? data.walletAddress.toString() : '';
+    mappedData.walletAddress = data.walletAddress ? data.walletAddress.toString() : "";
     mappedData.createdAt = data.createdAt | data.created_at;
     mappedData.updatedAt = data.updatedAt | data.updated_at;
 

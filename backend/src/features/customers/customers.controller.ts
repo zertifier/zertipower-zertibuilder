@@ -255,12 +255,26 @@ export class CustomersController {
       return HttpResponse.success(e.toString()).withData({ cupsInfo })
     }
 
-    cupsInfo.map((cups: any) => {
+    cupsInfo.map(async (cups: any) => {
       let found = supplies.find((supply) => supply.cups == cups.cups)
       if (found) {
         cups.active = true;
       } else {
-        cups.active = false;
+
+        let isAlive: any[] = await this.prisma.$queryRaw
+        `
+      SELECT *
+        FROM energy_realtime 
+        WHERE info_dt > (NOW() - INTERVAL 2 MINUTE) AND reference = ${cups.cups}
+      `;
+
+        if(isAlive.length){
+          cups.active = true;
+        } else {
+          cups.active = false;
+        }
+
+
       }
     })
 

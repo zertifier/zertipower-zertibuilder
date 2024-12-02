@@ -42,7 +42,7 @@ function getDateIntervalForPreviousHour(now, hour) {
 const getEnergyRealtimeData = (connection, startHour, endHour) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      'SELECT * FROM energy_realtime WHERE info_dt BETWEEN ? AND ? ORDER BY info_dt ASC',
+      "SELECT * FROM energy_realtime WHERE info_dt BETWEEN ? AND ? AND reference = 'ES00000000000000000001' ORDER BY info_dt ASC",
       [startHour, endHour],
       (err, results) => {
         if (err) {
@@ -58,7 +58,7 @@ const getEnergyRealtimeData = (connection, startHour, endHour) => {
 const getLastHourSaved = (connection) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      'SELECT * from datadis_energy_registers WHERE cups_id = ? ORDER BY info_dt DESC LIMIT 1',
+      "SELECT * from datadis_energy_registers WHERE cups_id = ? AND reference = 'ES00000000000000000001' ORDER BY info_dt DESC LIMIT 1",
       [6566],
       (err, results) => {
         if (err) {
@@ -196,7 +196,7 @@ async function aggregateData(connection, flag) {
 }
 
 let externalflag = false
-const timeout = 60
+const timeout = 60 // delay of minutes to start
 
 setInterval(() => {
   try {

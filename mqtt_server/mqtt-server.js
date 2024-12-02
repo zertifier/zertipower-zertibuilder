@@ -32,6 +32,27 @@ function saveDataToMySQL(reference, isoDate, accumulative_consumption, accumulat
   });
 }
 
+function saveDataToMySQL_2(reference, isoDate, accumulative_consumption, accumulative_production, consumption, production, origin='Shelly') {
+  const query = `
+    INSERT INTO energy_realtime (origin, reference, info_dt, accumulative_consumption, accumulative_production, consumption, production, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+  `;
+
+  const dateObject = new Date(isoDate);
+  dateObject.setHours(dateObject.getHours() + 1);
+
+  const info_dt = dateObject.toISOString().slice(0, 19).replace('T', ' ');
+
+  db.execute(query, [origin, 'ES00000000000000000002', info_dt, accumulative_consumption, accumulative_production, consumption, production], (err, result) => {
+    if (err) {
+      console.error(`Error saving data for sensor:`, err.message);
+    } else {
+      console.log(`${reference} -> data saved`);
+      console.log("--------------------------")
+    }
+  });
+}
+
 // MQTT server
 const PORT = 1883; // Default port for mqtt
 const server = net.createServer(aedes.handle);
@@ -87,6 +108,7 @@ aedes.on('publish', (packet, client) => {
     console.log(`Data on ${isoDate}. Production: ${production} and Consumption: ${consumption}`)
 
     saveDataToMySQL(reference, isoDate, accumulative_consumption, accumulative_production, realConsumption, realProduction, origin='Shelly');
+    saveDataToMySQL_2(reference, isoDate, accumulative_consumption, accumulative_production, realConsumption, realProduction, origin='Shelly');
   }
 });
 

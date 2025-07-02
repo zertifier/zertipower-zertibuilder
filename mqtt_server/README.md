@@ -1,3 +1,6 @@
+Este proyecto solo es para probar el shelly como posible smart-metter, no tiene implicación en el proyecto de zertipower. 
+Simplemente agrega datos a datadis-energy-registers de test.
+
 ## Pasos para ejecutar el servidor
 
 1. **Clonar el repositorio**  

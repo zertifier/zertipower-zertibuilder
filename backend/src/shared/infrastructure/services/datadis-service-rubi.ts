@@ -144,7 +144,7 @@ export class DatadisServiceRubi {
       const filename = path.join(rawDataDir, `datadis-energy-${timestamp}.json`);
       fs.writeFileSync(filename, JSON.stringify(["ade"], null, 2), 'utf-8');
 
-      await this.energyHourlyService.updateEnergyHourly();
+      // await this.energyHourlyService.updateEnergyHourly();
 
     } catch (error) {
       console.error('❌ Error en el proceso:', error.response?.data || error.message);

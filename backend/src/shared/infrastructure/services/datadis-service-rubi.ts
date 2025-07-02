@@ -142,7 +142,7 @@ export class DatadisServiceRubi {
       }
 
       const filename = path.join(rawDataDir, `datadis-energy-${timestamp}.json`);
-      fs.writeFileSync(filename, JSON.stringify(["ade"], null, 2), 'utf-8');
+      fs.writeFileSync(filename, JSON.stringify(totalData, null, 2), 'utf-8');
 
       // await this.energyHourlyService.updateEnergyHourly();
 

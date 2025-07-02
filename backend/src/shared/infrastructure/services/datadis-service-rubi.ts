@@ -84,7 +84,7 @@ export class DatadisServiceRubi {
     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM');
 
-    this.run(startDate, endDate)
+    // this.run(startDate, endDate)
 
     setInterval(() => {
       startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');

@@ -37,7 +37,10 @@ FROM node:20-alpine as build
 ## Preparing pnpm
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN npm i -g pnpm
+RUN corepack enable
+RUN npm i -g pnpm --force
+RUN apk update && apk add openssl
+RUN openssl version
 
 WORKDIR /src
 COPY . .

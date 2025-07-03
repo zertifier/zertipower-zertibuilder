@@ -53,7 +53,6 @@ interface dbCups {
   surplus_distribution: number
 }
 
-
 /**
  * Service used to interact with the datadis api
  */
@@ -84,17 +83,20 @@ export class DatadisServiceRubi {
     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
     let endDate = moment().format('YYYY/MM');
 
-    // this.run(startDate, endDate)
+    this.run(startDate, endDate)
 
-    setInterval(() => {
-      startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
-      endDate = moment().format('YYYY/MM');
-      this.run(startDate, endDate)
-    }, 86400000) //24 h => ms
+    // setInterval(() => {
+    //   startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
+    //   endDate = moment().format('YYYY/MM');
+    //   this.run(startDate, endDate)
+    // }, 86400000) //24 h => ms
 
   }
 
   async run(startDate: any, endDate: any) {
+    // ⏱️ Inicio del tiempo total
+    const startTimeTotal = Date.now();
+    console.log(`🚀 Iniciando proceso completo a las ${moment().format('YYYY-MM-DD HH:mm:ss')}`);
 
     this.dbCups = await this.cupsDbService.getCups()
 
@@ -109,9 +111,16 @@ export class DatadisServiceRubi {
       const supplies = supplies11.concat(supplies22);
 
       const totalData = [];
+
+      const totalSupplies = supplies.length;
+      let counter = 0;
+      
+      // ⏱️ Inicio del tiempo del loop
+      const startTimeLoop = Date.now();
+      console.log(`🔄 Iniciando loop de ${totalSupplies} supplies a las ${moment().format('YYYY-MM-DD HH:mm:ss')}`);
       
       for (const supply of supplies) {
-
+        counter++;
         let cupsData: any = this.dbCups.find((registeredCups: any) => registeredCups.cups === supply.cups)
 
         try {
@@ -121,8 +130,10 @@ export class DatadisServiceRubi {
           const measurementType = 0;
           const pointType = supply.pointType;
 
+          console.log(`Getting datadis energy: ${counter}/${totalSupplies}`);
           const datadisCupsEnergyData = await this.getData(token, authorizedNif, cups, distributorCode, startDate, endDate, measurementType, pointType);
 
+          console.log(`Inserting datadis energy: ${counter}/${totalSupplies}`);
           let insertedEnergyDataNumber: number = await this.postCupsEnergyData(cupsData, datadisCupsEnergyData).catch(e => {
             console.log("error inserting data", e);
             return 0;
@@ -134,6 +145,12 @@ export class DatadisServiceRubi {
         }
       }
 
+      // ⏱️ Fin del tiempo del loop
+      const endTimeLoop = Date.now();
+      const loopDuration = endTimeLoop - startTimeLoop;
+      console.log(`✅ Loop completado en ${this.formatDuration(loopDuration)} (${loopDuration}ms)`);
+
+      console.log("Saving raw data");
       const timestamp = moment().format('YYYY-MM-DD_HH-mm-ss');
       const rawDataDir = path.join(process.cwd(), 'datadis-registers-raw-data');
 
@@ -144,10 +161,53 @@ export class DatadisServiceRubi {
       const filename = path.join(rawDataDir, `datadis-energy-${timestamp}.json`);
       fs.writeFileSync(filename, JSON.stringify(totalData, null, 2), 'utf-8');
 
-      // await this.energyHourlyService.updateEnergyHourly();
+      // ⏱️ Inicio del tiempo de updateEnergyHourly
+      const startTimeUpdate = Date.now();
+      console.log(`🔄 Iniciando updateEnergyHourly a las ${moment().format('YYYY-MM-DD HH:mm:ss')}`);
+      
+      await this.energyHourlyService.updateEnergyHourly();
+      
+      // ⏱️ Fin del tiempo de updateEnergyHourly
+      const endTimeUpdate = Date.now();
+      const updateDuration = endTimeUpdate - startTimeUpdate;
+      console.log(`✅ UpdateEnergyHourly completado en ${this.formatDuration(updateDuration)} (${updateDuration}ms)`);
+
+      // ⏱️ Fin del tiempo total
+      const endTimeTotal = Date.now();
+      const totalDuration = endTimeTotal - startTimeTotal;
+      
+      console.log(`\n📊 RESUMEN DE TIEMPOS:`);
+      console.log(`   🕐 Tiempo total: ${this.formatDuration(totalDuration)} (${totalDuration}ms)`);
+      console.log(`   🔄 Tiempo API calls + insert datadis_energy_registers (loop): ${this.formatDuration(loopDuration)} (${loopDuration}ms)`);
+      console.log(`   ⚡ Tiempo updateEnergyHourly: ${this.formatDuration(updateDuration)} (${updateDuration}ms)`);
+      console.log(`   📈 Porcentaje loop: ${((loopDuration / totalDuration) * 100).toFixed(1)}%`);
+      console.log(`   📈 Porcentaje update: ${((updateDuration / totalDuration) * 100).toFixed(1)}%`);
 
     } catch (error) {
-      console.error('❌ Error en el proceso:', error.response?.data || error.message);
+      const endTimeTotal = Date.now();
+      const totalDuration = endTimeTotal - startTimeTotal;
+      console.error(`❌ Error en el proceso después de ${this.formatDuration(totalDuration)}:`, error.response?.data || error.message);
+    }
+  }
+
+  /**
+   * Convierte milisegundos a formato legible (hh:mm:ss)
+   */
+  private formatDuration(ms: number): string {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    const h = hours.toString().padStart(2, '0');
+    const m = (minutes % 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+
+    if (hours > 0) {
+      return `${h}:${m}:${s}`;
+    } else if (minutes > 0) {
+      return `${m}:${s}`;
+    } else {
+      return `${s}s`;
     }
   }
 

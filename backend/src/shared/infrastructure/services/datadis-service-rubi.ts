@@ -85,11 +85,11 @@ export class DatadisServiceRubi {
 
     this.run(startDate, endDate)
 
-    // setInterval(() => {
-    //   startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
-    //   endDate = moment().format('YYYY/MM');
-    //   this.run(startDate, endDate)
-    // }, 86400000) //24 h => ms
+    setInterval(() => {
+      startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
+      endDate = moment().format('YYYY/MM');
+      this.run(startDate, endDate)
+    }, 86400000) //24 h => ms
 
   }
 
@@ -114,11 +114,11 @@ export class DatadisServiceRubi {
 
       const totalSupplies = supplies.length;
       let counter = 0;
-      
+
       // ⏱️ Inicio del tiempo del loop
       const startTimeLoop = Date.now();
       console.log(`🔄 Iniciando loop de ${totalSupplies} supplies a las ${moment().format('YYYY-MM-DD HH:mm:ss')}`);
-      
+
       for (const supply of supplies) {
         counter++;
         let cupsData: any = this.dbCups.find((registeredCups: any) => registeredCups.cups === supply.cups)
@@ -164,9 +164,9 @@ export class DatadisServiceRubi {
       // ⏱️ Inicio del tiempo de updateEnergyHourly
       const startTimeUpdate = Date.now();
       console.log(`🔄 Iniciando updateEnergyHourly a las ${moment().format('YYYY-MM-DD HH:mm:ss')}`);
-      
+
       await this.energyHourlyService.updateEnergyHourly();
-      
+
       // ⏱️ Fin del tiempo de updateEnergyHourly
       const endTimeUpdate = Date.now();
       const updateDuration = endTimeUpdate - startTimeUpdate;
@@ -175,7 +175,7 @@ export class DatadisServiceRubi {
       // ⏱️ Fin del tiempo total
       const endTimeTotal = Date.now();
       const totalDuration = endTimeTotal - startTimeTotal;
-      
+
       console.log(`\n📊 RESUMEN DE TIEMPOS:`);
       console.log(`   🕐 Tiempo total: ${this.formatDuration(totalDuration)} (${totalDuration}ms)`);
       console.log(`   🔄 Tiempo API calls + insert datadis_energy_registers (loop): ${this.formatDuration(loopDuration)} (${loopDuration}ms)`);
@@ -241,7 +241,7 @@ export class DatadisServiceRubi {
           authorizedNif,
         }
       });
-      
+
       return res.data;
     } catch (error) {
       console.error('❌ Error al obtener data:', error.response?.data || error.message);
@@ -260,7 +260,7 @@ export class DatadisServiceRubi {
           distributorCode
         }
       });
-      
+
       return res.data;
 
     } catch (error) {

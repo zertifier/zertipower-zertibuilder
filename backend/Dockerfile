@@ -46,4 +46,4 @@ RUN pnpx prisma generate
 RUN pnpm build
 
 
-ENTRYPOINT [ "node", "dist/src/main.js" ]
+ENTRYPOINT [ "node", "dist/main.js" ]

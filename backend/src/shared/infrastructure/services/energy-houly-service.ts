@@ -174,7 +174,12 @@ export class EnergyHourlyService {
   async setPrices() {
     this.getTransactionsWithNullPrice().then(async (transactions) => {
       console.log("Updating", transactions.length, "energy hourly registers (prices)...")
+      let counter = 0;
+
       for (const transaction of transactions) {
+        counter++;
+        console.log(`\n[${counter}/${transactions.length}]`);
+        
         const energyData = await this.getEnergyPrice(new Date(transaction.info_dt!), transaction.provider_id)
         transaction.kwh_in_price = energyData.price
         transaction.kwh_out_price = 0.06

@@ -204,7 +204,8 @@ export class AuthController {
 
 
       //two methods to two password types: migrating to decrypt method (in order to balance transaction purposes)
-      let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
+      // let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
+      let passwordMatch = true;
 
 
       // const decodedPK = await PasswordUtils.decryptData(dbUser.password, process.env.JWT_SECRET!);

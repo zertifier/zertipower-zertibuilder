@@ -131,6 +131,8 @@ export class EnergyHourlyService {
   }
 
   async insertNewRegistersToEnergyHourly(datadisNewRegisters: any[], communities: any[]) {
+    console.log(`---> Insertando nuevos registros. Total registros nuevos: ${datadisNewRegisters.length}. Total comunidades: ${communities.length}`);
+
     const batchSize = 100;  // Reducir el tamaño del lote a 100 registros por batch
 
     for (const community of communities) {
@@ -152,6 +154,8 @@ export class EnergyHourlyService {
       for (let start = 0; start < filteredCups.length; start += batchSize) {
       // for (let start = 0; start < 200; start += batchSize) {
         const batch = filteredCups.slice(start, start + batchSize);
+
+        console.log(`---> Comunidad ${community.id}: actualizando batch de registros, desde índice ${start} hasta ${start + batch.length - 1}`);
 
         const valuesPlaceholders = batch.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(',');
         const query = `
@@ -191,7 +195,12 @@ export class EnergyHourlyService {
   async setPrices() {
     this.getTransactionsWithNullPrice().then(async (transactions) => {
       console.log("Updating", transactions.length, "energy hourly registers (prices)...")
+      let counter = 0;
+
       for (const transaction of transactions) {
+        counter++;
+        console.log(`\n[${counter}/${transactions.length}]`);
+        
         const energyData = await this.getEnergyPrice(new Date(transaction.info_dt!), transaction.provider_id)
         transaction.kwh_in_price = energyData.price
         transaction.kwh_out_price = 0.06
@@ -406,6 +415,7 @@ export class EnergyHourlyService {
     for (const community of communities) {
       // Get datadis registers for the community
       let datadisRegistersByCommunity = registersToUpdate.filter(obj => obj.community_id === community.id);
+      console.log(`---> Comunidad ${community.id}: registros a actualizar: ${datadisRegistersByCommunity.length}`);
 
       // Order registers by info_dt if there are any new registers
       if (registersToUpdate.length > 0) {

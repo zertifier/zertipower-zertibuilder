@@ -26,6 +26,7 @@ import { CustomersDbRequestsService } from "src/features/customers/customers-db-
 import { UsersDbRequestsService } from "src/features/users/infrastructure/user-controller/user-db-requests.service";
 import { StripeService } from './stripe/stripe.service';
 import {MintSocket} from "./stripe/MintSocket";
+import { DatadisServiceRubi } from "./datadis-service-rubi";
 
 @Global()
 @Module({
@@ -41,6 +42,7 @@ import {MintSocket} from "./stripe/MintSocket";
     HandlebarsViewsService,
     PostgresService,
     DatadisService,
+    DatadisServiceRubi,
     MinterService,
     { provide: Datatable, useClass: MysqlDatatable },
     GovernanceService,
@@ -68,6 +70,7 @@ import {MintSocket} from "./stripe/MintSocket";
     HandlebarsViewsService,
     Datatable,
     DatadisService,
+    DatadisServiceRubi,
     MinterService,
     GovernanceService,
     BlockchainService,

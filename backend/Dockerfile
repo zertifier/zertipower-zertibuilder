@@ -17,6 +17,7 @@ COPY prisma ./prisma/
 # Install all dependencies (including dev dependencies for Prisma generation)
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
+
 # Generate Prisma client
 RUN pnpx prisma generate
 

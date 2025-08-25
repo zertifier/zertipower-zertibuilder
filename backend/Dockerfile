@@ -27,6 +27,10 @@ RUN pnpm build
 ### Final image just node, node_modules and dist
 FROM node:20-alpine3.18
 
+# Set Prisma environment variables
+ENV PRISMA_QUERY_ENGINE_LIBRARY=/app/node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node
+ENV PRISMA_QUERY_ENGINE_BINARY=/app/node_modules/.prisma/client/query-engine-debian-openssl-3.0.x
+
 COPY ./backups ./backups
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/src/shared/infrastructure/views ./src/shared/infrastructure/views

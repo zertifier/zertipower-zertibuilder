@@ -11,11 +11,11 @@ FROM base AS build
 WORKDIR /app
 
 # Copy package files first
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 COPY prisma ./prisma/
 
 # Install all dependencies (including dev dependencies for Prisma generation)
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --no-frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 
 # Generate Prisma client
@@ -31,9 +31,7 @@ RUN pnpm prune --prod
 ### Final image just node, node_modules and dist
 FROM node:20-alpine3.18
 
-# Ensure Prisma uses the correct engine
-ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
-ENV PRISMA_CLIENT_ENGINE_TYPE=binary
+# Remove any Prisma engine type overrides to use defaults
 
 COPY ./backups ./backups
 COPY --from=build /app/node_modules ./node_modules

@@ -20,7 +20,7 @@ export class MysqlService {
       user: user,
       password: pwd,
       database: database,
-      connectionLimit: 30,
+      connectionLimit: 10,
   });
       
   }

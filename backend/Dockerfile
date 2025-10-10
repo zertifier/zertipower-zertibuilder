@@ -32,21 +32,24 @@
 #COPY --from=build /app/src/shared/infrastructure/views ./src/shared/infrastructure/views
 #COPY --from=build /app/dist ./dist
 
-FROM node:20-alpine as build
+FROM node:20-slim as build
 
 ## Preparing pnpm
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-RUN npm i -g pnpm --force
-RUN apk update && apk add openssl
-RUN openssl version
+#ENV PNPM_HOME="/pnpm"
+#ENV PATH="$PNPM_HOME:$PATH"
+#RUN corepack enable
+#RUN npm i -g pnpm --force
+#RUN apk update && apk add openssl
+#RUN openssl version
 
 WORKDIR /src
 COPY . .
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --no-frozen-lockfile
-RUN pnpx prisma generate
-RUN pnpm build
+
+RUN #apk add --no-cache openssl1.1-compat
+RUN #--mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --no-frozen-lockfile
+RUN npm i
+RUN npx prisma generate
+RUN npm run build
 
 
 ENTRYPOINT [ "node", "dist/main.js" ]

@@ -6,7 +6,7 @@ const mysql = require('mysql2/promise');
         // password: "Meg@tr@IPFS_7a7s7d7f7g8h8j8k8l",
         // database: "",
         uri: process.env.DATABASE_URL,
-        connectionLimit:25
+        connectionLimit:10
     });
 
 module.exports = {

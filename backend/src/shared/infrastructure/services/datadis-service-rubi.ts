@@ -77,7 +77,7 @@ export class DatadisServiceRubi {
     private cupsDbService: CupsDbRequestsService,
   ) {
 
-    /* this.conn = this.mysql.pool;
+    this.conn = this.mysql.pool;
 
     let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
@@ -89,7 +89,7 @@ export class DatadisServiceRubi {
       startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
       endDate = moment().format('YYYY/MM');
       this.run(startDate, endDate)
-    }, 86400000) */ //24 h => ms
+    }, 86400000) //24 h => ms
 
   }
 

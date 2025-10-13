@@ -78,13 +78,13 @@ export class DatadisService {
     private cupsDbService: CupsDbRequestsService,
     private communitiesDbService: CommunitiesDbRequestsService) {
 
-    /*  this.conn = this.mysql.pool;
- 
-     let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
-     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
-     let endDate = moment().format('YYYY/MM');
- 
-     this.run(startDate, endDate) */
+    this.conn = this.mysql.pool;
+
+    let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
+    let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
+    let endDate = moment().format('YYYY/MM');
+
+    this.run(startDate, endDate)
 
     // setInterval(() => {
     //   startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');

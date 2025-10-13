@@ -68,9 +68,9 @@ export class ShareService {
     private notificationService: NotificationsService,
     private prisma: PrismaService
   ) {
-    /*this.conn = this.mysql.pool;
+    this.conn = this.mysql.pool;
 
-     try {
+    try {
       this.redistribute()
     } catch (error) {
       console.log("shares redistribution error", error)
@@ -83,7 +83,7 @@ export class ShareService {
       } catch (error) {
         console.log("shares redistribution error", error)
       }
-    }, this.environment.getEnv().TRADE_UPDATE_DAYS * 24 * 60 * 60) */
+    }, this.environment.getEnv().TRADE_UPDATE_DAYS * 24 * 60 * 60)
   }
 
   async redistribute() {

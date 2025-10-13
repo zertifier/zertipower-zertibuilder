@@ -1,12 +1,11 @@
-import {Injectable} from '@nestjs/common';
-import mysql from "mysql2/promise";
-import {MysqlService} from "../mysql-service";
+import { Injectable } from '@nestjs/common';
+import { TradeTypes } from "@prisma/client";
 import * as moment from "moment";
-import {EnvironmentService} from "../environment-service";
-import {NotificationsService, notificationCodes} from '../notifications-service';
-import {info} from "winston";
-import {PrismaService} from "../prisma-service";
-import {TradeTypes} from "@prisma/client";
+import mysql from "mysql2/promise";
+import { EnvironmentService } from "../environment-service";
+import { MysqlService } from "../mysql-service";
+import { NotificationsService, notificationCodes } from '../notifications-service';
+import { PrismaService } from "../prisma-service";
 
 
 export interface RedistributeObject {
@@ -53,9 +52,9 @@ export class ShareService {
     surplusCups: 20,
     surplusEhId: 0,
     redistributePartners: [
-      {consumption: 30, resultConsumption: 0, cupsId: 1, infoDt: new Date, ehId: 1, userId: 1},
-      {consumption: 40, resultConsumption: 0, cupsId: 2, infoDt: new Date, ehId: 2, userId: 1},
-      {consumption: 10, resultConsumption: 0, cupsId: 3, infoDt: new Date, ehId: 3, userId: 1},
+      { consumption: 30, resultConsumption: 0, cupsId: 1, infoDt: new Date, ehId: 1, userId: 1 },
+      { consumption: 40, resultConsumption: 0, cupsId: 2, infoDt: new Date, ehId: 2, userId: 1 },
+      { consumption: 10, resultConsumption: 0, cupsId: 3, infoDt: new Date, ehId: 3, userId: 1 },
     ]
   };
   private conn: mysql.Pool;
@@ -69,9 +68,9 @@ export class ShareService {
     private notificationService: NotificationsService,
     private prisma: PrismaService
   ) {
-    this.conn = this.mysql.pool;
+    /*this.conn = this.mysql.pool;
 
-    try {
+     try {
       this.redistribute()
     } catch (error) {
       console.log("shares redistribution error", error)
@@ -84,7 +83,7 @@ export class ShareService {
       } catch (error) {
         console.log("shares redistribution error", error)
       }
-    }, this.environment.getEnv().TRADE_UPDATE_DAYS * 24 * 60 * 60)
+    }, this.environment.getEnv().TRADE_UPDATE_DAYS * 24 * 60 * 60) */
   }
 
   async redistribute() {
@@ -254,7 +253,7 @@ export class ShareService {
     const consumers = partners
       .filter(p => p.consumption > epsilon && p.cupsId != redistributeObject.surplusCups)
       .map(p => {
-        return {partner: p, desiredPower: p.consumption};
+        return { partner: p, desiredPower: p.consumption };
       });
     redistributeObject.redistributePartners = consumers.map(c => c.partner)
 
@@ -270,7 +269,7 @@ export class ShareService {
        console.log('total power to distribute: ', totalDesiredConsumption);
        console.log('consumers: ', consumers);*/
 
-// if totalPower > sum then satisfy all
+    // if totalPower > sum then satisfy all
     if (totalAvailablePower > totalDesiredConsumption) {
       console.log('Enough power for all: choosing straightforward strategy');
       redistributeObject.resultTotalSurplus = totalAvailablePower - totalDesiredConsumption;
@@ -343,13 +342,13 @@ export class ShareService {
   getRegistersByDateAndCommunityAndCustomer(surplusRegisterDate: Date, communityId: number, customerId: number, newRegisters: RegistersFromDb[]) {
     const date = moment(surplusRegisterDate).format('YYYY-MM-DD HH')
     const filteredRegisters = newRegisters.filter((register) => {
-        if (
-          moment(register.info_dt).format('YYYY-MM-DD HH') == date && communityId == register.community_id
-          && customerId == register.customer_id) {
+      if (
+        moment(register.info_dt).format('YYYY-MM-DD HH') == date && communityId == register.community_id
+        && customerId == register.customer_id) {
 
-          return register
-        }
+        return register
       }
+    }
     )
 
     return filteredRegisters.map(this.formatPartnerObjects)

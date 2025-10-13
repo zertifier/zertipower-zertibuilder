@@ -1,16 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import axios from 'axios';
-import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
-import mysql from "mysql2/promise";
 import * as moment from 'moment';
-import { PasswordUtils } from "src/features/users/domain/Password/PasswordUtils";
-import { LocationUtils } from "src/shared/domain/utils/locationUtils";
-import { EnvironmentService } from "./environment-service";
-import { EnergyHourlyService } from "./energy-houly-service";
-import { LogsService } from "./logs-service";
+import mysql from "mysql2/promise";
 import { CommunitiesDbRequestsService } from "src/features/communities/communities-db-requests.service";
 import { CupsDbRequestsService } from "src/features/cups/cups-db-requests.service";
 import { CustomersDbRequestsService } from "src/features/customers/customers-db-requests.service";
+import { PasswordUtils } from "src/features/users/domain/Password/PasswordUtils";
+import { LocationUtils } from "src/shared/domain/utils/locationUtils";
+import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
+import { EnergyHourlyService } from "./energy-houly-service";
+import { EnvironmentService } from "./environment-service";
+import { LogsService } from "./logs-service";
 
 interface supply {
   address: string
@@ -78,13 +78,13 @@ export class DatadisService {
     private cupsDbService: CupsDbRequestsService,
     private communitiesDbService: CommunitiesDbRequestsService) {
 
-    this.conn = this.mysql.pool;
-
-    let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
-    let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
-    let endDate = moment().format('YYYY/MM');
-
-    this.run(startDate, endDate)
+    /*  this.conn = this.mysql.pool;
+ 
+     let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
+     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
+     let endDate = moment().format('YYYY/MM');
+ 
+     this.run(startDate, endDate) */
 
     // setInterval(() => {
     //   startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');

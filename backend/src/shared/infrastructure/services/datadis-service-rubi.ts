@@ -1,18 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import axios from 'axios';
-import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
-import mysql from "mysql2/promise";
-import * as moment from 'moment';
 import * as fs from 'fs';
+import * as moment from 'moment';
+import mysql from "mysql2/promise";
 import * as path from 'path';
-import { PasswordUtils } from "src/features/users/domain/Password/PasswordUtils";
-import { LocationUtils } from "src/shared/domain/utils/locationUtils";
-import { EnvironmentService } from "./environment-service";
-import { EnergyHourlyService } from "./energy-houly-service";
-import { LogsService } from "./logs-service";
-import { CommunitiesDbRequestsService } from "src/features/communities/communities-db-requests.service";
 import { CupsDbRequestsService } from "src/features/cups/cups-db-requests.service";
-import { CustomersDbRequestsService } from "src/features/customers/customers-db-requests.service";
+import { MysqlService } from "src/shared/infrastructure/services/mysql-service/mysql.service";
+import { EnergyHourlyService } from "./energy-houly-service";
+import { EnvironmentService } from "./environment-service";
 
 interface supply {
   address: string
@@ -77,7 +72,7 @@ export class DatadisServiceRubi {
     private cupsDbService: CupsDbRequestsService,
   ) {
 
-    /* this.conn = this.mysql.pool;
+    this.conn = this.mysql.pool;
 
     let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
@@ -89,7 +84,7 @@ export class DatadisServiceRubi {
       startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');
       endDate = moment().format('YYYY/MM');
       this.run(startDate, endDate)
-    }, 86400000) */ //24 h => ms
+    }, 86400000) //24 h => ms
 
   }
 

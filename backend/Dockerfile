@@ -38,14 +38,14 @@ FROM node:20-alpine as build
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-RUN npm i -g pnpm --force
+RUN npm i -g pnpm@9 --force
 RUN apk update && apk add openssl
 RUN openssl version
 
 WORKDIR /src
 COPY . .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --no-frozen-lockfile
-RUN pnpx prisma generate
+RUN pnpm exec prisma generate
 RUN pnpm build
 
 

@@ -93,7 +93,7 @@ import {
       body,
       `SELECT energy_hourly.id,
               cups.cups,
-              origin,
+              energy_hourly.origin,
               info_dt,
               kwh_in,
               kwh_out,

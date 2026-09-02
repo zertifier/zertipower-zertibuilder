@@ -203,15 +203,32 @@ export class AuthController {
       }
 
 
-      //two methods to two password types: migrating to decrypt method (in order to balance transaction purposes)
-      // let passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
-      let passwordMatch = true;
+      // Two password types are supported while the migration to the reversible
+      // (decryptable) scheme is in progress, needed for transaction balancing:
+      //   1. bcrypt hash  -> written by web-wallet-register (PasswordUtils.encrypt)
+      //   2. AES payload  -> written by the migration (PasswordUtils.encryptData)
+      // Both checks fail closed: any malformed or missing stored value leaves
+      // passwordMatch as false and the login is rejected.
+      let passwordMatch = false;
 
+      try {
+        passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
+      } catch (e) {
+        // Stored value is not a valid bcrypt hash; try the AES format below.
+        passwordMatch = false;
+      }
 
-      // const decodedPK = await PasswordUtils.decryptData(dbUser.password, process.env.JWT_SECRET!);
-      // if (!passwordMatch && decodedPK !== private_key) {
-      //   throw new PasswordNotMatchError();
-      // }
+      if (!passwordMatch) {
+        try {
+          const decodedPK = PasswordUtils.decryptData(
+            dbUser.password,
+            process.env.JWT_SECRET!
+          );
+          passwordMatch = !!decodedPK && decodedPK === private_key;
+        } catch (e) {
+          passwordMatch = false;
+        }
+      }
 
       if (!passwordMatch) {
         throw new PasswordNotMatchError();

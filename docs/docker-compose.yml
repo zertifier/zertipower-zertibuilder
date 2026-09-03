@@ -67,8 +67,9 @@ services:
 
 networks:
   proxy:
-    # La red la crea nginx-proxy, no este stack: por eso es `external`.
-    # Comprobar el nombre real en el servidor con:  docker network ls
-    # Suele llamarse nginx-proxy, webproxy o proxy.
+    # La red la crea el stack del proxy, no este: por eso es `external`.
+    # En este servidor es `docker_default`, la red del stack `docker`,
+    # que es donde viven nginx-proxy y acme-companion.
+    # Comprobarlo con:  docker network ls
     external: true
     name: ${PROXY_NETWORK:-docker_default}

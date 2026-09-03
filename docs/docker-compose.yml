@@ -1,17 +1,21 @@
 # ===================================================================
 # Documentación técnica Zertipower / Ris3CAT
 # ===================================================================
-# Pensado para desplegarse tal cual o como stack de Portainer.
+# Pensado para un servidor con nginx-proxy + acme-companion, que es lo
+# que detectan las variables VIRTUAL_HOST / LETSENCRYPT_HOST.
 #
-# Uso directo:
-#   docker compose up -d --build
+# Cómo funciona: nginx-proxy vigila el socket de Docker y, al ver un
+# contenedor con VIRTUAL_HOST, genera solo el vhost y recarga Nginx.
+# acme-companion hace lo propio con el certificado TLS. No hay que
+# tocar ningún archivo de configuración en el servidor.
 #
-# En Portainer (Stacks -> Add stack -> Repository):
-#   apuntar al repositorio y poner `docs/docker-compose.yml` como
-#   "Compose path". Portainer construye la imagen desde el Dockerfile.
+# Por eso el contenedor NO publica puertos: nginx-proxy llega a él por
+# la red interna de Docker. Publicar un puerto sería exponerlo por
+# fuera del proxy sin necesidad.
 #
-# El puerto de publicación se puede cambiar sin tocar el archivo:
-#   DOCS_PORT=8081 docker compose up -d
+# Uso en Portainer (Stacks -> Add stack -> Repository):
+#   Compose path: docs/docker-compose.yml
+#   Variables:    ver .env.example
 # ===================================================================
 
 services:
@@ -20,71 +24,51 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Se fijan al compilar. Valores en el archivo .env.
+        # Se fijan al COMPILAR: Docusaurus incrusta la URL en el HTML.
         DOCS_URL: ${DOCS_URL:-https://ris3cat-docs.zdevutils.com}
         DOCS_BASE_URL: ${DOCS_BASE_URL:-/}
     image: zertipower/docs-ris3cat:latest
-    container_name: docs-ris3cat
     restart: unless-stopped
-    # =============================================================
-    # OPCIÓN A — Nginx instalado EN EL ANFITRIÓN  (configuración actual)
-    # =============================================================
-    # El dominio NO se pone aquí: va en el vhost de Nginx del servidor.
-    # Este bloque sólo publica un puerto local, y el vhost hace:
-    #     proxy_pass http://127.0.0.1:<DOCS_PORT>;
-    #
-    # DOCS_PORT debe coincidir EXACTAMENTE con el puerto del proxy_pass
-    # del vhost que ya existe en el servidor. Si no coincide, Nginx
-    # seguirá devolviendo 503.
-    ports:
-      - "${DOCS_BIND:-127.0.0.1}:${DOCS_PORT:-8080}:80"
 
-    # =============================================================
-    # OPCIÓN B — El proxy es un CONTENEDOR (Nginx Proxy Manager, etc.)
-    # =============================================================
-    # En ese caso 127.0.0.1 del anfitrión NO es alcanzable desde el
-    # contenedor del proxy. Hay que compartir una red de Docker y
-    # apuntar al servicio por su nombre: http://docs-ris3cat:80
-    #
-    # Comentar el bloque `ports` de arriba y descomentar:
-    #
-    # networks:
-    #   - proxy
-    #
-    # (y el bloque `networks:` del final del archivo)
+    environment:
+      # --- Enrutado automático (nginx-proxy) ---------------------------
+      # Dominio que servirá este contenedor.
+      VIRTUAL_HOST: ${VIRTUAL_HOST:-ris3cat-docs.zdevutils.com}
 
-    # =============================================================
-    # OPCIÓN C — Traefik
-    # =============================================================
-    # Aquí sí que el dominio va en este archivo, como etiquetas.
-    # Comentar `ports` y descomentar:
-    #
-    # networks:
-    #   - proxy
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.docs-ris3cat.rule=Host(`ris3cat-docs.zdevutils.com`)"
-    #   - "traefik.http.routers.docs-ris3cat.entrypoints=websecure"
-    #   - "traefik.http.routers.docs-ris3cat.tls.certresolver=letsencrypt"
-    #   - "traefik.http.services.docs-ris3cat.loadbalancer.server.port=80"
+      # Puerto en el que escucha Nginx DENTRO del contenedor.
+      # Es 80, no el puerto del anfitrión: nginx-proxy se conecta por la
+      # red interna de Docker, no por el puerto publicado.
+      VIRTUAL_PORT: ${VIRTUAL_PORT:-80}
+
+      # --- Certificado TLS automático (acme-companion) -----------------
+      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST:-ris3cat-docs.zdevutils.com}
+      # Correo para los avisos de caducidad de Let's Encrypt. Puede estar
+      # ya definido de forma global en el contenedor de acme-companion;
+      # en ese caso esta variable es opcional.
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}
+
+    networks:
+      - proxy
+
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
       interval: 30s
       timeout: 5s
       start_period: 10s
       retries: 3
+
     logging:
-      # Sin límite, los logs de un contenedor de larga duración pueden
-      # llenar el disco del servidor.
+      # Sin límite, los logs de un contenedor de larga duración acaban
+      # llenando el disco del servidor.
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
 
-# Necesario sólo para las opciones B y C: la red compartida con el proxy.
-# `external: true` significa que la red ya existe y la crea el proxy,
-# no este stack. Comprobar el nombre real con: docker network ls
-#
-# networks:
-#   proxy:
-#     external: true
+networks:
+  proxy:
+    # La red la crea nginx-proxy, no este stack: por eso es `external`.
+    # Comprobar el nombre real en el servidor con:  docker network ls
+    # Suele llamarse nginx-proxy, webproxy o proxy.
+    external: true
+    name: ${PROXY_NETWORK:-nginx-proxy}

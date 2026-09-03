@@ -71,4 +71,4 @@ networks:
     # Comprobar el nombre real en el servidor con:  docker network ls
     # Suele llamarse nginx-proxy, webproxy o proxy.
     external: true
-    name: ${PROXY_NETWORK:-nginx-proxy}
+    name: ${PROXY_NETWORK:-docker_default}

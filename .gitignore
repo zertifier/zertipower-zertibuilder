@@ -4,3 +4,7 @@
 # Configuracion local del despliegue
 .env
 .env.backup*
+
+# Configuracion local del despliegue
+docker/.env
+docker/.env.backup*

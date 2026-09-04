@@ -75,12 +75,12 @@ if [[ "${es_publico,,}" == "s" ]]; then
 fi
 
 # --- 3. Escribir .env -------------------------------------------------
-if [[ -f .env ]]; then
-  cp .env ".env.backup.$(date +%Y%m%d%H%M%S)"
+if [[ -f docker/.env ]]; then
+  cp docker/.env "docker/.env.backup.$(date +%Y%m%d%H%M%S)"
   warn "Ya existía un .env; se ha guardado una copia de seguridad."
 fi
 
-cat > .env <<EOF
+cat > docker/.env <<EOF
 # Generado por setup.sh el $(date '+%Y-%m-%d %H:%M')
 BACKEND_PORT=${BACKEND_PORT}
 FRONTEND_PORT=${FRONTEND_PORT}
@@ -96,14 +96,14 @@ DB_PASSWORD=root
 DB_DATABASE=zertipower-dev
 JWT_SECRET=clave-de-desarrollo-cambiar-en-produccion
 EOF
-ok "Archivo .env generado"
+ok "Archivo docker/.env generado"
 
 # --- 4. Arrancar ------------------------------------------------------
 echo
 echo "Construyendo y arrancando (la primera vez tarda varios minutos)..."
 echo
 
-docker compose up -d --build
+docker compose -f docker/docker-compose.yml up -d --build
 
 # --- 5. Resumen -------------------------------------------------------
 echo
@@ -118,7 +118,7 @@ echo "  API (Swagger)             http://localhost:${BACKEND_PORT}/api"
 echo
 echo "  Usuario de prueba:  admin  /  admin123"
 echo
-echo "  Ver el estado:    docker compose ps"
-echo "  Ver los registros: docker compose logs -f"
-echo "  Parar:            docker compose down"
+echo "  Ver el estado:     cd docker && docker compose ps"
+echo "  Ver los registros: cd docker && docker compose logs -f"
+echo "  Parar:             cd docker && docker compose down"
 echo

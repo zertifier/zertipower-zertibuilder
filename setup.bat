@@ -81,8 +81,8 @@ if /i "%ES_PUBLICO%"=="s" (
 )
 
 REM --- 3. Escribir .env -------------------------------------------------
-if exist .env (
-  copy /y .env .env.backup >nul
+if exist docker\.env (
+  copy /y docker\.env docker\.env.backup >nul
   echo   [AVISO] Ya existia un .env; se ha guardado como .env.backup
 )
 
@@ -101,19 +101,19 @@ if exist .env (
   echo DB_PASSWORD=root
   echo DB_DATABASE=zertipower-dev
   echo JWT_SECRET=clave-de-desarrollo-cambiar-en-produccion
-) > .env
-echo   [OK] Archivo .env generado
+) > docker\.env
+echo   [OK] Archivo docker\.env generado
 
 REM --- 4. Arrancar ------------------------------------------------------
 echo.
 echo Construyendo y arrancando (la primera vez tarda varios minutos)...
 echo.
 
-docker compose up -d --build
+docker compose -f docker/docker-compose.yml up -d --build
 if errorlevel 1 (
   echo.
   echo   [ERROR] Algo ha fallado al arrancar. Revisa el mensaje de arriba.
-  echo   Para ver mas detalle:  docker compose logs
+  echo   Para ver mas detalle:  cd docker ^&^& docker compose logs
   echo.
   pause
   exit /b 1
@@ -132,8 +132,8 @@ echo   API (Swagger)             http://localhost:%BACKEND_PORT%/api
 echo.
 echo   Usuario de prueba:  admin  /  admin123
 echo.
-echo   Ver el estado:     docker compose ps
-echo   Ver los registros: docker compose logs -f
-echo   Parar:             docker compose down
+echo   Ver el estado:     cd docker ^&^& docker compose ps
+echo   Ver los registros: cd docker ^&^& docker compose logs -f
+echo   Parar:             cd docker ^&^& docker compose down
 echo.
 pause

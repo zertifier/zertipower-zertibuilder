@@ -50,8 +50,16 @@ defecto), generará el archivo de configuración y arrancará todo.
 Si te sirven los valores por defecto, no hace falta configurar nada:
 
 ```bash
-docker compose up -d
+cd docker && docker compose up -d
 ```
+
+:::note ¿Por qué `cd docker`?
+El archivo `docker-compose.yml` está en la carpeta `docker/` y no en la raíz
+a propósito: el pipeline de despliegue del servidor ejecuta `docker compose`
+dentro de `frontend/` y `calculadora/`, y Docker busca el archivo de
+configuración subiendo por las carpetas superiores. Un compose en la raíz del
+repositorio le tapaba el suyo y rompía los despliegues.
+:::
 
 ## 4. Listo
 
@@ -78,6 +86,8 @@ energética y dos CUPS.
 :::
 
 ## Comandos que vas a necesitar
+
+Todos estos comandos se ejecutan desde la carpeta `docker/`.
 
 Ver si todo está en marcha:
 
@@ -116,7 +126,7 @@ de Zertifier y, aunque se construya, sólo permite entrar con Google contra un
 servicio externo. Si tienes acceso:
 
 ```bash
-docker compose --profile smart-meter up -d
+cd docker && docker compose --profile smart-meter up -d
 ```
 
 Ver [Contador / Smart Meter](./configuracion/contador) para el detalle.

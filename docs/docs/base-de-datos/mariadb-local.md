@@ -29,7 +29,7 @@ backend) es `mariadb`, que es el nombre del servicio. Por eso el backend usa
 ## Abrir una consola SQL
 
 ```bash
-docker compose exec mariadb mariadb -u root -proot zertipower-dev
+cd docker && docker compose exec mariadb mariadb -u root -proot zertipower-dev
 ```
 
 ## Cómo se rellena sola
@@ -51,7 +51,7 @@ cargarlo hay que borrar el volumen (ver abajo).
 Borra los contenedores **y los datos**, y vuelve a levantar todo limpio:
 
 ```bash
-docker compose down -v
+cd docker && docker compose down -v
 ```
 
 ```bash
@@ -63,7 +63,7 @@ docker compose up -d
 Si necesitas trabajar con datos reales en lugar del seed mínimo:
 
 ```bash
-docker compose exec -T mariadb mariadb -u root -proot zertipower-dev < backup_zertipower_prod.sql
+cd docker && docker compose exec -T mariadb mariadb -u root -proot zertipower-dev < backup_zertipower_prod.sql
 ```
 
 Ver [Volcado del servidor remoto](./volcado-remoto) para saber cómo obtener ese
@@ -77,7 +77,7 @@ de necesitarlo y no lo subas a ningún sitio.
 ## Hacer una copia de tu base de datos local
 
 ```bash
-docker compose exec mariadb mariadb-dump -u root -proot --single-transaction --routines --triggers zertipower-dev > copia-local.sql
+cd docker && docker compose exec mariadb mariadb-dump -u root -proot --single-transaction --routines --triggers zertipower-dev > copia-local.sql
 ```
 
 ## Cambiar la contraseña o el nombre de la base de datos

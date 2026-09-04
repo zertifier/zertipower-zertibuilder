@@ -105,6 +105,10 @@ services:
   frontend:
     build:
       context: ./frontend
+      # Dockerfile.stack, no Dockerfile: el pipeline de despliegue hace
+      # 'docker compose --build' dentro de estas carpetas con su propia
+      # configuracion, y un Dockerfile por defecto se la pisaria.
+      dockerfile: Dockerfile.stack
       args:
         API_URL: ${PUBLIC_API_URL:-http://localhost:3000}
     restart: unless-stopped
@@ -117,6 +121,7 @@ services:
   calculadora:
     build:
       context: ./calculadora
+      dockerfile: Dockerfile.stack
       args:
         API_URL: ${PUBLIC_API_URL:-http://localhost:3000}
     restart: unless-stopped

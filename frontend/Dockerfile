@@ -1,0 +1,38 @@
+# ===================================================================
+# Panel de Administración (Angular 17)
+# ===================================================================
+# Compila la aplicación y sirve los estáticos con Nginx. La imagen
+# final no lleva Node ni node_modules.
+#
+# Todas las versiones van fijadas a propósito: el Dockerfile del
+# backend usaba herramientas sin fijar y sus despliegues estuvieron
+# rotos meses cuando pnpm y prisma publicaron una major nueva.
+# ===================================================================
+
+FROM node:20-alpine AS build
+
+WORKDIR /src
+
+COPY package.json package-lock.json ./
+# --legacy-peer-deps: el proyecto tiene conflictos de peer dependencies
+# entre paquetes de Angular 17 que npm rechaza por defecto.
+RUN npm ci --legacy-peer-deps
+
+COPY . .
+
+# URL del backend. Angular la incrusta al COMPILAR, así que llega como
+# build arg. Importante: es la URL que usará el NAVEGADOR del usuario,
+# no la red interna de Docker. Por eso en local es localhost:3000 y no
+# http://backend:3000, que el navegador no sabría resolver.
+ARG API_URL=http://localhost:3000
+RUN sed -i "s|api_url: *\"[^\"]*\"|api_url: \"${API_URL}\"|" src/environments/environment.development.ts \
+ && grep -n "api_url" src/environments/environment.development.ts
+
+RUN npx ng build --configuration development
+
+FROM nginx:1.27-alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /src/dist/frontend/browser /usr/share/nginx/html
+EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -q --spider http://localhost/ || exit 1

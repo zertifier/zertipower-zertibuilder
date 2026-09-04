@@ -1,43 +1,135 @@
 ---
 sidebar_position: 1
-title: Introducción
+title: Inicio rápido
 slug: /
 ---
 
-# Zertipower / Ris3CAT — Documentación técnica
+# Poner en marcha todo el sistema
 
-Esta documentación describe cómo levantar **todo el ecosistema Zertipower en local**,
-sin depender del servidor remoto de producción, y cómo desplegarlo en un servidor nuevo.
+**Sólo necesitas Docker.** No hace falta instalar Node, ni npm, ni MariaDB, ni
+cargar la base de datos a mano.
 
-## ¿Qué compone el sistema?
+## 1. Instala Docker
 
-El ecosistema está formado por **4 módulos** que se ejecutan simultáneamente:
+Descárgalo de [docs.docker.com/get-docker](https://docs.docker.com/get-docker/) e
+instálalo. En Windows y macOS es Docker Desktop; ábrelo y espera a que arranque.
 
-| Módulo | Puerto local | Tecnología |
-| --- | --- | --- |
-| Backend / API | `3000` | NestJS 10 + Prisma 5 + MariaDB |
-| Panel de Administración | `4201` | Angular 17 |
-| Calculadora | `4202` | Angular 17 |
-| Contador / Smart Meter | `4200` | Angular 17 |
+## 2. Descarga el proyecto
 
-Todos los frontends consumen el **mismo backend** en `http://localhost:3000`.
+```bash
+git clone https://github.com/zertifier/zertipower-zertibuilder.git
+```
 
-## Ruta rápida
+```bash
+cd zertipower-zertibuilder
+```
 
-Si sólo quieres el entorno funcionando, sigue estos cuatro pasos en orden:
+## 3. Arranca
 
-1. [Base de datos local](./base-de-datos/mariadb-local) — MariaDB en Docker.
-2. [Seed mínimo](./base-de-datos/seed-minimo) — datos imprescindibles.
-3. [Variables de entorno](./puesta-en-marcha/variables-entorno) — el archivo `.env`.
-4. [Arrancar los módulos](./puesta-en-marcha/arrancar-modulos).
+Elige **una** de las dos opciones. Hacen lo mismo.
 
-:::tip Credenciales de desarrollo
-Tras aplicar el seed mínimo puedes entrar en el Panel de Administración con
-**usuario `admin`** y **contraseña `admin123`**.
+### Opción A — el instalador (te va preguntando)
+
+En **Linux o macOS**:
+
+```bash
+./setup.sh
+```
+
+En **Windows**, haz doble clic en `setup.bat`, o desde la terminal:
+
+```bash
+setup.bat
+```
+
+Te preguntará los puertos (puedes pulsar INTRO para aceptar los que trae por
+defecto), generará el archivo de configuración y arrancará todo.
+
+### Opción B — un solo comando
+
+Si te sirven los valores por defecto, no hace falta configurar nada:
+
+```bash
+docker compose up -d
+```
+
+## 4. Listo
+
+La primera vez tarda varios minutos: tiene que descargar y compilar todo. Cuando
+termine, ya está funcionando:
+
+| Módulo | Dirección |
+| --- | --- |
+| **Panel de Administración** | [http://localhost:4201](http://localhost:4201) |
+| **Calculadora** | [http://localhost:4202](http://localhost:4202) |
+| API (Swagger) | [http://localhost:3000/api](http://localhost:3000/api) |
+| Base de datos | `localhost:3306` (`root` / `root`) |
+
+Entra en el Panel de Administración con:
+
+| Usuario | Contraseña |
+| --- | --- |
+| `admin` | `admin123` |
+
+:::tip La base de datos se rellena sola
+No tienes que importar nada. La primera vez que arranca, MariaDB ejecuta el seed
+automáticamente y crea el esquema completo, el usuario de prueba, una comunidad
+energética y dos CUPS.
 :::
 
-:::danger Secretos
-El archivo `.env` real contiene credenciales de producción, claves de Stripe y una
-**clave privada de blockchain**. Nunca lo subas al repositorio. Consulta
-[Gestión de secretos](./puesta-en-marcha/secretos).
-:::
+## Comandos que vas a necesitar
+
+Ver si todo está en marcha:
+
+```bash
+docker compose ps
+```
+
+Ver qué está pasando (útil si algo falla):
+
+```bash
+docker compose logs -f
+```
+
+Parar el sistema:
+
+```bash
+docker compose down
+```
+
+Empezar de cero, **borrando también la base de datos**:
+
+```bash
+docker compose down -v
+```
+
+Después de cambiar código, reconstruir:
+
+```bash
+docker compose up -d --build
+```
+
+## ¿Y el Contador / Smart Meter?
+
+No se levanta por defecto porque necesita credenciales del registro privado de npm
+de Zertifier y, aunque se construya, sólo permite entrar con Google contra un
+servicio externo. Si tienes acceso:
+
+```bash
+docker compose --profile smart-meter up -d
+```
+
+Ver [Contador / Smart Meter](./configuracion/contador) para el detalle.
+
+## Si algo va mal
+
+Casi todos los problemas habituales están en
+[Solución de problemas](./troubleshooting), con la causa y el comando exacto para
+arreglarlos.
+
+## Siguientes pasos
+
+- [Arquitectura](./arquitectura/repositorios) — qué es cada módulo.
+- [Configuración](./configuracion/variables-entorno) — cambiar puertos, conectar
+  servicios externos, credenciales.
+- [Desplegar en un servidor](./despliegue/servidor-nuevo) — con dominio y HTTPS.

@@ -1,100 +1,97 @@
 ---
 sidebar_position: 2
-title: MariaDB local con Docker
+title: Trabajar con la base de datos
 ---
 
-# Levantar MariaDB en local
+# Trabajar con la base de datos
 
-## El archivo `docker-compose.db.yml`
+La base de datos **forma parte del stack**: se levanta, se crea y se rellena sola con
+`docker compose up -d`. No hay que instalar MariaDB ni importar nada a mano.
 
-En la raíz del proyecto (`Ris3Cat/`):
+## Datos de conexión
 
-```yaml
-services:
-  mariadb-local:
-    image: mariadb:10.11
-    container_name: mariadb-zertipower-local
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: zertipower-dev
-    ports:
-      - "3306:3306"
-    volumes:
-      - mariadb_data:/var/lib/mysql
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+| | |
+| --- | --- |
+| Host | `localhost` |
+| Puerto | `3306` |
+| Usuario | `root` |
+| Contraseña | `root` |
+| Base de datos | `zertipower-dev` |
 
-volumes:
-  mariadb_data:
-    driver: local
-```
+Sirven para conectar con DBeaver, HeidiSQL, TablePlus o cualquier cliente SQL.
 
-:::note Diferencias respecto a la especificación original
-- Se ha omitido la clave `version: '3.8'`: está obsoleta en Docker Compose v2 y
-  provoca un aviso en cada ejecución.
-- Se ha añadido un `healthcheck`, que permite esperar a que la base de datos esté
-  realmente lista antes de restaurar. Sin él, restaurar demasiado pronto falla.
+:::note Dos nombres para el mismo servidor
+Desde tu máquina es `localhost`. Desde **dentro** de otro contenedor (por ejemplo el
+backend) es `mariadb`, que es el nombre del servicio. Por eso el backend usa
+`DB_HOST=mariadb` y no `127.0.0.1`: eso apuntaría a sí mismo.
 :::
 
-## Arranque
+## Abrir una consola SQL
 
 ```bash
-docker compose -f docker-compose.db.yml up -d
+docker compose exec mariadb mariadb -u root -proot zertipower-dev
 ```
 
-Esperar a que el contenedor esté sano:
+## Cómo se rellena sola
+
+MariaDB ejecuta automáticamente los `.sql` que encuentra en
+`/docker-entrypoint-initdb.d` **la primera vez** que arranca, cuando su volumen está
+vacío. El `docker-compose.yml` monta ahí `sql/seed_minimo.sql`.
+
+Eso crea el esquema completo (39 tablas y 2 vistas) y los datos mínimos: un rol
+`ADMIN` y otro `USER`, el usuario de prueba, una comunidad energética y dos CUPS.
+
+:::warning Sólo la primera vez
+Si el volumen ya tiene datos, el seed **no se vuelve a ejecutar**. Para volver a
+cargarlo hay que borrar el volumen (ver abajo).
+:::
+
+## Empezar de cero
+
+Borra los contenedores **y los datos**, y vuelve a levantar todo limpio:
 
 ```bash
-docker inspect --format='{{.State.Health.Status}}' mariadb-zertipower-local
+docker compose down -v
 ```
 
-Cuando devuelva `healthy`, la base de datos acepta conexiones.
-
-## Restaurar un volcado
-
-Para restaurar el volcado completo de producción:
-
 ```bash
-docker exec -i mariadb-zertipower-local mariadb -u root -proot zertipower-dev < backup_zertipower_prod.sql
+docker compose up -d
 ```
 
-Para el entorno de desarrollo habitual, usa en su lugar el
-[seed mínimo](./seed-minimo), que es autocontenido:
+## Cargar un volcado de producción
+
+Si necesitas trabajar con datos reales en lugar del seed mínimo:
 
 ```bash
-docker exec -i mariadb-zertipower-local mariadb -u root -proot < sql/seed_minimo.sql
+docker compose exec -T mariadb mariadb -u root -proot zertipower-dev < backup_zertipower_prod.sql
 ```
 
-## Versiones: 10.4 en producción, 10.11 en local
+Ver [Volcado del servidor remoto](./volcado-remoto) para saber cómo obtener ese
+archivo.
 
-Producción ejecuta **MariaDB 10.4.13** y en local usamos **10.11**. Restaurar un
-volcado de 10.4 en 10.11 funciona (la compatibilidad hacia adelante está soportada),
-pero conviene tenerlo presente: lo contrario —restaurar un volcado de 10.11 en un
-10.4— **no** está garantizado.
+:::danger Datos reales en tu portátil
+Un volcado de producción contiene datos personales de clientes. Bórralo cuando dejes
+de necesitarlo y no lo subas a ningún sitio.
+:::
 
-## Comandos útiles
-
-Abrir una consola SQL:
+## Hacer una copia de tu base de datos local
 
 ```bash
-docker exec -it mariadb-zertipower-local mariadb -u root -proot zertipower-dev
+docker compose exec mariadb mariadb-dump -u root -proot --single-transaction --routines --triggers zertipower-dev > copia-local.sql
 ```
 
-Ver los registros del contenedor:
+## Cambiar la contraseña o el nombre de la base de datos
+
+En el archivo `.env`:
 
 ```bash
-docker logs --tail 50 mariadb-zertipower-local
+DB_PASSWORD=otra-contraseña
+DB_DATABASE=otro-nombre
 ```
 
-Borrar la base de datos y empezar de cero (**destruye los datos locales**):
+Como la base de datos ya existe, hay que recrearla para que los valores nuevos surtan
+efecto:
 
 ```bash
-docker compose -f docker-compose.db.yml down -v
+docker compose down -v && docker compose up -d
 ```

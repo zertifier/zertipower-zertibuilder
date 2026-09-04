@@ -1,2 +1,6 @@
 .LAST_COMMIT.txt
 .idea
+
+# Configuracion local del despliegue
+.env
+.env.backup*

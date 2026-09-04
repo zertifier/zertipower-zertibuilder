@@ -1,33 +1,22 @@
 ---
 sidebar_position: 1
-title: Despliegue en un servidor nuevo
+title: Desplegar en un servidor
 ---
 
-# Desplegar en un servidor nuevo
+# Desplegar en un servidor
 
-Guía para levantar el ecosistema completo en un servidor Ubuntu/Debian limpio.
+Es el mismo procedimiento que en local, más un proxy que se encarga de los dominios
+y los certificados HTTPS.
 
-:::info Alcance
-Este procedimiento **no se ha ejecutado** durante la validación local: describe el
-despliegue de referencia y debe probarse en un servidor de preproducción antes de
-usarlo en producción.
-:::
-
-## Requisitos
+## 1. Requisitos
 
 | Requisito | Detalle |
 | --- | --- |
-| Sistema | Ubuntu 22.04 LTS o Debian 12 |
-| CPU / RAM | Mínimo 2 vCPU y 4 GB (los builds de Angular consumen bastante) |
-| Docker | Docker Engine + plugin Compose v2 |
-| Node.js | Versión 20 LTS o superior |
-| Puertos | `80` y `443` públicos; `3306` **sólo local** |
-
-## 1. Preparar el sistema
-
-```bash
-sudo apt update && sudo apt install -y git curl nginx
-```
+| Sistema | Ubuntu 22.04 LTS, Debian 12 o similar |
+| CPU / RAM | Mínimo 2 vCPU y 4 GB (compilar los frontends consume bastante) |
+| Docker | Docker Engine con el plugin `compose` |
+| Puertos | `80` y `443` abiertos. **`3306` NO debe estar abierto a Internet** |
+| DNS | Un registro `A` por cada dominio, apuntando a la IP del servidor |
 
 Instalar Docker:
 
@@ -35,149 +24,169 @@ Instalar Docker:
 curl -fsSL https://get.docker.com | sudo sh
 ```
 
-Instalar Node.js 20:
+## 2. Levantar el proxy (una sola vez por servidor)
 
-```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs
-```
+`nginx-proxy` y `acme-companion` se encargan de todo: detectan los contenedores que
+arrancan, generan la configuración de Nginx y piden los certificados de Let's
+Encrypt automáticamente. **No hay que editar ningún archivo de Nginx ni ejecutar
+certbot a mano.**
 
-## 2. Base de datos
-
-Levanta MariaDB con el mismo `docker-compose.db.yml`, pero **cambiando la contraseña
-de `root`** y sin exponer el puerto al exterior. Sustituye el mapeo de puertos por:
+Este proxy da servicio a todas las aplicaciones del servidor, así que se levanta una
+sola vez, en su propia carpeta:
 
 ```yaml
+services:
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: nginxproxy/nginx-proxy
+    restart: unless-stopped
     ports:
-      - "127.0.0.1:3306:3306"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx-proxy/volumes/vhost.d/:/etc/nginx/vhost.d
+      - ./nginx-proxy/volumes/conf.d:/etc/nginx/conf.d
+      - ./nginx-proxy/volumes/certs:/etc/nginx/certs
+      - ./nginx-proxy/volumes/html:/usr/share/nginx/html
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    networks:
+      - dockers_default
+
+  nginx-proxy-acme:
+    container_name: nginx-proxy-acme
+    image: nginxproxy/acme-companion
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./nginx-proxy/volumes/vhost.d/:/etc/nginx/vhost.d
+      - ./nginx-proxy/volumes/conf.d:/etc/nginx/conf.d
+      - ./nginx-proxy/volumes/certs:/etc/nginx/certs
+      - ./nginx-proxy/volumes/html:/usr/share/nginx/html
+      - ./nginx-proxy/volumes/acme/:/etc/acme.sh
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+      - DEBUG=true
+      - DEFAULT_EMAIL=name@domain.com
+
+networks:
+  dockers_default:
+    external: true
 ```
 
-Así el puerto `3306` sólo es accesible desde el propio servidor.
+```bash
+docker compose up -d
+```
 
-:::danger Nunca expongas 3306 a Internet
-Es exactamente la configuración que permite un acceso remoto con `root` como el que
-existe hoy en producción. Si necesitas acceso externo, hazlo por túnel SSH.
+:::info El nombre de la red
+Los dos contenedores y las aplicaciones tienen que compartir la misma red de Docker.
+Comprueba cómo se llama la tuya con:
+
+```bash
+docker network ls
+```
+
+En el servidor actual es `docker_default` (la red del stack `docker`). Usa ese nombre
+en el `networks:` de arriba y en el de cada aplicación.
 :::
 
-## 3. Backend
+Cambia `DEFAULT_EMAIL` por un correo real: es donde Let's Encrypt avisa si un
+certificado no se renueva.
 
-```bash
-cd zertipower-zertibuilder/backend && npm ci && npx prisma generate && npm run build
+## 3. Publicar una aplicación
+
+A partir de aquí, publicar cualquier aplicación es **añadirle unas variables de
+entorno**. El proxy la detecta sola y le pide el certificado.
+
+```yaml
+services:
+  mi-aplicacion:
+    build: .
+    restart: unless-stopped
+    environment:
+      VIRTUAL_HOST: mi-dominio.ejemplo.com
+      VIRTUAL_PORT: 80
+      LETSENCRYPT_HOST: mi-dominio.ejemplo.com
+      LETSENCRYPT_EMAIL: name@domain.com
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: docker_default
 ```
 
-Crea el `.env` de producción (ver [Variables de entorno](../puesta-en-marcha/variables-entorno))
-y arráncalo como servicio con systemd, en `/etc/systemd/system/zertipower-api.service`:
+Qué significa cada una:
 
-```ini
-[Unit]
-Description=Zertipower API
-After=network.target docker.service
-
-[Service]
-Type=simple
-User=zertipower
-WorkingDirectory=/opt/zertipower/backend
-ExecStart=/usr/bin/node dist/main
-Restart=always
-RestartSec=5
-EnvironmentFile=/opt/zertipower/backend/.env
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
-sudo systemctl enable --now zertipower-api
-```
-
-## 4. Frontends
-
-Cada frontend se compila a estáticos y se sirve con Nginx:
-
-```bash
-cd zertipower-zertibuilder/frontend && npm ci && npx ng build --configuration production
-```
-
-Repite para `calculadora` y `ris3cat-smart-meter`. Copia cada `dist/` a su ruta:
-
-```bash
-sudo cp -r dist/*/browser/* /var/www/panel/
-```
-
-Antes de compilar, revisa el `environment.ts` de **producción** de cada módulo: es el
-que se usa con `--configuration production`, y debe apuntar al dominio público del
-API, no a `localhost`.
-
-## 5. Nginx y dominios
-
-Esquema de dominios sugerido:
-
-| Dominio | Destino |
+| Variable | Para qué sirve |
 | --- | --- |
-| `api.ejemplo.com` | proxy inverso a `127.0.0.1:3000` |
-| `panel.ejemplo.com` | estáticos del Panel Admin |
-| `calculadora.ejemplo.com` | estáticos de la Calculadora |
-| `comptador.ejemplo.com` | estáticos del Contador |
+| `VIRTUAL_HOST` | El dominio que servirá este contenedor. |
+| `VIRTUAL_PORT` | El puerto **dentro del contenedor** (normalmente `80`). |
+| `LETSENCRYPT_HOST` | El dominio para el que se pide el certificado. Casi siempre igual que `VIRTUAL_HOST`. |
+| `LETSENCRYPT_EMAIL` | Avisos de caducidad. Opcional si `DEFAULT_EMAIL` ya está puesto en acme-companion. |
 
-Bloque para el API:
+:::warning `VIRTUAL_PORT` es el puerto interno, no uno del anfitrión
+Es `80` porque es donde escucha Nginx **dentro** del contenedor. El proxy conecta por
+la red interna de Docker, así que la aplicación **no debe publicar puertos**:
+`ports:` sobra y sólo serviría para exponerla por fuera del proxy.
+:::
 
-```nginx
-server {
-    listen 80;
-    server_name api.ejemplo.com;
+## 4. Desplegar Zertipower
 
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-Bloque para un frontend Angular (con *fallback* de rutas al `index.html`):
-
-```nginx
-server {
-    listen 80;
-    server_name panel.ejemplo.com;
-    root /var/www/panel;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-```
-
-`try_files … /index.html` es imprescindible: sin él, recargar cualquier ruta interna
-del panel devuelve 404.
-
-## 6. Certificados SSL
+Clona el repositorio y crea el `.env` con los dominios reales:
 
 ```bash
-sudo apt install -y certbot python3-certbot-nginx
+git clone https://github.com/zertifier/zertipower-zertibuilder.git && cd zertipower-zertibuilder
 ```
 
 ```bash
-sudo certbot --nginx -d api.ejemplo.com -d panel.ejemplo.com -d calculadora.ejemplo.com -d comptador.ejemplo.com
+cp .env.example .env
 ```
 
-Certbot instala la renovación automática. Verifícala:
+Edita `.env` con los valores de producción — como mínimo:
 
 ```bash
-sudo certbot renew --dry-run
+PUBLIC_API_URL=https://api.tudominio.com
+JWT_SECRET=<cadena-larga-y-aleatoria>
+DB_PASSWORD=<contraseña-fuerte>
 ```
 
-## 7. Comprobaciones post-despliegue
+Y arranca:
 
-- [ ] `https://api.ejemplo.com/api` muestra Swagger.
-- [ ] El login devuelve un token.
-- [ ] Los frontends cargan y hablan con el API por HTTPS (sin *mixed content*).
+```bash
+docker compose up -d
+```
+
+:::danger Antes de exponerlo a Internet
+- Cambia `JWT_SECRET` y `DB_PASSWORD`. Los valores por defecto son para desarrollo.
+- Cambia la contraseña del usuario `admin`, o bórralo.
+- No publiques el puerto `3306`.
+:::
+
+## 5. Comprobaciones
+
+- [ ] `https://<dominio>` carga y el candado del navegador es válido.
+- [ ] `http://<dominio>` redirige a `https://`.
+- [ ] El login funciona.
 - [ ] `3306` **no** responde desde fuera del servidor.
-- [ ] Los certificados renuevan correctamente.
 - [ ] Hay copias de seguridad programadas de la base de datos.
+
+## Si sale 503
+
+Es el error más habitual y casi siempre significa lo mismo: **el proxy no encuentra
+ningún contenedor que reclame ese dominio.**
+
+1. ¿El contenedor está en la **misma red** que `nginx-proxy`?
+2. ¿Tiene bien escrito `VIRTUAL_HOST`?
+3. ¿Está arrancado? — `docker compose ps`
+
+Los registros del proxy suelen decir exactamente qué falta:
+
+```bash
+docker logs nginx-proxy
+```

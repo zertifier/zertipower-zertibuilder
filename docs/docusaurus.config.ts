@@ -79,8 +79,8 @@ const config: Config = {
           title: 'Documentación',
           items: [
             {label: 'Introducción', to: '/'},
-            {label: 'Base de datos', to: '/base-de-datos/mariadb-local'},
-            {label: 'Puesta en marcha', to: '/puesta-en-marcha/arrancar-modulos'},
+            {label: 'Base de datos', to: '/base-de-datos/seed-minimo'},
+            {label: 'Configuración', to: '/configuracion/variables-entorno'},
             {label: 'Solución de problemas', to: '/troubleshooting'},
           ],
         },

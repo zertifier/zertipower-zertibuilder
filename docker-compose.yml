@@ -1,0 +1,157 @@
+# ===================================================================
+# Zertipower / Ris3CAT — entorno completo
+# ===================================================================
+# Levanta TODO el sistema con un solo comando:
+#
+#     docker compose up -d
+#
+# No hace falta instalar Node, ni npm, ni MariaDB, ni cargar la base de
+# datos a mano. Sólo Docker.
+#
+# La base de datos se crea y se rellena sola la primera vez: MariaDB
+# ejecuta automáticamente los .sql de /docker-entrypoint-initdb.d.
+#
+# Una vez arrancado:
+#   Panel de Administración  http://localhost:4201   (admin / admin123)
+#   Calculadora              http://localhost:4202
+#   Contador / Smart Meter   http://localhost:4200
+#   API (Swagger)            http://localhost:3000/api
+#   Base de datos            localhost:3306          (root / root)
+#
+# Para empezar de cero, borrando también los datos:
+#     docker compose down -v
+# ===================================================================
+
+services:
+
+  # --- Base de datos -------------------------------------------------
+  mariadb:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_DATABASE:-zertipower-dev}
+    ports:
+      # Publicado sólo en local para poder conectar con un cliente SQL.
+      # En un servidor real, NO exponer 3306 a Internet.
+      - "127.0.0.1:${DB_PORT:-3306}:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      # MariaDB ejecuta estos .sql SÓLO la primera vez, cuando el
+      # volumen está vacío. Aquí es donde se carga el seed mínimo.
+      - ./sql/seed_minimo.sql:/docker-entrypoint-initdb.d/01_seed.sql:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  # --- API ------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        # Espera a que la base de datos acepte conexiones. Sin esto el
+        # backend arranca antes de tiempo y se cae.
+        condition: service_healthy
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    environment:
+      # Dentro de Docker la base de datos se llama `mariadb`, que es el
+      # nombre del servicio. No es 127.0.0.1: eso sería el propio
+      # contenedor del backend.
+      DATABASE_URL: "mysql://root:${DB_PASSWORD:-root}@mariadb:3306/${DB_DATABASE:-zertipower-dev}"
+      DB_HOST: mariadb
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD:-root}
+      DB_DATABASE: ${DB_DATABASE:-zertipower-dev}
+
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:-clave-de-desarrollo-cambiar-en-produccion}
+      APPLICATION_NAME: API
+      VIEWS_FOLDER: src/shared/infrastructure/views/public
+
+      # URLs que ve el NAVEGADOR, no la red interna de Docker.
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4201}
+      COMPTADOR_FRONTEND_URL: ${COMPTADOR_URL:-http://localhost:4200}
+
+      # Servicios externos. En local pueden quedarse con valores
+      # ficticios: el backend arranca igual, sólo fallarán las
+      # funciones que dependan de ellos.
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-sin-configurar}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-sin-configurar}
+      RADIATION_API: ${RADIATION_API:-https://apiv2.wattabit.com}
+      RADIATION_API_CREDENTIALS: ${RADIATION_API_CREDENTIALS:-usuario:password}
+      ENERGY_PREDICTION_API: ${ENERGY_PREDICTION_API:-https://prediction.zertipower.com}
+      DATADIS_MONTHS: ${DATADIS_MONTHS:-1}
+      TRADE_UPDATE_DAYS: ${TRADE_UPDATE_DAYS:-30}
+      PK: ${PK:-0000000000000000000000000000000000000000000000000000000000000001}
+      STRIPE_PRODUCT_ID: ${STRIPE_PRODUCT_ID:-sin-configurar}
+      STRIPE_PRICE_KEY: ${STRIPE_PRICE_KEY:-sin-configurar}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sin-configurar}
+      SMTP_USER: ${SMTP_USER:-no-reply@example.com}
+      SMTP_DISPLAY_EMAIL: ${SMTP_DISPLAY_EMAIL:-no-reply@example.com}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-sin-configurar}
+      SMTP_SERVER: ${SMTP_SERVER:-smtp.example.com}
+      SMTP_PORT: ${SMTP_PORT:-465}
+
+  # --- Panel de Administración ----------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        API_URL: ${PUBLIC_API_URL:-http://localhost:3000}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-4201}:80"
+
+  # --- Calculadora ------------------------------------------------------
+  calculadora:
+    build:
+      context: ./calculadora
+      args:
+        API_URL: ${PUBLIC_API_URL:-http://localhost:3000}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${CALCULADORA_PORT:-4202}:80"
+
+  # --- Contador / Smart Meter -------------------------------------------
+  # NO se levanta por defecto. Para incluirlo:
+  #     docker compose --profile smart-meter up -d
+  #
+  # Requiere credenciales del registro privado de npm
+  # (verdaccio.zertifier.com): depende de los paquetes @zertifier/rx-store
+  # y @zertifier/zertiauthjs, que no están en el registro público. Sin un
+  # token válido la construcción falla con "npm error code E401".
+  #
+  # Para construirlo, crea un .npmrc con un token válido en el repositorio
+  # de ris3cat-smart-meter antes de ejecutar el comando de arriba.
+  #
+  # Aunque se construya, sólo permite entrar con Google contra un servicio
+  # externo (Zertiauth), así que no es utilizable en un entorno local
+  # aislado. Por eso queda fuera del arranque estándar.
+  smart-meter:
+    profiles: ["smart-meter"]
+    build:
+      context: ${SMART_METER_CONTEXT:-https://github.com/zertifier/ris3cat-smart-meter.git}
+      args:
+        API_URL: ${PUBLIC_API_URL:-http://localhost:3000}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${SMART_METER_PORT:-4200}:80"
+
+volumes:
+  mariadb_data:
+    driver: local

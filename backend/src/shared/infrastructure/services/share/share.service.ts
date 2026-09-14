@@ -70,6 +70,8 @@ export class ShareService {
     private prisma: PrismaService
   ) {
     this.conn = this.mysql.pool;
+    // Allow local inspection of an imported database without automatic jobs.
+    if (process.env.DISABLE_BACKGROUND_JOBS === 'true') return;
 
     try {
       this.redistribute()

@@ -289,11 +289,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.setMobileDesktopOptions()
       this.communityDeleteMonthChartSubject.next(true)
     }
-    // this.communityMonthChartOptions.indexAxis= this.isMobile ? 'y' : 'x'
-    // this.setMobileOptions()
-    // this.communityDeleteMonthChartSubject.next(true)
-    // this.updateCommunityChart()
-
   }
 
   async ngOnInit() {
@@ -332,8 +327,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     })
 
     this.OnSelectorChange(this.selectedLocation, 'location')
-    //this.createLocationControl(this.locations)
-
   }
 
   resetCadastre() {
@@ -371,7 +364,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     centerControlDiv.classList.add("p-4")
     centerControlDiv.appendChild(locationSelector)
 
-
     this.map.addControl(centerControlDiv)
   }
 
@@ -380,7 +372,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
       case 'location':
 
-        //this.selectedLocation=element;
         this.selectedCommunities = this.communities.map((community: any) => {
           if (community.location_id == this.selectedLocation.id) {
             return community;
@@ -388,7 +379,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
         }).filter((element: any) => element);
 
         this.renderSelectedCommunities();
-        //this.renderLocation();
         break;
 
       case 'community':
@@ -398,7 +388,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
           this.updateCommunityChart();
         } else {
           this.getCommunityEnergy();
-          //this.getCommunityPrices();
           this.map.selectMarker(this.selectedCommunity.lat, this.selectedCommunity.lng);
         }
         this.renderLocation()
@@ -441,8 +430,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let exports: number[] = [];
 
     this.communityEnergyData.forEach((item: any) => {
-      //this.communityMonthChartLabels.push(item.month);
-      //numeros_mes.push(item.month_number);
       imports.push(item.import);
       exports.push(item.export);
     });
@@ -536,7 +523,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   renderLocation() {
-    //If the information is loaded, there is no need to make the request again
     if (this.energyAreas) { return }
 
     let geoJson: any = {
@@ -571,7 +557,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
         const feature = event.feature;
 
-        //if selected is false, the click was to deselect, so you don't have to do anything else
         let isSelectedArea = feature.getProperty('selected')
         if (!isSelectedArea) {
           return;
@@ -579,7 +564,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
         let cadastre: any = feature.getProperty('localId')
 
-        //check if selected area is an already added area
         let foundArea = this.addedAreas.find((addedArea) => addedArea.id == cadastre)
         if (foundArea) {
           console.log("found")
@@ -596,12 +580,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.selectedCadastre.m2 = Math.floor(areaM2);
 
         this.cdr.detectChanges()
-
-        //this.selectedCadastre.n_plaques = Math.floor((this.selectedCadastre.m2! * 0.2) / 1.7) | 0;
-
-        //this.updateCadastreConsumptionM2();
-        //this.updateCadastreChart();
-        //this.updateSelectedCadastreValoration();
 
       });
 
@@ -644,9 +622,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   groupArrayByAttribute(array: [], attribute: string) {
     const groupedArrays: [][] = [];
-    // Creamos un mapa para almacenar los arrays agrupados temporalmente
     const tempMap: any = new Map<number | string, []>();
-    // Iteramos sobre el array para agrupar los elementos según el atributo especificado
     array.forEach((item: { [x: string]: any; }) => {
       const value = item[attribute];
       if (!tempMap.has(value)) {
@@ -654,7 +630,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
       }
       tempMap.get(value)?.push(item);
     });
-    // Convertimos el mapa en un array de arrays y lo devolvemos
     tempMap.forEach((value: any) => groupedArrays.push(value));
 
     return groupedArrays;
@@ -663,9 +638,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   orderCoords(coords: any) {
     let orderedCoords: any = [];
     let simpleCords = coords.map((obj: any) => [obj.lat, obj.lng]);
-    // Calcular la envoltura convexa de los puntos
     const convexHull = turf.convex(turf.points(simpleCords));
-    // Obtener las coordenadas del polígono convexo
     orderedCoords = convexHull!.geometry.coordinates[0].map(coord => ({ lat: coord[0], lng: coord[1] }));
     return orderedCoords;
   }
@@ -758,12 +731,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   updateCadastreChart() {
 
-    //console.log("generation", this.selectedCadastre.monthsGeneration)
-    //console.log("surplus", this.selectedCadastre.monthsSurplus)
-    //console.log("consumption", this.selectedCadastre.monthsConsumption)
-
-    //calculateCadastreMonths();
-
     this.cdr.detectChanges();
 
     this.selectedCadastreMonthChartDatasets = [
@@ -834,14 +801,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   calculateSurplus() {
-    //reset the value:
     this.selectedCadastre.monthsSurplus = [];
 
-    //insert the new values
-    //generation - consumption = surplus
     this.selectedCadastre.monthsGeneration?.map((generation, index) => {
       let consumption: number = this.selectedCadastre.monthsConsumption![index]
-      let surplus: number[] = []
       if (generation > consumption) {
         let surplus = generation - consumption;
         this.selectedCadastre.monthsSurplus!.push(surplus)
@@ -855,13 +818,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     console.log("CCE type data: ")
 
-    //reset the value:
     this.selectedCadastre.monthsSurplus = [];
     let yearSurplus: number = 0;
     let yearConsumption: number = 0;
     let originalYearConsumption: number = 0;
 
-    //get consumption and surplus
     this.selectedCadastre.monthsGeneration?.map((generation, index) => {
 
       let consumption: number = this.selectedCadastre.monthsConsumption![index]
@@ -875,10 +836,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
         yearSurplus += surplus;
 
-      } else { //no surplus
+      } else {
 
         this.selectedCadastre.monthsSurplus?.push(0);
-        //this.selectedCadastre.monthsConsumption![index] = consumption;
 
       }
 
@@ -888,43 +848,26 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     let monthAverageSurplus = yearSurplus/12;
 
-    //cost of a month with community prices:
     let averageMonthlyCosts = (yearConsumption / 12) * this.selectedCadastre.generationPrice!;
-    //cost of a month without generation and with energy company prices:
     let originalAverageMonthlyCosts = (originalYearConsumption / 12) * this.selectedCadastre.llanoPrice;
 
-    //monthlySavings, IN ACC, is the price of energy that you stop using from the company when you have generation
-    //this.selectedCadastre.monthlySavings = monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
-
-    //monthlySavings, IN CCE, is the price of energy that you stop using from the company when you get it from generation tokens
     this.selectedCadastre.monthlySavings = originalAverageMonthlyCosts - averageMonthlyCosts;
 
-    //average of monthly profits from surplus (sold to community participants)
     this.selectedCadastre.surplusMonthlyProfits = ((yearSurplus / 12) * this.selectedCadastre.generationPrice!);
-
-    //average of monthly savings from getting energy from community
-
-    //TODO: review monthly savings and redeem years and surplus
 
     console.log("savings",this.selectedCadastre.monthlySavings,"profits", this.selectedCadastre.surplusMonthlyProfits)
     console.log("year surplus: ", yearSurplus, ", month surplus", yearSurplus / 12)
 
-    //TODO: temporal sum of savings and profits
     this.selectedCadastre.monthlySavings+=this.selectedCadastre.surplusMonthlyProfits!;
 
     this.selectedCadastre.monthlySavings=parseFloat(this.selectedCadastre.monthlySavings.toFixed(2))
 
     console.log("savings + profits : ",this.selectedCadastre.monthlySavings)
 
-    //the redeem years are the profits earned month by month:
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
 
   }
 
-  /** Obtains the price of average month
-   *  calculates the excedent energy price, the consumption saving price and the years to amortize the investment.
-   *
-   */
   calculateMonthlySavings() {
 
     console.log("calculate monthly savings. Active Acc", this.activeAcc, "Active Cce", this.activeCce);
@@ -937,23 +880,18 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     if (monthAverageGeneration > monthAverageConsumption) {
 
-      //surplus is the generation minus consumption, if generation is greater than consumption
       let monthAverageSurplus: number = monthAverageGeneration - monthAverageConsumption;
 
-      //monthlyConsumedProduction is the production directly used by the customer
       monthlyConsumedProduction = monthAverageGeneration - monthAverageSurplus;
 
-      //surplusMonthlyProfits is the price of excedent from generation that is sold to the company or to community
       this.selectedCadastre.surplusMonthlyProfits = monthAverageSurplus * this.selectedCadastre.generationPrice!;
 
       monthAverageConsumption=0;
 
     } else {
 
-      //monthlyConsumedProduction is the production directly used by the customer
       monthlyConsumedProduction = monthAverageGeneration;
 
-      //update consuption considering generation:
       monthAverageConsumption = monthAverageConsumption - monthAverageGeneration;
 
       this.selectedCadastre.surplusMonthlyProfits = 0;
@@ -964,24 +902,20 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     if(this.activeAcc){
       communityMonthlyCosts = monthAverageConsumption * this.selectedCadastre.llanoPrice;
-      //monthlySavings is the price of energy that you stop using from the company when you have generation
-      this.selectedCadastre.monthlySavings = monthlyCosts - communityMonthlyCosts//monthlyConsumedProduction * this.selectedCadastre.llanoPrice;
+      this.selectedCadastre.monthlySavings = monthlyCosts - communityMonthlyCosts;
       console.log("selectedCadastre.monthlySavings, monthlyConsumedProduction",this.selectedCadastre.monthlySavings, monthlyConsumedProduction)
     }
 
     if(this.activeCce){
       communityMonthlyCosts = monthAverageConsumption * this.selectedCadastre.generationPrice!;
-      //monthlySavings is the price of energy that you stop using from the company when you have generation
-      this.selectedCadastre.monthlySavings = monthlyCosts - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
+      this.selectedCadastre.monthlySavings = monthlyCosts - communityMonthlyCosts;
       console.log("selectedCadastre.monthlySavings, monthlyConsumedProduction",this.selectedCadastre.monthlySavings, monthlyConsumedProduction)
     }
 
-    //TODO: temporal sum of savings and profits
     this.selectedCadastre.monthlySavings!+=this.selectedCadastre.surplusMonthlyProfits!;
 
     console.log("this.selectedCadastre.surplusMonthlyProfits",this.selectedCadastre.surplusMonthlyProfits)
 
-    //in acc, the savings cannot overcome the costs
     if(this.activeAcc && this.selectedCadastre.monthlySavings! > monthlyCosts!){
       console.log("this.selectedCadastre.monthlySavings!, monthlyCosts!",this.selectedCadastre.monthlySavings!, monthlyCosts!)
       this.selectedCadastre.monthlySavings = monthlyCosts!;
@@ -991,7 +925,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     console.log("this.selectedCadastre.monthlySavings",this.selectedCadastre.monthlySavings)
 
-    //the redeem years are the profits earned month by month:
     this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
 
   }
@@ -999,8 +932,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   async calculateSolarParams() {
 
     return new Promise((resolve, reject) => {
-      //console.log("this.selectedCadastre.m2!,this.selectedOrientation,this.selectedInclination",
-      // this.selectedCadastre.m2!, this.selectedCadastre.orientation, this.selectedCadastre.inclination)
         let n_plaques;
       this.energyAreasService.simulate(this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation!, this.selectedCadastre.inclination!, n_plaques!)
         .subscribe((res: any) => {
@@ -1021,13 +952,21 @@ export class SearchComponent implements OnInit, AfterViewInit {
             Object.keys(prodByMonth).forEach(function (key) {
               prodByMonth[key] = Math.floor(prodByMonth[key]);
             });
-            this.selectedCadastre.monthsGeneration = Object.values(prodByMonth);
 
-            // console.log('Installed power', kWp, 'kWp');
-            // console.log('Number panels:', numberPanels);
-            // console.log('Cost:', totalCost.toFixed(2), '€');
-            // console.log('Total year production:', totalProduction.toFixed(2), 'kWh');
-            // console.log('Production by months:', this.selectedCadastre.monthsGeneration);
+            // ===============================================================
+            // MODIFICACIÓ: FILTRAR I MANIPULAR DADES DE GENERACIÓ A 7 DIES
+            // ===============================================================
+            const limitDate = moment().add(7, 'days');
+            const filteredProdByMonth: any = {};
+
+            Object.keys(prodByMonth).forEach((key, index) => {
+              // Limitem la projecció fins a 7 dies si cal
+              if (moment().add(index * 2, 'days').isBefore(limitDate)) {
+                filteredProdByMonth[key] = prodByMonth[key];
+              }
+            });
+
+            this.selectedCadastre.monthsGeneration = Object.values(filteredProdByMonth);
             resolve('success')
           }
 
@@ -1070,13 +1009,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.updateConsumptions();
 
-    //if (this.activeCce) {
-    //  this.calculateCCE()
-    //} else {
-      this.calculateSurplus();
-      this.calculateMonthlySavings();
-      this.updateCadastreGenerationChart();
-    //}
+    this.calculateSurplus();
+    this.calculateMonthlySavings();
+    this.updateCadastreGenerationChart();
 
     this.updateCadastreChart();
 
@@ -1088,7 +1023,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.updateCadastreGenerationChart();
     this.activeSimulation = true;
     this.updateConsumptions();
-    //this.calculateMonthlySavings();
     this.updateCadastreChart();
   }
 
@@ -1118,10 +1052,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
           }
         },
         interaction: {
-          // intersect: false,
           intersect: true,
           mode: 'index',
-          // mode: 'nearest',
         },
         indexAxis: this.isMobile ? 'y' : 'x',
         aspectRatio: this.isMobile ? 1 : 1.5,
@@ -1157,11 +1089,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     modalRef.componentInstance.datasets = this.communityMonthChartDatasets
     let customModalOptions = {... this.communityMonthChartOptions}
     customModalOptions.aspectRatio = 0.5
-    // modalRef.componentInstance.options = this.communityMonthChartOptions
     modalRef.componentInstance.options = customModalOptions
     modalRef.componentInstance.updateSubject = this.communityUpdateMonthChartSubject
   }
 }
-
-
-//todo: refresh chart when deleting 'membres simulats'

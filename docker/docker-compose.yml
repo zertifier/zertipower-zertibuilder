@@ -78,6 +78,7 @@ services:
       DB_DATABASE: ${DB_DATABASE:-zertipower-dev}
 
       PORT: 3000
+      DISABLE_BACKGROUND_JOBS: ${DISABLE_BACKGROUND_JOBS:-false}
       JWT_SECRET: ${JWT_SECRET:-clave-de-desarrollo-cambiar-en-produccion}
       APPLICATION_NAME: API
       VIEWS_FOLDER: src/shared/infrastructure/views/public

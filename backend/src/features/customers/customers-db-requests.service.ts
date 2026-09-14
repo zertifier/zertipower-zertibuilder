@@ -18,6 +18,8 @@ export class CustomersDbRequestsService {
         private logsService: LogsService,
         private notificationService: NotificationsService) {
         this.conn = this.mysql.pool;
+        // Allow local inspection of an imported database without automatic jobs.
+        if (process.env.DISABLE_BACKGROUND_JOBS === 'true') return;
         this.watchBalances();
     }
 

@@ -330,7 +330,7 @@ async function calculate(lat: number, lng: number, area: number, direction: numb
   let prodByMonth = sumValuesByMonth(hourValuesAvg);
 
   let totalCost = calculateCost(kWp, installationCost, invertersCost, managementCost, panelsCost, structureCost, engineeringCost);
-  return { kWp, totalProduction, numberPanels, prodByMonth, totalCost };
+  return { kWp, totalProduction, numberPanels, prodByMonth, totalCost, tilt: angle, azimuth: direction };
 }
 
 async function httpGet(url: string) {

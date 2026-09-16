@@ -59,6 +59,14 @@ interface cadastre {
   totalCost?: number,
   monthlySavings?: number,
   InsalledPower?: number,
+  solarLatitude?: number,
+  solarLongitude?: number,
+  solarBusy?: boolean,
+  solarError?: string,
+  solarResult?: { daily: { date: string; kwh: number }[]; input: { kwp: number; tilt: number; azimuth: number } },
+  solarTilt?: number,
+  solarAzimuth?: number,
+  solarSavedCommunityId?: number,
   orientation?: number,
   oldOrientation?: number,
   inclination?: number,
@@ -123,14 +131,14 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     { name: 'Sud', value: 0 },
     //{ name: 'Sudest', value: 30 },
     //{ name: 'Sudoest', value: 30 },
-    { name: 'Est', value: 90 },
+    { name: 'Est', value: -90 },
     { name: 'Oest', value: 90 }
   ];
   inclinations: any[] = [
-    { name: '0-5%', value: 2 },
-    { name: '10-15%', value: 13 },
-    { name: '20-30%', value: 25 },
-    { name: '30-40%', value: 35 }
+    { name: '2°', value: 2 },
+    { name: '13°', value: 13 },
+    { name: '25°', value: 25 },
+    { name: '35°', value: 35 }
   ];
   communityValoration: number = 0;
   communityEnergyData: any = [];
@@ -772,6 +780,8 @@ export class CalculateComponent implements OnInit, AfterViewInit {
             return;
           }
 
+          this.selectedCadastre.solarLatitude = latLng.lat();
+          this.selectedCadastre.solarLongitude = latLng.lng();
           this.selectedCadastre.feature = feature;
           this.selectedCadastre.id = cadastre;
 
@@ -1010,11 +1020,13 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       if (found) {
         this.addedAreas = [...this.addedAreas];
         this.updateCommunityChart();
+
         Swal.fire({ text: 'Àrea actualitzada', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>', timer: 2000, customClass: { icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       } else {
         this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
         this.updateCommunityChart()
         this.map.activeArea(this.selectedCadastre)
+
         Swal.fire({ text: 'Àrea afegida', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>', timer: 2000, customClass: { icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
         this.resetCadastre(); //TO RESET SELECTED AREA WHEN AREA ADDED.
       }
@@ -1022,6 +1034,61 @@ export class CalculateComponent implements OnInit, AfterViewInit {
 
 
     })
+  }
+
+  solarConfigurationReady(area: cadastre): boolean {
+    return area.oldM2 === area.m2 && area.oldInclination === area.inclination &&
+      area.oldOrientation === area.orientation &&
+      typeof area.solarTilt === 'number' && typeof area.solarAzimuth === 'number';
+  }
+
+  async persistCommunityRoof(area: cadastre) {
+    if (!this.solarConfigurationReady(area)) {
+      Swal.fire({ text: 'Espera que es recalculi la configuració de la coberta abans de desar-la.', icon: 'info' });
+      return;
+    }
+    const input = {
+      communityId: Number(this.selectedCommunity?.id),
+      roofReference: String(area.id || ''),
+      latitude: area.solarLatitude!,
+      longitude: area.solarLongitude!,
+      areaM2: area.m2!,
+      tilt: area.solarTilt!,
+      azimuth: area.solarAzimuth!,
+      panelCount: area.n_plaques!,
+      kwp: area.InsalledPower!,
+    };
+    const numericValues = [input.latitude, input.longitude, input.areaM2, input.tilt,
+      input.azimuth, input.panelCount, input.kwp];
+    if (!Number.isSafeInteger(input.communityId) || input.communityId <= 0 || !input.roofReference ||
+        numericValues.some(value => typeof value !== 'number' || !Number.isFinite(value)) ||
+        input.areaM2 <= 0 || input.panelCount <= 0 || input.kwp <= 0) {
+      Swal.fire({ text: 'No s’ha pogut desar la coberta per a la previsió comunitària. Revisa les dades de la simulació.', icon: 'error' });
+      return;
+    }
+    if (!this.energyAreasService.hasSolarSession()) {
+      const login = await Swal.fire({
+        title: 'Desar la meva coberta',
+        text: 'Inicia sessió amb el teu compte de membre per associar-hi aquesta configuració.',
+        input: 'text', inputLabel: 'Usuari o correu electrònic', showCancelButton: true,
+      });
+      if (!login.isConfirmed || !login.value) return;
+      const password = await Swal.fire({ title: 'Contrasenya', input: 'password', showCancelButton: true });
+      if (!password.isConfirmed || !password.value) return;
+      try { await this.energyAreasService.loginForSolar(login.value, password.value); }
+      catch { Swal.fire({ text: 'No s’ha pogut iniciar sessió.', icon: 'error' }); return; }
+    }
+    this.energyAreasService.saveCommunityRoof(input).subscribe({
+      next: (response: any) => {
+        if (!response.success) {
+          Swal.fire({ text: 'No s’ha pogut desar la configuració.', icon: 'error' });
+          return;
+        }
+        area.solarSavedCommunityId = input.communityId;
+        Swal.fire({ text: 'Configuració solar desada al teu membre de la comunitat.', icon: 'success' });
+      },
+      error: () => { this.energyAreasService.clearSolarSession(); Swal.fire({ text: 'No s’ha pogut desar. Comprova que ets membre actiu de la comunitat i que la coberta no pertany a un altre membre.', icon: 'error' }); },
+    });
   }
 
   deleteArea(index: number) {
@@ -1039,8 +1106,14 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     })
       .then((result) => {
         if (result.isConfirmed) {
-          this.map.deleteArea(this.addedAreas[index])
+          const removedArea = this.addedAreas[index];
+          this.map.deleteArea(removedArea)
           this.addedAreas.splice(index, 1);
+          if (removedArea?.solarSavedCommunityId && removedArea?.id) {
+            this.energyAreasService.deleteCommunityRoof(removedArea.solarSavedCommunityId, String(removedArea.id)).subscribe({
+              error: () => Swal.fire({ text: 'No s’ha pogut eliminar la coberta de la previsió comunitària.', icon: 'error' }),
+            });
+          }
           this.resetCadastre();
           this.updateCommunityChart();
           this.cdr.detectChanges();
@@ -1159,14 +1232,52 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     const modalRef = this.modalService.open(CalculateInfoModalComponent, {size: 'xl', scrollable: true});
   }
 
+  simulateSelectedRoof() {
+    const house = this.selectedCadastre;
+    if (house.solarBusy) return;
+    if (!this.solarConfigurationReady(house)) {
+      house.solarError = 'Espera que es recalculin les dades de la coberta abans de simular.';
+      return;
+    }
+    house.solarResult = undefined;
+    house.solarError = '';
+    const input = { latitude: house.solarLatitude!, longitude: house.solarLongitude!,
+      kwp: house.InsalledPower!, tilt: house.solarTilt!, azimuth: house.solarAzimuth!,
+      areaM2: house.m2!, panelCount: house.n_plaques! };
+    if (Object.values(input).some(v => typeof v !== 'number' || !Number.isFinite(v)) || input.kwp <= 0) {
+      house.solarError = 'Selecciona una coberta i indica la potència fotovoltaica en kWp.';
+      return;
+    }
+    house.solarBusy = true;
+    this.energyAreasService.simulateRoof(input).subscribe({
+      next: (response: any) => {
+        house.solarBusy = false;
+        if (response.success && Array.isArray(response.data?.daily)) house.solarResult = response.data;
+        else house.solarError = 'No s’ha pogut completar la simulació. Torna-ho a provar.';
+      },
+      error: () => {
+        house.solarBusy = false;
+        house.solarError = 'No s’ha pogut obtenir la radiació o completar la previsió. Torna-ho a provar.';
+      },
+    });
+  }
+
   async calculateSolarParams() {
+    const house = this.selectedCadastre;
+    const snapshot = { latitude: house.solarLatitude!, longitude: house.solarLongitude!,
+      m2: house.m2!, inclination: house.inclination!, orientation: house.orientation! };
 
     return new Promise((resolve, reject) => {
       //console.log("this.selectedCadastre.m2!,this.selectedOrientation,this.selectedInclination",
       // this.selectedCadastre.m2!, this.selectedCadastre.orientation, this.selectedCadastre.inclination)
       let n_plaques;
-      this.energyAreasService.simulate(this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation!, this.selectedCadastre.inclination!, n_plaques!)
+      this.energyAreasService.simulate(snapshot.latitude, snapshot.longitude, snapshot.m2, snapshot.orientation, snapshot.inclination, n_plaques!)
         .subscribe((res: any) => {
+          if (this.selectedCadastre !== house || house.m2 !== snapshot.m2 ||
+              house.inclination !== snapshot.inclination || house.orientation !== snapshot.orientation) {
+            reject('La configuració ha canviat durant el càlcul.');
+            return;
+          }
           if (!res.success) {
             reject(res.message);
           } else {
@@ -1179,6 +1290,9 @@ export class CalculateComponent implements OnInit, AfterViewInit {
             const prodByMonth = data.prodByMonth
             const totalCost = data.totalCost
 
+            this.selectedCadastre.solarTilt = data.tilt;
+            this.selectedCadastre.solarAzimuth = data.azimuth;
+            this.selectedCadastre.solarResult = undefined;
             this.selectedCadastre.InsalledPower = kWp;
             this.selectedCadastre.n_plaques = numberPanels;
             this.selectedCadastre.totalCost = totalCost.toFixed(2);

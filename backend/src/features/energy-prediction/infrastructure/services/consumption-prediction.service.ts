@@ -6,6 +6,7 @@ import { EnvironmentService } from "../../../../shared/infrastructure/services";
 export class ConsumptionPredictionService {
 
     private httpClient = axios.create({
+        timeout: 15000,
         baseURL: this.environment.getEnv().ENERGY_PREDICTION_API
     });
 

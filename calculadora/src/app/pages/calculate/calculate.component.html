@@ -766,7 +766,7 @@
                   <span>Inclinació del sostre</span>
                 </div>
                 <select id="inclinationSelector" class="form-select w-100"
-                        [(ngModel)]="this.selectedCadastre.inclination">
+                        [(ngModel)]="this.selectedCadastre.inclination" (change)="simulateGenerationConsumption()">
                   <option *ngFor="let inclination of inclinations" [ngValue]="inclination.value">
                     {{ inclination.name }}
                   </option>
@@ -778,7 +778,7 @@
                   <span>Orientació</span>
                 </div>
                 <select id="orientationSelector" class="form-select w-100"
-                        [(ngModel)]="this.selectedCadastre.orientation">
+                        [(ngModel)]="this.selectedCadastre.orientation" (change)="simulateGenerationConsumption()">
                   <option *ngFor="let orientation of orientations" [ngValue]="orientation.value">
                     {{ orientation.name }}
                   </option>
@@ -786,6 +786,41 @@
               </div>
 
             </div>
+
+            <section class="mt-4 p-3 border rounded" aria-label="Simulació solar">
+              <h3>Què podrien produir les teves plaques?</h3>
+              <p>Previsió per avui i els cinc dies següents, segons el temps previst i la inclinació i orientació seleccionades.</p>
+              <label for="solarSimulationKwp">Potència fotovoltaica que vols instal·lar (kWp)</label>
+              <input id="solarSimulationKwp" class="form-control" type="number" min="0.001" max="10000" step="0.1"
+                     [(ngModel)]="selectedCadastre.InsalledPower" (ngModelChange)="selectedCadastre.solarResult = undefined">
+              <p class="mt-2">Superfície seleccionada: {{ selectedCadastre.m2 }} m².
+                La potència suggerida prové de la simulació de la coberta; pots modificar-la.</p>
+              <button type="button" class="btn btn-primary" [disabled]="selectedCadastre.solarBusy || !solarConfigurationReady(selectedCadastre)" (click)="simulateSelectedRoof()">
+                {{ selectedCadastre.solarBusy ? 'Calculant…' : 'Simular producció solar' }}
+              </button>
+              <p *ngIf="selectedCadastre.solarError" class="mt-2" role="alert">{{ selectedCadastre.solarError }}</p>
+              <div *ngIf="selectedCadastre.solarResult as result" aria-live="polite" class="mt-3">
+                <p>Resultat per {{ result.input.kwp }} kWp, {{ result.input.tilt }}° d’inclinació i {{ result.input.azimuth }}° d’azimut (sud = 0°).</p>
+                <div class="row g-2">
+                  <div *ngFor="let day of result.daily" class="col-6 col-md-2">
+                    <div class="p-2 rounded text-center" style="background:#e5f4e9">
+                      <div>{{ day.date | date:'dd/MM' }}</div>
+                      <strong>{{ day.kwh | number:'1.2-2' }} kWh</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="mt-3 mb-0"><small>Estimació amb rendiment del 80%, sense ombres locals, brutícia ni límit d’inversor.
+                No requereix CUPS ni històrics. Dades meteorològiques: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>.</small></p>
+              <p class="small">La previsió utilitza la inclinació efectiva de les plaques: {{ selectedCadastre.solarTilt }}°,
+                azimut {{ selectedCadastre.solarAzimuth }}° (0° sud). Rendiment del sistema: 80%.</p>
+              <button class="btn btn-outline-secondary" type="button"
+                [disabled]="!solarConfigurationReady(selectedCadastre) || !selectedCadastre.InsalledPower || !selectedCommunity?.id"
+                (click)="persistCommunityRoof(selectedCadastre)">Desar com a coberta meva a la comunitat</button>
+              <p class="small">Només es compten les configuracions desades pels membres actius.
+                Pots simular sense iniciar sessió.</p>
+
+            </section>
 
             <div class="row mt-2 mt-md-4">
               <div class="col-12 col-lg-6 ps-0">

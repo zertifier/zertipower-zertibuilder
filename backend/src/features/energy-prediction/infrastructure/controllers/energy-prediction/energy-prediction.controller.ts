@@ -1,14 +1,14 @@
+import { LocalConsumptionService } from '../../services/local-consumption.service';
+import { CalculadoraIntegrationService } from '../../services/calculadora-integration.service';
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { EnergyForecastService } from "../../services/energy-forecast.service";
-import * as moment from "moment";
+import { EnergyForecastService, SolarForecastPoint } from "../../services/energy-forecast.service";
+import * as moment from "moment-timezone";
 import { PrismaService } from "../../../../../shared/infrastructure/services";
-import { PredictionPacket } from "./prediction-packet";
-import { Predictor } from "./predictor";
 import { HttpResponse } from "../../../../../shared/infrastructure/http/HttpResponse";
 import { BadRequestError, InfrastructureError } from "../../../../../shared/domain/error/common";
-import { AxiosError } from "axios";
 import { ConsumptionPredictionService } from '../../services/consumption-prediction.service';
 import { ErrorCode } from 'src/shared/domain/error';
+import { UserPredictionIntegrationService } from '../../services/user-prediction-integration.service';
 
 @Controller('energy-prediction')
 export class EnergyPredictionController {
@@ -16,12 +16,19 @@ export class EnergyPredictionController {
     private energyForecastService: EnergyForecastService,
     private consumptionPrevisionService: ConsumptionPredictionService,
     private prisma: PrismaService,
+    private calculator: CalculadoraIntegrationService,
+    private localConsumption: LocalConsumptionService,
+    private historicalPrediction: UserPredictionIntegrationService,
   ) {
   }
 
   @Get('/community/:id/consumption')
   async getCommunityConsumptionPrediction(@Param("id") communityId: number, @Query("start_date") startDate: string, @Query("end_date") endDate: string) {
     try {
+      if (process.env.CONSUMPTION_LOCAL_TEST_COMMUNITY_ID === String(communityId)) {
+        return HttpResponse.success('Local historical community consumption estimate').withData(
+          await this.localConsumption.community(Number(communityId), startDate, endDate));
+      }
       let predictionResponse = await this.consumptionPrevisionService.getCommunityConsumption(communityId, startDate, endDate)
       return HttpResponse.success('Prediction realized').withData(predictionResponse);
     } catch (err) {
@@ -40,81 +47,83 @@ export class EnergyPredictionController {
   }
 
   @Get()
-  async getPrediction(@Query("cups") cupsId: number, @Query("community") communityId: number) {
-    const packets: Map<string, PredictionPacket> = new Map();
-
-    let response: { production: number, infoDt: Date }[];
-    if (cupsId) {
-      response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} AND production IS NOT NULL order by info_dt desc limit 192`;
-    } else if (communityId) {
-      response = await this.prisma.$queryRaw`select SUM(kwh_out) as production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type = 'community' and community_id = ${communityId} and kwh_out IS NOT NULL group by info_dt order by info_dt desc LIMIT 200`;
-    } else {
-      throw new BadRequestError('must specify cups or community')
+  async getPrediction(@Query() query: { cups?: string; community?: string; referenceDate?: string }) {
+    // Read the whole query: Nest's primitive conversion can turn a missing number into NaN.
+    const { cups: cupsId, community: communityId } = query;
+    if ((cupsId !== undefined) === (communityId !== undefined)) {
+      throw new BadRequestError('Specify exactly one of cups or community');
     }
-
-    if(!response.length || !response[0]){
-      return HttpResponse.failure('Cannot predict without data',ErrorCode.NOT_FOUND);
+    const rawId = cupsId ?? communityId;
+    if (typeof rawId !== 'string' || !/^[1-9]\d*$/.test(rawId)) {
+      throw new BadRequestError('Invalid CUPS or community ID');
     }
+    const id = Number(rawId);
+    if (!Number.isSafeInteger(id) || id <= 0) throw new BadRequestError('Invalid CUPS or community ID');
 
-    const now = response[0].infoDt;
-    const ago = response[response.length - 1].infoDt;
-    let historicRadiation;
-
-    try {
-      historicRadiation = await this.energyForecastService.getRadiation(ago, now);
-      // console.log({historicRadiation});
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        console.log(err.response?.data);
+    if (communityId !== undefined) {
+      if (!query.referenceDate) {
+        const automatic = await this.historicalPrediction.predictProductionForCommunityWithFallback(id, UserPredictionIntegrationService.HISTORICAL_VALIDATION_MODE);
+        const totals = new Map<string, number>();
+        automatic.predictions.forEach(item => (item.prediction?.data || []).forEach((point: SolarForecastPoint) => {
+          const day = point.time.slice(0, 10); totals.set(day, (totals.get(day) || 0) + point.value);
+        }));
+        const forecast = [...totals].map(([date, value]) => ({ time: `${date}T12:00:00`, value: Number(value.toFixed(2)) }));
+        const actual = automatic.actual || [];
+        const actualMap = new Map(actual.map((point: any) => [point.date, point.productionKwh]));
+        const errors = forecast.map(point => point.value - (actualMap.get(point.time.slice(0, 10)) || 0));
+        const mae = errors.length ? errors.reduce((sum, value) => sum + Math.abs(value), 0) / errors.length : null;
+        const rmse = errors.length ? Math.sqrt(errors.reduce((sum, value) => sum + value * value, 0) / errors.length) : null;
+        return HttpResponse.success('Historical community production prediction').withData({ mode: 'historical-validation', referenceDate: automatic.referenceDate, forecast, actual, mae, rmse });
       }
-      throw new InfrastructureError('Error happened while getting historic radiation');
-    }
-
-    for (const { value, time } of historicRadiation) {
-      const date = moment(time).format('YYYY-MM-DD HH:00');
-      const packet = packets.get(date) || { radiation: 0, production: 0, coefficient: 0 };
-      packet.radiation = value;
-      packets.set(date, packet);
-    }
-
-    for (const item of response) {
-      const date = moment(item.infoDt).format("YYYY-MM-DD HH:00");
-      const packet = packets.get(date) || { radiation: 0, production: 0, coefficient: 0 };
-      packet.production = item.production || 0;
-      packets.set(date, packet);
-    }
-
-    // Calculate coefficients
-    for (const [date, packet] of packets.entries()) {
-      if (packet.radiation <= 50) {
-        packet.production = 0;
-        packet.radiation = 0;
-        packet.coefficient = 0;
-        packets.set(date, packet);
-        continue;
+      const reference = query.referenceDate && moment.utc(query.referenceDate, 'YYYY-MM-DD', true).isValid()
+        ? moment.utc(query.referenceDate).format('YYYY-MM-DD') : moment.tz('Europe/Madrid').format('YYYY-MM-DD');
+      const start = moment.utc(reference).add(1, 'day').format('YYYY-MM-DD');
+      const end = moment.utc(reference).add(7, 'days').format('YYYY-MM-DD');
+      const predictions = await this.historicalPrediction.predictProductionForCommunity(id, start, end);
+      const totals = new Map<string, number>();
+      predictions.forEach(item => (item.prediction?.data || []).forEach((point: SolarForecastPoint) => {
+        const day = point.time.slice(0, 10); totals.set(day, (totals.get(day) || 0) + point.value);
+      }));
+      const forecast = [...totals].map(([date, value]) => ({ date, productionKwh: Number(value.toFixed(2)) }));
+      if (query.referenceDate) {
+        const actual = await this.historicalPrediction.getActualCommunityProduction(id, start, end);
+        const actualByDate = new Map(actual.map(point => [point.date, point.productionKwh]));
+        const errors = forecast.map(point => (point.productionKwh - (actualByDate.get(point.date) || 0)));
+        const mae = errors.length ? errors.reduce((sum, error) => sum + Math.abs(error), 0) / errors.length : null;
+        const rmse = errors.length ? Math.sqrt(errors.reduce((sum, error) => sum + error * error, 0) / errors.length) : null;
+        return HttpResponse.success('Historical community production backtest').withData({ mode: 'historical-validation', referenceDate: reference, forecast, actual, mae, rmse, metrics: { mae, rmse } });
       }
-
-      packet.coefficient = packet.production / packet.radiation;
-      packets.set(date, packet);
+      return HttpResponse.success('Historical community production prediction').withData(
+        forecast.map(point => ({ time: `${point.date}T12:00:00`, value: point.productionKwh })));
     }
 
-
-    // Get radiation prediction
-    const atThisMoment = moment(moment().format('YYYY-MM-DD 00:00')).toDate();
-    const future = moment(moment(atThisMoment).add(1, "days").format('YYYY-MM-DD 23:59')).toDate();
-    const radiationPrediction = await this.energyForecastService.getRadiationForecast(atThisMoment, future);
-
-    const predictor = new Predictor(Array.from(packets.values()), [
-      { from: 50, to: 250 },
-      { from: 250, to: 500 },
-      { from: 500, to: 750 },
-      { from: 750, to: 1000 },
-    ]);
-
-    let data = radiationPrediction.map(v => {
-      return { time: v.time, value: predictor.getPrediction(v.value) };
-    });
-
+    let configurations;
+    if (communityId === undefined) {
+      const config = await this.calculator.getSolarConfigFromCalculadora(id);
+      if (!config) return HttpResponse.failure('CUPS not found', ErrorCode.NOT_FOUND);
+      configurations = [{ latitud: config.lat, longitud: config.lng, kwp: config.kwp,
+        potencia_inversor_kw: config.potencia_inversor_kw, graus: config.inclination,
+        performance_ratio: config.performance_ratio, azimut: config.orientation }];
+    }
+    if (!configurations || configurations.length === 0) throw new BadRequestError('No production configurations found');
+    const today = moment.tz('Europe/Madrid').startOf('day');
+    const startDate = today.format('YYYY-MM-DD');
+    const endDate = today.clone().add(6, 'days').format('YYYY-MM-DD');
+    const forecasts: SolarForecastPoint[][] = [];
+    for (const configuration of configurations) {
+      forecasts.push(await this.energyForecastService.getProductionForecast(configuration, startDate, endDate));
+    }
+    const totals = new Map<string, number>();
+    const first = forecasts[0];
+    for (const forecast of forecasts) {
+      if (forecast.length !== first.length || forecast.some((point, index) => point.time !== first[index].time)) {
+        throw new InfrastructureError('Solar installations returned different forecast hours');
+      }
+      for (const point of forecast) {
+        totals.set(point.time, (totals.get(point.time) ?? 0) + point.value);
+      }
+    }
+    const data = Array.from(totals, ([time, value]) => ({ time, value }));
     return HttpResponse.success('Prediction realized').withData(data);
   }
 }

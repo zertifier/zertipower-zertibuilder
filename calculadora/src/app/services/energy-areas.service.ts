@@ -19,6 +19,14 @@ export class EnergyAreasService {
   }
   private solarHeaders() { return { Authorization: `Bearer ${this.solarAccessToken || ''}` }; }
 
+  saveSelection(input: any) { return firstValueFrom(this.http.post<any>(`${environment.api_url}/roof-simulation/community-selections`, input)); }
+  listSelections(communityId: number) { return firstValueFrom(this.http.get<any>(`${environment.api_url}/roof-simulation/community-selections`, {params:{community:communityId}})); }
+  removeSelection(communityId: number, areaId: number) { return firstValueFrom(this.http.delete<any>(`${environment.api_url}/roof-simulation/community-selections`, {params:{community:communityId,area:areaId}})); }
+  consumption(communityId: number, cupsId?: number | null) {
+    const params:any={community:communityId}; if(cupsId) params.cups=cupsId;
+    return firstValueFrom(this.http.get<any>(`${environment.api_url}/roof-simulation/calculator-consumption`,{params}));
+  }
+
   baseUrl = `${environment.api_url}/energy-areas`;
 
   constructor(private http: HttpClient) {
@@ -30,7 +38,7 @@ export class EnergyAreasService {
   }
 
   saveCommunityRoof(input: { communityId: number; roofReference: string; latitude: number; longitude: number;
-    areaM2: number; tilt: number; azimuth: number; panelCount: number; kwp: number }) {
+    areaM2: number; tilt: number; azimuth: number; panelCount: number; kwp: number; energyAreaId?: number; inverterPowerKw?: number | null }) {
     return this.http.post(`${environment.api_url}/roof-simulation/community-roof`, input, { headers: this.solarHeaders() });
   }
 
@@ -59,8 +67,9 @@ export class EnergyAreasService {
     return this.http.get(url);
   }
 
-  simulate(lat:number,lng:number,m2:number,orientation:number,inclination:number,n_plaques:number){
+  simulate(lat:number,lng:number,m2:number,orientation:number,inclination:number,n_plaques:number, energyAreaId?: number){
     let url = `${this.baseUrl}/simulate?lat=${lat}&lng=${lng}&area=${m2}&direction=${orientation}&angle=${inclination}&panels=${n_plaques}`;
+    if (energyAreaId != null) url += `&energyAreaId=${energyAreaId}`;
     return this.http.get(url);
   }
 

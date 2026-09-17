@@ -1,0 +1,123 @@
+{
+  "success": true,
+  "data": {
+    "forecast": [
+      {
+        "time": "2026-09-18T12:00:00+02:00",
+        "value": 395.59
+      },
+      {
+        "time": "2026-09-19T12:00:00+02:00",
+        "value": 607.63
+      },
+      {
+        "time": "2026-09-20T12:00:00+02:00",
+        "value": 632.2
+      },
+      {
+        "time": "2026-09-21T12:00:00+02:00",
+        "value": 619.94
+      },
+      {
+        "time": "2026-09-22T12:00:00+02:00",
+        "value": 666.34
+      },
+      {
+        "time": "2026-09-23T12:00:00+02:00",
+        "value": 668.92
+      }
+    ],
+    "predictions": [
+      {
+        "energyAreaId": 3103,
+        "roofReference": "6902401DG5760S",
+        "input": {
+          "latitude": 42.18171145337464,
+          "longitude": 2.477655278542555,
+          "kwp": 113.7,
+          "tilt": 25,
+          "azimuth": 0,
+          "areaM2": 853,
+          "panelCount": 253
+        },
+        "daily": [
+          {
+            "date": "2026-09-18",
+            "kwh": 369.59
+          },
+          {
+            "date": "2026-09-19",
+            "kwh": 567.69
+          },
+          {
+            "date": "2026-09-20",
+            "kwh": 590.64
+          },
+          {
+            "date": "2026-09-21",
+            "kwh": 579.19
+          },
+          {
+            "date": "2026-09-22",
+            "kwh": 622.54
+          },
+          {
+            "date": "2026-09-23",
+            "kwh": 624.95
+          }
+        ]
+      },
+      {
+        "energyAreaId": 3104,
+        "roofReference": "6902601DG5760S",
+        "input": {
+          "latitude": 42.18124971968432,
+          "longitude": 2.478314660739948,
+          "kwp": 8,
+          "tilt": 25,
+          "azimuth": 0,
+          "areaM2": 60,
+          "panelCount": 18
+        },
+        "daily": [
+          {
+            "date": "2026-09-18",
+            "kwh": 26
+          },
+          {
+            "date": "2026-09-19",
+            "kwh": 39.94
+          },
+          {
+            "date": "2026-09-20",
+            "kwh": 41.56
+          },
+          {
+            "date": "2026-09-21",
+            "kwh": 40.75
+          },
+          {
+            "date": "2026-09-22",
+            "kwh": 43.8
+          },
+          {
+            "date": "2026-09-23",
+            "kwh": 43.97
+          }
+        ]
+      }
+    ],
+    "selectedRoofs": 2,
+    "predictorRequests": 2,
+    "source": "calculator-gti-v1",
+    "weatherSource": "Open-Meteo",
+    "performanceRatio": 0.8,
+    "assumptions": [
+      "No inverter clipping; inverter rating not provided",
+      "No local shading model"
+    ],
+    "start": "2026-09-18",
+    "end": "2026-09-23"
+  },
+  "message": "Selected roof production details"
+}

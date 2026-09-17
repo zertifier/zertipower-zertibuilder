@@ -1,0 +1,1260 @@
+{
+  "requests": [
+    {
+      "url": "http://localhost:3000/roof-simulation/community-selections?community=7",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "latitude": 42.18171145337464,
+            "longitude": 2.477655278542555,
+            "kwp": 113.7,
+            "tilt": 25,
+            "azimuth": 0,
+            "areaM2": 853,
+            "panelCount": 253,
+            "communityId": 7,
+            "energyAreaId": 3103,
+            "roofReference": "6902401DG5760S",
+            "monthlyGenerationKwh": [
+              9011,
+              10626,
+              13519,
+              13892,
+              15149,
+              15925,
+              17695,
+              16817,
+              13368,
+              11273,
+              8966,
+              8350
+            ],
+            "monthlyConsumptionKwh": [
+              300.56,
+              194.55,
+              197.4,
+              154.57,
+              159.22,
+              134.18,
+              116.09,
+              115.22,
+              172.62,
+              251,
+              239.46,
+              334.47
+            ],
+            "consumptionSource": "estimate-community-history",
+            "consumptionLabel": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23."
+          },
+          {
+            "latitude": 42.18124971968432,
+            "longitude": 2.478314660739948,
+            "kwp": 8,
+            "tilt": 25,
+            "azimuth": 0,
+            "areaM2": 60,
+            "panelCount": 18,
+            "communityId": 7,
+            "energyAreaId": 3104,
+            "roofReference": "6902601DG5760S",
+            "monthlyGenerationKwh": [
+              663,
+              758,
+              952,
+              978,
+              1067,
+              1121,
+              1246,
+              1184,
+              941,
+              795,
+              646,
+              617
+            ],
+            "monthlyConsumptionKwh": [
+              300.56,
+              194.55,
+              197.4,
+              154.57,
+              159.22,
+              134.18,
+              116.09,
+              115.22,
+              172.62,
+              251,
+              239.46,
+              334.47
+            ],
+            "consumptionSource": "estimate-community-history",
+            "consumptionLabel": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23."
+          }
+        ],
+        "message": "Selected calculator areas"
+      }
+    },
+    {
+      "url": "http://localhost:3000/roof-simulation/community-selections?community=7&area=3104",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "message": "Calculator area removed from simulation"
+      }
+    },
+    {
+      "url": "http://localhost:3000/roof-simulation/community-selections?community=7",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "latitude": 42.18171145337464,
+            "longitude": 2.477655278542555,
+            "kwp": 113.7,
+            "tilt": 25,
+            "azimuth": 0,
+            "areaM2": 853,
+            "panelCount": 253,
+            "communityId": 7,
+            "energyAreaId": 3103,
+            "roofReference": "6902401DG5760S",
+            "monthlyGenerationKwh": [
+              9011,
+              10626,
+              13519,
+              13892,
+              15149,
+              15925,
+              17695,
+              16817,
+              13368,
+              11273,
+              8966,
+              8350
+            ],
+            "monthlyConsumptionKwh": [
+              300.56,
+              194.55,
+              197.4,
+              154.57,
+              159.22,
+              134.18,
+              116.09,
+              115.22,
+              172.62,
+              251,
+              239.46,
+              334.47
+            ],
+            "consumptionSource": "estimate-community-history",
+            "consumptionLabel": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23."
+          }
+        ],
+        "message": "Selected calculator areas"
+      }
+    },
+    {
+      "url": "http://localhost:3000/roof-simulation/calculator-consumption?community=7",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "data": {
+          "source": "estimate-community-history",
+          "label": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta.",
+          "monthlyKwh": [
+            300.56,
+            194.55,
+            197.4,
+            154.57,
+            159.22,
+            134.18,
+            116.09,
+            115.22,
+            172.62,
+            251,
+            239.46,
+            334.47
+          ],
+          "annualKwh": 2369.34,
+          "observedDays": 6257,
+          "observedPoints": 13,
+          "historyFrom": "2024-01-01",
+          "historyTo": "2025-08-23",
+          "cupsId": null
+        },
+        "message": "Calculator consumption source"
+      }
+    },
+    {
+      "url": "http://localhost:3000/roof-simulation/calculator-consumption?community=7",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "data": {
+          "source": "estimate-community-history",
+          "label": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta.",
+          "monthlyKwh": [
+            300.56,
+            194.55,
+            197.4,
+            154.57,
+            159.22,
+            134.18,
+            116.09,
+            115.22,
+            172.62,
+            251,
+            239.46,
+            334.47
+          ],
+          "annualKwh": 2369.34,
+          "observedDays": 6257,
+          "observedPoints": 13,
+          "historyFrom": "2024-01-01",
+          "historyTo": "2025-08-23",
+          "cupsId": null
+        },
+        "message": "Calculator consumption source"
+      }
+    },
+    {
+      "url": "http://localhost:3000/roof-simulation/community-selections",
+      "status": 201,
+      "request": {
+        "communityId": 7,
+        "energyAreaId": 3103,
+        "roofReference": "6902401DG5760S",
+        "latitude": 42.18171145337464,
+        "longitude": 2.477655278542555,
+        "areaM2": 853,
+        "tilt": 25,
+        "azimuth": 0,
+        "panelCount": 253,
+        "kwp": 113.7,
+        "monthlyGenerationKwh": [
+          9011,
+          10626,
+          13519,
+          13892,
+          15149,
+          15925,
+          17695,
+          16817,
+          13368,
+          11273,
+          8966,
+          8350
+        ],
+        "monthlyConsumptionKwh": [
+          300.56,
+          194.55,
+          197.4,
+          154.57,
+          159.22,
+          134.18,
+          116.09,
+          115.22,
+          172.62,
+          251,
+          239.46,
+          334.47
+        ],
+        "calculatorValues": {
+          "valle": 32.907500000000006,
+          "llano": 65.81500000000001,
+          "punta": 98.72250000000001,
+          "vallePrice": 0.09,
+          "llanoPrice": 0.13,
+          "puntaPrice": 0.17,
+          "generationPrice": 0.05,
+          "yearlySavings": 18606.24
+        },
+        "consumptionSource": "estimate-community-history",
+        "consumptionLabel": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23."
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "latitude": 42.18171145337464,
+          "longitude": 2.477655278542555,
+          "kwp": 113.7,
+          "tilt": 25,
+          "azimuth": 0,
+          "areaM2": 853,
+          "panelCount": 253,
+          "communityId": 7,
+          "energyAreaId": 3103,
+          "roofReference": "6902401DG5760S",
+          "monthlyGenerationKwh": [
+            9011,
+            10626,
+            13519,
+            13892,
+            15149,
+            15925,
+            17695,
+            16817,
+            13368,
+            11273,
+            8966,
+            8350
+          ],
+          "monthlyConsumptionKwh": [
+            300.56,
+            194.55,
+            197.4,
+            154.57,
+            159.22,
+            134.18,
+            116.09,
+            115.22,
+            172.62,
+            251,
+            239.46,
+            334.47
+          ],
+          "calculatorValues": {
+            "valle": 32.907500000000006,
+            "llano": 65.81500000000001,
+            "punta": 98.72250000000001,
+            "vallePrice": 0.09,
+            "llanoPrice": 0.13,
+            "puntaPrice": 0.17,
+            "generationPrice": 0.05,
+            "yearlySavings": 18606.24
+          },
+          "consumptionSource": "estimate-community-history",
+          "consumptionLabel": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23."
+        },
+        "message": "Calculator area selected for community simulation"
+      }
+    },
+    {
+      "url": "http://localhost:3000/roof-simulation/calculator-consumption?community=7",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "data": {
+          "source": "estimate-community-history",
+          "label": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta.",
+          "monthlyKwh": [
+            300.56,
+            194.55,
+            197.4,
+            154.57,
+            159.22,
+            134.18,
+            116.09,
+            115.22,
+            172.62,
+            251,
+            239.46,
+            334.47
+          ],
+          "annualKwh": 2369.34,
+          "observedDays": 6257,
+          "observedPoints": 13,
+          "historyFrom": "2024-01-01",
+          "historyTo": "2025-08-23",
+          "cupsId": null
+        },
+        "message": "Calculator consumption source"
+      }
+    },
+    {
+      "url": "http://localhost:3000/energy-areas/simulate?lat=42.18124971968432&lng=2.478314660739948&area=60&direction=0&angle=25&panels=undefined&energyAreaId=3104",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "data": {
+          "kWp": 8,
+          "totalProduction": 10974.72,
+          "numberPanels": 18,
+          "prodByMonth": {
+            "1": 663.6430103637625,
+            "2": 758.9879685908313,
+            "3": 952.297531880376,
+            "4": 978.5670506856663,
+            "5": 1067.0879436650116,
+            "6": 1121.7912986991212,
+            "7": 1246.4149391037577,
+            "8": 1184.565078669137,
+            "9": 941.6590309061829,
+            "10": 795.7258317273867,
+            "11": 646.080038106063,
+            "12": 617.9002776027384
+          },
+          "totalCost": 8264.2864,
+          "tilt": 25,
+          "azimuth": 0,
+          "energyAreaId": 3104,
+          "roofReference": "6902601DG5760S",
+          "latitude": 42.18124971968432,
+          "longitude": 2.478314660739948,
+          "areaM2": 60
+        },
+        "message": "simulation executed successfully"
+      }
+    },
+    {
+      "url": "http://localhost:3000/roof-simulation/community-selections",
+      "status": 201,
+      "request": {
+        "communityId": 7,
+        "energyAreaId": 3104,
+        "roofReference": "6902601DG5760S",
+        "latitude": 42.18124971968432,
+        "longitude": 2.478314660739948,
+        "areaM2": 60,
+        "tilt": 25,
+        "azimuth": 0,
+        "panelCount": 18,
+        "kwp": 8,
+        "monthlyGenerationKwh": [
+          663,
+          758,
+          952,
+          978,
+          1067,
+          1121,
+          1246,
+          1184,
+          941,
+          795,
+          646,
+          617
+        ],
+        "monthlyConsumptionKwh": [
+          300.56,
+          194.55,
+          197.4,
+          154.57,
+          159.22,
+          134.18,
+          116.09,
+          115.22,
+          172.62,
+          251,
+          239.46,
+          334.47
+        ],
+        "calculatorValues": {
+          "valle": 32.907500000000006,
+          "llano": 65.81500000000001,
+          "punta": 98.72250000000001,
+          "vallePrice": 0.09,
+          "llanoPrice": 0.13,
+          "puntaPrice": 0.17,
+          "generationPrice": 0.05,
+          "totalCost": 8264.29,
+          "yearlySavings": 1372.2
+        },
+        "consumptionSource": "estimate-community-history",
+        "consumptionLabel": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23."
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "latitude": 42.18124971968432,
+          "longitude": 2.478314660739948,
+          "kwp": 8,
+          "tilt": 25,
+          "azimuth": 0,
+          "areaM2": 60,
+          "panelCount": 18,
+          "communityId": 7,
+          "energyAreaId": 3104,
+          "roofReference": "6902601DG5760S",
+          "monthlyGenerationKwh": [
+            663,
+            758,
+            952,
+            978,
+            1067,
+            1121,
+            1246,
+            1184,
+            941,
+            795,
+            646,
+            617
+          ],
+          "monthlyConsumptionKwh": [
+            300.56,
+            194.55,
+            197.4,
+            154.57,
+            159.22,
+            134.18,
+            116.09,
+            115.22,
+            172.62,
+            251,
+            239.46,
+            334.47
+          ],
+          "calculatorValues": {
+            "valle": 32.907500000000006,
+            "llano": 65.81500000000001,
+            "punta": 98.72250000000001,
+            "vallePrice": 0.09,
+            "llanoPrice": 0.13,
+            "puntaPrice": 0.17,
+            "generationPrice": 0.05,
+            "totalCost": 8264.29,
+            "yearlySavings": 1372.2
+          },
+          "consumptionSource": "estimate-community-history",
+          "consumptionLabel": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23."
+        },
+        "message": "Calculator area selected for community simulation"
+      }
+    },
+    {
+      "url": "http://localhost:3000/energy-prediction?community=7",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "time": "2026-09-18T12:00:00+02:00",
+            "value": 395.59
+          },
+          {
+            "time": "2026-09-19T12:00:00+02:00",
+            "value": 607.63
+          },
+          {
+            "time": "2026-09-20T12:00:00+02:00",
+            "value": 632.2
+          },
+          {
+            "time": "2026-09-21T12:00:00+02:00",
+            "value": 619.94
+          },
+          {
+            "time": "2026-09-22T12:00:00+02:00",
+            "value": 666.34
+          },
+          {
+            "time": "2026-09-23T12:00:00+02:00",
+            "value": 668.92
+          }
+        ],
+        "message": "Selected community roof production prediction"
+      }
+    },
+    {
+      "url": "http://localhost:3000/roof-simulation/community-selections?community=7",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "latitude": 42.18171145337464,
+            "longitude": 2.477655278542555,
+            "kwp": 113.7,
+            "tilt": 25,
+            "azimuth": 0,
+            "areaM2": 853,
+            "panelCount": 253,
+            "communityId": 7,
+            "energyAreaId": 3103,
+            "roofReference": "6902401DG5760S",
+            "monthlyGenerationKwh": [
+              9011,
+              10626,
+              13519,
+              13892,
+              15149,
+              15925,
+              17695,
+              16817,
+              13368,
+              11273,
+              8966,
+              8350
+            ],
+            "monthlyConsumptionKwh": [
+              300.56,
+              194.55,
+              197.4,
+              154.57,
+              159.22,
+              134.18,
+              116.09,
+              115.22,
+              172.62,
+              251,
+              239.46,
+              334.47
+            ],
+            "calculatorValues": {
+              "valle": 32.907500000000006,
+              "llano": 65.81500000000001,
+              "punta": 98.72250000000001,
+              "vallePrice": 0.09,
+              "llanoPrice": 0.13,
+              "puntaPrice": 0.17,
+              "generationPrice": 0.05,
+              "yearlySavings": 18606.24
+            },
+            "consumptionSource": "estimate-community-history",
+            "consumptionLabel": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23."
+          },
+          {
+            "latitude": 42.18124971968432,
+            "longitude": 2.478314660739948,
+            "kwp": 8,
+            "tilt": 25,
+            "azimuth": 0,
+            "areaM2": 60,
+            "panelCount": 18,
+            "communityId": 7,
+            "energyAreaId": 3104,
+            "roofReference": "6902601DG5760S",
+            "monthlyGenerationKwh": [
+              663,
+              758,
+              952,
+              978,
+              1067,
+              1121,
+              1246,
+              1184,
+              941,
+              795,
+              646,
+              617
+            ],
+            "monthlyConsumptionKwh": [
+              300.56,
+              194.55,
+              197.4,
+              154.57,
+              159.22,
+              134.18,
+              116.09,
+              115.22,
+              172.62,
+              251,
+              239.46,
+              334.47
+            ],
+            "calculatorValues": {
+              "valle": 32.907500000000006,
+              "llano": 65.81500000000001,
+              "punta": 98.72250000000001,
+              "vallePrice": 0.09,
+              "llanoPrice": 0.13,
+              "puntaPrice": 0.17,
+              "generationPrice": 0.05,
+              "totalCost": 8264.29,
+              "yearlySavings": 1372.2
+            },
+            "consumptionSource": "estimate-community-history",
+            "consumptionLabel": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23."
+          }
+        ],
+        "message": "Selected calculator areas"
+      }
+    },
+    {
+      "url": "http://localhost:3000/energy-prediction?community=7",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "time": "2026-09-18T12:00:00+02:00",
+            "value": 395.59
+          },
+          {
+            "time": "2026-09-19T12:00:00+02:00",
+            "value": 607.63
+          },
+          {
+            "time": "2026-09-20T12:00:00+02:00",
+            "value": 632.2
+          },
+          {
+            "time": "2026-09-21T12:00:00+02:00",
+            "value": 619.94
+          },
+          {
+            "time": "2026-09-22T12:00:00+02:00",
+            "value": 666.34
+          },
+          {
+            "time": "2026-09-23T12:00:00+02:00",
+            "value": 668.92
+          }
+        ],
+        "message": "Selected community roof production prediction"
+      }
+    },
+    {
+      "url": "http://localhost:3000/energy-prediction/community/7/consumption/?start_date=2026-09-18&end_date=2026-09-23",
+      "status": 200,
+      "request": null,
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "date": "2026-09-18",
+            "consumption": 115.11,
+            "source": "local-historical-community-estimate",
+            "historyFrom": "2025-03-27",
+            "historyTo": "2025-08-23",
+            "members": 29,
+            "observedMembers": 13,
+            "estimatedMembers": 16,
+            "missingCupsIds": [
+              43,
+              44,
+              45,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67
+            ]
+          },
+          {
+            "date": "2026-09-19",
+            "consumption": 108.04,
+            "source": "local-historical-community-estimate",
+            "historyFrom": "2025-03-27",
+            "historyTo": "2025-08-23",
+            "members": 29,
+            "observedMembers": 13,
+            "estimatedMembers": 16,
+            "missingCupsIds": [
+              43,
+              44,
+              45,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67
+            ]
+          },
+          {
+            "date": "2026-09-20",
+            "consumption": 120.86,
+            "source": "local-historical-community-estimate",
+            "historyFrom": "2025-03-27",
+            "historyTo": "2025-08-23",
+            "members": 29,
+            "observedMembers": 13,
+            "estimatedMembers": 16,
+            "missingCupsIds": [
+              43,
+              44,
+              45,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67
+            ]
+          },
+          {
+            "date": "2026-09-21",
+            "consumption": 113.22,
+            "source": "local-historical-community-estimate",
+            "historyFrom": "2025-03-27",
+            "historyTo": "2025-08-23",
+            "members": 29,
+            "observedMembers": 13,
+            "estimatedMembers": 16,
+            "missingCupsIds": [
+              43,
+              44,
+              45,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67
+            ]
+          },
+          {
+            "date": "2026-09-22",
+            "consumption": 116.08,
+            "source": "local-historical-community-estimate",
+            "historyFrom": "2025-03-27",
+            "historyTo": "2025-08-23",
+            "members": 29,
+            "observedMembers": 13,
+            "estimatedMembers": 16,
+            "missingCupsIds": [
+              43,
+              44,
+              45,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67
+            ]
+          },
+          {
+            "date": "2026-09-23",
+            "consumption": 106.82,
+            "source": "local-historical-community-estimate",
+            "historyFrom": "2025-03-27",
+            "historyTo": "2025-08-23",
+            "members": 29,
+            "observedMembers": 13,
+            "estimatedMembers": 16,
+            "missingCupsIds": [
+              43,
+              44,
+              45,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67
+            ]
+          }
+        ],
+        "message": "Local historical community consumption estimate"
+      }
+    }
+  ],
+  "errors": [],
+  "roof1": {
+    "id": 3103,
+    "m2": 853,
+    "kwp": 113.7,
+    "panels": 253,
+    "annual": 2369.34,
+    "monthly": [
+      300.56,
+      194.55,
+      197.4,
+      154.57,
+      159.22,
+      134.18,
+      116.09,
+      115.22,
+      172.62,
+      251,
+      239.46,
+      334.47
+    ],
+    "source": "estimate-community-history",
+    "lat": 42.18171145337464,
+    "lon": 2.477655278542555
+  },
+  "manual": {
+    "source": "manual",
+    "annual": 3012,
+    "monthly": [
+      251,
+      251,
+      251,
+      251,
+      251,
+      251,
+      251,
+      251,
+      251,
+      251,
+      251,
+      251
+    ]
+  },
+  "oneRoof": {
+    "success": true,
+    "data": {
+      "forecast": [
+        {
+          "time": "2026-09-18T12:00:00+02:00",
+          "value": 369.59
+        },
+        {
+          "time": "2026-09-19T12:00:00+02:00",
+          "value": 567.69
+        },
+        {
+          "time": "2026-09-20T12:00:00+02:00",
+          "value": 590.64
+        },
+        {
+          "time": "2026-09-21T12:00:00+02:00",
+          "value": 579.19
+        },
+        {
+          "time": "2026-09-22T12:00:00+02:00",
+          "value": 622.54
+        },
+        {
+          "time": "2026-09-23T12:00:00+02:00",
+          "value": 624.95
+        }
+      ],
+      "predictions": [
+        {
+          "energyAreaId": 3103,
+          "roofReference": "6902401DG5760S",
+          "input": {
+            "latitude": 42.18171145337464,
+            "longitude": 2.477655278542555,
+            "kwp": 113.7,
+            "tilt": 25,
+            "azimuth": 0,
+            "areaM2": 853,
+            "panelCount": 253
+          },
+          "daily": [
+            {
+              "date": "2026-09-18",
+              "kwh": 369.59
+            },
+            {
+              "date": "2026-09-19",
+              "kwh": 567.69
+            },
+            {
+              "date": "2026-09-20",
+              "kwh": 590.64
+            },
+            {
+              "date": "2026-09-21",
+              "kwh": 579.19
+            },
+            {
+              "date": "2026-09-22",
+              "kwh": 622.54
+            },
+            {
+              "date": "2026-09-23",
+              "kwh": 624.95
+            }
+          ]
+        }
+      ],
+      "selectedRoofs": 1,
+      "predictorRequests": 1,
+      "source": "calculator-gti-v1",
+      "weatherSource": "Open-Meteo",
+      "performanceRatio": 0.8,
+      "assumptions": [
+        "No inverter clipping; inverter rating not provided",
+        "No local shading model"
+      ],
+      "start": "2026-09-18",
+      "end": "2026-09-23"
+    },
+    "message": "Selected roof production details"
+  },
+  "roof2": {
+    "id": 3104,
+    "m2": 60,
+    "kwp": 8,
+    "panels": 18,
+    "annual": 2369.34,
+    "monthly": [
+      300.56,
+      194.55,
+      197.4,
+      154.57,
+      159.22,
+      134.18,
+      116.09,
+      115.22,
+      172.62,
+      251,
+      239.46,
+      334.47
+    ],
+    "source": "estimate-community-history",
+    "lat": 42.18124971968432,
+    "lon": 2.478314660739948
+  },
+  "multipleRoofs": {
+    "success": true,
+    "data": {
+      "forecast": [
+        {
+          "time": "2026-09-18T12:00:00+02:00",
+          "value": 395.59
+        },
+        {
+          "time": "2026-09-19T12:00:00+02:00",
+          "value": 607.63
+        },
+        {
+          "time": "2026-09-20T12:00:00+02:00",
+          "value": 632.2
+        },
+        {
+          "time": "2026-09-21T12:00:00+02:00",
+          "value": 619.94
+        },
+        {
+          "time": "2026-09-22T12:00:00+02:00",
+          "value": 666.34
+        },
+        {
+          "time": "2026-09-23T12:00:00+02:00",
+          "value": 668.92
+        }
+      ],
+      "predictions": [
+        {
+          "energyAreaId": 3103,
+          "roofReference": "6902401DG5760S",
+          "input": {
+            "latitude": 42.18171145337464,
+            "longitude": 2.477655278542555,
+            "kwp": 113.7,
+            "tilt": 25,
+            "azimuth": 0,
+            "areaM2": 853,
+            "panelCount": 253
+          },
+          "daily": [
+            {
+              "date": "2026-09-18",
+              "kwh": 369.59
+            },
+            {
+              "date": "2026-09-19",
+              "kwh": 567.69
+            },
+            {
+              "date": "2026-09-20",
+              "kwh": 590.64
+            },
+            {
+              "date": "2026-09-21",
+              "kwh": 579.19
+            },
+            {
+              "date": "2026-09-22",
+              "kwh": 622.54
+            },
+            {
+              "date": "2026-09-23",
+              "kwh": 624.95
+            }
+          ]
+        },
+        {
+          "energyAreaId": 3104,
+          "roofReference": "6902601DG5760S",
+          "input": {
+            "latitude": 42.18124971968432,
+            "longitude": 2.478314660739948,
+            "kwp": 8,
+            "tilt": 25,
+            "azimuth": 0,
+            "areaM2": 60,
+            "panelCount": 18
+          },
+          "daily": [
+            {
+              "date": "2026-09-18",
+              "kwh": 26
+            },
+            {
+              "date": "2026-09-19",
+              "kwh": 39.94
+            },
+            {
+              "date": "2026-09-20",
+              "kwh": 41.56
+            },
+            {
+              "date": "2026-09-21",
+              "kwh": 40.75
+            },
+            {
+              "date": "2026-09-22",
+              "kwh": 43.8
+            },
+            {
+              "date": "2026-09-23",
+              "kwh": 43.97
+            }
+          ]
+        }
+      ],
+      "selectedRoofs": 2,
+      "predictorRequests": 2,
+      "source": "calculator-gti-v1",
+      "weatherSource": "Open-Meteo",
+      "performanceRatio": 0.8,
+      "assumptions": [
+        "No inverter clipping; inverter rating not provided",
+        "No local shading model"
+      ],
+      "start": "2026-09-18",
+      "end": "2026-09-23"
+    },
+    "message": "Selected roof production details"
+  },
+  "endpoint": {
+    "success": true,
+    "data": [
+      {
+        "time": "2026-09-18T12:00:00+02:00",
+        "value": 395.59
+      },
+      {
+        "time": "2026-09-19T12:00:00+02:00",
+        "value": 607.63
+      },
+      {
+        "time": "2026-09-20T12:00:00+02:00",
+        "value": 632.2
+      },
+      {
+        "time": "2026-09-21T12:00:00+02:00",
+        "value": 619.94
+      },
+      {
+        "time": "2026-09-22T12:00:00+02:00",
+        "value": 666.34
+      },
+      {
+        "time": "2026-09-23T12:00:00+02:00",
+        "value": 668.92
+      }
+    ],
+    "message": "Selected community roof production prediction"
+  },
+  "persisted": [
+    {
+      "id": 3103,
+      "annual": 2369.34,
+      "savings": 18606.24
+    },
+    {
+      "id": 3104,
+      "annual": 2369.34,
+      "savings": 1372.2
+    }
+  ],
+  "calculatorText": "Uneixi a la transició col·lectiva\nCalculi el seu estalvi energètic en 6 passos.\nExplori i editi les pestanyes. Recordi que pot saltar d'una pestanya a una altra per a editar la informació abans de guardar.\nSeleccionar una població\nSeleccionar una comunitat\nDades i estadístiques de la comunitat\nSeleccionar Àrea\nCalcular generació de l'àrea seleccionada\nAfegir comunitat\nResum de dades afegides. Editeu-les sempre que vulgueu fent clic a Seleccionar àrea.\nPoblació: Olot\nComunitat: Montolivet\nMembres: 31\nMembres simulats: 2\nLlista d'agregats\n* Les dades de la taula són anuals.\nÀrea\tSuperfície\tPlaques\tGeneració\tConsum\tEstalvi\tEditar\tEsborar\n1\t853 M²\t253\t154591 kWh\t2369.34 kWh\nEstimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23.\t18606.24 €\t\n\t\n\n2\t60 M²\t18\t10968 kWh\t2369.34 kWh\nEstimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta. Període: 2024-01-01 — 2025-08-23.\t1372.2 €\t\n\t\nEnrere\nAfegir una altra àrea",
+  "visual": {
+    "production": [
+      {
+        "date": "divendres",
+        "value": 395.59
+      },
+      {
+        "date": "dissabte",
+        "value": 607.63
+      },
+      {
+        "date": "diumenge",
+        "value": 632.2
+      },
+      {
+        "date": "dilluns",
+        "value": 619.94
+      },
+      {
+        "date": "dimarts",
+        "value": 666.34
+      },
+      {
+        "date": "dimecres",
+        "value": 668.92
+      }
+    ],
+    "consumption": [
+      {
+        "date": "divendres",
+        "value": 115.11
+      },
+      {
+        "date": "dissabte",
+        "value": 108.04
+      },
+      {
+        "date": "diumenge",
+        "value": 120.86
+      },
+      {
+        "date": "dilluns",
+        "value": 113.22
+      },
+      {
+        "date": "dimarts",
+        "value": 116.08
+      },
+      {
+        "date": "dimecres",
+        "value": 106.82
+      }
+    ],
+    "message": "Estimació per a 29 punts actius: 13 amb històric i 16 estimats. Històric: 2025-03-27 — 2025-08-23."
+  },
+  "portalText": "Previsió de la comunitat 7\n\nEstimació per a 29 punts actius: 13 amb històric i 16 estimats. Històric: 2025-03-27 — 2025-08-23.\n\nPredicció producció d'energia total comunitaria\n\n395.59\n\nkWh\n\nDivendres\n\n607.63\n\nkWh\n\nDissabte\n\n632.2\n\nkWh\n\nDiumenge\n\n619.94\n\nkWh\n\nDilluns\n\n666.34\n\nkWh\n\nDimarts\n\n668.92\n\nkWh\n\nDimecres\n* Previsió de producció per als pròxims 6 dies.\nPredicció consum d'energia dels membres donats d'alta\n\n115.11\n\nkWh\n\nDivendres\n\n108.04\n\nkWh\n\nDissabte\n\n120.86\n\nkWh\n\nDiumenge\n\n113.22\n\nkWh\n\nDilluns\n\n116.08\n\nkWh\n\nDimarts\n\n106.82\n\nkWh\n\nDimecres"
+}

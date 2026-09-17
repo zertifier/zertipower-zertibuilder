@@ -1,5 +1,11 @@
 # Simulació fotovoltaica de la calculadora
 
+> Actualització: la predicció de `GET /energy-prediction?community=ID` utilitza ara
+> exclusivament configuracions seleccionades i el predictor propi. Vegeu
+> [el flux actual](community-selected-roof-prediction.md).
+> Les descripcions següents de la simulació de tota la localitat són del camí antic
+> `/roof-simulation/community`, que no alimenta aquesta predicció.
+
 La previsió solar nova utilitza exclusivament la configuració de la calculadora i Open-Meteo.
 El servei antic `energy-forecast.service.ts`, el predictor antic i `/previsio` es mantenen intactes.
 

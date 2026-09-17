@@ -789,7 +789,7 @@
 
             <section class="mt-4 p-3 border rounded" aria-label="Simulació solar">
               <h3>Què podrien produir les teves plaques?</h3>
-              <p>Previsió per avui i els cinc dies següents, segons el temps previst i la inclinació i orientació seleccionades.</p>
+              <p>Previsió per demà i els cinc dies següents, segons el temps previst i la inclinació i orientació seleccionades.</p>
               <label for="solarSimulationKwp">Potència fotovoltaica que vols instal·lar (kWp)</label>
               <input id="solarSimulationKwp" class="form-control" type="number" min="0.001" max="10000" step="0.1"
                      [(ngModel)]="selectedCadastre.InsalledPower" (ngModelChange)="selectedCadastre.solarResult = undefined">
@@ -814,11 +814,19 @@
                 No requereix CUPS ni històrics. Dades meteorològiques: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>.</small></p>
               <p class="small">La previsió utilitza la inclinació efectiva de les plaques: {{ selectedCadastre.solarTilt }}°,
                 azimut {{ selectedCadastre.solarAzimuth }}° (0° sud). Rendiment del sistema: 80%.</p>
-              <button class="btn btn-outline-secondary" type="button"
-                [disabled]="!solarConfigurationReady(selectedCadastre) || !selectedCadastre.InsalledPower || !selectedCommunity?.id"
-                (click)="persistCommunityRoof(selectedCadastre)">Desar com a coberta meva a la comunitat</button>
-              <p class="small">Només es compten les configuracions desades pels membres actius.
-                Pots simular sense iniciar sessió.</p>
+              <div *ngIf="selectedCadastre.energyBalance as balance" class="small mt-2" data-testid="energy-balance">
+                <strong>Balanç energètic anual</strong>:
+                producció {{ balance.annual.production | number:'1.2-2' }} kWh;
+                consum {{ balance.annual.consumption | number:'1.2-2' }} kWh;
+                autoconsum {{ balance.annual.selfConsumption | number:'1.2-2' }} kWh;
+                excedent {{ balance.annual.export | number:'1.2-2' }} kWh;
+                importació {{ balance.annual.import | number:'1.2-2' }} kWh.
+                <span *ngIf="balance.source === 'monthly-profile-estimate'"> Distribució horària estimada perquè la calculadora només ha retornat totals mensuals.</span>
+              </div>
+              <button class="btn btn-outline-secondary" type="button" data-testid="save-community-area"
+                [disabled]="!solarConfigurationReady(selectedCadastre) || !selectedCommunity?.id"
+                (click)="addArea()">Afegir a la simulació de la comunitat</button>
+              <p class="small">Només les àrees afegides a la llista entren a la predicció. Es desen amb la comunitat seleccionada, sense compte de membre.</p>
 
             </section>
 
@@ -851,7 +859,9 @@
 
             <div class="row mt-2 mt-md-4">
               <div class="col-12 p-0">
-                <span>Introdueix el consum mensual per periode. kWh.</span>
+                <p role="status" data-testid="consumption-source">{{ selectedCadastre.consumptionLabel || 'Carregant la font de consum…' }}</p>
+                <p class="small text-secondary">La calculadora és una simulació ràpida i no requereix CUPS, Datadis ni històric de comptador.</p>
+                <span>Introdueix el consum mensual per període per substituir-lo manualment. kWh.</span>
               </div>
             </div>
 
@@ -859,19 +869,19 @@
               <div class="col-4 ps-0">
                 <span class="form-label fs-6 smile-color">Vall</span>
                 <input type="number" class="form-control number-input w-100"
-                       [(ngModel)]="selectedCadastre.valle" min="0" (change)="updateCadastreConsumption()">
+                       [(ngModel)]="selectedCadastre.valle" min="0" (change)="manualConsumptionChanged()">
               </div>
 
               <div class="col-4">
                 <span class="form-label fs-6 meh-color">Pla</span>
                 <input type="number" class="form-control number-input w-100"
-                       [(ngModel)]="selectedCadastre.llano" min="0" (change)="updateCadastreConsumption()">
+                       [(ngModel)]="selectedCadastre.llano" min="0" (change)="manualConsumptionChanged()">
               </div>
 
               <div class="col-4 pe-0">
                 <span class="form-label fs-6 frown-color">Punta</span>
                 <input type="number" class="form-control number-input w-100"
-                       [(ngModel)]="selectedCadastre.punta" min="0" (change)="updateCadastreConsumption()">
+                       [(ngModel)]="selectedCadastre.punta" min="0" (change)="manualConsumptionChanged()">
               </div>
             </div>
 
@@ -1189,7 +1199,7 @@
                   <td>{{ area.m2 }} M²</td>
                   <td>{{ area.n_plaques }}</td>
                   <td>{{ area.yearGeneration }} kWh</td>
-                  <td>{{ area.yearConsumption }} kWh</td>
+                  <td>{{ area.yearConsumption }} kWh<br><small>{{ area.consumptionLabel }}</small></td>
                   <td>{{ area.yearlySavings }} €</td>
                   <td>
                     <div class="d-flex justify-content-center">

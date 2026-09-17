@@ -3,6 +3,8 @@ import { PrismaService } from '../../../../shared/infrastructure/services/prisma
 import { RoofInput, validateRoof } from './roof-simulation.service';
 
 export interface CommunityRoofRecord extends RoofInput {
+  energyAreaId?: number | null;
+  inverterPowerKw?: number | null;
   communityId: number;
   roofReference: string;
   areaM2: number;
@@ -34,7 +36,11 @@ export class CommunitySolarRoofStoreService {
           FOREIGN KEY (community_id) REFERENCES communities(id),
           FOREIGN KEY (customer_id) REFERENCES customers(id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-      `).then(() => undefined).catch(error => { this.ready = undefined; throw error; });
+      `).then(async () => {
+        await this.prisma.$executeRawUnsafe(`ALTER TABLE member_solar_configurations
+          ADD COLUMN IF NOT EXISTS energy_area_id INT NULL,
+          ADD COLUMN IF NOT EXISTS inverter_power_kw DOUBLE NULL`);
+      }).catch(error => { this.ready = undefined; throw error; });
     }
     return this.ready;
   }
@@ -46,7 +52,15 @@ export class CommunitySolarRoofStoreService {
         !Number.isSafeInteger(raw.panelCount) || raw.panelCount <= 0) {
       throw new BadRequestException('Invalid calculator configuration');
     }
-    return { ...validateRoof(raw), communityId: raw.communityId,
+    if (raw.energyAreaId != null && (!Number.isSafeInteger(raw.energyAreaId) || raw.energyAreaId <= 0)) {
+      throw new BadRequestException('Invalid energy area ID');
+    }
+    if (raw.inverterPowerKw != null && (typeof raw.inverterPowerKw !== 'number' ||
+        !Number.isFinite(raw.inverterPowerKw) || raw.inverterPowerKw <= 0)) {
+      throw new BadRequestException('Invalid inverter nameplate power');
+    }
+    return { ...validateRoof(raw), energyAreaId: raw.energyAreaId ?? null,
+      inverterPowerKw: raw.inverterPowerKw ?? null, communityId: raw.communityId,
       roofReference: raw.roofReference.trim(), areaM2: raw.areaM2, panelCount: raw.panelCount };
   }
 
@@ -64,17 +78,29 @@ export class CommunitySolarRoofStoreService {
   async save(raw: CommunityRoofRecord, userId: number) {
     const record = this.validate(raw);
     const customerId = await this.customerForUser(userId, record.communityId);
+    if (record.energyAreaId != null) {
+      const area = await this.prisma.energyArea.findUnique({ where: { id: record.energyAreaId } });
+      const community = await this.prisma.communities.findUnique({ where: { id: record.communityId } });
+      if (!area || community?.locationId == null || area.locationId !== community.locationId) {
+        throw new BadRequestException('Selected roof does not belong to the community location');
+      }
+      // Canonical reference prevents the same area being saved under different aliases.
+      record.roofReference = area.cadastralReference || area.reference || String(area.id);
+      if (record.inverterPowerKw == null && area.kWhInversor != null && area.kWhInversor > 0) {
+        record.inverterPowerKw = area.kWhInversor;
+      }
+    }
     await this.ensureTable();
     // Conditional upsert is atomic: another participant cannot replace the owner or its data.
-    const fields = ['latitude', 'longitude', 'area_m2', 'tilt', 'azimuth', 'panel_count', 'kwp'];
+    const fields = ['latitude', 'longitude', 'area_m2', 'tilt', 'azimuth', 'panel_count', 'kwp', 'energy_area_id', 'inverter_power_kw'];
     await this.prisma.$executeRawUnsafe(`
       INSERT INTO member_solar_configurations
-        (community_id, customer_id, roof_reference, latitude, longitude, area_m2, tilt, azimuth, panel_count, kwp)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (community_id, customer_id, roof_reference, latitude, longitude, area_m2, tilt, azimuth, panel_count, kwp, energy_area_id, inverter_power_kw)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE ${fields.map(field =>
         `${field}=IF(customer_id=VALUES(customer_id),VALUES(${field}),${field})`).join(', ')}
     `, record.communityId, customerId, record.roofReference, record.latitude, record.longitude,
-      record.areaM2, record.tilt, record.azimuth, record.panelCount, record.kwp);
+      record.areaM2, record.tilt, record.azimuth, record.panelCount, record.kwp, record.energyAreaId, record.inverterPowerKw);
     const owner = await this.prisma.$queryRawUnsafe<{ customerId: number }[]>(
       'SELECT customer_id customerId FROM member_solar_configurations WHERE community_id=? AND roof_reference=?',
       record.communityId, record.roofReference);
@@ -87,7 +113,8 @@ export class CommunitySolarRoofStoreService {
     await this.ensureTable();
     const rows = await this.prisma.$queryRawUnsafe<OwnedCommunityRoof[]>(`
       SELECT community_id communityId, customer_id customerId, roof_reference roofReference,
-        latitude, longitude, area_m2 areaM2, tilt, azimuth, panel_count panelCount, kwp
+        latitude, longitude, area_m2 areaM2, tilt, azimuth, panel_count panelCount, kwp,
+        energy_area_id energyAreaId, inverter_power_kw inverterPowerKw
       FROM member_solar_configurations WHERE community_id = ? ORDER BY id
     `, communityId);
     return rows.map(row => ({ ...this.validate(row), customerId: Number(row.customerId) }));

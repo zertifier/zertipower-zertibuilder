@@ -75,12 +75,11 @@ describe('calculator roofs and community aggregation', () => {
     expect(result.roofs.map(roof => roof.energyAreaId)).toEqual([1]);
   });
 
-  it('simulates and sums all roofs, independent of member configurations', async () => {
-    const roofs = Array.from({ length: 29 }, (_, i) => ({ latitude: 41.5, longitude: 1.5, kwp: 1, tilt: 25, azimuth: 0, areaM2: 6, panelCount: 2, energyAreaId: i, roofReference: String(i) }));
-    const individual = { forecastWindow: () => window, simulate: jest.fn(async () => ({ daily: [{ date: window.start, kwh: 2 }] })) };
-    const members = { getCalculatorRoofs: jest.fn().mockResolvedValue({ roofs, locationId: 3, totalRoofAreaM2: 174, totalInstalledPowerKwp: 29 }) };
-    const result = await new CommunityRoofSimulationService(individual as any, members as any).simulate(7);
-    expect(individual.simulate).toHaveBeenCalledTimes(1);
-    expect(result).toMatchObject({ roofsSimulated: 29, totalRoofAreaM2: 174, totalInstalledPowerKwp: 29, forecast: [{ time: `${window.start}T12:00:00`, value: 58 }] });
+  it('routes the legacy community endpoint through selected roofs only', async () => {
+    const details = { selectedRoofs: 2, forecast: [{ time: '2026-09-18T12:00:00+02:00', value: 24 }] };
+    const prediction = { details: jest.fn().mockResolvedValue(details) };
+    const result = await new CommunityRoofSimulationService(prediction as any).simulate(7);
+    expect(prediction.details).toHaveBeenCalledWith(7);
+    expect(result).toEqual({ ...details, roofsSimulated: 2, status: 'complete' });
   });
 });

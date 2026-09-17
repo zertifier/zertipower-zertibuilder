@@ -5,6 +5,9 @@ import { CommunitySolarRoofStoreService } from './infrastructure/services/commun
 import { CommunityRoofSimulationService } from './infrastructure/services/community-roof-simulation.service';
 import { RoofSimulationService } from './infrastructure/services/roof-simulation.service';
 import { RoofSimulationController } from './infrastructure/controllers/roof-simulation.controller';
+import { CommunityPredictionService } from './infrastructure/services/community-prediction.service';
+import { CalculatorCommunitySelectionsService } from './infrastructure/services/calculator-community-selections.service';
+import { CalculatorConsumptionService } from './infrastructure/services/calculator-consumption.service';
 import { Module } from '@nestjs/common';
 import { EnergyPredictionController } from './infrastructure/controllers/energy-prediction/energy-prediction.controller';
 import { EnergyForecastService } from './infrastructure/services/energy-forecast.service';
@@ -20,10 +23,11 @@ import { MontolivetPredictionController } from './infrastructure/controllers/mon
 import { CalculadoraIntegrationService } from './infrastructure/services/calculadora-integration.service';
 import { CalculadoraSyncController } from './infrastructure/controllers/calculadora-sync/calculadora-sync.controller';
 import { CommunityMemberRoofsService } from './infrastructure/services/community-member-roofs.service';
+import { HistoricalMeterPredictionService } from './infrastructure/services/historical-meter-prediction.service';
 
 @Module({
   imports: [SharedServicesModule, WeatherPredictionModule, AuthServicesModule, UserRepositoriesModule],
   controllers: [RoofSimulationController, EnergyPredictionController, HistoricalDataController, UserPredictionController, MontolivetPredictionController, CalculadoraSyncController],
-  providers: [CommunityMemberRoofsService, CommunitySolarRoofStoreService, LocalConsumptionService, CommunityRoofSimulationService, RoofSimulationService, EnergyForecastService, ConsumptionPredictionService, HistoricalDataExtractionService, UserPredictionIntegrationService, MontolivetPredictionService, CalculadoraIntegrationService]
+  providers: [CalculatorCommunitySelectionsService, CalculatorConsumptionService, CommunityPredictionService, CommunityMemberRoofsService, CommunitySolarRoofStoreService, LocalConsumptionService, CommunityRoofSimulationService, RoofSimulationService, EnergyForecastService, ConsumptionPredictionService, HistoricalDataExtractionService, UserPredictionIntegrationService, MontolivetPredictionService, CalculadoraIntegrationService, HistoricalMeterPredictionService]
 })
 export class EnergyPredictionModule {}

@@ -64,7 +64,7 @@ export class RoofSimulationService {
 
   forecastWindow() {
     const today = moment.tz('Europe/Madrid').startOf('day');
-    return { start: today.format('YYYY-MM-DD'), end: today.clone().add(6, 'days').format('YYYY-MM-DD') };
+    return { start: today.clone().add(1, 'day').format('YYYY-MM-DD'), end: today.clone().add(6, 'days').format('YYYY-MM-DD') };
   }
 
   async simulate(raw: RoofInput, window = this.forecastWindow()) {

@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/infrastructure/services/prisma-service/prisma-service';
 import { RoofInput } from './roof-simulation.service';
+import { CalculatorCommunitySelectionsService, CalculatorSelection } from './calculator-community-selections.service';
 
 export const CALCULATOR_DEFAULT_TILT = 25;
 export const CALCULATOR_DEFAULT_AZIMUTH = 0;
@@ -8,6 +9,7 @@ export const CALCULATOR_PANEL_KWP = 0.45;
 export const CALCULATOR_USABLE_AREA = 0.8;
 
 export interface CalculatorRoof extends RoofInput {
+  memberId?: number;
   energyAreaId: number;
   roofReference: string;
   areaM2: number;
@@ -17,7 +19,75 @@ export interface CalculatorRoof extends RoofInput {
 @Injectable()
 export class CommunityMemberRoofsService {
   private readonly logger = new Logger(CommunityMemberRoofsService.name);
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private selections?: CalculatorCommunitySelectionsService) {}
+
+  /** Resolve only roofs that can be attributed to an active community member.
+   * A location catalogue entry, by itself, is deliberately not a member roof. */
+  async getMemberRoofs(communityId: number) {
+    if (!Number.isSafeInteger(communityId) || communityId <= 0) throw new BadRequestException('Invalid community ID');
+    const members = await this.prisma.$queryRawUnsafe<any[]>(`SELECT DISTINCT customer_id memberId FROM shares WHERE community_id=? AND status='ACTIVE' AND customer_id IS NOT NULL`, communityId);
+    const activeMemberIds = new Set(members.map(row => Number(row.memberId)));
+    const cups = await this.prisma.$queryRawUnsafe<any[]>(`SELECT id,customer_id memberId FROM cups WHERE community_id=? AND active=1 AND type IN ('consumer','prosumer')`, communityId);
+    const cupMember = new Map(cups.filter(row => row.memberId != null).map(row => [Number(row.id), Number(row.memberId)]));
+    const complete: any[] = [];
+    const discarded: { energyAreaId?: number; memberId?: number; reason: string }[] = [];
+    let configs: any[] = [];
+    try {
+      configs = await this.prisma.$queryRawUnsafe<any[]>(`SELECT community_id communityId,customer_id memberId,roof_reference roofReference,
+        energy_area_id energyAreaId,latitude,longitude,area_m2 areaM2,tilt,azimuth,panel_count panelCount,kwp
+        FROM member_solar_configurations WHERE community_id=? ORDER BY id`, communityId);
+    } catch { configs = []; }
+    const configuredByRoof = new Set<number>();
+    for (const row of configs) {
+      const memberId = Number(row.memberId);
+      if (!activeMemberIds.has(memberId)) { discarded.push({ energyAreaId: Number(row.energyAreaId) || undefined, memberId, reason: 'member is not active in community' }); continue; }
+      const roof = this.completeRoof({ ...row, memberId, estimated: false, source: 'member-calculator' });
+      if (!roof) { discarded.push({ energyAreaId: Number(row.energyAreaId) || undefined, memberId, reason: 'incomplete member calculator configuration' }); continue; }
+      complete.push(roof); if (roof.energyAreaId) configuredByRoof.add(roof.energyAreaId);
+    }
+    const selections: CalculatorSelection[] = this.selections ? await this.selections.list(communityId) : [];
+    for (const selection of selections) {
+      const memberId = selection.memberId ?? (selection.consumptionCupsId != null ? cupMember.get(Number(selection.consumptionCupsId)) : undefined);
+      // An explicit calculator selection is a valid community simulation even
+      // when it has not yet been linked to a real member. Keep the distinction
+      // in `source` so it cannot be mistaken for an installed member roof.
+      if (!memberId) {
+        const simulationRoof = this.completeSimulationRoof({ ...selection, source: 'simulation' });
+        if (!simulationRoof) { discarded.push({ energyAreaId: selection.energyAreaId, reason: 'incomplete calculator simulation selection' }); continue; }
+        complete.push(simulationRoof); configuredByRoof.add(selection.energyAreaId); continue;
+      }
+      if (!activeMemberIds.has(memberId)) { discarded.push({ energyAreaId: selection.energyAreaId, memberId, reason: 'selection member is not active' }); continue; }
+      if (configuredByRoof.has(selection.energyAreaId)) continue;
+      const roof = this.completeRoof({ ...selection, memberId, estimated: false, source: 'calculator-selection' });
+      if (!roof) { discarded.push({ energyAreaId: selection.energyAreaId, memberId, reason: 'incomplete calculator selection' }); continue; }
+      complete.push(roof); configuredByRoof.add(selection.energyAreaId);
+    }
+    const allMembers = await this.prisma.$queryRawUnsafe<any[]>(`SELECT DISTINCT customer_id memberId FROM shares WHERE community_id=? AND customer_id IS NOT NULL`, communityId);
+    const result = { communityId, membersTotal: allMembers.length, membersActive: activeMemberIds.size,
+      membersWithRoof: new Set(complete.map(roof => roof.memberId)).size, completeRoofs: complete.length,
+      estimatedRoofs: 0, discardedRoofs: discarded.length, roofs: complete, discarded,
+      activeSupplies: cups.length, membersWithHistory: undefined as number | undefined, membersExtrapolated: undefined as number | undefined };
+    this.logger.log(JSON.stringify({ communityId, membersTotal: result.membersTotal, membersActive: result.membersActive,
+      activeSupplies: result.activeSupplies, membersWithRoof: result.membersWithRoof, completeRoofs: result.completeRoofs,
+      estimatedRoofs: result.estimatedRoofs, discardedRoofs: result.discardedRoofs }));
+    return result;
+  }
+
+  private completeRoof(raw: any) {
+    const numeric = ['memberId','energyAreaId','areaM2','panelCount','latitude','longitude','kwp','tilt','azimuth'];
+    if (numeric.some(key => raw[key] == null || !Number.isFinite(Number(raw[key])))) return null;
+    if (Number(raw.memberId) <= 0 || Number(raw.energyAreaId) <= 0 || Number(raw.areaM2) <= 0 || Number(raw.panelCount) <= 0 || Number(raw.kwp) <= 0) return null;
+    return { ...raw, memberId: Number(raw.memberId), energyAreaId: Number(raw.energyAreaId), areaM2: Number(raw.areaM2), panelCount: Number(raw.panelCount),
+      latitude: Number(raw.latitude), longitude: Number(raw.longitude), kwp: Number(raw.kwp), tilt: Number(raw.tilt), azimuth: Number(raw.azimuth) };
+  }
+
+  private completeSimulationRoof(raw: any) {
+    const numeric = ['energyAreaId','areaM2','panelCount','latitude','longitude','kwp','tilt','azimuth'];
+    if (numeric.some(key => raw[key] == null || !Number.isFinite(Number(raw[key])))) return null;
+    if (Number(raw.energyAreaId) <= 0 || Number(raw.areaM2) <= 0 || Number(raw.panelCount) <= 0 || Number(raw.kwp) <= 0) return null;
+    return { ...raw, energyAreaId: Number(raw.energyAreaId), areaM2: Number(raw.areaM2), panelCount: Number(raw.panelCount),
+      latitude: Number(raw.latitude), longitude: Number(raw.longitude), kwp: Number(raw.kwp), tilt: Number(raw.tilt), azimuth: Number(raw.azimuth), source: 'simulation' };
+  }
 
   /** Exactly the areas returned by the calculator's /energy-areas/by-location call. */
   async getCalculatorRoofs(communityId: number) {

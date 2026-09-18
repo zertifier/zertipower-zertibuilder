@@ -16,7 +16,7 @@ export class CommunityPredictionService {
       }
       unique.set(roof.energyAreaId,roof);
     }
-    const start=moment.tz('Europe/Madrid').add(1,'day').format('YYYY-MM-DD');
+    const start=moment.tz('Europe/Madrid').format('YYYY-MM-DD');
     const end=moment.tz(start,'Europe/Madrid').add(5,'days').format('YYYY-MM-DD');
     const totals=new Map<string,number>();let expected:string[]|undefined;
     const predictions=[];

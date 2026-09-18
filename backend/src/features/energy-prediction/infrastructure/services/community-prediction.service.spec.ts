@@ -14,13 +14,13 @@ describe('calculator selected community prediction',()=>{
    return {input,hourly,daily:Array.from({length:6},(_,i)=>({date:moment.utc(window.start).add(i,'days').format('YYYY-MM-DD'),kwh:input.kwp}))};
   });
  });
- it('sums every selected capacity and returns exactly D+1 through D+6 without inverter or historical input',async()=>{
+ it('sums every selected capacity and returns exactly D0 through D+5 without inverter or historical input',async()=>{
   roofs.getMemberRoofs.mockResolvedValue({roofs:[{...roof,memberId:14},{...roof,memberId:14},{...roof,memberId:19,energyAreaId:2,roofReference:'two',kwp:8}],membersTotal:2,membersActive:2,completeRoofs:3,estimatedRoofs:0,discardedRoofs:0,discarded:[]});
   const result=await service.details(7);
   expect(result.forecast).toHaveLength(6);expect(result.forecast.map(p=>p.value)).toEqual(Array(6).fill(24));
   expect(solar.simulate).toHaveBeenCalledTimes(2);
-  expect(result.start).toBe(moment.tz('Europe/Madrid').add(1,'day').format('YYYY-MM-DD'));
-  expect(result.end).toBe(moment.tz('Europe/Madrid').add(6,'days').format('YYYY-MM-DD'));
+  expect(result.start).toBe(moment.tz('Europe/Madrid').format('YYYY-MM-DD'));
+  expect(result.end).toBe(moment.tz('Europe/Madrid').add(5,'days').format('YYYY-MM-DD'));
   expect(roofs.getMemberRoofs).toHaveBeenCalledWith(7);
  });
  it('has no fallback to the municipality catalogue',async()=>{

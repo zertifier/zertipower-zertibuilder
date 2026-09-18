@@ -12,12 +12,14 @@ export class HistoricalMeterPredictionService {
   async predict(cupsId: number, referenceDate?: string, allowHistoricalFallback = false) {
     const mode = process.env.HISTORICAL_VALIDATION_MODE === 'true';
     const configured = process.env.HISTORICAL_REFERENCE_DATE;
-    const ref = referenceDate || (mode ? configured : undefined) || moment.utc().format('YYYY-MM-DD');
+    const ref = referenceDate || (mode ? configured : undefined) || moment.tz('Europe/Madrid').format('YYYY-MM-DD');
     if (!moment.utc(ref, 'YYYY-MM-DD', true).isValid()) throw new Error('Invalid historical reference date');
-    const start = moment.utc(ref).add(1, 'day').format('YYYY-MM-DD');
-    const end = moment.utc(ref).add(6, 'days').format('YYYY-MM-DD');
+    // The reference is the first predicted day; training ends the day before.
+    const start = ref;
+    const cutoff = moment.utc(ref).subtract(1, 'day').format('YYYY-MM-DD');
+    const end = moment.utc(ref).add(5, 'days').format('YYYY-MM-DD');
     const history = await this.prisma.energyHourly.findMany({
-      where: { cupsId, production: { not: null }, infoDt: { lte: moment.utc(ref).endOf('day').toDate() } },
+      where: { cupsId, production: { not: null }, infoDt: { lt: moment.utc(start).startOf('day').toDate() } },
       select: { infoDt: true, production: true }, orderBy: { infoDt: 'asc' },
     });
     if (history.length < 24 * 7) throw new Error('Insufficient historical meter data');
@@ -43,7 +45,7 @@ export class HistoricalMeterPredictionService {
     for (const row of actualRows) if (row.infoDt && row.production != null) { const key = moment.utc(row.infoDt).format('YYYY-MM-DD'); actual.set(key, (actual.get(key) || 0) + Number(row.production)); }
     const comparison = prediction.map(point => { const day = moment.utc(point.time).format('YYYY-MM-DD'); const real = Number((actual.get(day) || 0).toFixed(2)); return { date: day, prediction: point.value, real, error: Number((point.value - real).toFixed(2)) }; });
     const errors = comparison.map(x => x.prediction - x.real); const mae = errors.reduce((a, x) => a + Math.abs(x), 0) / errors.length; const rmse = Math.sqrt(errors.reduce((a, x) => a + x * x, 0) / errors.length); const nonZero = comparison.filter(x => x.real !== 0); const mape = nonZero.length ? nonZero.reduce((a, x) => a + Math.abs(x.error / x.real), 0) / nonZero.length * 100 : null;
-    return { mode: mode || referenceDate ? 'historical-backtest' : 'current', referenceDate: ref, data: prediction, history: { first: history[0].infoDt, last: history[history.length - 1].infoDt, records: history.length }, comparison, metrics: { mae: Number(mae.toFixed(4)), rmse: Number(rmse.toFixed(4)), mape: mape == null ? null : Number(mape.toFixed(2)) }, leakageCutoff: ref };
+    return { mode: mode || referenceDate ? 'historical-backtest' : 'current', referenceDate: ref, data: prediction, history: { first: history[0].infoDt, last: history[history.length - 1].infoDt, records: history.length }, comparison, metrics: { mae: Number(mae.toFixed(4)), rmse: Number(rmse.toFixed(4)), mape: mape == null ? null : Number(mape.toFixed(2)) }, leakageCutoff: cutoff };
   }
 
   async predictCommunity(communityId: number, referenceDate?: string) {

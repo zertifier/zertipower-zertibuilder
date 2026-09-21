@@ -7,7 +7,7 @@ export function consumptionProfile(groups: {date:string;consumption:number}[][],
   const samples=groups.flat();
   if (!samples.length) {
     const monthlyKwh=[260,230,220,190,170,160,150,150,180,210,230,250];
-    return {source:'estimate-no-history', label:'Consum estimat de la calculadora; no hi ha dades introduïdes.',
+    return {source:'estimate-no-history', label:'Estimació de consum de la calculadora; no hi ha dades introduïdes.',
       monthlyKwh, annualKwh:monthlyKwh.reduce((sum,value)=>sum+value,0), observedDays:0, historyFrom:null,historyTo:null};
   }
   // Prefer the member's latest complete calendar year when actually present.

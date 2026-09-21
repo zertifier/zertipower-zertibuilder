@@ -101,7 +101,9 @@ services:
       SOLAR_CUPS_AREAS_JSON: ${SOLAR_CUPS_AREAS_JSON:-}
       SOLAR_TEST_HOUSE_M2: ${SOLAR_TEST_HOUSE_M2:-0}
       SOLAR_TEST_COMMUNITY_ID: ${SOLAR_TEST_COMMUNITY_ID:-0}
-      CONSUMPTION_LOCAL_TEST_COMMUNITY_ID: ${CONSUMPTION_LOCAL_TEST_COMMUNITY_ID:-0}
+      # Community 7 uses the validated local historical consumption estimate.
+      # Override with 0 when the remote predictor is required for another deployment.
+      CONSUMPTION_LOCAL_TEST_COMMUNITY_ID: ${CONSUMPTION_LOCAL_TEST_COMMUNITY_ID:-7}
       SOLAR_API_ALLOW_INSECURE_TLS: ${SOLAR_API_ALLOW_INSECURE_TLS:-false}
       DATADIS_MONTHS: ${DATADIS_MONTHS:-1}
       TRADE_UPDATE_DAYS: ${TRADE_UPDATE_DAYS:-30}

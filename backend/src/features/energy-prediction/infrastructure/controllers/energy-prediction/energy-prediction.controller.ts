@@ -1,14 +1,15 @@
+import { LocalConsumptionService } from '../../services/local-consumption.service';
+import { CalculadoraIntegrationService } from '../../services/calculadora-integration.service';
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { EnergyForecastService } from "../../services/energy-forecast.service";
-import * as moment from "moment";
+import { EnergyForecastService, SolarForecastPoint } from "../../services/energy-forecast.service";
+import * as moment from "moment-timezone";
 import { PrismaService } from "../../../../../shared/infrastructure/services";
-import { PredictionPacket } from "./prediction-packet";
-import { Predictor } from "./predictor";
 import { HttpResponse } from "../../../../../shared/infrastructure/http/HttpResponse";
 import { BadRequestError, InfrastructureError } from "../../../../../shared/domain/error/common";
-import { AxiosError } from "axios";
 import { ConsumptionPredictionService } from '../../services/consumption-prediction.service';
 import { ErrorCode } from 'src/shared/domain/error';
+import { CommunityPredictionService } from '../../services/community-prediction.service';
+import { HistoricalMeterPredictionService } from '../../services/historical-meter-prediction.service';
 
 @Controller('energy-prediction')
 export class EnergyPredictionController {
@@ -16,12 +17,20 @@ export class EnergyPredictionController {
     private energyForecastService: EnergyForecastService,
     private consumptionPrevisionService: ConsumptionPredictionService,
     private prisma: PrismaService,
+    private calculator: CalculadoraIntegrationService,
+    private localConsumption: LocalConsumptionService,
+    private communityPrediction: CommunityPredictionService,
+    private historicalMeterPrediction: HistoricalMeterPredictionService,
   ) {
   }
 
   @Get('/community/:id/consumption')
   async getCommunityConsumptionPrediction(@Param("id") communityId: number, @Query("start_date") startDate: string, @Query("end_date") endDate: string) {
     try {
+      if (process.env.CONSUMPTION_LOCAL_TEST_COMMUNITY_ID === String(communityId)) {
+        return HttpResponse.success('Local historical community consumption estimate').withData(
+          await this.localConsumption.community(Number(communityId), startDate, endDate));
+      }
       let predictionResponse = await this.consumptionPrevisionService.getCommunityConsumption(communityId, startDate, endDate)
       return HttpResponse.success('Prediction realized').withData(predictionResponse);
     } catch (err) {
@@ -40,81 +49,63 @@ export class EnergyPredictionController {
   }
 
   @Get()
-  async getPrediction(@Query("cups") cupsId: number, @Query("community") communityId: number) {
-    const packets: Map<string, PredictionPacket> = new Map();
+  async getPrediction(@Query() query: { cups?: string; community?: string; referenceDate?: string }) {
+    // Read the whole query: Nest's primitive conversion can turn a missing number into NaN.
+    const { cups: cupsId, community: communityId } = query;
+    if ((cupsId !== undefined) === (communityId !== undefined)) {
+      throw new BadRequestError('Specify exactly one of cups or community');
+    }
+    const rawId = cupsId ?? communityId;
+    if (typeof rawId !== 'string' || !/^[1-9]\d*$/.test(rawId)) {
+      throw new BadRequestError('Invalid CUPS or community ID');
+    }
+    const id = Number(rawId);
+    if (!Number.isSafeInteger(id) || id <= 0) throw new BadRequestError('Invalid CUPS or community ID');
 
-    let response: { production: number, infoDt: Date }[];
-    if (cupsId) {
-      response = await this.prisma.$queryRaw`select production, info_dt as infoDt from energy_hourly where cups_id = ${cupsId} AND production IS NOT NULL order by info_dt desc limit 192`;
-    } else if (communityId) {
-      response = await this.prisma.$queryRaw`select SUM(kwh_out) as production, info_dt as infoDt from energy_hourly eh left join cups on eh.cups_id = cups.id where cups.type = 'community' and community_id = ${communityId} and kwh_out IS NOT NULL group by info_dt order by info_dt desc LIMIT 200`;
-    } else {
-      throw new BadRequestError('must specify cups or community')
+    if (communityId !== undefined) {
+      return HttpResponse.success('Selected community roof production prediction').withData(
+        await this.communityPrediction.predict(id));
     }
 
-    if(!response.length || !response[0]){
-      return HttpResponse.failure('Cannot predict without data',ErrorCode.NOT_FOUND);
+    // Individual meter prediction is a historical time-series operation. It
+    // deliberately does not read calculator roofs, PV geometry or Open-Meteo.
+    const meterResult = await this.historicalMeterPrediction.predict(id, query.referenceDate);
+    return HttpResponse.success('Historical meter prediction').withData(
+      query.referenceDate ? meterResult : meterResult.data,
+    );
+    /* let configurations;
+    if (communityId === undefined) {
+      const config = await this.calculator.getSolarConfigFromCalculadora(id);
+      if (!config) return HttpResponse.failure('CUPS not found', ErrorCode.NOT_FOUND);
+      configurations = [{ latitud: config.lat, longitud: config.lng, kwp: config.kwp,
+        potencia_inversor_kw: config.potencia_inversor_kw, graus: config.inclination,
+        performance_ratio: config.performance_ratio, azimut: config.orientation }];
     }
-
-    const now = response[0].infoDt;
-    const ago = response[response.length - 1].infoDt;
-    let historicRadiation;
-
-    try {
-      historicRadiation = await this.energyForecastService.getRadiation(ago, now);
-      // console.log({historicRadiation});
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        console.log(err.response?.data);
+    if (!configurations || configurations.length === 0) throw new BadRequestError('No production configurations found');
+    const today = moment.tz('Europe/Madrid').startOf('day');
+    const startDate = today.format('YYYY-MM-DD');
+    const endDate = today.clone().add(6, 'days').format('YYYY-MM-DD');
+    const forecasts: SolarForecastPoint[][] = [];
+    for (const configuration of configurations) {
+      forecasts.push(await this.energyForecastService.getProductionForecast(configuration, startDate, endDate));
+    }
+    const totals = new Map<string, number>();
+    const first = forecasts[0];
+    for (const forecast of forecasts) {
+      if (forecast.length !== first.length || forecast.some((point, index) => point.time !== first[index].time)) {
+        throw new InfrastructureError('Solar installations returned different forecast hours');
       }
-      throw new InfrastructureError('Error happened while getting historic radiation');
-    }
-
-    for (const { value, time } of historicRadiation) {
-      const date = moment(time).format('YYYY-MM-DD HH:00');
-      const packet = packets.get(date) || { radiation: 0, production: 0, coefficient: 0 };
-      packet.radiation = value;
-      packets.set(date, packet);
-    }
-
-    for (const item of response) {
-      const date = moment(item.infoDt).format("YYYY-MM-DD HH:00");
-      const packet = packets.get(date) || { radiation: 0, production: 0, coefficient: 0 };
-      packet.production = item.production || 0;
-      packets.set(date, packet);
-    }
-
-    // Calculate coefficients
-    for (const [date, packet] of packets.entries()) {
-      if (packet.radiation <= 50) {
-        packet.production = 0;
-        packet.radiation = 0;
-        packet.coefficient = 0;
-        packets.set(date, packet);
-        continue;
+      for (const point of forecast) {
+        totals.set(point.time, (totals.get(point.time) ?? 0) + point.value);
       }
-
-      packet.coefficient = packet.production / packet.radiation;
-      packets.set(date, packet);
     }
+    const data = Array.from(totals, ([time, value]) => ({ time, value }));
+    return HttpResponse.success('Prediction realized').withData(data); */
+  }
 
-
-    // Get radiation prediction
-    const atThisMoment = moment(moment().format('YYYY-MM-DD 00:00')).toDate();
-    const future = moment(moment(atThisMoment).add(1, "days").format('YYYY-MM-DD 23:59')).toDate();
-    const radiationPrediction = await this.energyForecastService.getRadiationForecast(atThisMoment, future);
-
-    const predictor = new Predictor(Array.from(packets.values()), [
-      { from: 50, to: 250 },
-      { from: 250, to: 500 },
-      { from: 500, to: 750 },
-      { from: 750, to: 1000 },
-    ]);
-
-    let data = radiationPrediction.map(v => {
-      return { time: v.time, value: predictor.getPrediction(v.value) };
-    });
-
-    return HttpResponse.success('Prediction realized').withData(data);
+  @Get('/community/:id/historical-meter-production')
+  async getHistoricalCommunityMeterProduction(@Param('id') communityId: number, @Query('referenceDate') referenceDate?: string) {
+    const result = await this.historicalMeterPrediction.predictCommunity(Number(communityId), referenceDate);
+    return HttpResponse.success('Historical meter community prediction').withData(result);
   }
 }

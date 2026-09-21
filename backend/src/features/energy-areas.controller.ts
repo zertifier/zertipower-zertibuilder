@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Post,
   Get,
@@ -22,6 +23,8 @@ import { Http } from "winston/lib/winston/transports";
 import axios from "axios";
 import { ErrorCode } from "src/shared/domain/error/ErrorCode";
 const https = require('https');
+
+import { calculatorInstallation } from "./energy-prediction/infrastructure/services/calculator-installation";
 
 export const RESOURCE_NAME = "energy-areas";
 
@@ -123,8 +126,18 @@ export class EnergyAreasController {
   }
 
   @Get("/simulate")
-  async getSimulation(@Query('lat') lat: number, @Query('lng') lng: number, @Query('area') area: number, @Query('direction') direction: number, @Query('angle') angle: number, @Query('panels') panels: number) {
-    console.log(lat, lng, area, direction, angle, panels)
+  async getSimulation(@Query('lat') lat: number, @Query('lng') lng: number, @Query('area') area: number, @Query('direction') direction: number, @Query('angle') angle: number, @Query('panels') panels: number, @Query('energyAreaId') energyAreaId?: string) {
+    let selectedArea = null;
+    if (energyAreaId !== undefined) {
+      const id = Number(energyAreaId);
+      if (!Number.isSafeInteger(id) || id <= 0) throw new BadRequestException('Invalid energy area ID');
+      selectedArea = await this.prisma.energyArea.findUnique({ where: { id } });
+      if (!selectedArea) throw new BadRequestException('Energy area not found');
+    }
+    if (![lat, lng, area, direction, angle].every(Number.isFinite) || area <= 0 ||
+        Math.abs(lat) > 90 || Math.abs(lng) > 180 || Math.abs(direction) > 180 || angle < 0 || angle > 90) {
+      throw new BadRequestException('Invalid calculator parameters');
+    }
 
     const engineeringCost = 1623;
     const installationCost = [0.35, 0.3, 0.24];
@@ -134,8 +147,11 @@ export class EnergyAreasController {
     const structureCost = 0.07;
 
     try {
-      const { kWp, totalProduction, numberPanels, prodByMonth, totalCost } = await calculate(lat, lng, area, direction, angle, installationCost, invertersCost, managementCost, panelsCost, structureCost, engineeringCost, panels)
-      let data = { kWp, totalProduction, numberPanels, prodByMonth, totalCost }
+      const { kWp, totalProduction, numberPanels, prodByMonth, totalCost, tilt, azimuth } = await calculate(lat, lng, area, direction, angle, installationCost, invertersCost, managementCost, panelsCost, structureCost, engineeringCost, panels)
+      let data = { kWp, totalProduction, numberPanels, prodByMonth, totalCost, tilt, azimuth,
+        energyAreaId: selectedArea?.id ?? null,
+        roofReference: selectedArea?.cadastralReference ?? selectedArea?.reference ?? null,
+        latitude: lat, longitude: lng, areaM2: area }
       return HttpResponse.success("simulation executed successfully").withData(
         data
       );
@@ -295,16 +311,11 @@ function calculateStepCost(kWp: any) {
 
 
 async function calculate(lat: number, lng: number, area: number, direction: number, angle: number, installationCost: number[], invertersCost: number[], managementCost: number[], panelsCost: number, structureCost: number, engineeringCost: number, panels: number) {
-  let kWp;
-  if (angle < 5) { // si es plana se instala en estructura inclinada apuntando al sur
-    angle = 20;
-    direction = 0;
-    kWp = Math.round((area * 0.8 / 9) * 10) / 10;
-  }
-  else {
-    kWp = Math.round((area * 0.8 / 6) * 10) / 10;
-  }
-  let numberPanels = panels || Math.ceil(kWp / 0.45);
+  const installation = calculatorInstallation(area, angle, direction, panels);
+  const kWp = installation.kwp;
+  const numberPanels = installation.panelCount;
+  angle = installation.tilt;
+  direction = installation.azimuth;
 
   let urlQueryParams = `&lat=${lat}&lon=${lng}&angle=${angle}&aspect=${direction}`;
 
@@ -330,7 +341,7 @@ async function calculate(lat: number, lng: number, area: number, direction: numb
   let prodByMonth = sumValuesByMonth(hourValuesAvg);
 
   let totalCost = calculateCost(kWp, installationCost, invertersCost, managementCost, panelsCost, structureCost, engineeringCost);
-  return { kWp, totalProduction, numberPanels, prodByMonth, totalCost };
+  return { kWp, totalProduction, numberPanels, prodByMonth, totalCost, tilt: angle, azimuth: direction };
 }
 
 async function httpGet(url: string) {

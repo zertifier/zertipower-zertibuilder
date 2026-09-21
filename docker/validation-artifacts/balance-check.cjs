@@ -1,0 +1,11 @@
+const fs=require('fs'),ts=require('typescript'),Module=require('module'),assert=require('node:assert/strict');
+const source=fs.readFileSync('/src/energy-balance.ts','utf8');const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}});
+const m=new Module('/src/balance-runtime.js');m.filename='/src/balance-runtime.js';m.paths=Module._nodeModulePaths('/src');m._compile(compiled.outputText,m.filename);
+const {calculateEnergyBalance}=m.exports;
+const p=Array(12).fill(0),c=Array(12).fill(0);p[0]=10;c[0]=8;
+const h=calculateEnergyBalance(p,c,[[6,4],...Array(11).fill([0,0])],[[2,6],...Array(11).fill([0,0])]);
+assert.deepEqual(h.months[0],{production:10,consumption:8,selfConsumption:6,export:4,import:2});
+assert.equal(h.annual.production,h.annual.selfConsumption+h.annual.export);assert.equal(h.annual.consumption,h.annual.selfConsumption+h.annual.import);
+const monthly=calculateEnergyBalance([100,...Array(11).fill(0)],[10,...Array(11).fill(0)]);assert.equal(monthly.source,'monthly-profile-estimate');
+assert.ok(monthly.months[0].export>90);assert.equal(monthly.months[0].production,monthly.months[0].selfConsumption+monthly.months[0].export);
+console.log('PASS energy balance hourly min/max and monthly-profile invariants');

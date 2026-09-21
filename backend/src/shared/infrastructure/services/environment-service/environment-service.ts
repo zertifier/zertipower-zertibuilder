@@ -41,7 +41,14 @@ export class EnvironmentService implements OnModuleInit {
     STRIPE_PRICE_KEY:"",
     STRIPE_PRODUCT_ID:"",
     STRIPE_SECRET_KEY:"",
-    PK:""
+    PK:"",
+    OPEN_METEO_API_URL:"",
+    OPEN_METEO_API_KEY:"",
+    SOLAR_INSTALLATIONS_JSON:"",
+    SOLAR_API_URL:"",
+    SOLAR_API_AUTH_CODE:"",
+    SOLAR_API_ALLOW_INSECURE_TLS:"",
+    MONTOLIVET_COMMUNITY_ID:""
   };
 
   onModuleInit(): any {

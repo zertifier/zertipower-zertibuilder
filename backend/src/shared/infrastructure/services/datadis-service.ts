@@ -79,6 +79,8 @@ export class DatadisService {
     private communitiesDbService: CommunitiesDbRequestsService) {
 
     this.conn = this.mysql.pool;
+    // Allow local inspection of an imported database without automatic jobs.
+    if (process.env.DISABLE_BACKGROUND_JOBS === 'true') return;
 
     let datadisMonths: number = this.environmentService.getEnv().DATADIS_MONTHS;
     let startDate = moment().subtract(datadisMonths, 'months').format('YYYY/MM');

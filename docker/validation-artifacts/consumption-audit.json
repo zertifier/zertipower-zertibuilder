@@ -1,0 +1,405 @@
+{
+  "cups": [
+    {
+      "id": 16,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 18,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 20,
+      "active": false,
+      "type": "consumer"
+    },
+    {
+      "id": 22,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 23,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 26,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 27,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 28,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 29,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 34,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 36,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 38,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 43,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 44,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 45,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 46,
+      "active": true,
+      "type": "community"
+    },
+    {
+      "id": 54,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 55,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 56,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 57,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 58,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 59,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 60,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 61,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 62,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 63,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 64,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 65,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 66,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 67,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 68,
+      "active": true,
+      "type": "consumer"
+    },
+    {
+      "id": 69,
+      "active": false,
+      "type": "prosumer"
+    }
+  ],
+  "activeShareCustomers": 28,
+  "activeShares": 28,
+  "consumption": {
+    "elapsedMs": 5675,
+    "response": {
+      "success": true,
+      "data": [
+        {
+          "date": "2026-09-18",
+          "consumption": 115.11,
+          "source": "local-historical-community-estimate",
+          "historyFrom": "2025-03-27",
+          "historyTo": "2025-08-23",
+          "members": 29,
+          "observedMembers": 13,
+          "estimatedMembers": 16,
+          "missingCupsIds": [
+            43,
+            44,
+            45,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67
+          ]
+        },
+        {
+          "date": "2026-09-19",
+          "consumption": 108.04,
+          "source": "local-historical-community-estimate",
+          "historyFrom": "2025-03-27",
+          "historyTo": "2025-08-23",
+          "members": 29,
+          "observedMembers": 13,
+          "estimatedMembers": 16,
+          "missingCupsIds": [
+            43,
+            44,
+            45,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67
+          ]
+        },
+        {
+          "date": "2026-09-20",
+          "consumption": 120.86,
+          "source": "local-historical-community-estimate",
+          "historyFrom": "2025-03-27",
+          "historyTo": "2025-08-23",
+          "members": 29,
+          "observedMembers": 13,
+          "estimatedMembers": 16,
+          "missingCupsIds": [
+            43,
+            44,
+            45,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67
+          ]
+        },
+        {
+          "date": "2026-09-21",
+          "consumption": 113.22,
+          "source": "local-historical-community-estimate",
+          "historyFrom": "2025-03-27",
+          "historyTo": "2025-08-23",
+          "members": 29,
+          "observedMembers": 13,
+          "estimatedMembers": 16,
+          "missingCupsIds": [
+            43,
+            44,
+            45,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67
+          ]
+        },
+        {
+          "date": "2026-09-22",
+          "consumption": 116.08,
+          "source": "local-historical-community-estimate",
+          "historyFrom": "2025-03-27",
+          "historyTo": "2025-08-23",
+          "members": 29,
+          "observedMembers": 13,
+          "estimatedMembers": 16,
+          "missingCupsIds": [
+            43,
+            44,
+            45,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67
+          ]
+        },
+        {
+          "date": "2026-09-23",
+          "consumption": 106.82,
+          "source": "local-historical-community-estimate",
+          "historyFrom": "2025-03-27",
+          "historyTo": "2025-08-23",
+          "members": 29,
+          "observedMembers": 13,
+          "estimatedMembers": 16,
+          "missingCupsIds": [
+            43,
+            44,
+            45,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67
+          ]
+        }
+      ],
+      "message": "Local historical community consumption estimate"
+    }
+  },
+  "calculator": {
+    "elapsedMs": 3095,
+    "response": {
+      "success": true,
+      "data": {
+        "source": "estimate-community-history",
+        "label": "Estimació per habitatge amb l’històric comunitari; sense comptador associat a aquesta coberta.",
+        "monthlyKwh": [
+          300.56,
+          194.55,
+          197.4,
+          154.57,
+          159.22,
+          134.18,
+          116.09,
+          115.22,
+          172.62,
+          251,
+          239.46,
+          334.47
+        ],
+        "annualKwh": 2369.34,
+        "observedDays": 6257,
+        "observedPoints": 13,
+        "historyFrom": "2024-01-01",
+        "historyTo": "2025-08-23",
+        "cupsId": null
+      },
+      "message": "Calculator consumption source"
+    }
+  },
+  "member": {
+    "elapsedMs": 182,
+    "response": {
+      "success": true,
+      "data": {
+        "source": "estimate-member-history",
+        "label": "Estimació anualitzada amb l’històric disponible del membre.",
+        "monthlyKwh": [
+          356.49,
+          273.5,
+          320.61,
+          250.56,
+          242.67,
+          196.53,
+          183.33,
+          129.57,
+          242.48,
+          297.17,
+          303.58,
+          399.35
+        ],
+        "annualKwh": 3195.84,
+        "observedDays": 415,
+        "observedPoints": 1,
+        "historyFrom": "2024-01-18",
+        "historyTo": "2025-08-23",
+        "cupsId": 16
+      },
+      "message": "Calculator consumption source"
+    }
+  }
+}

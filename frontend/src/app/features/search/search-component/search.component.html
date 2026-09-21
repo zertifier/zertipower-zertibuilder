@@ -1,10 +1,8 @@
 <app-map [activeFeatures]="addedAreas" class="" style="width:100%;height:100%"></app-map>
-<!-- position-absolute top-0 start-0 p-0 m-0 -->
 
 <a *ngIf="!isMobile" [routerLink]="['/']" class="position-absolute bottom-0 end-0 pb-4">
   <img src="assets/img/navbar/zertipower-logo-blanc-horizontal.png" class="px-3" alt="zertipower-logo"
        style="width: 265px;">
-  <!--  <img *ngIf="isShrunk" src="assets/img/navbar/zertipower-logo-blanc.png" class="w-100  px-3" alt="zertipower-logo">-->
 </a>
 
 <div *ngIf="!isMobile" class="d-none d-md-block">
@@ -57,14 +55,10 @@
 
         <div class="py-3 d-flex flex-column h-100 overflow-auto" [ngClass]=" isShrunk ? 'd-none' : 'open-nav'"
              style="max-height: 100vh;">
-          <!-- overflow-y: scroll; overflow-x: hidden; -->
 
-          <!-- <a [routerLink]="['/']" class="navbar-brand">ZERTIPOWER</a> -->
           <a [routerLink]="['/']" class="navbar-brand text-center">
             <img src="assets/img/navbar/zertipower-logo-blanc-horizontal.png" class="px-3" alt="zertipower-logo"
                  style="width: 265px;">
-            <!-- <img *ngIf="isShrunk" src="assets/img/navbar/zertipower-logo-blanc.png" class="w-100  px-3" alt="zertipower-logo"> -->
-            <!-- <h5>Calculadora energètica</h5> -->
           </a>
 
           <hr class="mb-0">
@@ -84,8 +78,6 @@
 
             <div class="row mt-2">
               <div class="col ms-2">
-                <!-- <span class="d-flex align-items-center me-2 fs-5">Sumatori de la comunitat</span>  -->
-                <!-- <span class="fs-6 d-flex align-items-center me-2">Les dades expressades són una estimació aproximada</span>  -->
               </div>
             </div>
 
@@ -125,8 +117,6 @@
 
           </div>
 
-          <!-- <hr class="mb-0"> -->
-
           <div class="w-100 d-flex justify-content-center mt-4"
                *ngIf="selectedCadastre.feature && !activeIndividual && !activeCommunity">
 
@@ -148,7 +138,6 @@
                 <div class="col-6 p-0 d-flex justify-content-end align-items-center">
                   <div class="col-6 p-0  d-flex flex-column">
                     <span class="d-flex align-items-center fs-12 me-2"> Nº de plaques</span>
-                    <!-- <div class="form-text">(Opcional)</div> -->
                   </div>
                   <input type="number" class="form-control number-input disabled"
                          [(ngModel)]="this.selectedCadastre.n_plaques" (change)="updateCadastreChart()" min="0" step="0"
@@ -203,11 +192,9 @@
                 </div>
               </div>
 
-
               <div *ngIf="selectedCadastreGenerationMonthChartDatasets.length">
-                <p class="fs-6 my-2 mt-5">Producció àrea mensualment</p>
-                <span class="m-0 fs-12">La gràfica expressa la producció energética basada en les plaques solars que
-                podria contenir l'area</span>
+                <p class="fs-6 my-2 mt-5">Producció estimació 7 dies</p>
+                <span class="m-0 fs-12">La gràfica expressa la producció energètica estimada a 7 dies basant-se en les plaques solars que podria contenir l'àrea.</span>
 
                 <div class="">
                   <div class="custom-chart" style="width:95%">
@@ -273,7 +260,6 @@
                 <div class="col-6 p-0 d-flex justify-content-end align-items-center">
                   <div class="col-6 p-0  d-flex flex-column">
                     <span class="d-flex align-items-center fs-12 me-2"> Nº de plaques</span>
-                    <!-- <div class="form-text">(Opcional)</div> -->
                   </div>
                   <input type="number" class="form-control number-input" [(ngModel)]="this.selectedCadastre.n_plaques"
                          (change)="updateCadastreChart()" min="0" step="0" disabled>
@@ -497,13 +483,6 @@
                     </div>
                   </div>
 
-                  <!-- <div class="col-6 m-0 ps-0">
-                      <app-chart [chartId]="'selectedCadastreCec'" [chartType]="selectedCadastreMonthChartType"
-                        [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
-                        [options]="communityMonthChartOptions"
-                        [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()" style="position:relative; height: 250px !important;"></app-chart>
-                  </div>  -->
-
                 </div>
 
               </div>
@@ -537,8 +516,6 @@
       <div id="div-shrink" class="d-flex align-items-center " style="height: 100vh;">
         <button class="btn btn-light border-0 ps-2 shadow-none rounded-start-0" (click)="changeShrinkState()"
                 style="height: 50px;">
-          <!--        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none"-->
-          <!--                [ngClass]="getThemeName() == 'Dark' ? 'text-light' : 'text-dark'" (click)="changeShrinkState()">-->
           <i *ngIf="isShrunk" class="fa-solid fa-caret-right fs-5"></i>
           <i *ngIf="!isShrunk" class="fa-solid fa-caret-left fs-5"></i>
         </button>
@@ -582,12 +559,6 @@
             <option [ngValue]="newCommunity">Nova comunitat</option>
             <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{ community.name }}</option>
           </select>
-          <!--<select *ngIf="!selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
-                  class="form-select heartbeat border border-light w-100" [ngbTooltip]="communitySelectionTooltip"
-                  (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
-            <option [ngValue]="newCommunity">Nova comunitat</option>
-            <option *ngFor="let community of selectedCommunities" [ngValue]="community">{{ community.name }}</option>
-          </select>-->
           <select *ngIf="selectedCommunity" id="location-comunnity" [(ngModel)]="selectedCommunity"
                   class="form-select px-2"
                   (change)="OnSelectorChange(selectedCommunity,'community')" autofocus>
@@ -601,13 +572,6 @@
     </div>
   </div>
 
-  <!--<div class="card mt-2 position-absolute p-2"
-       style="z-index:3; width: 260px;height: 65px; margin-bottom: 50px;top: 60px;"
-       [ngClass]=" isShrunk ? 'location-bar-closed' : 'location-bar-open'"
-       *ngIf="!addedAreas.length && selectedCommunity && !selectedCadastre.feature">
-    <div class="fs-21">Tria una àrea per calcular l'estalvi energètic.</div>
-  </div>-->
-
   <div *ngIf="selectedCommunity" class="position-absolute top-0 start-0 d-flex align-items-end"
        style=" z-index:2; pointer-events: none; height: 100vh; ">
 
@@ -616,8 +580,6 @@
            class="d-flex flex-column align-items-center border border-0 border-bottom border-bottom-light"
            style="width: 100vw !important;  ">
         <button class="btn btn-primary border-0 shadow-none rounded-0 mx-auto w-100 " (click)="changeShrinkState()">
-          <!--        <button class="btn btn-primary bg-transparent border-0 ps-2 shadow-none"-->
-          <!--                [ngClass]="getThemeName() == 'Dark' ? 'text-light' : 'text-dark'" (click)="changeShrinkState()">-->
           <i *ngIf="isShrunk" class="fa-solid fa-caret-up fs-5"></i>
           <i *ngIf="!isShrunk" class="fa-solid fa-caret-down fs-5"></i>
         </button>
@@ -626,16 +588,6 @@
 
         <div class="py-2 d-flex flex-column overflow-y-auto w-100" [ngClass]=" isShrunk ? 'd-none' : 'open-nav'"
              style="height: 65vh">
-
-          <!-- <a [routerLink]="['/']" class="navbar-brand">ZERTIPOWER</a> -->
-          <!--<a [routerLink]="['/']" class="navbar-brand text-center">
-            <img src="assets/img/navbar/zertipower-logo-blanc-horizontal.png" class="px-3" alt="zertipower-logo"
-                 style="width: 265px;">
-            &lt;!&ndash; <img *ngIf="isShrunk" src="assets/img/navbar/zertipower-logo-blanc.png" class="w-100  px-3" alt="zertipower-logo"> &ndash;&gt;
-            &lt;!&ndash; <h5>Calculadora energètica</h5> &ndash;&gt;
-          </a>-->
-
-          <!--          <hr class="mb-0">-->
 
           <div *ngIf="!selectedCadastre.feature" class="mt-2 mx-4">
             <span class="fs-5">Consum de la comunitat</span>
@@ -656,14 +608,11 @@
                         (click)="openChartModal(monthChartLabels, communityMonthChartDatasets, communityMonthChartOptions, communityUpdateMonthChartSubject.asObservable())">
                   Pantalla completa <i class="fa-solid fa-maximize ms-2"></i>
                 </button>
-                <!-- <span class="d-flex align-items-center me-2 fs-5">Sumatori de la comunitat</span>  -->
-                <!-- <span class="fs-6 d-flex align-items-center me-2">Les dades expressades són una estimació aproximada</span>  -->
               </div>
             </div>
 
             <div class="d-flex w-100">
 
-<!--              <div class="custom-chart mb-4" style="width:95%; position:relative">-->
               <div class="custom-chart mb-4">
                 <app-chart [chartId]="'communityChart'" [chartType]="communityMonthChartType"
                            [labels]="monthChartLabels"
@@ -698,8 +647,6 @@
             </div>
 
           </div>
-
-          <!-- <hr class="mb-0"> -->
 
           <div class="w-100 d-flex justify-content-center mt-2 px-4"
                *ngIf="selectedCadastre.feature && !activeIndividual && !activeCommunity">
@@ -777,11 +724,9 @@
                   </button>
               </div>
 
-
               <div *ngIf="selectedCadastreGenerationMonthChartDatasets.length">
-                <p class="fs-6 my-2 mt-5">Producció àrea mensualment</p>
-                <span class="m-0 fs-12">La gràfica expressa la producció energética basada en les plaques solars que
-                podria contenir l'area</span>
+                <p class="fs-6 my-2 mt-5">Producció estimació 7 dies</p>
+                <span class="m-0 fs-12">La gràfica expressa la producció energètica estimada a 7 dies basant-se en les plaques solars que podria contenir l'àrea.</span>
 
                 <div class="">
                   <button class="btn btn-secondary rounded-5 fs-12 py-1 mt-3"
@@ -872,7 +817,6 @@
                       {{ inclination.name }}
                     </option>
                   </select>
-
 
                 </div>
 
@@ -1068,7 +1012,6 @@
                         communityMonthChartOptions, updateSelectedCadastreMonthChartSubject.asObservable())">
                     Pantalla completa <i class="fa-solid fa-maximize ms-2"></i>
                   </button>
-<!--                  <div class="custom-chart mb-4" style="width:95%; position:relative">-->
                   <div class="custom-chart mb-4" >
                     <app-chart [chartId]="'selectedCadastreAcc'" [chartType]="selectedCadastreMonthChartType"
                                [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
@@ -1078,13 +1021,6 @@
                       simulació de l'àrea
                     </div>
                   </div>
-
-                  <!-- <div class="col-6 m-0 ps-0">
-                      <app-chart [chartId]="'selectedCadastreCec'" [chartType]="selectedCadastreMonthChartType"
-                        [labels]="monthChartLabels" [datasets]="selectedCadastreMonthChartDatasets"
-                        [options]="communityMonthChartOptions"
-                        [updateSubject]="updateSelectedCadastreMonthChartSubject.asObservable()" style="position:relative; height: 250px !important;"></app-chart>
-                  </div>  -->
 
                 </div>
 

@@ -25,9 +25,15 @@ import { LocationService } from '../../services/location.service';
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ChartModalComponent } from '../../components/chart-modal/chart-modal.component';
 import {CalculateInfoModalComponent} from "./calculate-info-modal/calculate-info-modal.component";
+import { calculateEnergyBalance, EnergyBalance } from '../../services/energy-balance';
+
+const CALCULATOR_ESTIMATE_PROFILE = [260, 230, 220, 190, 170, 160, 150, 150, 180, 210, 230, 250];
 
 interface cadastre {
   id?: string;
+  consumptionSource?: string,
+  consumptionLabel?: string,
+  consumptionCupsId?: number | null,
   totalConsumption: number,
   valle: number,
   llano: number,
@@ -49,6 +55,10 @@ interface cadastre {
   monthsConsumption?: number[],
   monthsGeneration?: number[],
   monthsSurplus?: number[],
+  monthsSelfConsumption?: number[],
+  monthsImport?: number[],
+  monthsExport?: number[],
+  energyBalance?: EnergyBalance,
   m2?: number,
   oldM2?: number,
   n_plaques?: number,
@@ -59,6 +69,17 @@ interface cadastre {
   totalCost?: number,
   monthlySavings?: number,
   InsalledPower?: number,
+  energyAreaId?: number,
+  inverterPowerKw?: number | null,
+  solarLatitude?: number,
+  solarLongitude?: number,
+  solarBusy?: boolean,
+  solarError?: string,
+  solarResult?: { daily: { date: string; kwh: number }[]; input: { kwp: number; tilt: number; azimuth: number } },
+  solarTilt?: number,
+  solarAzimuth?: number,
+  solarSavedCommunityId?: number,
+  solarSavedReference?: string,
   orientation?: number,
   oldOrientation?: number,
   inclination?: number,
@@ -123,14 +144,14 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     { name: 'Sud', value: 0 },
     //{ name: 'Sudest', value: 30 },
     //{ name: 'Sudoest', value: 30 },
-    { name: 'Est', value: 90 },
+    { name: 'Est', value: -90 },
     { name: 'Oest', value: 90 }
   ];
   inclinations: any[] = [
-    { name: '0-5%', value: 2 },
-    { name: '10-15%', value: 13 },
-    { name: '20-30%', value: 25 },
-    { name: '30-40%', value: 35 }
+    { name: '2°', value: 2 },
+    { name: '13°', value: 13 },
+    { name: '25°', value: 25 },
+    { name: '35°', value: 35 }
   ];
   communityValoration: number = 0;
   communityEnergyData: any = [];
@@ -211,10 +232,11 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     }
 
   selectedCadastre: cadastre = {
-    totalConsumption: 300,
-    valle: 50,
-    llano: 100,
-    punta: 150,
+    totalConsumption: 0,
+    consumptionSource: 'pending',
+    valle: 0,
+    llano: 0,
+    punta: 0,
     vallePrice: 0.09,
     llanoPrice: 0.13,
     puntaPrice: 0.17,
@@ -494,6 +516,7 @@ export class CalculateComponent implements OnInit, AfterViewInit {
           this.communityCups = [];
         } else {
           this.getCommunityCups(this.selectedCommunity.id)
+          this.loadCommunitySelections();
           this.getCommunityEnergy();
           //this.getCommunityPrices();
           this.map.selectMarker(this.selectedCommunity.lat, this.selectedCommunity.lng);
@@ -605,37 +628,38 @@ export class CalculateComponent implements OnInit, AfterViewInit {
       console.log("area consumtion", addedArea.monthsConsumption)
       console.log("area generation", addedArea.monthsGeneration)
 
-      addedArea.monthsConsumption?.map((monthConsumption: number, index: number) => {
+      const balance = calculateEnergyBalance(addedArea.monthsGeneration || Array(12).fill(0), addedArea.monthsConsumption || Array(12).fill(0));
+      balance.months.forEach((month, index) => {
 
         //console.log("addedArea",addedArea)
 
         if (imports[index] != undefined && imports[index] != null) {
-          imports[index] += monthConsumption;
+          imports[index] += month.import;
           //imports[index] += monthConsumption;
           //total consumption implies the generation:
           // imports[index] += addedArea.monthsGeneration[index];
         }
 
         if (!imports[index]) {
-          imports.push(monthConsumption)
+          imports[index] = month.import
           //total consumption implies the generation:
           // imports.push(monthConsumption + addedArea.monthsGeneration[index])
         }
 
         if (exports[index] != undefined && exports[index] != null) {
-          exports[index] += addedArea.monthsGeneration[index];
+          exports[index] += month.production;
         }
 
         if (!exports[index]) {
-          exports.push(addedArea.monthsGeneration[index])
+          exports[index] = month.production
         }
 
         if (surplus[index] != undefined && surplus[index] != null) {
-          surplus[index] += addedArea.monthsGeneration[index] > monthConsumption ? addedArea.monthsGeneration[index] - monthConsumption : 0
+          surplus[index] += month.export
         }
 
         if (!surplus[index]) {
-          surplus.push(addedArea.monthsGeneration[index] > monthConsumption ? addedArea.monthsGeneration[index] - monthConsumption : 0)
+          surplus[index] = month.export
         }
 
       })
@@ -772,8 +796,11 @@ export class CalculateComponent implements OnInit, AfterViewInit {
             return;
           }
 
+          this.selectedCadastre.solarLatitude = latLng.lat();
+          this.selectedCadastre.solarLongitude = latLng.lng();
           this.selectedCadastre.feature = feature;
           this.selectedCadastre.id = cadastre;
+          this.selectedCadastre.energyAreaId = Number(feature.getProperty('energyAreaId'));
 
           let areaM2: any = feature.getProperty('areaM2');
           this.selectedCadastre.m2 = Math.floor(areaM2);
@@ -863,31 +890,41 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  updateConsumptions() {
-    this.updateCadastreConsumption();
-    let monthConsumption = this.selectedCadastre.totalConsumption;
-    let monthConsumptionArray: any = [];
-    let sumMonthConsumption: number = 0;
-    this.selectedCadastre.monthsGeneration?.map((element, index) => {
-      monthConsumptionArray.push(monthConsumption);
-      sumMonthConsumption += monthConsumption;
-    })
-    this.selectedCadastre.yearConsumption = sumMonthConsumption;
-    this.selectedCadastre.monthsConsumption = monthConsumptionArray;
+  async loadConsumption(force = false) {
+    const house = this.selectedCadastre;
+    if (!force && house.consumptionSource && house.consumptionSource !== 'pending') return;
+    if (house.consumptionSource === 'manual') return;
+    // The calculator is deliberately independent from CUPS, Datadis and
+    // meter history. Until the user enters the three tariff-period values,
+    // expose an explicitly labelled simulation estimate.
+    house.monthsConsumption = [...CALCULATOR_ESTIMATE_PROFILE];
+    house.yearConsumption = CALCULATOR_ESTIMATE_PROFILE.reduce((sum, value) => sum + value, 0);
+    house.consumptionSource = 'estimate-calculator';
+    house.consumptionLabel = 'Consum estimat de la simulació (sense comptador ni històric). Introdueix els teus valors per substituir-lo.';
+    house.totalConsumption = house.yearConsumption / 12;
+    house.valle = house.totalConsumption / 6;
+    house.llano = house.totalConsumption / 3;
+    house.punta = house.totalConsumption / 2;
   }
 
-  updateCadastreConsumptionM2() {
+  async changeConsumptionPoint() {
+    this.selectedCadastre.consumptionSource = 'pending';
+    await this.loadConsumption(true);
+    await this.simulateGenerationConsumption();
+  }
 
-    let updatedConsumption = this.selectedCadastre.totalConsumption + this.selectedCadastre.m2!
-    this.selectedCadastre.totalConsumption = updatedConsumption;
+  manualConsumptionChanged() {
+    this.selectedCadastre.consumptionSource = 'manual';
+    this.selectedCadastre.consumptionLabel = 'Consum introduït manualment; mateix valor mensual per als dotze mesos.';
+    this.updateConsumptions();
+  }
 
-    //console.log("updateCadastreConsumptionM2", updatedConsumption)
-
-    this.selectedCadastre.valle = this.selectedCadastre.totalConsumption * 0.16; // 0.50
-    this.selectedCadastre.llano = this.selectedCadastre.totalConsumption * 0.33; // 0.26
-    this.selectedCadastre.punta = this.selectedCadastre.totalConsumption * 0.50; // 0.24
-
-    //console.log("update consumption by m2", "valle:", this.selectedCadastre.valle, "llano:", this.selectedCadastre.llano, "punta:", this.selectedCadastre.punta, "total:", this.selectedCadastre.totalConsumption)
+  updateConsumptions() {
+    this.updateCadastreConsumption();
+    const house = this.selectedCadastre;
+    if (house.consumptionSource === 'manual') house.monthsConsumption = Array(12).fill(house.totalConsumption);
+    house.monthsConsumption = house.monthsConsumption || Array(12).fill(0);
+    house.yearConsumption = Number(house.monthsConsumption.reduce((sum, value) => sum + value, 0).toFixed(2));
   }
 
   updateCadastreConsumption() {
@@ -988,10 +1025,11 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     this.selectedCadastreGenerationMonthChartDatasets = [];
     this.selectedCadastreMonthChartDatasets = [];
     this.selectedCadastre = {
-      totalConsumption: 300,
-      valle: 50,
-      llano: 100,
-      punta: 150,
+      totalConsumption: 0,
+      consumptionSource: 'pending',
+      valle: 0,
+      llano: 0,
+      punta: 0,
       vallePrice: 0.09,
       llanoPrice: 0.13,
       puntaPrice: 0.17,
@@ -1002,19 +1040,22 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  addArea() {
+  async addArea() {
+    if (!await this.saveSelectedArea(this.selectedCadastre)) return;
     console.log(this.selectedCadastre)
     this.ngZone.run(() => {
       let found = this.addedAreas.find((addedArea: any) => addedArea.id == this.selectedCadastre.id)
       //console.log("add Area found", found)
       if (found) {
-        this.addedAreas = [...this.addedAreas];
+        this.addedAreas = this.addedAreas.map(area => area.id === this.selectedCadastre.id ? this.selectedCadastre : area);
         this.updateCommunityChart();
+
         Swal.fire({ text: 'Àrea actualitzada', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>', timer: 2000, customClass: { icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
       } else {
         this.addedAreas = this.addedAreas.concat([this.selectedCadastre])
         this.updateCommunityChart()
         this.map.activeArea(this.selectedCadastre)
+
         Swal.fire({ text: 'Àrea afegida', iconHtml: '<i style="font-size:50px;overflow-y:hidden;" class="fa-solid fa-circle-check text-success"></i>', timer: 2000, customClass: { icon: 'border-0', htmlContainer: 'd-flow justify-content-center px-md-5' } })
         this.resetCadastre(); //TO RESET SELECTED AREA WHEN AREA ADDED.
       }
@@ -1022,6 +1063,71 @@ export class CalculateComponent implements OnInit, AfterViewInit {
 
 
     })
+  }
+
+  solarConfigurationReady(area: cadastre): boolean {
+    return area.oldM2 === area.m2 && area.oldInclination === area.inclination &&
+      area.oldOrientation === area.orientation &&
+      typeof area.solarTilt === 'number' && typeof area.solarAzimuth === 'number';
+  }
+
+  private selectionPayload(area: cadastre) {
+    return {communityId:Number(this.selectedCommunity?.id), energyAreaId:area.energyAreaId,
+      roofReference:String(area.id || ''), latitude:area.solarLatitude, longitude:area.solarLongitude,
+      areaM2:area.m2, tilt:area.solarTilt, azimuth:area.solarAzimuth, panelCount:area.n_plaques, kwp:area.InsalledPower,
+      monthlyGenerationKwh:area.monthsGeneration, monthlyConsumptionKwh:area.monthsConsumption,
+      calculatorValues:Object.fromEntries(['valle','llano','punta','vallePrice','llanoPrice','puntaPrice','generationPrice','totalCost','yearlySavings']
+        .filter(key => (area as any)[key] != null && Number.isFinite(Number((area as any)[key])))
+        .map(key => [key,Number((area as any)[key])])),
+      consumptionSource:area.consumptionSource, consumptionLabel:area.consumptionLabel, source:'simulation'};
+  }
+
+  async saveSelectedArea(area: cadastre): Promise<boolean> {
+    if (!this.selectedCommunity?.id || !area.energyAreaId || !this.solarConfigurationReady(area)) {
+      await Swal.fire('Configuració incompleta', 'Selecciona una comunitat i espera que acabi la simulació de la coberta.', 'info');
+      return false;
+    }
+    try {
+      const response = await this.energyAreasService.saveSelection(this.selectionPayload(area));
+      if (!response.success) throw new Error(response.message);
+      area.solarSavedCommunityId = Number(this.selectedCommunity.id);
+      area.solarSavedReference = response.data.roofReference;
+      return true;
+    } catch {
+      await Swal.fire('No s’ha desat', 'No s’ha pogut guardar l’àrea seleccionada. Torna-ho a provar.', 'error');
+      return false;
+    }
+  }
+
+  async persistCommunityRoof(area: cadastre) { await this.addArea(); }
+
+  async loadCommunitySelections() {
+    const id = Number(this.selectedCommunity?.id);
+    this.addedAreas = [];
+    try {
+      const response = await this.energyAreasService.listSelections(id);
+      if (Number(this.selectedCommunity?.id) !== id) return;
+      if (!response.success) throw new Error(response.message);
+      this.addedAreas = response.data.map((roof: any) => ({
+        ...this.selectedCadastre, id:roof.roofReference, energyAreaId:roof.energyAreaId,
+        solarLatitude:roof.latitude, solarLongitude:roof.longitude, m2:roof.areaM2,oldM2:roof.areaM2,
+        inclination:roof.tilt,oldInclination:roof.tilt,solarTilt:roof.tilt,
+        orientation:roof.azimuth,oldOrientation:roof.azimuth,solarAzimuth:roof.azimuth,
+        n_plaques:roof.panelCount,InsalledPower:roof.kwp,
+        monthsGeneration:roof.monthlyGenerationKwh || Array(12).fill(0),
+        yearGeneration:(roof.monthlyGenerationKwh || []).reduce((a:number,b:number)=>a+b,0),
+        monthsConsumption:roof.monthlyConsumptionKwh || Array(12).fill(0),
+        yearConsumption:(roof.monthlyConsumptionKwh || []).reduce((a:number,b:number)=>a+b,0),
+        totalConsumption:(roof.monthlyConsumptionKwh || []).reduce((a:number,b:number)=>a+b,0)/12,
+        valle:(roof.monthlyConsumptionKwh || []).reduce((a:number,b:number)=>a+b,0)/72,
+        llano:(roof.monthlyConsumptionKwh || []).reduce((a:number,b:number)=>a+b,0)/36,
+        punta:(roof.monthlyConsumptionKwh || []).reduce((a:number,b:number)=>a+b,0)/24,
+        ...roof.calculatorValues,
+        consumptionSource:roof.consumptionSource, consumptionLabel:roof.consumptionLabel,consumptionCupsId:roof.consumptionCupsId,
+        solarSavedCommunityId:id,solarSavedReference:roof.roofReference,selfConsumption:{}
+      }));
+      this.updateCommunityChart();
+    } catch { await Swal.fire('Error', 'No s’han pogut carregar les àrees desades.', 'error'); }
   }
 
   deleteArea(index: number) {
@@ -1037,9 +1143,14 @@ export class CalculateComponent implements OnInit, AfterViewInit {
         denyButton: 'px-4 py-2'
       }
     })
-      .then((result) => {
+      .then(async (result) => {
         if (result.isConfirmed) {
-          this.map.deleteArea(this.addedAreas[index])
+          const removedArea = this.addedAreas[index];
+          if (removedArea.solarSavedCommunityId && removedArea.energyAreaId) {
+            try { await this.energyAreasService.removeSelection(removedArea.solarSavedCommunityId, removedArea.energyAreaId); }
+            catch { await Swal.fire('Error', 'No s’ha pogut eliminar la selecció desada.', 'error'); return; }
+          }
+          this.map.deleteArea(removedArea)
           this.addedAreas.splice(index, 1);
           this.resetCadastre();
           this.updateCommunityChart();
@@ -1069,85 +1180,35 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   }
 
   calculateSurplus() {
-    //reset the value:
-    this.selectedCadastre.monthsSurplus = [];
-
-    //insert the new values
-    //generation - consumption = surplus
-    this.selectedCadastre.monthsGeneration?.map((generation, index) => {
-      let consumption: number = this.selectedCadastre.monthsConsumption![index]
-      let surplus: number[] = []
-      if (generation > consumption) {
-        let surplus = generation - consumption;
-        this.selectedCadastre.monthsSurplus!.push(surplus)
-      } else {
-        this.selectedCadastre.monthsSurplus!.push(0)
-      }
-    })
+    const balance = calculateEnergyBalance(this.selectedCadastre.monthsGeneration || Array(12).fill(0), this.selectedCadastre.monthsConsumption || Array(12).fill(0));
+    this.selectedCadastre.energyBalance = balance;
+    this.selectedCadastre.monthsSurplus = balance.months.map(month => month.export);
+    this.selectedCadastre.monthsSelfConsumption = balance.months.map(month => month.selfConsumption);
+    this.selectedCadastre.monthsImport = balance.months.map(month => month.import);
+    this.selectedCadastre.monthsExport = balance.months.map(month => month.export);
   }
 
   /** Obtains the price of average month
    *  calculates the excedent energy price, the consumption saving price and the years to amortize the investment.
    */
   calculateMonthlySavings() {
-
-    let monthAverageGeneration: number = this.selectedCadastre.yearGeneration! / 12;
-    let oldMonthAverageConsumption: number = this.selectedCadastre.yearConsumption! / 12;
-    //this will be the consumption without production
-    let monthAverageConsumption: number = oldMonthAverageConsumption;
-    let monthlyConsumedProduction: number = 0;
-    let monthlyCosts = this.selectedCadastre.monthlyConsumptionCost; //monthAverageConsumption * this.selectedCadastre.llanoPrice;
-    let communityMonthlyCosts: number;
-
-    //if surplus:
-
-    if (monthAverageGeneration > monthAverageConsumption) {
-      //surplus is the generation minus consumption, if generation is greater than consumption
-      let monthAverageSurplus: number = monthAverageGeneration - monthAverageConsumption;
-      //monthlyConsumedProduction is the production directly used by the customer
-      monthlyConsumedProduction = monthAverageGeneration - monthAverageSurplus;
-
-      //surplusMonthlyProfits is the price of excedent from generation that is sold to the company or to community
-      //if it's sold to the community
-      this.selectedCadastre.surplusMonthlyProfits = monthAverageSurplus * this.selectedCommunity.energy_price!;
-
-      // if it's sold to the company
-      this.selectedCadastre.selfConsumption.surplusMonthlyProfits = monthAverageSurplus * this.selectedCadastre.generationPrice!;
-
-      monthAverageConsumption = 0;  //the generation convalidates consumption
-
-    } else {
-      //monthlyConsumedProduction is the production directly used by the customer
-      monthlyConsumedProduction = monthAverageGeneration;
-      //update consuption considering generation:
-      monthAverageConsumption = monthAverageConsumption - monthAverageGeneration;
-      this.selectedCadastre.surplusMonthlyProfits = 0;
-    }
-
-    //in community, the energy to consume is bought to the community, with the price of the community
-    communityMonthlyCosts = monthAverageConsumption * this.selectedCommunity.energy_price //this.selectedCadastre.generationPrice!;
-    //monthlySavings is the price of energy that you stop using from the company when you have generation
-    this.selectedCadastre.monthlySavings = monthlyCosts! - communityMonthlyCosts //monthlyConsumedProduction * this.selectedCadastre.generationPrice!;
-
-    //self consumption
-    this.selectedCadastre.selfConsumption.communityMonthlyCosts = (monthAverageConsumption / oldMonthAverageConsumption) * this.selectedCadastre.monthlyConsumptionCost!;
-    this.selectedCadastre.selfConsumption.monthlySavings = monthlyCosts! - this.selectedCadastre.selfConsumption.communityMonthlyCosts;
-
-    this.selectedCadastre.monthlySavings! += this.selectedCadastre.surplusMonthlyProfits!;
-
-    if (this.selectedCadastre.monthlySavings! > monthlyCosts!) {
-      this.selectedCadastre.selfConsumption.monthlySavings = monthlyCosts!;
-    }
-
-    this.selectedCadastre.monthlySavings = parseFloat(this.selectedCadastre.monthlySavings!.toFixed(2))
-    this.selectedCadastre.selfConsumption.monthlySavings = parseFloat(this.selectedCadastre.selfConsumption.monthlySavings!.toFixed(2))
-
-    //the redeem years are the profits earned month by month:
-    this.selectedCadastre.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.monthlySavings!)));
-    this.selectedCadastre.selfConsumption.redeemYears = Math.ceil(this.selectedCadastre.totalCost! / (12 * (this.selectedCadastre.selfConsumption.monthlySavings!)));
+    const balance = this.selectedCadastre.energyBalance || calculateEnergyBalance(
+      this.selectedCadastre.monthsGeneration || Array(12).fill(0), this.selectedCadastre.monthsConsumption || Array(12).fill(0));
+    const importedPrice = this.selectedCadastre.totalConsumption > 0
+      ? (this.selectedCadastre.valle * this.selectedCadastre.vallePrice + this.selectedCadastre.llano * this.selectedCadastre.llanoPrice + this.selectedCadastre.punta * this.selectedCadastre.puntaPrice) / this.selectedCadastre.totalConsumption : 0;
+    const communityPrice = Number(this.selectedCommunity?.energy_price || 0);
+    const exportPrice = Number(this.selectedCadastre.generationPrice || 0);
+    const avoidedCost = balance.annual.selfConsumption * importedPrice;
+    const communityCompensation = balance.annual.export * communityPrice;
+    const individualCompensation = balance.annual.export * exportPrice;
+    this.selectedCadastre.surplusMonthlyProfits = Number((communityCompensation / 12).toFixed(2));
+    this.selectedCadastre.selfConsumption.surplusMonthlyProfits = Number((individualCompensation / 12).toFixed(2));
+    this.selectedCadastre.monthlySavings = Number(((avoidedCost + communityCompensation) / 12).toFixed(2));
+    this.selectedCadastre.selfConsumption.monthlySavings = Number(((avoidedCost + individualCompensation) / 12).toFixed(2));
+    this.selectedCadastre.selfConsumption.communityMonthlyCosts = Number((balance.annual.import * communityPrice / 12).toFixed(2));
+    this.selectedCadastre.redeemYears = this.selectedCadastre.monthlySavings > 0 ? Math.ceil(this.selectedCadastre.totalCost! / (12 * this.selectedCadastre.monthlySavings)) : undefined;
+    this.selectedCadastre.selfConsumption.redeemYears = this.selectedCadastre.selfConsumption.monthlySavings > 0 ? Math.ceil(this.selectedCadastre.totalCost! / (12 * this.selectedCadastre.selfConsumption.monthlySavings)) : undefined;
     this.selectedCadastre.yearlySavings = Number((this.selectedCadastre.monthlySavings * 12).toFixed(2));
-
-    //console.log(this.selectedCadastre)
 
   }
 
@@ -1159,14 +1220,52 @@ export class CalculateComponent implements OnInit, AfterViewInit {
     const modalRef = this.modalService.open(CalculateInfoModalComponent, {size: 'xl', scrollable: true});
   }
 
+  simulateSelectedRoof() {
+    const house = this.selectedCadastre;
+    if (house.solarBusy) return;
+    if (!this.solarConfigurationReady(house)) {
+      house.solarError = 'Espera que es recalculin les dades de la coberta abans de simular.';
+      return;
+    }
+    house.solarResult = undefined;
+    house.solarError = '';
+    const input = { latitude: house.solarLatitude!, longitude: house.solarLongitude!,
+      kwp: house.InsalledPower!, tilt: house.solarTilt!, azimuth: house.solarAzimuth!,
+      areaM2: house.m2!, panelCount: house.n_plaques! };
+    if (Object.values(input).some(v => typeof v !== 'number' || !Number.isFinite(v)) || input.kwp <= 0) {
+      house.solarError = 'Selecciona una coberta i indica la potència fotovoltaica en kWp.';
+      return;
+    }
+    house.solarBusy = true;
+    this.energyAreasService.simulateRoof(input).subscribe({
+      next: (response: any) => {
+        house.solarBusy = false;
+        if (response.success && Array.isArray(response.data?.daily)) house.solarResult = response.data;
+        else house.solarError = 'No s’ha pogut completar la simulació. Torna-ho a provar.';
+      },
+      error: () => {
+        house.solarBusy = false;
+        house.solarError = 'No s’ha pogut obtenir la radiació o completar la previsió. Torna-ho a provar.';
+      },
+    });
+  }
+
   async calculateSolarParams() {
+    const house = this.selectedCadastre;
+    const snapshot = { latitude: house.solarLatitude!, longitude: house.solarLongitude!,
+      m2: house.m2!, inclination: house.inclination!, orientation: house.orientation! };
 
     return new Promise((resolve, reject) => {
       //console.log("this.selectedCadastre.m2!,this.selectedOrientation,this.selectedInclination",
       // this.selectedCadastre.m2!, this.selectedCadastre.orientation, this.selectedCadastre.inclination)
       let n_plaques;
-      this.energyAreasService.simulate(this.selectedCoords.lat, this.selectedCoords.lng, this.selectedCadastre.m2!, this.selectedCadastre.orientation!, this.selectedCadastre.inclination!, n_plaques!)
+      this.energyAreasService.simulate(snapshot.latitude, snapshot.longitude, snapshot.m2, snapshot.orientation, snapshot.inclination, n_plaques!, house.energyAreaId)
         .subscribe((res: any) => {
+          if (this.selectedCadastre !== house || house.m2 !== snapshot.m2 ||
+              house.inclination !== snapshot.inclination || house.orientation !== snapshot.orientation) {
+            reject('La configuració ha canviat durant el càlcul.');
+            return;
+          }
           if (!res.success) {
             reject(res.message);
           } else {
@@ -1179,6 +1278,12 @@ export class CalculateComponent implements OnInit, AfterViewInit {
             const prodByMonth = data.prodByMonth
             const totalCost = data.totalCost
 
+            this.selectedCadastre.energyAreaId = data.energyAreaId;
+            this.selectedCadastre.solarLatitude = data.latitude;
+            this.selectedCadastre.solarLongitude = data.longitude;
+            this.selectedCadastre.solarTilt = data.tilt;
+            this.selectedCadastre.solarAzimuth = data.azimuth;
+            this.selectedCadastre.solarResult = undefined;
             this.selectedCadastre.InsalledPower = kWp;
             this.selectedCadastre.n_plaques = numberPanels;
             this.selectedCadastre.totalCost = totalCost.toFixed(2);
@@ -1204,11 +1309,11 @@ export class CalculateComponent implements OnInit, AfterViewInit {
   }
 
   async simulateGeneration() {
-    this.updateCadastreConsumptionM2();
     await this.simulateGenerationConsumption();
   }
 
   async simulateGenerationConsumption() {
+    await this.loadConsumption();
 
     if (
       this.selectedCadastre.oldM2 !== this.selectedCadastre.m2 ||

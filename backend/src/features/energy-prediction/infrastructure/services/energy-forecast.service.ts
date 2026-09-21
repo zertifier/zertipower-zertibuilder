@@ -1,195 +1,142 @@
-import {Injectable} from '@nestjs/common';
-import axios from "axios";
-import {EnvironmentService} from "../../../../shared/infrastructure/services";
-import {InfrastructureError} from "../../../../shared/domain/error/common";
-import * as https from "node:https";
+import { Injectable } from '@nestjs/common';
+import axios from 'axios';
+import * as https from 'node:https';
+import * as moment from 'moment-timezone';
+import { BadRequestError, InfrastructureError } from '../../../../shared/domain/error/common';
 
-const VAR_CODES = {
-  WEATHER_FORECAST_SOLAR_RAD: 'WEATHER_FORECAST_SOLAR_RAD',
-  WEATHER_SOLAR_RAD: 'WEATHER_SOLAR_RAD'
+export interface SolarInstallation {
+  latitud: number;
+  longitud: number;
+  kwp: number;
+  potencia_inversor_kw: number;
+  graus: number;
+  performance_ratio: number;
+  orientacio?: string;
+  azimut?: number;
 }
 
-export enum Granularity {
-  RAW = 0,
-  FIVE_MINUTES = 1,
-  QUARTERHOURLY = 2,
-  HOURLY = 3,
-  DAILY = 4,
-  MONTHLY = 5,
-}
-
-const SKIP_LOGIN_INTERCEPTOR = "X-Skip-Login-Interceptor";
+// Local wall-clock timestamps from the API, kept for the existing chart contract.
+export interface SolarForecastPoint { time: string; value: number; }
 
 @Injectable()
 export class EnergyForecastService {
   private httpClient = axios.create({
-    baseURL: this.environment.getEnv().RADIATION_API,
-    httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+    timeout: 30000,
+    httpsAgent: new https.Agent({
+      rejectUnauthorized: process.env.SOLAR_API_ALLOW_INSECURE_TLS !== 'true',
+    }),
   });
-  private projectId = '';
-  private plantId = '';
-  private solarRadiationForecastVarId = '';
-  private solarRadiationVarId = '';
-  private token = '';
-  private user = this.environment.getEnv().RADIATION_API_CREDENTIALS.split(":")[0];
-  private password = this.environment.getEnv().RADIATION_API_CREDENTIALS.split(":")[1];
 
-  constructor(private environment: EnvironmentService) {
-    this.httpClient.interceptors.request.use(async (config) => {
-      if (config.headers.has(SKIP_LOGIN_INTERCEPTOR)) {
-        config.headers.delete(SKIP_LOGIN_INTERCEPTOR);
-        return config;
-      }
-
-      if (!this.token) {
-        await this.login();
-      }
-      config.headers.set('Authorization', `Bearer ${this.token}`);
-      return config;
-    });
-    this.httpClient.interceptors.response.use(async (res) => {
-      if (res.status === 401) {
-        this.token = '';
-        await this.login();
-        return res;
-      }
-
-      if (res.status >= 400) {
-        throw new InfrastructureError(JSON.stringify(res.data));
-      }
-
-      return res;
-    });
+  getInstallation(
+    cups: { id: number; lat: number | null; lng: number | null },
+    community?: { lat: number | null; lng: number | null },
+    areaConfiguration: Partial<SolarInstallation> = {},
+  ): SolarInstallation {
+    let configurations: Record<string, Partial<SolarInstallation>>;
+    try {
+      configurations = JSON.parse(process.env.SOLAR_INSTALLATIONS_JSON || '{}');
+    } catch {
+      throw new BadRequestError('SOLAR_INSTALLATIONS_JSON must be valid JSON');
+    }
+    const override = configurations?.[String(cups.id)] ?? {};
+    if (typeof override !== 'object' || Array.isArray(override)) throw new BadRequestError('Invalid solar installation override');
+    const configured = { ...areaConfiguration, ...override };
+    if (typeof configured !== 'object' || Array.isArray(configured)) {
+      throw new BadRequestError(`Invalid solar installation configuration for CUPS ID ${cups.id}`);
+    }
+    // Coordinates must come from the same source, never latitude from one site and longitude from another.
+    const hasConfiguredCoordinates = configured.latitud !== undefined || configured.longitud !== undefined;
+    if (hasConfiguredCoordinates && (configured.latitud == null || configured.longitud == null)) {
+      throw new BadRequestError(`Configure both latitude and longitude for CUPS ID ${cups.id}`);
+    }
+    const coordinates = hasConfiguredCoordinates
+      ? { latitud: configured.latitud, longitud: configured.longitud }
+      : cups.lat != null && cups.lng != null
+        ? { latitud: cups.lat, longitud: cups.lng }
+        : community?.lat != null && community?.lng != null
+          ? { latitud: community.lat, longitud: community.lng }
+          : { latitud: 42.1833, longitud: 2.4833 };
+    // Temporary defaults requested for local testing; override per CUPS with real specifications.
+    const installation = {
+      kwp: 7.22,
+      potencia_inversor_kw: 6,
+      graus: 30,
+      performance_ratio: 0.8,
+      ...(configured.azimut === undefined ? { orientacio: 'sud-oest' } : {}),
+      ...configured,
+      ...coordinates,
+    } as SolarInstallation;
+    const validNumber = (value: unknown, min: number, max: number) =>
+      typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
+    if (!validNumber(installation.latitud, -90, 90) ||
+        !validNumber(installation.longitud, -180, 180) ||
+        !validNumber(installation.kwp, Number.MIN_VALUE, Infinity) ||
+        !validNumber(installation.potencia_inversor_kw, Number.MIN_VALUE, Infinity) ||
+        !validNumber(installation.performance_ratio, Number.MIN_VALUE, 1) ||
+        !validNumber(installation.graus, 0, 90) ||
+        (installation.orientacio !== undefined) === (installation.azimut !== undefined) ||
+        (installation.orientacio !== undefined &&
+          !['nord', 'nord-est', 'est', 'sud-est', 'sud', 'sud-oest', 'oest', 'nord-oest'].includes(installation.orientacio)) ||
+        (installation.azimut !== undefined && !validNumber(installation.azimut, -180, 180))) {
+      throw new BadRequestError(`Invalid solar installation configuration for CUPS ID ${cups.id}`);
+    }
+    return installation;
   }
 
-  public async login() {
-    const headers = new axios.AxiosHeaders().set(SKIP_LOGIN_INTERCEPTOR, "")
-    const response = await this.httpClient.post<{
-      token: string,
-      projectList: {
-        id: string,
-        name: string,
-        plantsList: {
-          id: string,
-          name: string,
-          identifier: string,
-          timeZone: string
-        }[]
-      }[]
-    }>('/wthirdparty/v1/auth/login', {
-      User: this.user,
-      Password: this.password
-    }, {
-      headers
-    });
-    this.token = response.data.token;
-
-    const project = response.data.projectList[0];
-    if (!project) {
-      this.token = '';
-      throw new InfrastructureError('Cannot login to wattabit');
+  async getProductionForecast(
+    installation: SolarInstallation,
+    startDate = moment.tz('Europe/Madrid').format('YYYY-MM-DD'),
+    endDate = moment.tz(startDate, 'Europe/Madrid').add(6, 'days').format('YYYY-MM-DD'),
+    tariffs = { preu_punta_eur_kwh: 0.18, preu_pla_eur_kwh: 0.12, preu_vall_eur_kwh: 0.08 },
+  ): Promise<SolarForecastPoint[]> {
+    const authcode = process.env.SOLAR_API_AUTH_CODE;
+    if (!authcode) throw new BadRequestError('SOLAR_API_AUTH_CODE is not configured');
+    let payload: any;
+    try {
+      const response = await this.httpClient.get(
+        process.env.SOLAR_API_URL || 'https://ai.megatro.cat:9999/previsio',
+        {
+          headers: { authcode },
+          params: {
+            ...installation,
+            // The deployed API requires tariff inputs even for a production-only query.
+            ...tariffs,
+            data_inici: startDate,
+            data_final: endDate,
+          },
+        },
+      );
+      payload = response.data;
+    } catch {
+      // Do not log Axios errors: request configuration contains the auth header.
+      throw new InfrastructureError('Solar forecast API request failed');
     }
-    this.projectId = project.id;
-
-    const plant = project.plantsList[0];
-    if (!plant) {
-      this.token = '';
-      throw new InfrastructureError('Cannot login to wattabit')
-    }
-    this.plantId = plant.id;
-
-    const varsResponse = await this.httpClient.post<{
-      supplyName: string,
-      name: string,
-      units: string,
-      code: string,
-      id: string,
-      projectVarId: string
-    }[]>('/wthirdparty/v1/data/GetMonitoringVarsByPlant', {
-      ProjectId: this.projectId,
-      PlantId: this.plantId
-    });
-
-    const solarRadVarData = varsResponse.data.find(r => VAR_CODES.WEATHER_SOLAR_RAD === r.code);
-    if (!solarRadVarData) {
-      this.token = '';
-      throw new InfrastructureError('Cannot get WEATHER_SOLAR_RAD var monitoring info');
-    }
-    this.solarRadiationVarId = solarRadVarData.id;
-
-    const solarRadForecastVarData = varsResponse.data.find(r => VAR_CODES.WEATHER_FORECAST_SOLAR_RAD === r.code);
-    if (!solarRadForecastVarData) {
-      this.token = '';
-      throw new InfrastructureError('Cannot get WEATHER_FORECAST_SOLAR_RAD var monitoring info');
-    }
-    this.solarRadiationForecastVarId = solarRadForecastVarData.id;
-  }
-
-  private async requestData(paramsFactory: () => {
-    varId: string,
-    projectId: string,
-    plantId: string,
-    granularity: number,
-    start: Date,
-    end: Date
-  }): Promise<{ value: number, time: string }[]> {
-    if (!this.token) {
-      await this.login();
-    }
-
-    const params = paramsFactory();
-
-    const response = await this.httpClient.post<{
-      plantId: string,
-      values: {
-        value: number,
-        time: string
-      }[]
-    }[]>("/wthirdparty/v1/data/MonitoringDataByPlant", {
-      ProjectId: params.projectId,
-      PlantId: params.plantId,
-      Granularity: params.granularity,
-      Start: params.start.toISOString(),
-      End: params.end.toISOString(),
-      ParameterId: params.varId,
-    });
-
-    const plantData = response.data[0];
-
-    return plantData.values;
-  }
-
-  public async getRadiationForecast(from: Date, to: Date): Promise<{ value: number, time: Date }[]> {
-    const response = await this.requestData(() => ({
-      start: from,
-      end: to,
-      granularity: Granularity.HOURLY,
-      varId: this.solarRadiationForecastVarId,
-      plantId: this.plantId,
-      projectId: this.projectId
-    }));
-    return response.map(v => {
-      return {
-        value: v.value,
-        time: new Date(v.time)
+    if (!Array.isArray(payload?.dies)) throw new InfrastructureError('Invalid solar forecast response');
+    const points: SolarForecastPoint[] = [];
+    const days = new Set<string>();
+    for (const day of payload.dies) {
+      if (typeof day.data !== 'string' || day.data < startDate || day.data > endDate ||
+          days.has(day.data) || !Array.isArray(day.hores) || day.hores.length === 0) {
+        throw new InfrastructureError('Invalid solar forecast day');
       }
-    });
-  }
-
-  public async getRadiation(from: Date, to: Date): Promise<{ value: number, time: Date }[]> {
-    const response = await this.requestData(() => ({
-      start: from,
-      end: to,
-      granularity: Granularity.HOURLY,
-      varId: this.solarRadiationVarId,
-      plantId: this.plantId,
-      projectId: this.projectId
-    }));
-    return response.map(v => {
-      return {
-        value: v.value,
-        time: new Date(v.time)
+      days.add(day.data);
+      for (const hour of day.hores) {
+        const time = hour.data_hora;
+        const value = hour.previsio_solar_kwh;
+        if (typeof time !== 'string' || !time.startsWith(day.data + 'T') ||
+            !moment(time, moment.ISO_8601, true).isValid() ||
+            typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+          throw new InfrastructureError('Invalid solar forecast hour');
+        }
+        // The API already returns energy in kWh: no irradiance conversion or second predictor.
+        points.push({ time, value });
       }
-    });
+    }
+    for (const date = moment(startDate); date.format('YYYY-MM-DD') <= endDate; date.add(1, 'day')) {
+      if (!days.has(date.format('YYYY-MM-DD'))) {
+        throw new InfrastructureError('Solar forecast does not cover the requested dates');
+      }
+    }
+    return points.sort((a, b) => a.time.localeCompare(b.time));
   }
 }

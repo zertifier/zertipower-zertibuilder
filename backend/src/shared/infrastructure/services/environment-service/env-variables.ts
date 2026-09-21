@@ -28,4 +28,11 @@ export interface EnvVariables {
   STRIPE_PRICE_KEY:string;
   STRIPE_PRODUCT_ID:string;
   STRIPE_SECRET_KEY:string;
+  OPEN_METEO_API_URL:string;
+  OPEN_METEO_API_KEY:string;
+  SOLAR_INSTALLATIONS_JSON:string;
+  SOLAR_API_URL:string;
+  SOLAR_API_AUTH_CODE:string;
+  SOLAR_API_ALLOW_INSECURE_TLS:string;
+  MONTOLIVET_COMMUNITY_ID:string;
 }

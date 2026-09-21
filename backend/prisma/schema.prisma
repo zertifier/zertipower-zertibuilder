@@ -298,6 +298,7 @@ model EnergyHourly {
   updatedAt            DateTime? @map("updated_at") @db.DateTime(0)
 
   @@map("energy_hourly")
+  @@index([cupsId, infoDt], map: "energy_hourly_cups_info_dt")
 }
 
 model EnergyRealtime {

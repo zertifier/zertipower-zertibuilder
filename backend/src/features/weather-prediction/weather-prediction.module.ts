@@ -4,6 +4,7 @@ import { WeatherPredictionController } from './infrastructure/controllers/weathe
 
 @Module({
   providers: [WeatherPredictionService],
-  controllers: [WeatherPredictionController]
+  controllers: [WeatherPredictionController],
+  exports: [WeatherPredictionService]
 })
 export class WeatherPredictionModule {}

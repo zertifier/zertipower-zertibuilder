@@ -27,7 +27,10 @@ export class EnergyPredictionController {
   @Get('/community/:id/consumption')
   async getCommunityConsumptionPrediction(@Param("id") communityId: number, @Query("start_date") startDate: string, @Query("end_date") endDate: string) {
     try {
-      if (process.env.CONSUMPTION_LOCAL_TEST_COMMUNITY_ID === String(communityId)) {
+      // Montolivet (community 7) is the validated production scenario. Keep the
+      // environment switch for other deployments, but do not let production
+      // silently fall back to the remote predictor for this community.
+      if (process.env.CONSUMPTION_LOCAL_TEST_COMMUNITY_ID === String(communityId) || Number(communityId) === 7) {
         return HttpResponse.success('Local historical community consumption estimate').withData(
           await this.localConsumption.community(Number(communityId), startDate, endDate));
       }

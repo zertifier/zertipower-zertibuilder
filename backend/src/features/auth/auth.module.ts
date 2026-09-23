@@ -1,3 +1,6 @@
+import { RecoveryController } from "./credential-recovery/recovery.controller";
+import { MysqlRecoveryStore } from "./credential-recovery/recovery-store";
+import { ZertiauthVerifier } from "./credential-recovery/zertiauth-verifier";
 import { Module } from "@nestjs/common";
 import { AccessTokenGuard } from "./infrastructure/guards/access-token-guard/access-token-guard";
 import { AuthController } from "./infrastructure/controllers/auth/auth.controller";
@@ -19,8 +22,8 @@ import { AuthRepositoriesModule } from "./infrastructure/repositories/auth-repos
     AuthServicesModule,
     AuthRepositoriesModule,
   ],
-  providers: [AccessTokenGuard],
-  controllers: [AuthController, PermissionsController, OauthController],
+  providers: [AccessTokenGuard, MysqlRecoveryStore, ZertiauthVerifier],
+  controllers: [AuthController, PermissionsController, OauthController, RecoveryController],
   exports: [AccessTokenGuard],
 })
 export class AuthModule {}

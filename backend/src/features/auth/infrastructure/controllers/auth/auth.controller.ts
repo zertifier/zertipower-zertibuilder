@@ -71,6 +71,13 @@ import { BadRequestError, InvalidArgumentError, UnexpectedError } from "src/shar
 import { MissingParameters } from "src/shared/domain/error/common/MissingParameters";
 import { UsersNotificationsCategoriesController } from "src/features/notifications/controllers/users-notifications-categories.controller";
 import { UsersNotificationsController } from "src/features/notifications/controllers/users-notifications.controller";
+// Recovery fallback for accounts whose credential was derived under a
+// Zertiauth master that has since changed. Imported with the same relative
+// style as the rest of this file (the previous "@features/..." alias is not
+// resolved by the production Docker build, which is why it was disabled).
+import { RecoveryFlow, Proof } from "../../../credential-recovery/recovery-flow";
+import { ZertiauthVerifier } from "../../../credential-recovery/zertiauth-verifier";
+import { MysqlRecoveryStore } from "../../../credential-recovery/recovery-store";
 
 const signCodesRepository: { [walletAddress: string]: string } = {};
 const RESOURCE_NAME = "auth";
@@ -95,7 +102,9 @@ export class AuthController {
     private logger: WinstonLogger,
     private environment: EnvironmentService,
     private generateUserTokensAction: GenerateUserTokensAction,
-    private mysql: MysqlService
+    private mysql: MysqlService,
+    private zertiauthVerifier: ZertiauthVerifier,
+    private recoveryStore: MysqlRecoveryStore
   ) {
 
     this.conn = this.mysql.pool;
@@ -183,7 +192,7 @@ export class AuthController {
   @Post("web-wallet-login")
   async webWalletLogin(@Body() body: any) {
 
-    const { wallet_address, private_key, email } = body;
+    const { wallet_address, private_key, email, code, codeVerifier } = body;
 
     if (!wallet_address || !private_key || !email) {
       throw new MissingParameters("Error logging in: missing parameters");
@@ -191,87 +200,225 @@ export class AuthController {
 
     const getUserQuery = `SELECT * FROM users WHERE wallet_address = ?`;
 
-    let dbUser;
-    let user: User;
+    let dbUser: any = null;
+    let passwordMatch = false;
 
     try {
       const [ROWS]: any = await this.conn.query(getUserQuery, [wallet_address]);
-      dbUser = ROWS[0];
+      dbUser = ROWS[0] || null;
 
-      if (!dbUser) {
-        throw new UserNotFoundError();
-      }
-
-
-      // Two password types are supported while the migration to the reversible
-      // (decryptable) scheme is in progress, needed for transaction balancing:
-      //   1. bcrypt hash  -> written by web-wallet-register (PasswordUtils.encrypt)
-      //   2. AES payload  -> written by the migration (PasswordUtils.encryptData)
-      // Both checks fail closed: any malformed or missing stored value leaves
-      // passwordMatch as false and the login is rejected.
-      let passwordMatch = false;
-
-      try {
-        passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
-      } catch (e) {
-        // Stored value is not a valid bcrypt hash; try the AES format below.
-        passwordMatch = false;
-      }
-
-      if (!passwordMatch) {
+      if (dbUser) {
+        // Two password types are supported while the migration to the reversible
+        // (decryptable) scheme is in progress, needed for transaction balancing:
+        //   1. bcrypt hash  -> written by web-wallet-register (PasswordUtils.encrypt)
+        //   2. AES payload  -> written by the migration (PasswordUtils.encryptData)
+        // Both checks fail closed: any malformed or missing stored value leaves
+        // passwordMatch as false and the login is rejected.
         try {
-          const decodedPK = PasswordUtils.decryptData(
-            dbUser.password,
-            process.env.JWT_SECRET!
-          );
-          passwordMatch = !!decodedPK && decodedPK === private_key;
+          passwordMatch = await PasswordUtils.match(dbUser.password, private_key);
         } catch (e) {
+          // Stored value is not a valid bcrypt hash; try the AES format below.
           passwordMatch = false;
         }
-      }
 
-      if (!passwordMatch) {
-        throw new PasswordNotMatchError();
-      }
+        if (!passwordMatch) {
+          try {
+            const decodedPK = PasswordUtils.decryptData(
+              dbUser.password,
+              process.env.JWT_SECRET!
+            );
+            passwordMatch = !!decodedPK && decodedPK === private_key;
+          } catch (e) {
+            passwordMatch = false;
+          }
+        }
 
+        // Self-healing fallback for old accounts whose stored password hash
+        // is stale (neither bcrypt nor AES match above) but whose wallet
+        // address hasn't changed. A wallet address is deterministically
+        // derivable from its private key, so if the submitted private_key
+        // derives the SAME address already stored on this account, that is
+        // cryptographic proof of ownership on its own -- nobody can forge
+        // it without holding the real private key. Unlike the code/codeVerifier
+        // recovery flow below (for a genuine identity/address CHANGE, which
+        // needs operator approval), this only recognizes an owner whose
+        // identity never changed, so it's safe to apply automatically:
+        // regenerate the hash and let the login through, permanently fixing
+        // the account for all future logins without any manual DB step.
+        let selfHealed = false;
+        if (!passwordMatch) {
+          try {
+            const derivedAddress = new ethers.Wallet(private_key).address;
+            if (
+              derivedAddress.toLowerCase() ===
+              String(dbUser.wallet_address).toLowerCase()
+            ) {
+              passwordMatch = true;
+              selfHealed = true;
+            }
+          } catch (e) {
+            // private_key isn't a syntactically valid key at all; leave
+            // passwordMatch false and fall through to the normal rejection.
+          }
+        }
+
+        if (selfHealed) {
+          try {
+            const freshHash = await PasswordUtils.encrypt(private_key);
+            await this.conn.query(`UPDATE users SET password = ? WHERE id = ?`, [
+              freshHash,
+              dbUser.id,
+            ]);
+            dbUser.password = freshHash;
+            console.log(
+              `Auto-healed stale credential for user id ${dbUser.id} (wallet ${dbUser.wallet_address})`
+            );
+          } catch (e) {
+            // Ownership was already proven above; don't block the login if
+            // persisting the new hash fails, just log it so it can be
+            // revisited (the account will simply retry the heal next login).
+            console.log(
+              "Auto-heal: failed to persist regenerated hash for user",
+              dbUser.id,
+              e
+            );
+          }
+        }
+      }
     } catch (e) {
       console.log("error web wallet login get", e);
-      throw new UserNotFoundError();
+      dbUser = null;
+      passwordMatch = false;
     }
 
-    try {
+    if (dbUser && passwordMatch) {
+      try {
+        let fetchedUsers = await this.userRepository.find(
+          new ByWalletAddress(wallet_address)
+        );
+        const user = fetchedUsers[0];
 
-      let fetchedUsers = await this.userRepository.find(
-        new ByWalletAddress(wallet_address)
-      );
-      user = fetchedUsers[0];
+        const { signedRefreshToken, signedAccessToken } =
+          await this.generateUserTokensAction.run(user);
 
-      console.log({user});
+        const responseData: LoggedInDTO = new LoggedInDTO(
+          signedAccessToken,
+          signedRefreshToken
+        );
 
-      const { signedRefreshToken, signedAccessToken } =
-        await this.generateUserTokensAction.run(user);
+        return HttpResponse.success("Logged in successfully").withData(
+          responseData
+        );
 
-      console.log({ signedRefreshToken, signedAccessToken });
-
-      const responseData: LoggedInDTO = new LoggedInDTO(
-        signedAccessToken,
-        signedRefreshToken
-      );
-
-      console.log({responseData});
-
-      return HttpResponse.success("Logged in successfully").withData(
-        responseData
-      );
-
-    } catch (e) {
-      console.log("Error logging in:", e)
-      throw new UnexpectedError(e);
+      } catch (e) {
+        console.log("Error logging in:", e)
+        throw new UnexpectedError(e);
+      }
     }
 
+    // The stored credential did not match. This is the expected, permanent
+    // state for accounts whose credential was derived under a Zertiauth
+    // master that has since changed (old accounts) — it is not a typo/retry
+    // situation. Fall back to the reviewed credential-recovery flow ONLY when
+    // the caller also presents a fresh OAuth proof (code + codeVerifier).
+    // wallet_address/private_key/email above are NEVER used as recovery proof:
+    // RecoveryFlow re-derives identity itself, server-side, straight from
+    // Zertiauth, and only succeeds if an operator already authorized this
+    // exact new identity for this exact account (see credential-recovery/).
+    if (code && codeVerifier) {
+      try {
+        const recoveryFlow = new RecoveryFlow(this.zertiauthVerifier, this.recoveryStore);
+        const proof: Proof = { code, codeVerifier };
+        const recoveryResult = await recoveryFlow.run('login', proof);
+
+        const fetchedUsers = await this.userRepository.find(
+          new ByUserIdCriteria(recoveryResult.userId)
+        );
+        const recoveredUser = fetchedUsers[0];
+        if (!recoveredUser) {
+          throw new UserNotFoundError("User not found after recovery");
+        }
+
+        const { signedRefreshToken, signedAccessToken } =
+          await this.generateUserTokensAction.run(recoveredUser);
+
+        const responseData: LoggedInDTO = new LoggedInDTO(
+          signedAccessToken,
+          signedRefreshToken
+        );
+
+        return HttpResponse.success("Logged in successfully via recovery").withData(
+          responseData
+        );
+      } catch (recoveryError) {
+        // Never propagate the recovery error's internal reason (it may hint at
+        // account existence or binding state): normal login and recovery both
+        // failed, so this looks like any other bad-credentials response.
+        console.log("Recovery login failed:", recoveryError instanceof Error ? recoveryError.message : recoveryError);
+        throw new PasswordNotMatchError();
+      }
+    }
+
+    throw new PasswordNotMatchError();
   }
 
+  // Explicit alias for callers that prefer a dedicated, self-documenting
+  // recovery-aware URL instead of relying on the automatic fallback above.
+  // Behaves identically to POST /auth/web-wallet-login.
+  @Post("web-wallet-login-with-recovery")
+  async webWalletLoginWithRecovery(@Body() body: any) {
+    return this.webWalletLogin(body);
+  }
 
+  // --- Compatibility routes for the ris3cat-smart-meter frontend --------
+  // That app (comptador.zertipower.com) was built against a separate,
+  // external API (api-smart-meter-ris3cat.zertifier.com) that uses
+  // "/auth/users/..." paths and camelCase body/response fields, instead of
+  // this backend's "/auth/web-wallet-login" and snake_case convention. That
+  // external service is failing (500) for old accounts and its source isn't
+  // available to fix directly, so these routes let the smart-meter frontend
+  // be repointed at THIS backend instead, once that's approved: same login
+  // logic (bcrypt/AES fallback + credential-recovery), just a different
+  // path shape and camelCase in/out to match what that frontend already
+  // sends and expects (see ris3cat-smart-meter's AuthApiService).
+  //
+  // NOT added: "/auth/users/sign-code" (a signature-challenge endpoint for
+  // an unimplemented MetaMask login button in that app — unused by the
+  // real Google/Zertiauth login flow, so left out until it's actually needed).
+
+  @Post("users/w3-login")
+  async webWalletLoginSmartMeter(
+    @Body() body: { walletAddress: string; privateKey: string; email: string; code?: string; codeVerifier?: string }
+  ) {
+    const { walletAddress, privateKey, email, code, codeVerifier } = body;
+
+    if (!walletAddress || !privateKey || !email) {
+      throw new MissingParameters("Error logging in: missing parameters");
+    }
+
+    // Delegates to the same, already-verified logic as /auth/web-wallet-login
+    // (bcrypt/AES password match, then credential-recovery fallback).
+    const result = await this.webWalletLogin({
+      wallet_address: walletAddress,
+      private_key: privateKey,
+      email,
+      code,
+      codeVerifier,
+    });
+
+    // result.data is a LoggedInDTO (access_token/refresh_token). Re-shape to
+    // the camelCase the smart-meter frontend's AuthApiService expects.
+    const tokenData: any = result.data ?? {};
+    return HttpResponse.success(result.message).withData({
+      accessToken: tokenData.access_token ?? tokenData.accessToken,
+      refreshToken: tokenData.refresh_token ?? tokenData.refreshToken,
+    });
+  }
+
+  @Delete("users/logout")
+  async logoutSmartMeter(@Body() body: TokenDTO): Promise<HttpResponse> {
+    return this.logout(body);
+  }
 
   /**
    * A traditional login with user and password
